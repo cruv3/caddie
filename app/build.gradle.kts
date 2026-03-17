@@ -48,6 +48,8 @@ dependencies {
 
     // Lokal LLM
     implementation(libs.genai.prompt)
+    //
+    implementation(libs.okhttp)
     // Coroutine
     implementation(libs.kotlinx.coroutines.android)
 }

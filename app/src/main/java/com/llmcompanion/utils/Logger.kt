@@ -17,4 +17,8 @@ object Logger {
     fun i(obj: Any, message: String) {
         Log.i(PREFIX + obj::class.java.simpleName, message)
     }
+
+    fun w(obj: Any, message: String) {
+        Log.w(PREFIX + obj::class.java.simpleName, message)
+    }
 }

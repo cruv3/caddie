@@ -7,68 +7,74 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.llmcompanion.overlay.AvatarService
 import com.llmcompanion.accessibility.AccessibilityService
-import com.llmcompanion.logic.LocalLlmHandler
+import com.llmcompanion.config.AppConfig
+import com.llmcompanion.logic.AgentManager
+import android.provider.Settings
+import com.llmcompanion.logic.NpuLLMHandler
+import com.llmcompanion.logic.OpenAILLMHandler
+import com.llmcompanion.logic.RemoteNetworkLLMHandler
+import com.llmcompanion.models.LlmBackend
 import com.llmcompanion.utils.Logger
 import com.llmcompanion.utils.Permissions
 import kotlinx.coroutines.launch
 
+
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var llmHandler: LocalLlmHandler
-    private var isTestRunning = false
+    private val activeBackend = LlmBackend.REMOTE_PC
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         Logger.d(this, "MainActivity wurde erstellt. UI ist geladen.")
 
-        // Init LLM
-        llmHandler = LocalLlmHandler(this)
-        initLlmInbackground()
+        AgentManager.activeLlm  = when (AppConfig.ACTIVE_BACKEND) {
+            LlmBackend.NPU -> NpuLLMHandler()
+            LlmBackend.OPENAI -> OpenAILLMHandler()
+            LlmBackend.REMOTE_PC -> RemoteNetworkLLMHandler()
+        }
+
+        initLlmBackground()
     }
 
     override fun onResume() {
         super.onResume()
         Logger.d(this, "onResume aufgerufen. Prüfe Berechtigungen...")
-        checkAllPermissions()
+        checkPermissions()
     }
 
-    private fun initLlmInbackground() {
+    private fun initLlmBackground() {
         lifecycleScope.launch {
-            Logger.d(this@MainActivity, "Starte LLM-Initialisierung im Hintergrund...")
-            Toast.makeText(this@MainActivity, "Lade KI-Modell...", Toast.LENGTH_SHORT).show()
+            Logger.d(this@MainActivity, "Starte LLM-Initialisierung im Hintergrund ($activeBackend)...")
+            Toast.makeText(this@MainActivity, "Lade $activeBackend...", Toast.LENGTH_SHORT).show()
 
-            val success = llmHandler.initialize()
+            if (AgentManager.activeLlm == null) {
+                Logger.e(this@MainActivity, "Kritischer Fehler: AgentManager hat kein aktives LLM! Initialisierung abgebrochen.")
+                return@launch
+            }
+
+            val success = AgentManager.activeLlm!!.initialize()
 
             if (success) {
-                Logger.d(this@MainActivity, "Gemini Nano ist im Hintergrund erfolgreich hochgefahren und bereit!")
+                Logger.d(this@MainActivity, "KI-Modell ($activeBackend) erfolgreich hochgefahren und bereit!")
+                Toast.makeText(this@MainActivity, "KI ist bereit!", Toast.LENGTH_SHORT).show()
             } else {
-                Logger.e(this@MainActivity, "Fehler beim Laden des KI-Modells.")
+                Logger.e(this@MainActivity, "Fehler beim Laden des KI-Modells ($activeBackend).")
                 Toast.makeText(this@MainActivity, "KI konnte nicht geladen werden.", Toast.LENGTH_LONG).show()
             }
         }
     }
 
-    private fun checkAllPermissions() {
-        // 1. Check Overlay Permission
-        if (!Permissions.hasOverlayPermission(this)) {
-            Logger.i(this, "Overlay-Berechtigung fehlt. Schicke Nutzer in die Einstellungen.")
-            Toast.makeText(this, "Bitte erlaube 'Über anderen Apps einblenden'", Toast.LENGTH_LONG).show()
-            Permissions.requestOverlayPermission(this)
-            return
-        }
-
-        // 2. Check Accessibility Permission
+    private fun checkPermissions() {
         if (!Permissions.hasAccessibilityPermission(this, AccessibilityService::class.java)) {
             Logger.i(this, "Accessibility-Berechtigung fehlt. Schicke Nutzer in die Einstellungen.")
-            Toast.makeText(this, "Bitte aktiviere den LLM Companion in den Barrierefreiheitseinstellungen", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Bitte aktiviere den LLM Companion", Toast.LENGTH_LONG).show()
             Permissions.requestAccessibilityPermission(this)
             return
         }
 
-        Logger.d(this, "Alle Berechtigungen sind vorhanden!")
-        Toast.makeText(this, "Alle Berechtigungen erteilt. Bereit für die Studie!", Toast.LENGTH_SHORT).show()
-        // Start Avatar
-        startService(Intent(this, AvatarService::class.java))
+        Logger.d(this, "Accessibility erteilt. App wird in den Hintergrund verschoben.")
+
+        moveTaskToBack(true)
     }
 }
