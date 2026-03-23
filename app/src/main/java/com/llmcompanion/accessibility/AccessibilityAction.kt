@@ -28,9 +28,20 @@ object AccessibilityAction {
         return AgentCapability.entries.joinToString("\n") { "- \"${it.name}\": ${it.description}" }
     }
 
-    fun executeCommand(service: AccessibilityService, rootNode: AccessibilityNodeInfo, jsonResponse: String): String {
+    fun executeCommand(service: AccessibilityService, rootNode: AccessibilityNodeInfo, rawResponse: String): String {
+        if (rawResponse.isBlank()) {
+            return "ERROR: Die KI hat eine leere Antwort gesendet. Bitte antworte im JSON-Format."
+        }
+
+        val jsonString = rawResponse.trim()
+            .removePrefix("```json")
+            .removePrefix("```")
+            .removeSuffix("```")
+            .trim()
+
+
         return try {
-            val json = JSONObject(jsonResponse)
+            val json = JSONObject(jsonString)
             val actionStr = json.optString("action", "").uppercase()
             val targetClass = json.optString("target_class", "")
             val targetText = json.optString("target_text", "")

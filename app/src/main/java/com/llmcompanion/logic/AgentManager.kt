@@ -3,6 +3,7 @@ package com.llmcompanion.logic
 import android.accessibilityservice.AccessibilityService
 import com.llmcompanion.accessibility.AccessibilityAction
 import com.llmcompanion.accessibility.AccessibilityNodeHelper
+import com.llmcompanion.accessibility.AccessibilityNodeHelper.getParsedUiTreeWithStats
 import com.llmcompanion.utils.Logger
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
@@ -69,6 +70,7 @@ object AgentManager {
                     val rootNode = service.rootInActiveWindow ?: continue
                     val uiTree = AccessibilityNodeHelper.parseUiTree(rootNode)
                     //Logger.d(this@AgentManager, "AKTUELLER UI-TREE:\n$uiTree")
+                    getParsedUiTreeWithStats(rootNode, uiTree)
                     val answer = llm.askModel(uiTree, task, lastActionResult)
 
                     if (!isRunning) break

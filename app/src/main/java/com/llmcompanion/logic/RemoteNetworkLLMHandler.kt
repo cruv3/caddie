@@ -46,7 +46,8 @@ class RemoteNetworkLLMHandler : BaseLLMHandler() {
 
         val options = JSONObject().apply {
             put("num_ctx", AppConfig.NUM_CTX)
-            put("temperature", 0.2)
+            put("temperature", AppConfig.TEMPERATURE)
+            put("num_predict", AppConfig.MAX_TOKENS)
         }
 
         val jsonBody = JSONObject().apply {
@@ -71,15 +72,20 @@ class RemoteNetworkLLMHandler : BaseLLMHandler() {
             val assistantMessage = jsonResponse.getJSONObject("message")
             val answer = assistantMessage.getString("content")
 
-            // Damit weiß die KI im nächsten Loop, was sie gerade getan hat.
             chatHistory.add(JSONObject().apply {
                 put("role", "assistant")
                 put("content", answer)
             })
 
-            if (chatHistory.size > 15) {
-                chatHistory.removeAt(1) // Entfernt den ältesten Screen (Index 0 ist System)
-                chatHistory.removeAt(1) // Entfernt die dazugehörige Antwort
+            if (chatHistory.size > 10) {
+                for (i in 1 until chatHistory.size - 2) {
+                    val msg = chatHistory[i]
+                    if (msg.getString("role") == "user") {
+                        msg.put("content", "[Vorheriger Screen-Inhalt entfernt, um Platz zu sparen]")
+                    }
+                }
+                chatHistory.removeAt(1) // Alter User-Platzhalter
+                chatHistory.removeAt(1) // Alte Assistant-Antwort
             }
 
             answer

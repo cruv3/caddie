@@ -1,6 +1,7 @@
 package com.llmcompanion.accessibility
 
 import android.graphics.Rect
+import android.util.Log
 import android.view.accessibility.AccessibilityNodeInfo
 import com.llmcompanion.utils.Logger
 
@@ -53,7 +54,62 @@ object AccessibilityNodeHelper {
                 builder.append(parseUiTree(it, depth + 1))
             }
         }
+        Log.d(this.toString(), builder.toString())
         return builder.toString()
+    }
+
+    private fun calculateFullRawSize(node: AccessibilityNodeInfo?): Int {
+        if (node == null) return 0
+
+        val sb = StringBuilder()
+        sb.append(node.className)
+        sb.append(node.packageName)
+        sb.append(node.text)
+        sb.append(node.contentDescription)
+        sb.append(node.viewIdResourceName)
+        sb.append(node.isCheckable)
+        sb.append(node.isChecked)
+        sb.append(node.isClickable)
+        sb.append(node.isEnabled)
+        sb.append(node.isFocusable)
+        sb.append(node.isFocused)
+        sb.append(node.isScrollable)
+        sb.append(node.isLongClickable)
+        sb.append(node.isPassword)
+        sb.append(node.isSelected)
+
+        var totalLength = sb.length
+        for (i in 0 until node.childCount) {
+            val child = node.getChild(i)
+            totalLength += calculateFullRawSize(child)
+        }
+
+        return totalLength
+    }
+
+    fun getParsedUiTreeWithStats(rootNode: AccessibilityNodeInfo?, uiTree: String): String {
+        val realRawSize = calculateFullRawSize(rootNode)
+        val prunedSize = uiTree.length
+
+        val savingPercent = if (realRawSize > 0) {
+            (1.0 - (prunedSize.toDouble() / realRawSize.toDouble())) * 100
+        } else 0.0
+
+        Logger.i(this, "📊 UI-TREE STATS | Roh: $realRawSize Chars | Pruned: $prunedSize Chars | Ersparnis: ${String.format("%.2f", savingPercent)}%")
+
+        return uiTree
+    }
+
+    /**
+     * Hilfsfunktion: Zählt rekursiv jeden einzelnen Knoten im Baum.
+     */
+    private fun countAllNodes(node: AccessibilityNodeInfo?): Int {
+        if (node == null) return 0
+        var count = 1
+        for (i in 0 until node.childCount) {
+            count += countAllNodes(node.getChild(i))
+        }
+        return count
     }
 
     /**
