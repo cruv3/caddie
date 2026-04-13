@@ -2,54 +2,54 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:gravity="top">
+    android:orientation="vertical"
+    android:padding="8dp"
+    android:background="@android:color/transparent">
 
     <ImageView
         android:id="@+id/avatarIcon"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:src="@android:drawable/ic_menu_help"
-        android:background="@android:drawable/btn_default"
-        android:elevation="4dp"
-        android:padding="10dp"/>
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:src="@mipmap/ic_launcher"
+        android:contentDescription="Avatar" />
 
     <LinearLayout
         android:id="@+id/inputContainer"
-        android:layout_width="250dp"
+        android:layout_width="220dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:orientation="vertical"
-        android:background="#DDFFFFFF"
         android:padding="8dp"
-        android:visibility="gone"
-        android:elevation="4dp"
-        android:layout_marginStart="8dp">
+        android:background="@android:color/white"
+        android:visibility="gone">
 
         <EditText
             android:id="@+id/etAgentTask"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Was soll ich tun?"
-            android:inputType="textMultiLine"
-            android:minLines="2"
-            android:textColor="#000000"
-            android:backgroundTint="#888888"/>
+            android:hint="Aufgabe eingeben" />
 
         <Button
             android:id="@+id/btnStartTask"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="LOS"
-            android:textSize="14sp"
-            android:layout_marginTop="4dp"/>
+            android:text="Start" />
 
         <Button
             android:id="@+id/btnStopTask"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Agent Stoppen"
-            android:backgroundTint="@android:color/holo_red_dark" />
-
+            android:text="Stop" />
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/tvAgentStatus"
+        android:layout_width="220dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:padding="10dp"
+        android:background="@android:color/white"
+        android:text="Agent bereit."
+        android:textColor="@android:color/black"
+        android:textSize="14sp" />
 </LinearLayout>

@@ -53,3 +53,37 @@ dependencies {
     // Coroutine
     implementation(libs.kotlinx.coroutines.android)
 }
+
+tasks.register("deployAndLaunch") {
+    group = "development"
+    description = "Builds, installs, enables accessibility, and launches the app."
+
+    dependsOn("installDebug")
+
+    doLast {
+        println("Executing ADB configuration...")
+
+        try {
+            val adbCommand = arrayOf(
+                "adb", "shell",
+                "appops set com.llmcompanion ACCESS_RESTRICTED_SETTINGS allow; " +
+                        "settings put secure enabled_accessibility_services com.llmcompanion/com.llmcompanion.service.CompanionAccessibilityService; " +
+                        "settings put secure accessibility_enabled 1; " +
+                        "am start -n com.llmcompanion/.MainActivity"
+            )
+
+            val process = ProcessBuilder(*adbCommand)
+                .redirectErrorStream(true)
+                .start()
+
+            process.inputStream.bufferedReader().use { reader ->
+                reader.lines().forEach { println(it) }
+            }
+
+            val exitCode = process.waitFor()
+            println("ADB command finished with exit code: $exitCode")
+        } catch (e: Exception) {
+            println("Failed to execute ADB commands: ${e.message}")
+        }
+    }
+}

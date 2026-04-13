@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">LLM-Smartphone-Companion</string>
+    <string name="accessibility_service_description">Allows the LLM Companion AI agent to read the screen and perform actions on your behalf.</string>
 </resources>

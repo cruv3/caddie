@@ -1,15 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="24dp">
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="32dp">
 
+    <!-- Status indicator dot -->
+    <View
+        android:id="@+id/statusDot"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:background="@drawable/circle_red"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Connected / not connected text -->
     <TextView
+        android:id="@+id/statusText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="LLM Companion - Dienst läuft im Hintergrund"
+        android:text="Accessibility Service not connected"
+        android:textColor="#CC0000"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/statusHint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tap the button below to enable it"
         android:textColor="#888888"
+        android:textSize="13sp"
+        android:gravity="center"
+        android:layout_marginBottom="24dp" />
+
+    <!-- Only visible when not connected -->
+    <Button
+        android:id="@+id/btnOpenSettings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Open Accessibility Settings"
         android:textSize="14sp" />
 
-</FrameLayout>
+</LinearLayout>

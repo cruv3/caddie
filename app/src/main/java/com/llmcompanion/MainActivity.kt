@@ -2,79 +2,58 @@ package com.llmcompanion
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
+import android.provider.Settings
+import android.view.View
+import android.widget.Button
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.llmcompanion.overlay.AvatarService
-import com.llmcompanion.accessibility.AccessibilityService
-import com.llmcompanion.config.AppConfig
-import com.llmcompanion.logic.AgentManager
-import android.provider.Settings
-import com.llmcompanion.logic.NpuLLMHandler
-import com.llmcompanion.logic.OpenAILLMHandler
-import com.llmcompanion.logic.RemoteNetworkLLMHandler
-import com.llmcompanion.models.LlmBackend
-import com.llmcompanion.utils.Logger
-import com.llmcompanion.utils.Permissions
+import com.llmcompanion.service.CompanionAccessibilityService
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-
+/**
+ * Minimal status screen.
+ *
+ * Shows a green dot + "Service connected" when the AccessibilityService is active.
+ * Shows a red dot + button to open Accessibility Settings when it is not.
+ *
+ * Nothing else — all logic lives in the service.
+ */
 class MainActivity : AppCompatActivity() {
-
-    private val activeBackend = LlmBackend.REMOTE_PC
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        Logger.d(this, "MainActivity wurde erstellt. UI ist geladen.")
 
-        AgentManager.activeLlm  = when (AppConfig.ACTIVE_BACKEND) {
-            LlmBackend.NPU -> NpuLLMHandler()
-            LlmBackend.OPENAI -> OpenAILLMHandler()
-            LlmBackend.REMOTE_PC -> RemoteNetworkLLMHandler()
+        val dot        = findViewById<View>(R.id.statusDot)
+        val statusText = findViewById<TextView>(R.id.statusText)
+        val statusHint = findViewById<TextView>(R.id.statusHint)
+        val btnSettings = findViewById<Button>(R.id.btnOpenSettings)
+
+        // Open Accessibility Settings so the user can enable the service
+        btnSettings.setOnClickListener {
+            startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
         }
 
-        initLlmBackground()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        Logger.d(this, "onResume aufgerufen. Prüfe Berechtigungen...")
-        checkPermissions()
-    }
-
-    private fun initLlmBackground() {
+        // Observe the service connection state — updates the UI immediately when
+        // the user enables/disables the service without restarting the activity.
         lifecycleScope.launch {
-            Logger.d(this@MainActivity, "Starte LLM-Initialisierung im Hintergrund ($activeBackend)...")
-            Toast.makeText(this@MainActivity, "Lade $activeBackend...", Toast.LENGTH_SHORT).show()
-
-            if (AgentManager.activeLlm == null) {
-                Logger.e(this@MainActivity, "Kritischer Fehler: AgentManager hat kein aktives LLM! Initialisierung abgebrochen.")
-                return@launch
-            }
-
-            val success = AgentManager.activeLlm!!.initialize()
-
-            if (success) {
-                Logger.d(this@MainActivity, "KI-Modell ($activeBackend) erfolgreich hochgefahren und bereit!")
-                Toast.makeText(this@MainActivity, "KI ist bereit!", Toast.LENGTH_SHORT).show()
-            } else {
-                Logger.e(this@MainActivity, "Fehler beim Laden des KI-Modells ($activeBackend).")
-                Toast.makeText(this@MainActivity, "KI konnte nicht geladen werden.", Toast.LENGTH_LONG).show()
+            CompanionAccessibilityService.isConnected.collectLatest { connected ->
+                if (connected) {
+                    dot.setBackgroundResource(R.drawable.circle_green)
+                    statusText.text = "Service connected"
+                    statusText.setTextColor(0xFF00AA44.toInt())
+                    statusHint.text = "AccessibilityService is active and ready"
+                    btnSettings.visibility = View.GONE
+                } else {
+                    dot.setBackgroundResource(R.drawable.circle_red)
+                    statusText.text = "Accessibility Service not connected"
+                    statusText.setTextColor(0xFFCC0000.toInt())
+                    statusHint.text = "Tap the button below to enable it"
+                    btnSettings.visibility = View.VISIBLE
+                }
             }
         }
-    }
-
-    private fun checkPermissions() {
-        if (!Permissions.hasAccessibilityPermission(this, AccessibilityService::class.java)) {
-            Logger.i(this, "Accessibility-Berechtigung fehlt. Schicke Nutzer in die Einstellungen.")
-            Toast.makeText(this, "Bitte aktiviere den LLM Companion", Toast.LENGTH_LONG).show()
-            Permissions.requestAccessibilityPermission(this)
-            return
-        }
-
-        Logger.d(this, "Accessibility erteilt. App wird in den Hintergrund verschoben.")
-
-        moveTaskToBack(true)
     }
 }
