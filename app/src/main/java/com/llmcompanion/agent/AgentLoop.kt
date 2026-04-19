@@ -130,8 +130,8 @@ class AgentLoop(private val config: AgentConfig = AgentConfig.current) {
                 history        = history,
                 lastResult     = lastResultMsg,
                 perceptionMode = config.perceptionMode,
+                indexedNodes   = indexedNodes,
             )
-            // TODO(SoM-phase5): pass indexedNodes to buildMessages
 
             val llmStart = System.currentTimeMillis()
             var chatResult = try {
