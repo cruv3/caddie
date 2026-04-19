@@ -41,7 +41,7 @@ class AgentLoop(private val config: AgentConfig = AgentConfig.current) {
 
     private val ollama = OllamaClient(config)
 
-    // ── Live status exposed to UI ─────────────────────────────────────────────────────────────
+    // ── Live status exposed to UI ────────────────────────────────────────────────────────────────────────────────────
 
     data class LoopState(
         val running: Boolean        = false,
@@ -54,7 +54,7 @@ class AgentLoop(private val config: AgentConfig = AgentConfig.current) {
     private val _state = MutableStateFlow(LoopState())
     val state: StateFlow<LoopState> = _state.asStateFlow()
 
-    // ── Per-step result (used by DebugReceiver for logging) ───────────────────────────────────
+    // ── Per-step result (used by DebugReceiver for logging) ─────────────────────────────────────────────────────────
 
     data class StepResult(
         val step: Int,
@@ -64,7 +64,7 @@ class AgentLoop(private val config: AgentConfig = AgentConfig.current) {
         val result: ActionResult,
     )
 
-    // ── Main entry point ──────────────────────────────────────────────────────────────────────────────────────────────
+    // ── Main entry point ──────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
     /**
      * Run the agent on [task] until Done, Fail, or [AgentConfig.maxSteps] is reached.
@@ -91,7 +91,7 @@ class AgentLoop(private val config: AgentConfig = AgentConfig.current) {
         var prevNodeCount: Int = -1
 
         for (step in 1..config.maxSteps) {
-            // ── 1. OBSERVE ───────────────────────────────────────────────────────────────────────────────────────────
+            // ── 1. OBSERVE ────────────────────────────────────────────────────────────────────────────────────────────────────────
             val snapshot = run {
                 var snap = svc.captureSnapshot()
                 var retries = 0
@@ -121,7 +121,7 @@ class AgentLoop(private val config: AgentConfig = AgentConfig.current) {
             )
             logStep(step, snapshot)
 
-            // ── 2. THINK ─────────────────────────────────────────────────────────────────────────────────────────────
+            // ── 2. THINK ──────────────────────────────────────────────────────────────────────────────────────────────────────
             AvatarOverlayService.showThinking()
             val messages = PromptBuilder.buildMessages(
                 task           = task,
@@ -163,7 +163,7 @@ class AgentLoop(private val config: AgentConfig = AgentConfig.current) {
                 lastAction = actionLabel(action),
             )
 
-            // ── 3. ACT ───────────────────────────────────────────────────────────────────────────────────────────────
+            // ── 3. ACT ────────────────────────────────────────────────────────────────────────────────────────────────────────
             AvatarOverlayService.showAction(overlayLabel(action))
             val result = when (action) {
                 is AgentAction.Done -> {
@@ -213,7 +213,7 @@ class AgentLoop(private val config: AgentConfig = AgentConfig.current) {
         return finishWith(ActionResult.failure("Reached max steps (${config.maxSteps}) without completing task"))
     }
 
-    // ── JSONL Logging ────────────────────────────────────────────────────────────────────────────────────────────────
+    // ── JSONL Logging ────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
     private fun openJsonlFile(svc: CompanionAccessibilityService): File? {
         return try {
@@ -253,7 +253,7 @@ class AgentLoop(private val config: AgentConfig = AgentConfig.current) {
         }
     }
 
-    // ── Logging ───────────────────────────────────────────────────────────────────────────────────────────────────────
+    // ── Logging ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
     private fun logHeader(task: String) {
         Log.i(TAG, "")
@@ -268,7 +268,7 @@ class AgentLoop(private val config: AgentConfig = AgentConfig.current) {
     }
 
     private fun logStep(step: Int, snapshot: UiSnapshot) {
-        Log.i(TAG, "──────────── Step $step ────────────")
+        Log.i(TAG, "────────────────────── Step $step ──────────────────────")
         Log.i(TAG, "  Screen: ${snapshot.packageName}  nodes=${snapshot.nodeCount}")
     }
 
