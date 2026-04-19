@@ -155,8 +155,7 @@ class AgentLoop(private val config: AgentConfig = AgentConfig.current) {
             val rawResponse = chatResult.content
             Log.i(TAG, "  LLM → $rawResponse")
 
-            val action = ActionParser.parse(rawResponse)
-            // TODO(SoM-phase6): pass indexedNodes to ActionParser.parse
+            val action = ActionParser.parse(rawResponse, indexedNodes)
             Log.i(TAG, "  Action: $action")
 
             _state.value = _state.value.copy(
