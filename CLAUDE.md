@@ -12,6 +12,7 @@ created: 2026-05-03
 - **Stack**: Kotlin (Android) + Python (MCP server)
 - **Status**: active, **thesis not yet registered** — scope/questions may shift after supervisor talks
 - **Successor relationship**: replaces an earlier V1 (no longer worked on)
+- **GitHub**: https://github.com/cruv3/LLM-Smartphone-Companion (URL kept from V1; main branch was force-pushed with V2 content on 2026-05-03 — V1 history orphaned)
 
 ## Vault stub
 

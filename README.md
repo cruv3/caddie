@@ -6,6 +6,8 @@
 
 Active development. **Thesis not yet officially registered** — scope and research questions may evolve after further discussion with supervisor.
 
+GitHub: https://github.com/cruv3/LLM-Smartphone-Companion
+
 ## Layout
 
 - `app/` — Android (Kotlin) UI + Accessibility Service
