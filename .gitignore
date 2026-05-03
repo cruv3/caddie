@@ -1,0 +1,30 @@
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+.venv/
+mcp-server/.venv/
+mcp-server/screenshots/
+__pycache__/
+*.pyc
+
+# Kotlin daemon cache
+.kotlin/
+
+# Android Studio
+.idea/
+*.iws
+
+# Claude local
+.claude/settings.local.json

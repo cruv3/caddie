@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./.venv/Scripts/python.exe -c ' *)",
+      "Bash(./.venv/Scripts/python.exe -m unittest discover -s tests -v)",
+      "Bash(./.venv/Scripts/python.exe -m unittest discover -s tests)",
+      "WebSearch",
+      "WebFetch(domain:lmstudio.ai)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:www.jan.ai)",
+      "Bash(PYTHONIOENCODING=utf-8 ./.venv/Scripts/python.exe -c \"from llmsmartphone.agent.prompt import build_mcp_instructions; print\\(build_mcp_instructions\\(\\)\\)\")",
+      "Bash(./gradlew.bat :app:testDebugUnitTest --tests \"com.llm_smartphone_v2.phone.ScreenNodeSerializerTest\")"
+    ]
+  }
+}
