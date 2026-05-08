@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  Event subscription is intentionally minimal because onAccessibilityEvent
+  is empty — we never handle events. Subscribing to typeAllMask flooded
+  the service during Settings interactions and seemed to correlate with
+  the system aggressively rebinding the AS, which tore down our overlay
+  window each cycle. typeWindowStateChanged + typeWindowContentChanged
+  is enough to keep getRootInActiveWindow fresh for the agent's screen
+  reads. notificationTimeout=500 is also less aggressive than 100ms.
+-->
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
-    android:accessibilityEventTypes="typeAllMask"
+    android:accessibilityEventTypes="typeWindowStateChanged|typeWindowContentChanged"
     android:accessibilityFeedbackType="feedbackGeneric"
     android:accessibilityFlags="flagReportViewIds|flagRetrieveInteractiveWindows"
     android:canPerformGestures="true"
     android:canRetrieveWindowContent="true"
     android:canTakeScreenshot="true"
     android:description="@string/accessibility_service_description"
-    android:notificationTimeout="100" />
+    android:notificationTimeout="500" />

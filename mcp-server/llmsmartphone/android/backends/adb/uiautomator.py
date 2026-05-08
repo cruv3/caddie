@@ -5,13 +5,22 @@ from pathlib import Path
 from typing import Any
 
 
-def parse_uiautomator_xml(xml_text: str, *, max_elements: int) -> list[dict[str, Any]]:
+def parse_uiautomator_xml(xml_text: str | None, *, max_elements: int) -> list[dict[str, Any]]:
+    # Defensive: callers feed us the stdout of `adb exec-out cat …` which has
+    # been observed to be None or empty in transient ADB failures (typically
+    # right after an Activity transition). Treat that as "no elements" rather
+    # than crashing the whole tool call.
+    if not xml_text:
+        return []
+
     with tempfile.NamedTemporaryFile("w", encoding="utf-8", delete=False) as tmp:
         tmp.write(xml_text)
         tmp_path = tmp.name
 
     try:
         tree = ET.parse(tmp_path)
+    except ET.ParseError:
+        return []
     finally:
         Path(tmp_path).unlink(missing_ok=True)
 

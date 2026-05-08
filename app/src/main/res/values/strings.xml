@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">LLM-Smartphone_V2</string>
     <string name="accessibility_service_description">Allows the local LLM smartphone bridge to read the screen and perform touch actions.</string>
+    <string name="wakeword_service_title">Jarvis hört zu</string>
+    <string name="overlay_service_title">LLM Companion aktiv</string>
 </resources>

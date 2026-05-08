@@ -7,12 +7,16 @@ import com.llm_smartphone_v2.agent.TaskRequest;
 import com.llm_smartphone_v2.phone.PhoneController;
 import com.llm_smartphone_v2.util.JsonUtil;
 
-public class PhoneControlAccessibilityService extends AccessibilityService {
-    private static volatile PhoneControlAccessibilityService instance;
+public class CompanionAccessibilityService extends AccessibilityService {
+    private static volatile CompanionAccessibilityService instance;
     private PhoneController controller;
 
     public static boolean isConnected() {
         return instance != null;
+    }
+
+    public static CompanionAccessibilityService getInstance() {
+        return instance;
     }
 
     public static String currentScreenJson() {
@@ -75,8 +79,23 @@ public class PhoneControlAccessibilityService extends AccessibilityService {
 
     @Override
     protected void onServiceConnected() {
+        android.util.Log.i("CompanionA11y", "onServiceConnected (instance=" + System.identityHashCode(this) + ")");
         controller = new PhoneController(this);
         instance = this;
+        CompanionServiceLauncher.startAll(this);
+        // We used to also call OverlayService.notifyAccessibilityConnected(this)
+        // here so the overlay could re-mount as TYPE_ACCESSIBILITY_OVERLAY (the
+        // accessibility-overlay window type that survives Settings's
+        // setHideOverlayWindows(true)). That coupling backfired badly on
+        // Android 14+: the AS rebinds aggressively whenever the user enters
+        // Settings sub-screens, and each rebind would tear our overlay window
+        // down and rebuild it, producing a visible pop-in/pop-out flicker.
+        // The overlay now lives independently as a plain
+        // TYPE_APPLICATION_OVERLAY and is invisible only inside Settings —
+        // a smaller cosmetic gap, no flicker, much simpler code.
+        if (AccessibilityReturnFlag.consume(this)) {
+            CompanionServiceLauncher.bringMainActivityForward(this);
+        }
     }
 
     @Override
@@ -84,11 +103,19 @@ public class PhoneControlAccessibilityService extends AccessibilityService {
     }
 
     @Override
+    public boolean onUnbind(android.content.Intent intent) {
+        android.util.Log.w("CompanionA11y", "onUnbind (instance=" + System.identityHashCode(this) + ")");
+        return super.onUnbind(intent);
+    }
+
+    @Override
     public void onInterrupt() {
+        android.util.Log.w("CompanionA11y", "onInterrupt (instance=" + System.identityHashCode(this) + ")");
     }
 
     @Override
     public void onDestroy() {
+        android.util.Log.w("CompanionA11y", "onDestroy (instance=" + System.identityHashCode(this) + ")");
         if (instance == this) {
             instance = null;
         }
@@ -96,7 +123,7 @@ public class PhoneControlAccessibilityService extends AccessibilityService {
     }
 
     private static PhoneController controllerOrNull() {
-        PhoneControlAccessibilityService service = instance;
+        CompanionAccessibilityService service = instance;
         return service == null ? null : service.controller;
     }
 }

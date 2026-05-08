@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 import os
 from pathlib import Path
 
+from llmsmartphone.agent.event_bus import EVENT_BUS, EventBus
 from llmsmartphone.android.adb import AdbBridge
 from llmsmartphone.android.backends.http import HttpBridge
 from llmsmartphone.config import (
@@ -20,6 +21,7 @@ class ServerContext:
     backend: object = field(init=False)
     skills: SkillLibrary = field(init=False)
     read_skill_ids: set[str] = field(default_factory=set)
+    events: EventBus = field(default_factory=lambda: EVENT_BUS)
 
     def __post_init__(self) -> None:
         self.skills = SkillLibrary.load(self.project_dir / "skills")

@@ -2,7 +2,7 @@ package com.llm_smartphone_v2.bridge;
 
 import android.accessibilityservice.AccessibilityService;
 
-import com.llm_smartphone_v2.accessibility.PhoneControlAccessibilityService;
+import com.llm_smartphone_v2.accessibility.CompanionAccessibilityService;
 import com.llm_smartphone_v2.agent.TaskRequestParser;
 import com.llm_smartphone_v2.util.JsonUtil;
 
@@ -11,40 +11,40 @@ public class PhoneBridgeRouter {
         String body = request.body();
         if (request.startsWith("GET /health ")) {
             return HttpResponse.json("{\"ok\":true,\"accessibilityConnected\":"
-                    + PhoneControlAccessibilityService.isConnected() + "}");
+                    + CompanionAccessibilityService.isConnected() + "}");
         }
         if (request.startsWith("GET /screen ")) {
-            return HttpResponse.json(PhoneControlAccessibilityService.currentScreenJson());
+            return HttpResponse.json(CompanionAccessibilityService.currentScreenJson());
         }
         if (request.startsWith("GET /screenshot ")) {
             try {
-                return HttpResponse.png(PhoneControlAccessibilityService.takeScreenshotPng());
+                return HttpResponse.png(CompanionAccessibilityService.takeScreenshotPng());
             } catch (Exception exception) {
                 return HttpResponse.json("{\"ok\":false,\"error\":\"screenshot_failed\",\"detail\":\""
                         + JsonUtil.escape(exception.toString()) + "\"}");
             }
         }
         if (request.startsWith("GET /apps ")) {
-            return HttpResponse.json(PhoneControlAccessibilityService.listApps());
+            return HttpResponse.json(CompanionAccessibilityService.listApps());
         }
         if (request.startsWith("POST /task ")) {
-            return HttpResponse.json(PhoneControlAccessibilityService.executeTask(TaskRequestParser.parse(body)));
+            return HttpResponse.json(CompanionAccessibilityService.executeTask(TaskRequestParser.parse(body)));
         }
         if (request.startsWith("POST /tap ")) {
-            return HttpResponse.json(PhoneControlAccessibilityService.tap(
+            return HttpResponse.json(CompanionAccessibilityService.tap(
                     JsonBody.intValue(body, "x"),
                     JsonBody.intValue(body, "y")
             ));
         }
         if (request.startsWith("POST /long_press ")) {
-            return HttpResponse.json(PhoneControlAccessibilityService.longPress(
+            return HttpResponse.json(CompanionAccessibilityService.longPress(
                     JsonBody.intValue(body, "x"),
                     JsonBody.intValue(body, "y"),
                     JsonBody.intValue(body, "durationMs", 700)
             ));
         }
         if (request.startsWith("POST /swipe ")) {
-            return HttpResponse.json(PhoneControlAccessibilityService.swipe(
+            return HttpResponse.json(CompanionAccessibilityService.swipe(
                     JsonBody.intValue(body, "startX"),
                     JsonBody.intValue(body, "startY"),
                     JsonBody.intValue(body, "endX"),
@@ -53,28 +53,28 @@ public class PhoneBridgeRouter {
             ));
         }
         if (request.startsWith("POST /type_text ")) {
-            return HttpResponse.json(PhoneControlAccessibilityService.typeText(
+            return HttpResponse.json(CompanionAccessibilityService.typeText(
                     JsonBody.stringValue(body, "text"),
                     JsonBody.booleanValue(body, "submit")
             ));
         }
         if (request.startsWith("POST /open_app ")) {
-            return HttpResponse.json(PhoneControlAccessibilityService.openApp(
+            return HttpResponse.json(CompanionAccessibilityService.openApp(
                     JsonBody.stringValue(body, "packageName")
             ));
         }
         if (request.startsWith("POST /open_url ")) {
-            return HttpResponse.json(PhoneControlAccessibilityService.openUrl(
+            return HttpResponse.json(CompanionAccessibilityService.openUrl(
                     JsonBody.stringValue(body, "url")
             ));
         }
         if (request.startsWith("POST /back ")) {
-            return HttpResponse.json(PhoneControlAccessibilityService.globalAction(
+            return HttpResponse.json(CompanionAccessibilityService.globalAction(
                     AccessibilityService.GLOBAL_ACTION_BACK
             ));
         }
         if (request.startsWith("POST /home ")) {
-            return HttpResponse.json(PhoneControlAccessibilityService.globalAction(
+            return HttpResponse.json(CompanionAccessibilityService.globalAction(
                     AccessibilityService.GLOBAL_ACTION_HOME
             ));
         }

@@ -40,11 +40,17 @@ class AdbClient:
         except subprocess.TimeoutExpired as exc:
             raise AdbError(f"ADB command timed out: {' '.join(command)}") from exc
 
+        # Defensive: subprocess.run is documented to return strings when
+        # text=True, but on Windows we have observed completed.stdout being
+        # None in edge cases (e.g. the child closing stdout very fast).
+        # Coerce to "" so downstream callers can always .strip().
+        stdout = completed.stdout if isinstance(completed.stdout, str) else ""
+        stderr = completed.stderr if isinstance(completed.stderr, str) else ""
         return AdbResult(
             command=command,
             returncode=completed.returncode,
-            stdout=completed.stdout.strip(),
-            stderr=completed.stderr.strip(),
+            stdout=stdout.strip(),
+            stderr=stderr.strip(),
         )
 
     def checked(self, args: list[str], *, timeout_seconds: int | None = None) -> str:

@@ -1,3 +1,5 @@
+import hashlib
+import json
 from pathlib import Path
 from typing import Any
 
@@ -21,6 +23,14 @@ class ScreenCommands(AppCommands):
             "returned_count": len(elements),
             "source": "android-http-accessibility",
         }
+
+    def ui_hash(self) -> str:
+        """Hash the on-device accessibility node tree. Used by the settle
+        gate to detect when the UI has changed and stabilised after an
+        action."""
+        screen = self.request_json("GET", "/screen")
+        payload = json.dumps(screen, sort_keys=True, default=str).encode("utf-8")
+        return hashlib.sha1(payload).hexdigest()
 
 
 def compact_nodes(nodes: list[dict[str, Any]], *, max_elements: int) -> list[dict[str, Any]]:

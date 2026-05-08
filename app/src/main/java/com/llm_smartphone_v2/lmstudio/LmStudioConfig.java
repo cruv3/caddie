@@ -1,8 +1,18 @@
 package com.llm_smartphone_v2.lmstudio;
 
+import com.llm_smartphone_v2.BuildConfig;
+
 public final class LmStudioConfig {
-    public static final String ENDPOINT = "http://10.0.2.2:8787/task";
-    public static final String API_TOKEN = "sk-lm-WBW4QfHv:xxYCwDGBGzKU4H62hQg3";
+    // Phone -> Host. 127.0.0.1 routes through `adb reverse tcp:8787 tcp:8787`
+    // instead of going through emulator NAT (10.0.2.2). Bypasses Windows
+    // Firewall and works identically on a real device over USB.
+    // Required setup: `adb reverse tcp:8787 tcp:8787` (see start-emulator.bat).
+    public static final String BASE_URL = "http://127.0.0.1:8787";
+    public static final String TASK_PATH = "/task";
+    public static final String STREAM_PATH = "/task/stream";
+    public static final String ENDPOINT = BASE_URL + TASK_PATH;
+    public static final String STREAM_ENDPOINT = BASE_URL + STREAM_PATH;
+    public static final String API_TOKEN = BuildConfig.LM_STUDIO_TOKEN;
     public static final String MODEL = "qwen/qwen3.6-35b-a3b";
     public static final String MCP_INTEGRATION = "mcp/llm-smartphone";
     public static final int CONTEXT_LENGTH = 16000;

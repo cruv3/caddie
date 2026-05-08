@@ -15,7 +15,7 @@ import android.view.Display;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import com.llm_smartphone_v2.agent.TaskRequest;
-import com.llm_smartphone_v2.accessibility.PhoneControlAccessibilityService;
+import com.llm_smartphone_v2.accessibility.CompanionAccessibilityService;
 import com.llm_smartphone_v2.util.JsonUtil;
 
 import java.io.ByteArrayOutputStream;
@@ -25,9 +25,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 public class PhoneController {
-    private final PhoneControlAccessibilityService service;
+    private final CompanionAccessibilityService service;
 
-    public PhoneController(PhoneControlAccessibilityService service) {
+    public PhoneController(CompanionAccessibilityService service) {
         this.service = service;
     }
 
@@ -122,14 +122,19 @@ public class PhoneController {
             return JsonUtil.error("package_not_launchable");
         }
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        service.startActivity(intent);
+        // Launch through the Application context, not the AS context.
+        // Starting Activities directly from an AccessibilityService context
+        // causes Android 14+ to unbind+rebind the AS aggressively (each
+        // launch triggers a fresh-context refresh), which in turn tears
+        // down our overlay window over and over.
+        service.getApplicationContext().startActivity(intent);
         return JsonUtil.ok(true);
     }
 
     public String openUrl(String url) {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        service.startActivity(intent);
+        service.getApplicationContext().startActivity(intent);
         return JsonUtil.ok(true);
     }
 

@@ -4,6 +4,7 @@ import re
 
 from fastmcp import FastMCP
 
+from llmsmartphone.agent.event_bus import publish_tool_call
 from llmsmartphone.context import ServerContext
 from llmsmartphone.skills import Skill
 from llmsmartphone.skills.library import write_skill
@@ -39,8 +40,9 @@ def _register_one(mcp: FastMCP, context: ServerContext, skill: Skill) -> None:
 
     @mcp.tool(name=tool_name, description=description)
     def _tool() -> dict:
-        context.read_skill_ids.add(skill_id)
-        return {"skill_id": skill_id, "body": body}
+        with publish_tool_call(tool_name, bus=context.events, skill_id=skill_id):
+            context.read_skill_ids.add(skill_id)
+            return {"skill_id": skill_id, "body": body}
 
 
 def register_save_skill_tool(mcp: FastMCP, context: ServerContext) -> None:
@@ -113,23 +115,11 @@ def register_save_skill_tool(mcp: FastMCP, context: ServerContext) -> None:
             already loaded that skill via its smartphone_get_skill_* tool in this
             session. Default False.
         """
-        category, _, _name = id.partition(".")
-        target_path = skills_dir / category / f"{_name}.md"
-        existed = target_path.exists()
-
-        if existed and replace and id not in context.read_skill_ids:
-            return {
-                "ok": False,
-                "error": "must_load_existing_first",
-                "message": (
-                    f"Cannot replace skill '{id}' without reading the existing version "
-                    f"first. Call smartphone_get_skill_{_sanitize(id)} in this session, "
-                    "review its body, and then call smartphone_save_skill with replace=True."
-                ),
-            }
-
-        try:
-            path = write_skill(
+        with publish_tool_call(
+            "smartphone_save_skill", bus=context.events, id=id, title=title, replace=replace
+        ):
+            return _save_skill_impl(
+                context,
                 skills_dir,
                 id=id,
                 title=title,
@@ -143,19 +133,71 @@ def register_save_skill_tool(mcp: FastMCP, context: ServerContext) -> None:
                 device_variants=device_variants,
                 verification=verification,
                 failure_modes=failure_modes,
-                overwrite=replace,
+                replace=replace,
             )
-        except FileExistsError as exc:
-            return {"ok": False, "error": "skill_exists", "message": str(exc)}
-        except ValueError as exc:
-            return {"ok": False, "error": "validation_failed", "message": str(exc)}
+
+
+def _save_skill_impl(
+    context: ServerContext,
+    skills_dir,
+    *,
+    id: str,
+    title: str,
+    description: str,
+    triggers: list[str],
+    tested_environments: list[str],
+    app_context: str,
+    starting_context: str,
+    rules: list[str],
+    flow: list[str],
+    device_variants: list[str],
+    verification: str,
+    failure_modes: list[str],
+    replace: bool,
+) -> dict:
+    category, _, _name = id.partition(".")
+    target_path = skills_dir / category / f"{_name}.md"
+    existed = target_path.exists()
+
+    if existed and replace and id not in context.read_skill_ids:
         return {
-            "ok": True,
-            "skill_id": id,
-            "path": str(path),
-            "replaced": existed,
-            "note": "Skill saved. Restart the MCP server to make it appear as a smartphone_get_skill_* tool.",
+            "ok": False,
+            "error": "must_load_existing_first",
+            "message": (
+                f"Cannot replace skill '{id}' without reading the existing version "
+                f"first. Call smartphone_get_skill_{_sanitize(id)} in this session, "
+                "review its body, and then call smartphone_save_skill with replace=True."
+            ),
         }
+
+    try:
+        path = write_skill(
+            skills_dir,
+            id=id,
+            title=title,
+            description=description,
+            triggers=triggers,
+            tested_environments=tested_environments,
+            app_context=app_context,
+            starting_context=starting_context,
+            rules=rules,
+            flow=flow,
+            device_variants=device_variants,
+            verification=verification,
+            failure_modes=failure_modes,
+            overwrite=replace,
+        )
+    except FileExistsError as exc:
+        return {"ok": False, "error": "skill_exists", "message": str(exc)}
+    except ValueError as exc:
+        return {"ok": False, "error": "validation_failed", "message": str(exc)}
+    return {
+        "ok": True,
+        "skill_id": id,
+        "path": str(path),
+        "replaced": existed,
+        "note": "Skill saved. Restart the MCP server to make it appear as a smartphone_get_skill_* tool.",
+    }
 
 
 _SANITIZE_RE = re.compile(r"[^a-z0-9_]+")

@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import threading
+import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Callable
 
+from llmsmartphone.agent.event_bus import EVENT_BUS
 from llmsmartphone.agent.lmstudio import LmStudioClient
 from llmsmartphone.agent.prompt import build_system_prompt
 from llmsmartphone.config import (
@@ -15,6 +18,10 @@ from llmsmartphone.config import (
     ENV_AGENT_PORT,
 )
 from llmsmartphone.context import ServerContext
+
+
+class _ExclusiveThreadingHTTPServer(ThreadingHTTPServer):
+    allow_reuse_address = False
 
 
 class AgentHttpServer:
@@ -30,7 +37,7 @@ class AgentHttpServer:
         host = os.environ.get(ENV_AGENT_HOST, DEFAULT_AGENT_HOST)
         port = _env_port()
         handler = _handler_factory(self._context, self._lmstudio)
-        self._server = ThreadingHTTPServer((host, port), handler)
+        self._server = _ExclusiveThreadingHTTPServer((host, port), handler)
         self._thread = threading.Thread(target=self._server.serve_forever, daemon=True)
         self._thread.start()
 
@@ -44,13 +51,110 @@ def _handler_factory(
             if self.path == "/health":
                 self._send_json({"ok": True, "service": "llm-smartphone-agent"})
                 return
+            if self.path == "/events":
+                self._handle_observer_stream()
+                return
             self._send_json({"ok": False, "error": "not_found"}, status=404)
 
-        def do_POST(self) -> None:
-            if self.path != "/task":
-                self._send_json({"ok": False, "error": "not_found"}, status=404)
+        def _handle_observer_stream(self) -> None:
+            """Long-lived SSE stream that mirrors every EventBus message to
+            the caller, without starting a task itself. Lets the phone overlay
+            observe agent activity even when LM Studio (or any other client)
+            triggers tasks directly via the MCP stdio integration."""
+            log = logging.getLogger("llmsmartphone.sse")
+            client_addr = f"{self.client_address[0]}:{self.client_address[1]}"
+            log.warning("SSE open from %s", client_addr)
+            self.send_response(200)
+            self.send_header("Content-Type", "text/event-stream; charset=utf-8")
+            self.send_header("Cache-Control", "no-cache")
+            self.send_header("Connection", "keep-alive")
+            self.send_header("X-Accel-Buffering", "no")
+            self.end_headers()
+            try:
+                self.wfile.write(b": connected\n\n")
+                self.wfile.flush()
+            except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError, OSError):
+                log.warning("SSE %s: client gone before greeting", client_addr)
                 return
+            import queue as _queue
+            heartbeats = 0
+            try:
+                with EVENT_BUS.subscription() as queue_ref:
+                    # Push an immediate ready beacon so the phone overlay can
+                    # flash a brief "connected" pill the moment the SSE link
+                    # is up, without waiting for the first tool_call_started.
+                    try:
+                        ready = {"type": "session_ready", "ts": time.time()}
+                        self.wfile.write(
+                            f"data: {json.dumps(ready)}\n\n".encode("utf-8")
+                        )
+                        self.wfile.flush()
+                    except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError, OSError):
+                        log.warning("SSE %s: client gone after greeting", client_addr)
+                        return
+                    while True:
+                        try:
+                            # Wake every few seconds to send a comment-line
+                            # heartbeat. Without it OkHttp's default read
+                            # timeout closes the connection on the phone side
+                            # and the observer falls into a reconnect loop
+                            # with "unexpected end of stream".
+                            event = queue_ref.get(timeout=5.0)
+                        except _queue.Empty:
+                            try:
+                                self.wfile.write(b": keepalive\n\n")
+                                self.wfile.flush()
+                                heartbeats += 1
+                            except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError, OSError):
+                                log.warning("SSE %s: client closed (after %d heartbeats)", client_addr, heartbeats)
+                                return
+                            continue
+                        if event is None:
+                            log.warning("SSE %s: subscription closed by bus", client_addr)
+                            break
+                        try:
+                            self.wfile.write(
+                                f"data: {json.dumps(event.to_dict())}\n\n".encode("utf-8")
+                            )
+                            self.wfile.flush()
+                        except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError, OSError):
+                            log.warning("SSE %s: client closed during event write", client_addr)
+                            return
+            except Exception:
+                log.exception("SSE %s: handler crashed", client_addr)
+            finally:
+                log.warning("SSE %s: handler exit (heartbeats=%d)", client_addr, heartbeats)
 
+        def do_POST(self) -> None:
+            if self.path == "/task":
+                self._handle_task_oneshot()
+                return
+            if self.path == "/task/stream":
+                self._handle_task_stream()
+                return
+            if self.path == "/events/publish":
+                self._handle_event_ingest()
+                return
+            self._send_json({"ok": False, "error": "not_found"}, status=404)
+
+        def _handle_event_ingest(self) -> None:
+            """Internal: worker MCP processes (--only=tools / --only=skills)
+            POST serialized ToolEvent dicts here so their tool calls show up
+            in the owner's SSE stream and reach the phone overlay."""
+            from llmsmartphone.agent.event_bus import ToolEvent
+            log = logging.getLogger("llmsmartphone.publish")
+            payload = self._read_json()
+            if not isinstance(payload, dict) or not payload.get("type"):
+                log.warning("rejected bad event payload: %r", payload)
+                self._send_json({"ok": False, "error": "bad_event"}, status=400)
+                return
+            allowed = {f for f in ToolEvent.__dataclass_fields__}
+            kwargs = {k: v for k, v in payload.items() if k in allowed and k != "ts"}
+            EVENT_BUS.publish(ToolEvent(**kwargs))
+            log.warning("ingested %s tool=%s", kwargs.get("type"), kwargs.get("tool"))
+            self._send_json({"ok": True})
+
+        def _handle_task_oneshot(self) -> None:
             payload = self._read_json()
             task = str(payload.get("task", "")).strip()
             if not task:
@@ -59,11 +163,19 @@ def _handler_factory(
 
             matched = context.skills.match(task)
             system_prompt = build_system_prompt(matched)
-            result = lmstudio.send_task(
-                task=task,
-                system_prompt=system_prompt,
-                authorization=self.headers.get("Authorization"),
-            )
+            EVENT_BUS.task_started(task)
+            result: dict = {"ok": False}
+            try:
+                result = lmstudio.send_task(
+                    task=task,
+                    system_prompt=system_prompt,
+                    authorization=self.headers.get("Authorization"),
+                )
+            finally:
+                EVENT_BUS.task_finished(
+                    ok=bool(result.get("ok", False)),
+                    payload={"active_skills": [s.id for s in matched]},
+                )
             response: dict = {
                 "ok": result.get("ok", False),
                 "active_skills": [skill.id for skill in matched],
@@ -78,6 +190,69 @@ def _handler_factory(
                     "visual verification."
                 )
             self._send_json(response, status=200 if result.get("ok", False) else 502)
+
+        def _handle_task_stream(self) -> None:
+            payload = self._read_json()
+            task = str(payload.get("task", "")).strip()
+            if not task:
+                self._send_json({"ok": False, "error": "missing_task"}, status=400)
+                return
+
+            matched = context.skills.match(task)
+            system_prompt = build_system_prompt(matched)
+            authorization = self.headers.get("Authorization")
+            active_skill_ids = [skill.id for skill in matched]
+
+            self.send_response(200)
+            self.send_header("Content-Type", "text/event-stream; charset=utf-8")
+            self.send_header("Cache-Control", "no-cache")
+            self.send_header("Connection", "keep-alive")
+            self.send_header("X-Accel-Buffering", "no")
+            self.end_headers()
+
+            with EVENT_BUS.subscription() as queue_ref:
+                lmstudio_result: dict = {}
+
+                EVENT_BUS.task_started(task)
+
+                def _run() -> None:
+                    nonlocal lmstudio_result
+                    try:
+                        lmstudio_result = lmstudio.send_task(
+                            task=task,
+                            system_prompt=system_prompt,
+                            authorization=authorization,
+                        )
+                    except Exception as exc:
+                        lmstudio_result = {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
+                    finally:
+                        EVENT_BUS.task_finished(
+                            ok=bool(lmstudio_result.get("ok", False)),
+                            payload={
+                                "active_skills": active_skill_ids,
+                                "lmstudio": lmstudio_result,
+                            },
+                        )
+
+                worker = threading.Thread(target=_run, name="task-stream-worker", daemon=True)
+                worker.start()
+
+                try:
+                    while True:
+                        event = queue_ref.get()
+                        if event is None:
+                            break
+                        try:
+                            self.wfile.write(
+                                f"data: {json.dumps(event.to_dict())}\n\n".encode("utf-8")
+                            )
+                            self.wfile.flush()
+                        except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError, OSError):
+                            return
+                        if event.type == "task_finished":
+                            break
+                finally:
+                    worker.join(timeout=1.0)
 
         def log_message(self, format: str, *args: object) -> None:
             return
