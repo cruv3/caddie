@@ -28,6 +28,11 @@ class AgentHttpServer:
     def __init__(self, context: ServerContext) -> None:
         self._context = context
         self._lmstudio = LmStudioClient()
+        # Lazy import: agent_loop -> tool_bridge -> tools zieht viel nach;
+        # das Verzoegern bis zur Instanziierung haelt die Modul-Import-
+        # Reihenfolge sicher (llmsmartphone hat einen latenten Zyklus).
+        from llmsmartphone.agent.agent_loop import AgentLoop
+        self._agent_loop = AgentLoop(context, self._lmstudio)
         self._server: ThreadingHTTPServer | None = None
         self._thread: threading.Thread | None = None
 
@@ -36,7 +41,7 @@ class AgentHttpServer:
             return
         host = os.environ.get(ENV_AGENT_HOST, DEFAULT_AGENT_HOST)
         port = _env_port()
-        handler = _handler_factory(self._context, self._lmstudio)
+        handler = _handler_factory(self._context, self._lmstudio, self._agent_loop)
         self._server = _ExclusiveThreadingHTTPServer((host, port), handler)
         self._thread = threading.Thread(target=self._server.serve_forever, daemon=True)
         self._thread.start()
@@ -45,6 +50,7 @@ class AgentHttpServer:
 def _handler_factory(
     context: ServerContext,
     lmstudio: LmStudioClient,
+    agent_loop,
 ) -> Callable[..., BaseHTTPRequestHandler]:
     class AgentRequestHandler(BaseHTTPRequestHandler):
         def do_GET(self) -> None:
@@ -167,7 +173,7 @@ def _handler_factory(
             result: dict = {"ok": False}
             model_override = payload.get("model")
             try:
-                result = lmstudio.send_task(
+                result = agent_loop.run(
                     task=task,
                     system_prompt=system_prompt,
                     authorization=self.headers.get("Authorization"),
@@ -220,7 +226,7 @@ def _handler_factory(
                 def _run() -> None:
                     nonlocal lmstudio_result
                     try:
-                        lmstudio_result = lmstudio.send_task(
+                        lmstudio_result = agent_loop.run(
                             task=task,
                             system_prompt=system_prompt,
                             authorization=authorization,

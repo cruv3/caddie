@@ -4,6 +4,7 @@ import json
 import os
 from dataclasses import dataclass
 from urllib.error import HTTPError, URLError
+from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
 from llmsmartphone.config import (
@@ -82,6 +83,65 @@ class LmStudioClient:
             }
         except URLError as error:
             return {"ok": False, "status": 0, "error": str(error.reason)}
+
+    def chat_completion(
+        self,
+        messages: list[dict],
+        tools: list[dict] | None = None,
+        authorization: str | None = None,
+        model: str | None = None,
+    ) -> dict:
+        """Ein einzelner Turn gegen LM Studios OpenAI-kompatiblen Endpoint.
+
+        Anders als ``send_task`` faehrt LM Studio hier KEINEN Tool-Loop — es
+        gibt nur eine Modell-Antwort zurueck (Text oder ``tool_calls``). Den
+        Loop besitzt der Agent selbst (siehe ``agent_loop.py``). Genau das
+        macht Pause/Resume und Mid-run-Korrektur ueberhaupt erst moeglich.
+        """
+        effective_model = model or self.settings.model
+        body: dict = {
+            "model": effective_model,
+            "messages": messages,
+            "temperature": 0.2,
+            "stream": False,
+        }
+        if tools:
+            body["tools"] = tools
+        # reasoning="off" nur fuer Modelle mit Thinking-Mode (Qwen3.6, …).
+        if "qwen3.6" in effective_model.lower():
+            body["reasoning"] = "off"
+        request = Request(
+            self._chat_completions_url(),
+            data=json.dumps(body).encode("utf-8"),
+            headers=_headers(authorization),
+            method="POST",
+        )
+        try:
+            with urlopen(
+                request, timeout=int(os.environ.get("LLM_STUDIO_TIMEOUT", "180"))
+            ) as response:
+                payload = response.read().decode("utf-8")
+                return {
+                    "ok": True,
+                    "status": response.status,
+                    "response": json.loads(payload) if payload else {},
+                }
+        except HTTPError as error:
+            payload = error.read().decode("utf-8", errors="replace")
+            return {
+                "ok": False,
+                "status": error.code,
+                "error": payload,
+                "vision_unsupported": _looks_like_vision_error(payload),
+            }
+        except URLError as error:
+            return {"ok": False, "status": 0, "error": str(error.reason)}
+
+    def _chat_completions_url(self) -> str:
+        """Leitet den OpenAI-kompatiblen Endpoint aus dem konfigurierten
+        ``/api/v1/chat``-Endpoint ab (gleicher Host, anderer Pfad)."""
+        parsed = urlparse(self.settings.endpoint)
+        return f"{parsed.scheme}://{parsed.netloc}/v1/chat/completions"
 
 
 def _looks_like_vision_error(payload: str) -> bool:
