@@ -2,6 +2,7 @@ package com.llm_smartphone_v2.bridge;
 
 import android.accessibilityservice.AccessibilityService;
 
+import com.llm_smartphone_v2.accessibility.AgentActivityTracker;
 import com.llm_smartphone_v2.accessibility.CompanionAccessibilityService;
 import com.llm_smartphone_v2.agent.TaskRequestParser;
 import com.llm_smartphone_v2.util.JsonUtil;
@@ -13,6 +14,9 @@ public class PhoneBridgeRouter {
             return HttpResponse.json("{\"ok\":true,\"accessibilityConnected\":"
                     + CompanionAccessibilityService.isConnected() + "}");
         }
+        // Jeder echte Tool-Request (nicht /health) haelt den Run "aktiv" —
+        // Grundlage dafuer, dass ein menschlicher Touch als Eingriff zaehlt.
+        AgentActivityTracker.markRunActivity();
         if (request.startsWith("GET /screen ")) {
             return HttpResponse.json(CompanionAccessibilityService.currentScreenJson());
         }

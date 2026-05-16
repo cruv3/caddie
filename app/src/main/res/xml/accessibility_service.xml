@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Event subscription is intentionally minimal because onAccessibilityEvent
-  is empty — we never handle events. Subscribing to typeAllMask flooded
-  the service during Settings interactions and seemed to correlate with
-  the system aggressively rebinding the AS, which tore down our overlay
-  window each cycle. typeWindowStateChanged + typeWindowContentChanged
-  is enough to keep getRootInActiveWindow fresh for the agent's screen
-  reads. notificationTimeout=500 is also less aggressive than 100ms.
+  Event subscription is kept tight. typeAllMask once flooded the service
+  during Settings interactions and seemed to correlate with the system
+  aggressively rebinding the AS, which tore down our overlay window each
+  cycle. typeWindowStateChanged + typeWindowContentChanged keep
+  getRootInActiveWindow fresh for the agent's screen reads.
+  typeViewClicked|typeViewLongClicked were added for the knopflose
+  Intervention-Erkennung (Block 3) — discrete clicks only, low-frequency.
+  typeViewScrolled was tried too but is too noisy (list-settling after
+  navigation fires it without any human touch) — left out on purpose.
+  notificationTimeout=500 is also less aggressive than 100ms.
 -->
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
-    android:accessibilityEventTypes="typeWindowStateChanged|typeWindowContentChanged"
+    android:accessibilityEventTypes="typeWindowStateChanged|typeWindowContentChanged|typeViewClicked|typeViewLongClicked"
     android:accessibilityFeedbackType="feedbackGeneric"
     android:accessibilityFlags="flagReportViewIds|flagRetrieveInteractiveWindows"
     android:canPerformGestures="true"

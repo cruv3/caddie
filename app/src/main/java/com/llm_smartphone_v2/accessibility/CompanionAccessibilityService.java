@@ -100,6 +100,26 @@ public class CompanionAccessibilityService extends AccessibilityService {
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
+        if (event == null) {
+            return;
+        }
+        int type = event.getEventType();
+        boolean interactive =
+                type == AccessibilityEvent.TYPE_VIEW_CLICKED
+                || type == AccessibilityEvent.TYPE_VIEW_LONG_CLICKED;
+        if (!interactive) {
+            return;
+        }
+        // Knopflose Intervention-Erkennung: ein Klick/Scroll waehrend eines
+        // laufenden Runs, der NICHT aus einer Agenten-Geste stammt, ist ein
+        // menschlicher Eingriff -> Agent pausieren.
+        boolean runActive = AgentActivityTracker.isRunLikelyActive();
+        boolean agentActive = AgentActivityTracker.isAgentActive();
+        android.util.Log.i("CompanionA11y", "interactive event type=" + type
+                + " runActive=" + runActive + " agentActive=" + agentActive);
+        if (runActive && !agentActive) {
+            InterventionReporter.get().onHumanInteraction();
+        }
     }
 
     @Override

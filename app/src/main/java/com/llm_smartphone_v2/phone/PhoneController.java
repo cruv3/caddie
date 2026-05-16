@@ -15,6 +15,7 @@ import android.view.Display;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import com.llm_smartphone_v2.agent.TaskRequest;
+import com.llm_smartphone_v2.accessibility.AgentActivityTracker;
 import com.llm_smartphone_v2.accessibility.CompanionAccessibilityService;
 import com.llm_smartphone_v2.util.JsonUtil;
 
@@ -164,6 +165,10 @@ public class PhoneController {
     }
 
     private String gesture(int startX, int startY, int endX, int endY, int durationMs) {
+        // Markiert das Zeitfenster dieser Agenten-Geste, damit der
+        // AccessibilityService den daraus folgenden Klick nicht faelschlich
+        // als menschlichen Eingriff wertet.
+        AgentActivityTracker.markDispatch(durationMs);
         Path path = new Path();
         path.moveTo(startX, startY);
         if (startX != endX || startY != endY) {
