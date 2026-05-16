@@ -32,6 +32,9 @@ class RunControl:
         # Einmal-Flag: beim naechsten Resume soll der Loop neu wahrnehmen,
         # weil der Nutzer waehrend der Pause am Geraet eingegriffen hat.
         self._intervened = False
+        # Optionaler Nutzer-Text ("nimm das andere Restaurant"), den der Loop
+        # beim naechsten _pause_point in die Conversation einspeist.
+        self._pending_correction: str | None = None
 
     # ---- Signal-Seite (HTTP /control, Touch-Erkennung) ----
 
@@ -46,6 +49,16 @@ class RunControl:
             if intervention:
                 self._intervened = True
             self._resume_event.clear()
+
+    def set_correction(self, text: str) -> None:
+        """Hinterlegt eine gesprochene Nutzer-Korrektur. Markiert zugleich den
+        Eingriff, damit der Loop beim naechsten _pause_point neu wahrnimmt und
+        die Korrektur sieht."""
+        with self._lock:
+            if self._state is RunState.STOPPED:
+                return
+            self._pending_correction = text.strip() or None
+            self._intervened = True
 
     def request_resume(self) -> None:
         with self._lock:
@@ -84,6 +97,13 @@ class RunControl:
             was = self._intervened
             self._intervened = False
             return was
+
+    def take_correction(self) -> str | None:
+        """Gibt eine hinterlegte Nutzer-Korrektur zurueck und leert sie."""
+        with self._lock:
+            text = self._pending_correction
+            self._pending_correction = None
+            return text
 
     def wait_while_paused(self) -> RunState:
         """Blockiert den Loop-Thread, solange pausiert. Gibt den Zustand

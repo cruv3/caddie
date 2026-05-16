@@ -151,7 +151,9 @@ def _handler_factory(
             Quelle: spaeter die Touch-Erkennung am Geraet, vorerst per HTTP."""
             payload = self._read_json()
             action = str(payload.get("action", "")).strip()
-            result = agent_loop.apply_control(action)
+            text = payload.get("text")
+            text = str(text) if text is not None else None
+            result = agent_loop.apply_control(action, text)
             self._send_json(result, status=200 if result.get("ok") else 400)
 
         def _handle_event_ingest(self) -> None:

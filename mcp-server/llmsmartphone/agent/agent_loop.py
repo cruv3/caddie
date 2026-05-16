@@ -45,11 +45,12 @@ class AgentLoop:
         # /control greift hierueber ein.
         self._active_control: RunControl | None = None
 
-    def apply_control(self, action: str) -> dict:
+    def apply_control(self, action: str, text: str | None = None) -> dict:
         """Wendet ein ``/control``-Signal auf den aktiven Run an.
 
-        ``intervene`` = Pause + Markierung fuer Neu-Wahrnehmung (das sendet
-        spaeter die Touch-Erkennung); ``pause`` = stilles Pausieren.
+        ``intervene`` = Pause + Markierung fuer Neu-Wahrnehmung (Touch-
+        Erkennung); ``pause`` = stilles Pausieren; ``correct`` = gesprochene
+        Nutzer-Korrektur hinterlegen und fortsetzen (Mid-run-Korrektur).
         """
         control = self._active_control
         if control is None:
@@ -62,6 +63,10 @@ class AgentLoop:
             control.request_pause(intervention=True)
             self._events.task_paused()
         elif action == "resume":
+            control.request_resume()
+            self._events.task_resumed()
+        elif action == "correct":
+            control.set_correction(text or "")
             control.request_resume()
             self._events.task_resumed()
         elif action == "stop":
@@ -178,23 +183,35 @@ class AgentLoop:
             if control.wait_while_paused() is RunState.STOPPED:
                 return "stop"
         if control.consume_intervention():
-            self._inject_reperception(messages)
+            self._inject_reperception(messages, control.take_correction())
         return "continue"
 
-    def _inject_reperception(self, messages: list[dict]) -> None:
-        """Nach einem Eingriff: frischen Screenshot + Hinweis anhaengen, damit
-        der Agent nicht mit veraltetem Bildschirm-Wissen weiterarbeitet."""
-        shot = self._dispatcher.call("smartphone_take_screenshot", {})
-        if shot.image_b64:
-            messages.append(_image_message(shot))
-        messages.append({
-            "role": "user",
-            "content": (
+    def _inject_reperception(
+        self, messages: list[dict], correction: str | None = None
+    ) -> None:
+        """Nach einem Eingriff einen Hinweis anhaengen, damit der Agent den
+        Bildschirm neu bewertet statt mit veraltetem Wissen weiterzuarbeiten.
+
+        Der Agent nimmt selbst per Tool (Screenshot/Element-Liste) neu wahr —
+        hier wird das nur angestossen. Bewusst KEIN Bild in den Prompt: nicht
+        jedes lokale Modell ist multimodal, ein Bild wuerde sonst 400ern.
+        Liegt eine gesprochene Korrektur vor, wird sie als ausdrueckliche
+        Nutzer-Anweisung mitgegeben (Mid-run-Korrektur)."""
+        if correction:
+            note = (
+                f"Der Nutzer hat den Lauf unterbrochen und sagt: "
+                f"\"{correction}\". Beruecksichtige diese Anweisung. Mache dir "
+                f"zuerst per Screenshot oder Element-Liste ein frisches Bild "
+                f"vom aktuellen Screen, dann fahre entsprechend fort."
+            )
+        else:
+            note = (
                 "Der Nutzer hat waehrend einer Pause selbst am Geraet "
-                "gehandelt. Der Bildschirm kann sich geaendert haben — "
-                "bewerte den aktuellen Stand neu, bevor du fortfaehrst."
-            ),
-        })
+                "gehandelt. Der Bildschirm kann sich geaendert haben. Mache "
+                "dir zuerst per Screenshot oder Element-Liste ein frisches "
+                "Bild vom aktuellen Screen, bevor du fortfaehrst."
+            )
+        messages.append({"role": "user", "content": note})
 
 
 def _first_choice(response: dict) -> dict | None:
