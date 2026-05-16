@@ -36,3 +36,5 @@ mcp-server/active_pids.txt
 
 # Demo-/Scratch-Aufnahmen
 mcp-server/*.mp4
+mcp-server/*_result.json
+mcp-server/*_test*.json
