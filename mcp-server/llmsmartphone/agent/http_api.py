@@ -141,7 +141,18 @@ def _handler_factory(
             if self.path == "/events/publish":
                 self._handle_event_ingest()
                 return
+            if self.path == "/control":
+                self._handle_control()
+                return
             self._send_json({"ok": False, "error": "not_found"}, status=404)
+
+        def _handle_control(self) -> None:
+            """Pause / Resume / Stop / Intervene fuer den aktiven Agent-Run.
+            Quelle: spaeter die Touch-Erkennung am Geraet, vorerst per HTTP."""
+            payload = self._read_json()
+            action = str(payload.get("action", "")).strip()
+            result = agent_loop.apply_control(action)
+            self._send_json(result, status=200 if result.get("ok") else 400)
 
         def _handle_event_ingest(self) -> None:
             """Internal: worker MCP processes (--only=tools / --only=skills)

@@ -24,6 +24,7 @@ import json
 from typing import Any
 
 from llmsmartphone.agent.lmstudio import LmStudioClient
+from llmsmartphone.agent.run_control import RunControl, RunState
 from llmsmartphone.agent.tool_bridge import ToolCallResult, ToolDispatcher
 from llmsmartphone.context import ServerContext
 
@@ -39,6 +40,31 @@ class AgentLoop:
         self._dispatcher = ToolDispatcher(context)
         self._lm = lmstudio
         self._tool_specs = self._dispatcher.openai_tool_specs()
+        # Steuer-Objekt des gerade laufenden Runs (None = kein Run aktiv).
+        # /control greift hierueber ein.
+        self._active_control: RunControl | None = None
+
+    def apply_control(self, action: str) -> dict:
+        """Wendet ein ``/control``-Signal auf den aktiven Run an.
+
+        ``intervene`` = Pause + Markierung fuer Neu-Wahrnehmung (das sendet
+        spaeter die Touch-Erkennung); ``pause`` = stilles Pausieren.
+        """
+        control = self._active_control
+        if control is None:
+            return {"ok": False, "error": "no active run"}
+        action = (action or "").lower().strip()
+        if action == "pause":
+            control.request_pause()
+        elif action == "intervene":
+            control.request_pause(intervention=True)
+        elif action == "resume":
+            control.request_resume()
+        elif action == "stop":
+            control.request_stop()
+        else:
+            return {"ok": False, "error": f"unknown action: {action}"}
+        return {"ok": True, "action": action, "state": control.state.value}
 
     def run(
         self,
@@ -52,6 +78,8 @@ class AgentLoop:
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": task},
         ]
+        control = RunControl()
+        self._active_control = control
         tool_calls_made = 0
         turns = 0
         outcome = "max_turns"
@@ -62,10 +90,12 @@ class AgentLoop:
         for turn in range(MAX_TURNS):
             turns = turn + 1
 
-            # ── PAUSE-/INJECT-HOOK ────────────────────────────────────────
-            # Hier haelt Block 3 den Loop an und reichert Block 5 die
-            # Conversation um Screenshot + Nutzer-Korrektur an. Aktuell No-op.
-            self._pause_point(messages)
+            # ── PAUSE-/STOP-/RESUME-HOOK ──────────────────────────────────
+            # Haelt den Loop an, wenn pausiert; bricht ab bei Stop; haengt
+            # nach einem menschlichen Eingriff eine Neu-Wahrnehmung an.
+            if self._pause_point(messages, control) == "stop":
+                outcome = "stopped_by_user"
+                break
 
             resp = self._lm.chat_completion(
                 messages, tools=self._tool_specs,
@@ -120,6 +150,7 @@ class AgentLoop:
                 outcome = "fail_loop"
                 break
 
+        self._active_control = None
         return {
             "ok": outcome in ("done", "stopped"),
             "outcome": outcome,
@@ -130,9 +161,36 @@ class AgentLoop:
             "vision_unsupported": vision_unsupported,
         }
 
-    def _pause_point(self, messages: list[dict]) -> None:
-        """Hook fuer Block 3/5 (Pause/Resume + Mid-run-Korrektur). No-op."""
-        return None
+    def _pause_point(self, messages: list[dict], control: RunControl) -> str:
+        """Pause/Stop/Resume-Hook, einmal pro Turn.
+
+        - Stop angefordert -> ``"stop"`` (Loop bricht ab)
+        - Pausiert -> blockiert den Thread bis Resume oder Stop
+        - Nach einem menschlichen Eingriff -> Neu-Wahrnehmung anhaengen
+        """
+        if control.stop_requested:
+            return "stop"
+        if control.is_paused:
+            if control.wait_while_paused() is RunState.STOPPED:
+                return "stop"
+        if control.consume_intervention():
+            self._inject_reperception(messages)
+        return "continue"
+
+    def _inject_reperception(self, messages: list[dict]) -> None:
+        """Nach einem Eingriff: frischen Screenshot + Hinweis anhaengen, damit
+        der Agent nicht mit veraltetem Bildschirm-Wissen weiterarbeitet."""
+        shot = self._dispatcher.call("smartphone_take_screenshot", {})
+        if shot.image_b64:
+            messages.append(_image_message(shot))
+        messages.append({
+            "role": "user",
+            "content": (
+                "Der Nutzer hat waehrend einer Pause selbst am Geraet "
+                "gehandelt. Der Bildschirm kann sich geaendert haben — "
+                "bewerte den aktuellen Stand neu, bevor du fortfaehrst."
+            ),
+        })
 
 
 def _first_choice(response: dict) -> dict | None:
