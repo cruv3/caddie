@@ -158,6 +158,7 @@ private fun PillLeading(state: RunState) {
             modifier = Modifier.size(20.dp),
             color = MaterialTheme.colorScheme.onPrimaryContainer,
         )
+        RunState.Paused -> PauseBars()
         RunState.Done -> Icon(
             Icons.Filled.Check,
             contentDescription = null,
@@ -213,6 +214,21 @@ private fun Dot(scale: Float) {
 }
 
 @Composable
+private fun PauseBars() {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        repeat(2) { index ->
+            if (index > 0) Spacer(Modifier.width(4.dp))
+            Box(
+                modifier = Modifier
+                    .size(width = 5.dp, height = 16.dp)
+                    .clip(RoundedCornerShape(2.dp))
+                    .background(MaterialTheme.colorScheme.onTertiaryContainer),
+            )
+        }
+    }
+}
+
+@Composable
 private fun ThinkingOrb() {
     val transition = rememberInfiniteTransition(label = "orb")
     val pulse by transition.animateFloat(
@@ -232,6 +248,7 @@ private fun ThinkingOrb() {
 @Composable
 private fun pillColor(state: RunState): Color = when (state) {
     RunState.Listening, RunState.Thinking, RunState.Acting -> MaterialTheme.colorScheme.primaryContainer
+    RunState.Paused -> MaterialTheme.colorScheme.tertiaryContainer
     RunState.Done -> MaterialTheme.colorScheme.primary
     RunState.Error -> MaterialTheme.colorScheme.error
     RunState.Hidden -> MaterialTheme.colorScheme.surfaceContainer
@@ -240,6 +257,7 @@ private fun pillColor(state: RunState): Color = when (state) {
 @Composable
 private fun pillTextColor(state: RunState): Color = when (state) {
     RunState.Listening, RunState.Thinking, RunState.Acting -> MaterialTheme.colorScheme.onPrimaryContainer
+    RunState.Paused -> MaterialTheme.colorScheme.onTertiaryContainer
     RunState.Done -> MaterialTheme.colorScheme.onPrimary
     RunState.Error -> MaterialTheme.colorScheme.onError
     RunState.Hidden -> MaterialTheme.colorScheme.onSurface
@@ -249,6 +267,7 @@ private fun pillLabel(state: OverlayUiState): String = when (state.state) {
     RunState.Listening -> "höre…"
     RunState.Thinking -> state.currentStepLabel.ifEmpty { "denke nach" }
     RunState.Acting -> state.currentStepLabel.ifEmpty { "arbeite" }
+    RunState.Paused -> state.currentStepLabel.ifEmpty { "pausiert" }
     RunState.Done -> "fertig"
     RunState.Error -> "Fehler"
     RunState.Hidden -> ""

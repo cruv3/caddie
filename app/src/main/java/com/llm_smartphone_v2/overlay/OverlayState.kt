@@ -1,6 +1,6 @@
 package com.llm_smartphone_v2.overlay
 
-enum class RunState { Hidden, Listening, Thinking, Acting, Done, Error }
+enum class RunState { Hidden, Listening, Thinking, Acting, Paused, Done, Error }
 
 data class OverlayUiState(
     val state: RunState = RunState.Hidden,

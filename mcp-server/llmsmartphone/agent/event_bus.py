@@ -70,6 +70,12 @@ class EventBus:
     def task_finished(self, ok: bool, payload: dict[str, Any] | None = None) -> None:
         self.publish(ToolEvent(type=_TASK_DONE_TYPE, ok=ok, payload=payload))
 
+    def task_paused(self) -> None:
+        self.publish(ToolEvent(type="task_paused"))
+
+    def task_resumed(self) -> None:
+        self.publish(ToolEvent(type="task_resumed"))
+
 
 EVENT_BUS = EventBus()
 
@@ -99,6 +105,12 @@ class RemoteEventBus:
 
     def task_finished(self, ok: bool, payload: dict[str, Any] | None = None) -> None:
         self.publish(ToolEvent(type=_TASK_DONE_TYPE, ok=ok, payload=payload))
+
+    def task_paused(self) -> None:
+        self.publish(ToolEvent(type="task_paused"))
+
+    def task_resumed(self) -> None:
+        self.publish(ToolEvent(type="task_resumed"))
 
     @contextmanager
     def subscription(self) -> Iterator[queue.Queue[ToolEvent | None]]:  # pragma: no cover

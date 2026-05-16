@@ -39,6 +39,7 @@ class AgentLoop:
     def __init__(self, context: ServerContext, lmstudio: LmStudioClient) -> None:
         self._dispatcher = ToolDispatcher(context)
         self._lm = lmstudio
+        self._events = context.events
         self._tool_specs = self._dispatcher.openai_tool_specs()
         # Steuer-Objekt des gerade laufenden Runs (None = kein Run aktiv).
         # /control greift hierueber ein.
@@ -56,10 +57,13 @@ class AgentLoop:
         action = (action or "").lower().strip()
         if action == "pause":
             control.request_pause()
+            self._events.task_paused()
         elif action == "intervene":
             control.request_pause(intervention=True)
+            self._events.task_paused()
         elif action == "resume":
             control.request_resume()
+            self._events.task_resumed()
         elif action == "stop":
             control.request_stop()
         else:

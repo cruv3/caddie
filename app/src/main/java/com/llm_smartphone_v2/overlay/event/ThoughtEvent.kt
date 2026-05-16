@@ -7,6 +7,8 @@ sealed class ThoughtEvent {
     data class ToolCallStarted(val tool: String, val argsSummary: String) : ThoughtEvent()
     data class ToolCallFinished(val tool: String, val error: String?) : ThoughtEvent()
     data class TaskFinished(val ok: Boolean, val payload: JSONObject?) : ThoughtEvent()
+    object TaskPaused : ThoughtEvent()
+    object TaskResumed : ThoughtEvent()
     object SessionReady : ThoughtEvent()
 
     companion object {
@@ -27,6 +29,8 @@ sealed class ThoughtEvent {
                         ok = json.optBoolean("ok", false),
                         payload = json.optJSONObject("payload")
                     )
+                    "task_paused" -> TaskPaused
+                    "task_resumed" -> TaskResumed
                     "session_ready" -> SessionReady
                     else -> null
                 }

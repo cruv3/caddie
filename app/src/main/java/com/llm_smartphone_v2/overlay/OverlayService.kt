@@ -212,6 +212,14 @@ class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegist
                 }
                 scheduleHide(2500L)
             }
+            is ThoughtEvent.TaskPaused -> {
+                setState {
+                    it.copy(state = RunState.Paused, currentStepLabel = "pausiert – du bist dran")
+                }
+            }
+            is ThoughtEvent.TaskResumed -> {
+                setState { it.copy(state = RunState.Acting, currentStepLabel = "weiter…") }
+            }
         }
     }
 
