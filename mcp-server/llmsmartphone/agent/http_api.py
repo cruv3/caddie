@@ -165,11 +165,13 @@ def _handler_factory(
             system_prompt = build_system_prompt(matched)
             EVENT_BUS.task_started(task)
             result: dict = {"ok": False}
+            model_override = payload.get("model")
             try:
                 result = lmstudio.send_task(
                     task=task,
                     system_prompt=system_prompt,
                     authorization=self.headers.get("Authorization"),
+                    model=model_override,
                 )
             finally:
                 EVENT_BUS.task_finished(

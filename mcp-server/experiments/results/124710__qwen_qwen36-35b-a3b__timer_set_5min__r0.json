@@ -1,0 +1,213 @@
+{
+  "trial_id": "124710__qwen_qwen36-35b-a3b__timer_set_5min__r0",
+  "timestamp_utc": "2026-05-13T10:52:16.778595Z",
+  "model": "qwen/qwen3.6-35b-a3b",
+  "task": "timer_set_5min",
+  "run": 0,
+  "outcome": "failed",
+  "timing": {
+    "load": 59.27,
+    "reset": 1.42,
+    "task": 300.28,
+    "total": 306.74
+  },
+  "screenshot": null,
+  "lmstudio_response": null,
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1778669233.4680378,
+      "task": "stelle einen timer auf 5 minuten",
+      "_received_at": 103193.0085809
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778669238.2831914,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.settings",
+        "why": "Öffne die Einstellungen"
+      },
+      "_received_at": 103197.8237497
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778669245.6293209,
+      "tool": "smartphone_open_app",
+      "_received_at": 103205.1697902
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778669246.454642,
+      "tool": "smartphone_get_skill_timer_start_5min_deskclock",
+      "args": {
+        "skill_id": "timer.start_5min_deskclock"
+      },
+      "_received_at": 103205.9951405
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778669246.456193,
+      "tool": "smartphone_get_skill_timer_start_5min_deskclock",
+      "_received_at": 103205.9967605
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778669260.3432062,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Schaue mir die Einstellungen an"
+      },
+      "_received_at": 103219.8837628
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778669262.487387,
+      "tool": "smartphone_list_elements",
+      "_received_at": 103222.0279152
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778669273.7873845,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.google.android.deskclock",
+        "why": "Öffne die Clock-App für den Timer"
+      },
+      "_received_at": 103233.3279266
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778669281.4896786,
+      "tool": "smartphone_open_app",
+      "_received_at": 103241.0303894
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778669329.4415367,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 392,
+        "y": 1997,
+        "why": "Tippe auf Display & touch"
+      },
+      "_received_at": 103288.9820126
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778669335.9431477,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 103295.4836253
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778669341.839777,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Überprüfe den Timer-Bereich"
+      },
+      "_received_at": 103301.3802235
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778669343.9711003,
+      "tool": "smartphone_list_elements",
+      "_received_at": 103303.5115534
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778669394.8072872,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Schaue mir die Display-Einstellungen an"
+      },
+      "_received_at": 103354.3478309
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778669396.9642496,
+      "tool": "smartphone_list_elements",
+      "_received_at": 103356.5047072
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778669445.669537,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 854,
+        "y": 1667,
+        "why": "Starte den 5-Minuten-Timer"
+      },
+      "_received_at": 103405.210046
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778669459.7637792,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 103419.3042507
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778669498.7022789,
+      "tool": "smartphone_press_button",
+      "args": {
+        "button": "BACK",
+        "why": "Gehe zurück zu den Einstellungen"
+      },
+      "_received_at": 103458.2428423
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778669503.2656057,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Überprüfe ob Timer läuft"
+      },
+      "_received_at": 103462.8060965
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778669503.6830592,
+      "tool": "smartphone_list_elements",
+      "error": "AdbError: ADB failed: adb shell uiautomator dump /sdcard/window_dump.xml\nno adb error output",
+      "_received_at": 103463.2241155
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778669514.1037364,
+      "tool": "smartphone_press_button",
+      "_received_at": 103473.6441889
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778669518.5080965,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Prüfe, ob ich wieder in den Einstellungen bin"
+      },
+      "_received_at": 103478.0485483
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778669520.6544755,
+      "tool": "smartphone_list_elements",
+      "_received_at": 103480.1949402
+    },
+    {
+      "type": "task_finished",
+      "ts": 1778669526.7058125,
+      "ok": false,
+      "payload": {
+        "active_skills": [
+          "display.brightness_50_settings"
+        ]
+      },
+      "_received_at": 103486.2463559
+    }
+  ]
+}

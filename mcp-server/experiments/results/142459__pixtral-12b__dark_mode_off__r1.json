@@ -1,0 +1,163 @@
+{
+  "trial_id": "142459__pixtral-12b__dark_mode_off__r1",
+  "timestamp_utc": "2026-05-13T12:26:16.609766Z",
+  "model": "pixtral-12b",
+  "task": "dark_mode_off",
+  "run": 1,
+  "outcome": "failed",
+  "timing": {
+    "load": 30.33,
+    "reset": 2.05,
+    "task": 72.11,
+    "total": 77.31
+  },
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\142459__pixtral-12b__dark_mode_off__r1.png",
+  "lmstudio_response": {
+    "ok": false,
+    "active_skills": [
+      "display.dark_mode_off_settings"
+    ],
+    "lmstudio": {
+      "ok": false,
+      "status": 500,
+      "error": "{\n  \"error\": {\n    \"message\": \"MCP error -32001: Request timed out\",\n    \"type\": \"internal_error\",\n    \"code\": \"unknown\",\n    \"param\": null\n  }\n}",
+      "vision_unsupported": false
+    },
+    "_http_status": 502
+  },
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1778675103.374131,
+      "task": "schalte den dark mode aus",
+      "_received_at": 109062.9146697
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778675107.6107771,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 1212,
+        "end_x": 540,
+        "end_y": 2243,
+        "duration_ms": 300,
+        "why": "Scrolle nach unten zum Display & Touchbedienung"
+      },
+      "_received_at": 109067.1513642
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778675111.692134,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.settings",
+        "why": "Öffne Einstellungen"
+      },
+      "_received_at": 109071.2326691
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778675112.461152,
+      "tool": "smartphone_open_app",
+      "_received_at": 109072.0016789
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778675116.005751,
+      "tool": "smartphone_swipe",
+      "_received_at": 109075.5462356
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778675125.2185428,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 1212,
+        "end_x": 540,
+        "end_y": 2243,
+        "duration_ms": 300,
+        "why": "Scrolle nach unten zum Display & Touchbedienung"
+      },
+      "_received_at": 109084.7590283
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778675131.5983288,
+      "tool": "smartphone_swipe",
+      "_received_at": 109091.1388038
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778675139.8575075,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 1212,
+        "end_x": 540,
+        "end_y": 2243,
+        "duration_ms": 300,
+        "why": "Scrolle nach unten zum Display & Touchbedienung"
+      },
+      "_received_at": 109099.3983758
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778675146.142859,
+      "tool": "smartphone_swipe",
+      "_received_at": 109105.6833308
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778675154.330415,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 1212,
+        "end_x": 540,
+        "end_y": 2243,
+        "duration_ms": 300,
+        "why": "Scrolle nach unten zum Display & Touchbedienung"
+      },
+      "_received_at": 109113.8709522
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778675159.9919958,
+      "tool": "smartphone_swipe",
+      "_received_at": 109119.5324629
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778675167.9561372,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 1212,
+        "end_x": 540,
+        "end_y": 2243,
+        "duration_ms": 300,
+        "why": "Scrolle nach unten zum Display & Touchbedienung"
+      },
+      "_received_at": 109127.4966343
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778675173.7425463,
+      "tool": "smartphone_swipe",
+      "_received_at": 109133.2830392
+    },
+    {
+      "type": "task_finished",
+      "ts": 1778675175.1837473,
+      "ok": false,
+      "payload": {
+        "active_skills": [
+          "display.dark_mode_off_settings"
+        ]
+      },
+      "_received_at": 109134.7247027
+    }
+  ]
+}

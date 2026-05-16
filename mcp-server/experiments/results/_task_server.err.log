@@ -1,0 +1,2047 @@
+SSE open from 127.0.0.1:59891
+ingested tool_call_started tool=smartphone_get_skill_display_dark_mode_on_settings
+ingested tool_call_finished tool=smartphone_get_skill_display_dark_mode_on_settings
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_get_skill_display_dark_mode_on_settings
+ingested tool_call_finished tool=smartphone_get_skill_display_dark_mode_on_settings
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_get_skill_display_dark_mode_off_settings
+ingested tool_call_finished tool=smartphone_get_skill_display_dark_mode_off_settings
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_get_skill_display_dark_mode_off_settings
+ingested tool_call_finished tool=smartphone_get_skill_display_dark_mode_off_settings
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_list_apps
+ingested tool_call_finished tool=smartphone_list_apps
+ingested tool_call_started tool=smartphone_list_apps
+ingested tool_call_finished tool=smartphone_list_apps
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_type_text
+ingested tool_call_finished tool=smartphone_type_text
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_take_screenshot
+ingested tool_call_finished tool=smartphone_take_screenshot
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_list_apps
+ingested tool_call_finished tool=smartphone_list_apps
+ingested tool_call_started tool=smartphone_list_apps
+ingested tool_call_finished tool=smartphone_list_apps
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_type_text
+ingested tool_call_finished tool=smartphone_type_text
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_press_button
+ingested tool_call_finished tool=smartphone_press_button
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_get_skill_connectivity_bluetooth_on_settings
+ingested tool_call_finished tool=smartphone_get_skill_connectivity_bluetooth_on_settings
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_get_skill_connectivity_bluetooth_on_settings
+ingested tool_call_finished tool=smartphone_get_skill_connectivity_bluetooth_on_settings
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_get_skill_display_brightness_50_settings
+ingested tool_call_finished tool=smartphone_get_skill_display_brightness_50_settings
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_get_skill_display_brightness_50_settings
+ingested tool_call_finished tool=smartphone_get_skill_display_brightness_50_settings
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_list_apps
+ingested tool_call_finished tool=smartphone_list_apps
+ingested tool_call_started tool=smartphone_press_button
+ingested tool_call_finished tool=smartphone_press_button
+ingested tool_call_started tool=smartphone_press_button
+ingested tool_call_finished tool=smartphone_press_button
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_finished tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_press_button
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_press_button
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_finished tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_started tool=smartphone_open_app
+----------------------------------------
+Exception occurred during processing of request from ('127.0.0.1', 51450)
+Traceback (most recent call last):
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socketserver.py", line 697, in process_request_thread
+    self.finish_request(request, client_address)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socketserver.py", line 766, in __init__
+    self.handle()
+    ~~~~~~~~~~~^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\http\server.py", line 496, in handle
+    self.handle_one_request()
+    ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\http\server.py", line 484, in handle_one_request
+    method()
+    ~~~~~~^^
+  File "C:\Users\Andreas\dev\LLMSmartphone\mcp-server\llmsmartphone\agent\http_api.py", line 130, in do_POST
+    self._handle_task_oneshot()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Andreas\dev\LLMSmartphone\mcp-server\llmsmartphone\agent\http_api.py", line 194, in _handle_task_oneshot
+    self._send_json(response, status=200 if result.get("ok", False) else 502)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Andreas\dev\LLMSmartphone\mcp-server\llmsmartphone\agent\http_api.py", line 278, in _send_json
+    self.wfile.write(data)
+    ~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socketserver.py", line 845, in write
+    self._sock.sendall(b)
+    ~~~~~~~~~~~~~~~~~~^^^
+ConnectionAbortedError: [WinError 10053] An established connection was aborted by the software in your host machine
+----------------------------------------
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_take_screenshot
+ingested tool_call_finished tool=smartphone_take_screenshot
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_take_screenshot
+ingested tool_call_finished tool=smartphone_take_screenshot
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_get_skill_search_pizza_restaurant_google
+ingested tool_call_finished tool=smartphone_get_skill_search_pizza_restaurant_google
+ingested tool_call_started tool=smartphone_open_url
+ingested tool_call_finished tool=smartphone_open_url
+ingested tool_call_started tool=smartphone_take_screenshot
+ingested tool_call_finished tool=smartphone_take_screenshot
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_get_skill_search_pizza_restaurant_google
+ingested tool_call_finished tool=smartphone_get_skill_search_pizza_restaurant_google
+ingested tool_call_started tool=smartphone_open_url
+ingested tool_call_finished tool=smartphone_open_url
+ingested tool_call_started tool=smartphone_take_screenshot
+ingested tool_call_finished tool=smartphone_take_screenshot
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+SSE open from 127.0.0.1:50194
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_get_skill_display_dark_mode_off_settings
+ingested tool_call_finished tool=smartphone_get_skill_display_dark_mode_off_settings
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_get_skill_display_dark_mode_off_settings
+ingested tool_call_finished tool=smartphone_get_skill_display_dark_mode_off_settings
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+----------------------------------------
+Exception occurred during processing of request from ('127.0.0.1', 59771)
+Traceback (most recent call last):
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socketserver.py", line 697, in process_request_thread
+    self.finish_request(request, client_address)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socketserver.py", line 766, in __init__
+    self.handle()
+    ~~~~~~~~~~~^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\http\server.py", line 496, in handle
+    self.handle_one_request()
+    ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\http\server.py", line 484, in handle_one_request
+    method()
+    ~~~~~~^^
+  File "C:\Users\Andreas\dev\LLMSmartphone\mcp-server\llmsmartphone\agent\http_api.py", line 130, in do_POST
+    self._handle_task_oneshot()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Andreas\dev\LLMSmartphone\mcp-server\llmsmartphone\agent\http_api.py", line 194, in _handle_task_oneshot
+    self._send_json(response, status=200 if result.get("ok", False) else 502)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Andreas\dev\LLMSmartphone\mcp-server\llmsmartphone\agent\http_api.py", line 277, in _send_json
+    self.end_headers()
+    ~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\http\server.py", line 598, in end_headers
+    self.flush_headers()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\http\server.py", line 602, in flush_headers
+    self.wfile.write(b"".join(self._headers_buffer))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socketserver.py", line 845, in write
+    self._sock.sendall(b)
+    ~~~~~~~~~~~~~~~~~~^^^
+ConnectionAbortedError: [WinError 10053] An established connection was aborted by the software in your host machine
+----------------------------------------
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_get_skill_app_launcher_calculator_search_playstore
+ingested tool_call_finished tool=smartphone_get_skill_app_launcher_calculator_search_playstore
+ingested tool_call_started tool=smartphone_list_apps
+ingested tool_call_finished tool=smartphone_list_apps
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_type_text
+ingested tool_call_finished tool=smartphone_type_text
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_get_skill_app_launcher_calculator_search_playstore
+ingested tool_call_finished tool=smartphone_get_skill_app_launcher_calculator_search_playstore
+ingested tool_call_started tool=smartphone_list_apps
+ingested tool_call_finished tool=smartphone_list_apps
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_type_text
+ingested tool_call_finished tool=smartphone_type_text
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_get_skill_connectivity_bluetooth_on_settings
+ingested tool_call_finished tool=smartphone_get_skill_connectivity_bluetooth_on_settings
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_get_skill_connectivity_bluetooth_on_settings
+ingested tool_call_finished tool=smartphone_get_skill_connectivity_bluetooth_on_settings
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_press_button
+ingested tool_call_finished tool=smartphone_press_button
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_press_button
+ingested tool_call_finished tool=smartphone_press_button
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_press_button
+ingested tool_call_finished tool=smartphone_press_button
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_press_button
+ingested tool_call_finished tool=smartphone_press_button
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_press_button
+ingested tool_call_finished tool=smartphone_press_button
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_press_button
+ingested tool_call_finished tool=smartphone_press_button
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_press_button
+ingested tool_call_finished tool=smartphone_press_button
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_press_button
+ingested tool_call_finished tool=smartphone_press_button
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_press_button
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_press_button
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_press_button
+ingested tool_call_finished tool=smartphone_press_button
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_press_button
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_press_button
+ingested tool_call_started tool=smartphone_press_button
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_press_button
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_press_button
+ingested tool_call_finished tool=smartphone_press_button
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_press_button
+ingested tool_call_finished tool=smartphone_press_button
+ingested tool_call_started tool=smartphone_press_button
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_press_button
+ingested tool_call_finished tool=smartphone_press_button
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_press_button
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_get_skill_deskclock_timer_5min_start
+ingested tool_call_finished tool=smartphone_get_skill_deskclock_timer_5min_start
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_press_button
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_press_button
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_press_button
+ingested tool_call_started tool=smartphone_press_button
+ingested tool_call_finished tool=smartphone_press_button
+ingested tool_call_finished tool=smartphone_press_button
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_failed
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_failed
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_get_skill_deskclock_timer_5min_start
+ingested tool_call_finished tool=smartphone_get_skill_deskclock_timer_5min_start
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_open_url
+ingested tool_call_finished tool=smartphone_open_url
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_type_text
+ingested tool_call_finished tool=smartphone_type_text
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_open_url
+ingested tool_call_finished tool=smartphone_open_url
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_type_text
+ingested tool_call_finished tool=smartphone_type_text
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+SSE 127.0.0.1:50194: client closed during event write
+SSE 127.0.0.1:50194: handler exit (heartbeats=164)
+ingested tool_call_finished tool=smartphone_save_skill
+----------------------------------------
+Exception occurred during processing of request from ('127.0.0.1', 50194)
+Traceback (most recent call last):
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socketserver.py", line 697, in process_request_thread
+    self.finish_request(request, client_address)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socketserver.py", line 766, in __init__
+    self.handle()
+    ~~~~~~~~~~~^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\http\server.py", line 498, in handle
+    self.handle_one_request()
+    ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\http\server.py", line 464, in handle_one_request
+    self.raw_requestline = self.rfile.readline(65537)
+                           ~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socket.py", line 725, in readinto
+    return self._sock.recv_into(b)
+           ~~~~~~~~~~~~~~~~~~~~^^^
+ConnectionAbortedError: [WinError 10053] An established connection was aborted by the software in your host machine
+----------------------------------------
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+----------------------------------------
+Exception occurred during processing of request from ('127.0.0.1', 54169)
+Traceback (most recent call last):
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socketserver.py", line 697, in process_request_thread
+    self.finish_request(request, client_address)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socketserver.py", line 766, in __init__
+    self.handle()
+    ~~~~~~~~~~~^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\http\server.py", line 496, in handle
+    self.handle_one_request()
+    ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\http\server.py", line 484, in handle_one_request
+    method()
+    ~~~~~~^^
+  File "C:\Users\Andreas\dev\LLMSmartphone\mcp-server\llmsmartphone\agent\http_api.py", line 130, in do_POST
+    self._handle_task_oneshot()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Andreas\dev\LLMSmartphone\mcp-server\llmsmartphone\agent\http_api.py", line 194, in _handle_task_oneshot
+    self._send_json(response, status=200 if result.get("ok", False) else 502)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Andreas\dev\LLMSmartphone\mcp-server\llmsmartphone\agent\http_api.py", line 278, in _send_json
+    self.wfile.write(data)
+    ~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socketserver.py", line 845, in write
+    self._sock.sendall(b)
+    ~~~~~~~~~~~~~~~~~~^^^
+ConnectionAbortedError: [WinError 10053] An established connection was aborted by the software in your host machine
+----------------------------------------
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+SSE open from 127.0.0.1:64766
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_get_skill_app_launcher_calculator_search_playstore
+ingested tool_call_finished tool=smartphone_get_skill_app_launcher_calculator_search_playstore
+ingested tool_call_started tool=smartphone_list_apps
+ingested tool_call_finished tool=smartphone_list_apps
+ingested tool_call_started tool=smartphone_get_skill_app_launcher_calculator_search_playstore
+ingested tool_call_finished tool=smartphone_get_skill_app_launcher_calculator_search_playstore
+ingested tool_call_started tool=smartphone_list_apps
+ingested tool_call_finished tool=smartphone_list_apps
+ingested tool_call_started tool=smartphone_get_skill_connectivity_bluetooth_on_settings
+ingested tool_call_finished tool=smartphone_get_skill_connectivity_bluetooth_on_settings
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_get_skill_connectivity_bluetooth_on_settings
+ingested tool_call_finished tool=smartphone_get_skill_connectivity_bluetooth_on_settings
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_take_screenshot
+ingested tool_call_finished tool=smartphone_take_screenshot
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_get_skill_display_brightness_50_settings
+ingested tool_call_finished tool=smartphone_get_skill_display_brightness_50_settings
+ingested tool_call_started tool=smartphone_press_button
+ingested tool_call_finished tool=smartphone_press_button
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_get_skill_display_brightness_50_settings
+ingested tool_call_finished tool=smartphone_get_skill_display_brightness_50_settings
+ingested tool_call_started tool=smartphone_press_button
+ingested tool_call_finished tool=smartphone_press_button
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_finished tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_take_screenshot
+ingested tool_call_finished tool=smartphone_take_screenshot
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_finished tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_take_screenshot
+ingested tool_call_finished tool=smartphone_take_screenshot
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_get_skill_search_pizza_restaurant_google
+ingested tool_call_finished tool=smartphone_get_skill_search_pizza_restaurant_google
+ingested tool_call_started tool=smartphone_open_url
+ingested tool_call_finished tool=smartphone_open_url
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_get_skill_search_pizza_restaurant_google
+ingested tool_call_finished tool=smartphone_get_skill_search_pizza_restaurant_google
+ingested tool_call_started tool=smartphone_open_url
+ingested tool_call_finished tool=smartphone_open_url
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+SSE 127.0.0.1:64766: client closed (after 55 heartbeats)
+SSE 127.0.0.1:64766: handler exit (heartbeats=55)
+----------------------------------------
+Exception occurred during processing of request from ('127.0.0.1', 64766)
+Traceback (most recent call last):
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socketserver.py", line 697, in process_request_thread
+    self.finish_request(request, client_address)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socketserver.py", line 766, in __init__
+    self.handle()
+    ~~~~~~~~~~~^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\http\server.py", line 498, in handle
+    self.handle_one_request()
+    ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\http\server.py", line 464, in handle_one_request
+    self.raw_requestline = self.rfile.readline(65537)
+                           ~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socket.py", line 725, in readinto
+    return self._sock.recv_into(b)
+           ~~~~~~~~~~~~~~~~~~~~^^^
+ConnectionAbortedError: [WinError 10053] An established connection was aborted by the software in your host machine
+----------------------------------------
+SSE open from 127.0.0.1:63912
+ingested tool_call_started tool=smartphone_get_skill_display_dark_mode_on_settings
+ingested tool_call_finished tool=smartphone_get_skill_display_dark_mode_on_settings
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_type_text
+ingested tool_call_finished tool=smartphone_type_text
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_get_skill_display_dark_mode_on_settings
+ingested tool_call_finished tool=smartphone_get_skill_display_dark_mode_on_settings
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_type_text
+ingested tool_call_finished tool=smartphone_type_text
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_failed
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_failed
+ingested tool_call_started tool=smartphone_get_skill_display_dark_mode_off_settings
+ingested tool_call_finished tool=smartphone_get_skill_display_dark_mode_off_settings
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+SSE 127.0.0.1:59891: client closed (after 874 heartbeats)
+SSE 127.0.0.1:59891: handler exit (heartbeats=874)
+----------------------------------------
+Exception occurred during processing of request from ('127.0.0.1', 59891)
+Traceback (most recent call last):
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socketserver.py", line 697, in process_request_thread
+    self.finish_request(request, client_address)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socketserver.py", line 766, in __init__
+    self.handle()
+    ~~~~~~~~~~~^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\http\server.py", line 498, in handle
+    self.handle_one_request()
+    ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\http\server.py", line 464, in handle_one_request
+    self.raw_requestline = self.rfile.readline(65537)
+                           ~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socket.py", line 725, in readinto
+    return self._sock.recv_into(b)
+           ~~~~~~~~~~~~~~~~~~~~^^^
+ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host
+----------------------------------------
+SSE 127.0.0.1:63912: client closed (after 146 heartbeats)
+SSE 127.0.0.1:63912: handler exit (heartbeats=146)
+----------------------------------------
+Exception occurred during processing of request from ('127.0.0.1', 63912)
+Traceback (most recent call last):
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socketserver.py", line 697, in process_request_thread
+    self.finish_request(request, client_address)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socketserver.py", line 766, in __init__
+    self.handle()
+    ~~~~~~~~~~~^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\http\server.py", line 498, in handle
+    self.handle_one_request()
+    ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\http\server.py", line 464, in handle_one_request
+    self.raw_requestline = self.rfile.readline(65537)
+                           ~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socket.py", line 725, in readinto
+    return self._sock.recv_into(b)
+           ~~~~~~~~~~~~~~~~~~~~^^^
+ConnectionAbortedError: [WinError 10053] An established connection was aborted by the software in your host machine
+----------------------------------------
+SSE open from 127.0.0.1:50394
+SSE open from 127.0.0.1:50420
+ingested tool_call_started tool=smartphone_get_skill_display_dark_mode_on_settings
+ingested tool_call_finished tool=smartphone_get_skill_display_dark_mode_on_settings
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_get_skill_display_dark_mode_on_settings
+ingested tool_call_finished tool=smartphone_get_skill_display_dark_mode_on_settings
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_type_text
+ingested tool_call_finished tool=smartphone_type_text
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_type_text
+ingested tool_call_finished tool=smartphone_type_text
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_failed
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_failed
+ingested tool_call_started tool=smartphone_get_skill_display_dark_mode_off_settings
+ingested tool_call_finished tool=smartphone_get_skill_display_dark_mode_off_settings
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_type_text
+ingested tool_call_finished tool=smartphone_type_text
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_press_button
+ingested tool_call_finished tool=smartphone_press_button
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_failed
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_failed
+ingested tool_call_started tool=smartphone_get_skill_display_dark_mode_off_settings
+ingested tool_call_finished tool=smartphone_get_skill_display_dark_mode_off_settings
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_failed
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_failed
+ingested tool_call_started tool=smartphone_get_skill_app_launcher_calculator_search_playstore
+ingested tool_call_finished tool=smartphone_get_skill_app_launcher_calculator_search_playstore
+ingested tool_call_started tool=smartphone_list_apps
+ingested tool_call_finished tool=smartphone_list_apps
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_type_text
+ingested tool_call_finished tool=smartphone_type_text
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_get_skill_app_launcher_calculator_search_playstore
+ingested tool_call_finished tool=smartphone_get_skill_app_launcher_calculator_search_playstore
+ingested tool_call_started tool=smartphone_list_apps
+ingested tool_call_finished tool=smartphone_list_apps
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_type_text
+ingested tool_call_finished tool=smartphone_type_text
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_press_button
+ingested tool_call_finished tool=smartphone_press_button
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_get_skill_connectivity_bluetooth_on_settings
+ingested tool_call_finished tool=smartphone_get_skill_connectivity_bluetooth_on_settings
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_take_screenshot
+ingested tool_call_finished tool=smartphone_take_screenshot
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_type_text
+ingested tool_call_finished tool=smartphone_type_text
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_take_screenshot
+ingested tool_call_finished tool=smartphone_take_screenshot
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_take_screenshot
+ingested tool_call_finished tool=smartphone_take_screenshot
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_get_skill_display_brightness_50_settings
+ingested tool_call_finished tool=smartphone_get_skill_display_brightness_50_settings
+ingested tool_call_started tool=smartphone_press_button
+ingested tool_call_finished tool=smartphone_press_button
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_get_skill_display_brightness_50_settings
+ingested tool_call_finished tool=smartphone_get_skill_display_brightness_50_settings
+ingested tool_call_started tool=smartphone_press_button
+ingested tool_call_finished tool=smartphone_press_button
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_get_skill_deskclock_timer_5min_start
+ingested tool_call_finished tool=smartphone_get_skill_deskclock_timer_5min_start
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_take_screenshot
+ingested tool_call_finished tool=smartphone_take_screenshot
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_get_skill_deskclock_timer_5min_start
+ingested tool_call_finished tool=smartphone_get_skill_deskclock_timer_5min_start
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_take_screenshot
+ingested tool_call_finished tool=smartphone_take_screenshot
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_get_skill_search_pizza_restaurant_google
+ingested tool_call_finished tool=smartphone_get_skill_search_pizza_restaurant_google
+ingested tool_call_started tool=smartphone_open_url
+ingested tool_call_finished tool=smartphone_open_url
+ingested tool_call_started tool=smartphone_take_screenshot
+ingested tool_call_finished tool=smartphone_take_screenshot
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_get_skill_search_pizza_restaurant_google
+ingested tool_call_finished tool=smartphone_get_skill_search_pizza_restaurant_google
+ingested tool_call_started tool=smartphone_open_url
+ingested tool_call_finished tool=smartphone_open_url
+ingested tool_call_started tool=smartphone_take_screenshot
+ingested tool_call_finished tool=smartphone_take_screenshot
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+SSE 127.0.0.1:50420: client closed (after 81 heartbeats)
+SSE 127.0.0.1:50420: handler exit (heartbeats=81)
+----------------------------------------
+Exception occurred during processing of request from ('127.0.0.1', 50420)
+Traceback (most recent call last):
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socketserver.py", line 697, in process_request_thread
+    self.finish_request(request, client_address)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socketserver.py", line 766, in __init__
+    self.handle()
+    ~~~~~~~~~~~^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\http\server.py", line 498, in handle
+    self.handle_one_request()
+    ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\http\server.py", line 464, in handle_one_request
+    self.raw_requestline = self.rfile.readline(65537)
+                           ~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socket.py", line 725, in readinto
+    return self._sock.recv_into(b)
+           ~~~~~~~~~~~~~~~~~~~~^^^
+ConnectionAbortedError: [WinError 10053] An established connection was aborted by the software in your host machine
+----------------------------------------
+SSE open from 127.0.0.1:51878
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_get_skill_connectivity_bluetooth_on_settings
+ingested tool_call_finished tool=smartphone_get_skill_connectivity_bluetooth_on_settings
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_get_skill_connectivity_bluetooth_on_settings
+ingested tool_call_finished tool=smartphone_get_skill_connectivity_bluetooth_on_settings
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_get_skill_display_brightness_50_settings
+ingested tool_call_finished tool=smartphone_get_skill_display_brightness_50_settings
+ingested tool_call_started tool=smartphone_set_orientation
+ingested tool_call_finished tool=smartphone_set_orientation
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_get_skill_display_brightness_50_settings
+ingested tool_call_finished tool=smartphone_get_skill_display_brightness_50_settings
+ingested tool_call_started tool=smartphone_set_orientation
+ingested tool_call_finished tool=smartphone_set_orientation
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_finished tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_started tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_finished tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_take_screenshot
+ingested tool_call_finished tool=smartphone_take_screenshot
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_finished tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_started tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_finished tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_take_screenshot
+ingested tool_call_finished tool=smartphone_take_screenshot
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_open_url
+ingested tool_call_finished tool=smartphone_open_url
+ingested tool_call_started tool=smartphone_open_url
+ingested tool_call_finished tool=smartphone_open_url
+SSE 127.0.0.1:51878: client closed (after 42 heartbeats)
+SSE 127.0.0.1:51878: handler exit (heartbeats=42)
+----------------------------------------
+Exception occurred during processing of request from ('127.0.0.1', 51878)
+Traceback (most recent call last):
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socketserver.py", line 697, in process_request_thread
+    self.finish_request(request, client_address)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socketserver.py", line 766, in __init__
+    self.handle()
+    ~~~~~~~~~~~^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\http\server.py", line 498, in handle
+    self.handle_one_request()
+    ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\http\server.py", line 464, in handle_one_request
+    self.raw_requestline = self.rfile.readline(65537)
+                           ~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socket.py", line 725, in readinto
+    return self._sock.recv_into(b)
+           ~~~~~~~~~~~~~~~~~~~~^^^
+ConnectionAbortedError: [WinError 10053] An established connection was aborted by the software in your host machine
+----------------------------------------
+SSE open from 127.0.0.1:61499
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_get_skill_display_dark_mode_on_settings
+ingested tool_call_finished tool=smartphone_get_skill_display_dark_mode_on_settings
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_get_skill_display_dark_mode_off_settings
+ingested tool_call_finished tool=smartphone_get_skill_display_dark_mode_off_settings
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_get_skill_app_launcher_calculator_search_playstore
+ingested tool_call_finished tool=smartphone_get_skill_app_launcher_calculator_search_playstore
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_apps
+ingested tool_call_finished tool=smartphone_list_apps
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_type_text
+ingested tool_call_finished tool=smartphone_type_text
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_apps
+ingested tool_call_finished tool=smartphone_list_apps
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_apps
+ingested tool_call_finished tool=smartphone_list_apps
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_apps
+ingested tool_call_finished tool=smartphone_list_apps
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_apps
+ingested tool_call_finished tool=smartphone_list_apps
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_type_text
+ingested tool_call_finished tool=smartphone_type_text
+ingested tool_call_started tool=smartphone_get_skill_app_launcher_calculator_search_playstore
+ingested tool_call_finished tool=smartphone_get_skill_app_launcher_calculator_search_playstore
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_apps
+ingested tool_call_finished tool=smartphone_list_apps
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_type_text
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_type_text
+ingested tool_call_started tool=smartphone_type_text
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_type_text
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_open_url
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_open_url
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_get_skill_connectivity_bluetooth_on_settings
+ingested tool_call_finished tool=smartphone_get_skill_connectivity_bluetooth_on_settings
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_take_screenshot
+ingested tool_call_finished tool=smartphone_take_screenshot
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_get_skill_connectivity_bluetooth_on_settings
+ingested tool_call_finished tool=smartphone_get_skill_connectivity_bluetooth_on_settings
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_take_screenshot
+ingested tool_call_finished tool=smartphone_take_screenshot
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_press_button
+ingested tool_call_finished tool=smartphone_press_button
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_press_button
+ingested tool_call_finished tool=smartphone_press_button
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_swipe
+ingested tool_call_finished tool=smartphone_swipe
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_finished tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_take_screenshot
+ingested tool_call_finished tool=smartphone_take_screenshot
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_take_screenshot
+ingested tool_call_finished tool=smartphone_take_screenshot
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_take_screenshot
+ingested tool_call_finished tool=smartphone_take_screenshot
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_take_screenshot
+ingested tool_call_finished tool=smartphone_take_screenshot
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_take_screenshot
+ingested tool_call_finished tool=smartphone_take_screenshot
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_finished tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_open_app
+ingested tool_call_finished tool=smartphone_open_app
+ingested tool_call_started tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_finished tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_started tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_finished tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_finished tool=smartphone_list_elements
+ingested tool_call_started tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_finished tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_started tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_finished tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_finished tool=smartphone_tap_coordinates
+ingested tool_call_started tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_finished tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_started tool=smartphone_take_screenshot
+ingested tool_call_finished tool=smartphone_take_screenshot
+ingested tool_call_started tool=smartphone_done
+ingested task_finished tool=None
+ingested tool_call_finished tool=smartphone_done
+ingested tool_call_started tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_finished tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_started tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_finished tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_started tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_finished tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_started tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_finished tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_finished tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_started tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_finished tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_finished tool=smartphone_get_skill_timer_start_5min_deskclock
+ingested tool_call_started tool=smartphone_save_skill
+ingested tool_call_finished tool=smartphone_save_skill
+ingested tool_call_started tool=smartphone_open_url
+----------------------------------------
+Exception occurred during processing of request from ('127.0.0.1', 52228)
+Traceback (most recent call last):
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socketserver.py", line 697, in process_request_thread
+    self.finish_request(request, client_address)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socketserver.py", line 766, in __init__
+    self.handle()
+    ~~~~~~~~~~~^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\http\server.py", line 496, in handle
+    self.handle_one_request()
+    ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\http\server.py", line 484, in handle_one_request
+    method()
+    ~~~~~~^^
+  File "C:\Users\Andreas\dev\LLMSmartphone\mcp-server\llmsmartphone\agent\http_api.py", line 130, in do_POST
+    self._handle_task_oneshot()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Andreas\dev\LLMSmartphone\mcp-server\llmsmartphone\agent\http_api.py", line 194, in _handle_task_oneshot
+    self._send_json(response, status=200 if result.get("ok", False) else 502)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Andreas\dev\LLMSmartphone\mcp-server\llmsmartphone\agent\http_api.py", line 278, in _send_json
+    self.wfile.write(data)
+    ~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socketserver.py", line 845, in write
+    self._sock.sendall(b)
+    ~~~~~~~~~~~~~~~~~~^^^
+ConnectionAbortedError: [WinError 10053] An established connection was aborted by the software in your host machine
+----------------------------------------
+ingested tool_call_finished tool=smartphone_open_url
+ingested tool_call_started tool=smartphone_open_url
+ingested tool_call_finished tool=smartphone_open_url
+SSE 127.0.0.1:50394: client closed (after 407 heartbeats)
+SSE 127.0.0.1:50394: handler exit (heartbeats=407)
+----------------------------------------
+Exception occurred during processing of request from ('127.0.0.1', 50394)
+Traceback (most recent call last):
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socketserver.py", line 697, in process_request_thread
+    self.finish_request(request, client_address)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socketserver.py", line 766, in __init__
+    self.handle()
+    ~~~~~~~~~~~^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\http\server.py", line 498, in handle
+    self.handle_one_request()
+    ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\http\server.py", line 464, in handle_one_request
+    self.raw_requestline = self.rfile.readline(65537)
+                           ~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\socket.py", line 725, in readinto
+    return self._sock.recv_into(b)
+           ~~~~~~~~~~~~~~~~~~~~^^^
+ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host
+----------------------------------------

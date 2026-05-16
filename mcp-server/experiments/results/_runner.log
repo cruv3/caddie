@@ -1,0 +1,170 @@
+8765
+8787
+Starting: Intent { cmp=com.llm_smartphone_v2/.MainActivity }
+8765
+8787
+Starting: Intent { cmp=com.llm_smartphone_v2/.MainActivity }
+Plan: 3 Modelle × 7 Tasks × 2 Runs = 42 Trials
+  Modell: google/gemma-4-e4b
+  Modell: gemma-4-e2b-it
+  Modell: pixtral-12b
+  Task:   dark_mode_on              – schalte den dark mode an
+  Task:   dark_mode_off             – schalte den dark mode aus
+  Task:   open_calculator           – öffne die taschenrechner-app
+  Task:   bluetooth_toggle_on       – schalte bluetooth an
+  Task:   brightness_set_50         – stelle die helligkeit auf 50 prozent
+  Task:   timer_set_5min            – stelle einen timer auf 5 minuten
+  Task:   pizza_search              – suche im browser ein pizza-restaurant in der nähe
+
+=== Modell laden: google/gemma-4-e4b ===
+[lmstudio_admin] WARN: google/gemma-4-e4b not reported as loaded within 20s
+    geladen in 30.8s
+
+[1/42] 135743__google_gemma-4-e4b__dark_mode_on__r0
+    outcome=done  tools=10  task_time=70.6s  total=75.8s
+
+[2/42] 135859__google_gemma-4-e4b__dark_mode_on__r1
+    outcome=failed  tools=13  task_time=73.1s  total=78.5s
+
+[3/42] 140017__google_gemma-4-e4b__dark_mode_off__r0
+    outcome=failed  tools=12  task_time=65.6s  total=70.5s
+
+[4/42] 140128__google_gemma-4-e4b__dark_mode_off__r1
+    outcome=failed  tools=10  task_time=52.0s  total=56.9s
+
+[5/42] 140225__google_gemma-4-e4b__open_calculator__r0
+    outcome=done  tools=7  task_time=47.5s  total=52.2s
+
+[6/42] 140317__google_gemma-4-e4b__open_calculator__r1
+    outcome=done  tools=10  task_time=62.6s  total=67.4s
+
+[7/42] 140424__google_gemma-4-e4b__bluetooth_toggle_on__r0
+    outcome=done  tools=8  task_time=46.1s  total=51.2s
+
+[8/42] 140516__google_gemma-4-e4b__bluetooth_toggle_on__r1
+    outcome=done  tools=10  task_time=59.1s  total=64.3s
+
+[9/42] 140620__google_gemma-4-e4b__brightness_set_50__r0
+    outcome=done  tools=6  task_time=40.1s  total=44.8s
+
+[10/42] 140705__google_gemma-4-e4b__brightness_set_50__r1
+    outcome=done  tools=6  task_time=40.6s  total=45.6s
+
+[11/42] 140750__google_gemma-4-e4b__timer_set_5min__r0
+    outcome=done  tools=6  task_time=39.6s  total=44.7s
+
+[12/42] 140835__google_gemma-4-e4b__timer_set_5min__r1
+    outcome=done  tools=7  task_time=63.6s  total=68.6s
+
+[13/42] 140943__google_gemma-4-e4b__pizza_search__r0
+    outcome=done  tools=4  task_time=20.1s  total=24.9s
+
+[14/42] 141008__google_gemma-4-e4b__pizza_search__r1
+    outcome=done  tools=4  task_time=20.6s  total=25.5s
+
+=== Phone-Reboot vor Modell gemma-4-e2b-it ===
+[phone_helper] adb reboot — Phone wird neu gestartet …
+[phone_helper] Phone wieder bereit.
+
+=== Modell laden: gemma-4-e2b-it ===
+[lmstudio_admin] WARN: gemma-4-e2b-it not reported as loaded within 20s
+    geladen in 25.8s
+
+[15/42] 141133__gemma-4-e2b-it__dark_mode_on__r0
+    outcome=done  tools=9  task_time=43.0s  total=47.7s
+
+[16/42] 141221__gemma-4-e2b-it__dark_mode_on__r1
+    outcome=done  tools=0  task_time=1.0s  total=6.2s
+
+[17/42] 141227__gemma-4-e2b-it__dark_mode_off__r0
+    outcome=done  tools=0  task_time=1.0s  total=6.0s
+
+[18/42] 141233__gemma-4-e2b-it__dark_mode_off__r1
+    outcome=done  tools=0  task_time=1.0s  total=6.0s
+
+[19/42] 141239__gemma-4-e2b-it__open_calculator__r0
+    outcome=done  tools=1  task_time=5.0s  total=10.0s
+
+[20/42] 141249__gemma-4-e2b-it__open_calculator__r1
+    outcome=done  tools=1  task_time=4.5s  total=9.6s
+
+[21/42] 141259__gemma-4-e2b-it__bluetooth_toggle_on__r0
+    outcome=done  tools=5  task_time=23.5s  total=28.1s
+
+[22/42] 141327__gemma-4-e2b-it__bluetooth_toggle_on__r1
+    outcome=done  tools=5  task_time=22.5s  total=27.6s
+
+[23/42] 141354__gemma-4-e2b-it__brightness_set_50__r0
+    outcome=done  tools=3  task_time=9.5s  total=15.1s
+
+[24/42] 141409__gemma-4-e2b-it__brightness_set_50__r1
+    outcome=done  tools=3  task_time=9.0s  total=14.1s
+
+[25/42] 141423__gemma-4-e2b-it__timer_set_5min__r0
+    outcome=done  tools=7  task_time=29.6s  total=34.3s
+
+[26/42] 141458__gemma-4-e2b-it__timer_set_5min__r1
+    outcome=done  tools=7  task_time=46.0s  total=51.2s
+
+[27/42] 141549__gemma-4-e2b-it__pizza_search__r0
+    outcome=done  tools=1  task_time=13.5s  total=18.6s
+
+[28/42] 141608__gemma-4-e2b-it__pizza_search__r1
+    outcome=done  tools=1  task_time=12.5s  total=17.6s
+
+=== Phone-Reboot vor Modell pixtral-12b ===
+[phone_helper] adb reboot — Phone wird neu gestartet …
+[phone_helper] Phone wieder bereit.
+
+=== Modell laden: pixtral-12b ===
+[lmstudio_admin] WARN: pixtral-12b not reported as loaded within 20s
+    geladen in 30.3s
+
+[29/42] 141729__pixtral-12b__dark_mode_on__r0
+    outcome=done  tools=9  task_time=83.6s  total=88.5s
+
+[30/42] 141857__pixtral-12b__dark_mode_on__r1
+    outcome=timeout  tools=26  task_time=300.4s  total=310.7s
+
+[31/42] 142408__pixtral-12b__dark_mode_off__r0
+    outcome=done  tools=7  task_time=44.2s  total=50.8s
+
+[32/42] 142459__pixtral-12b__dark_mode_off__r1
+    outcome=failed  tools=6  task_time=72.1s  total=77.3s
+
+[33/42] 142616__pixtral-12b__open_calculator__r0
+    ABORT — > 25 tool calls
+    outcome=fail_loop  tools=26  task_time=195.4s  total=200.5s
+
+[34/42] 142937__pixtral-12b__open_calculator__r1
+    ABORT — > 25 tool calls
+    outcome=fail_loop  tools=26  task_time=228.9s  total=234.3s
+
+[35/42] 143331__pixtral-12b__bluetooth_toggle_on__r0
+    ABORT — > 25 tool calls
+    outcome=fail_loop  tools=26  task_time=233.5s  total=241.7s
+
+[36/42] 143733__pixtral-12b__bluetooth_toggle_on__r1
+    outcome=done  tools=18  task_time=173.9s  total=180.0s
+
+[37/42] 144033__pixtral-12b__brightness_set_50__r0
+    outcome=done  tools=7  task_time=71.3s  total=77.0s
+
+[38/42] 144150__pixtral-12b__brightness_set_50__r1
+    outcome=done  tools=7  task_time=72.9s  total=78.2s
+
+[39/42] 144308__pixtral-12b__timer_set_5min__r0
+    outcome=done  tools=21  task_time=300.2s  total=306.4s
+
+[40/42] 144814__pixtral-12b__timer_set_5min__r1
+    outcome=done  tools=21  task_time=300.1s  total=306.1s
+
+[41/42] 145320__pixtral-12b__pizza_search__r0
+    outcome=done  tools=2  task_time=19.6s  total=25.1s
+
+[42/42] 145345__pixtral-12b__pizza_search__r1
+    outcome=done  tools=1  task_time=17.6s  total=23.4s
+
+Fertig. 42 Trials in 57.0 min.
+Markdown-Log: C:\Users\Andreas\dev\LLMSmartphone\mcp-server\docs\failure-mode-log.md
+JSON-Dumps:   C:\Users\Andreas\dev\LLMSmartphone\mcp-server\experiments\results

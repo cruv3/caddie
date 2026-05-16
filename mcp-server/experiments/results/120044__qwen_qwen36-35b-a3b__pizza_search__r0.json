@@ -1,0 +1,156 @@
+{
+  "trial_id": "120044__qwen_qwen36-35b-a3b__pizza_search__r0",
+  "timestamp_utc": "2026-05-16T10:05:49.023481Z",
+  "model": "qwen/qwen3.6-35b-a3b",
+  "task": "pizza_search",
+  "run": 0,
+  "outcome": "done",
+  "timing": {
+    "load": 52.57,
+    "reset": 1.41,
+    "task": 300.23,
+    "total": 304.97
+  },
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\120044__qwen_qwen36-35b-a3b__pizza_search__r0.png",
+  "lmstudio_response": null,
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1778925647.4716282,
+      "task": "suche im browser ein pizza-restaurant in der nähe",
+      "_received_at": 89900.3624591
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778925712.830926,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 540,
+        "y": 1113,
+        "why": "Tippe auf 5 für die Minuten"
+      },
+      "_received_at": 89965.721583
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778925716.468078,
+      "tool": "smartphone_get_skill_search_pizza_restaurant_google",
+      "args": {
+        "skill_id": "search.pizza_restaurant_google"
+      },
+      "_received_at": 89969.3583632
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778925716.4693828,
+      "tool": "smartphone_get_skill_search_pizza_restaurant_google",
+      "_received_at": 89969.3596438
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778925719.336035,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 89972.2263633
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778925725.1788073,
+      "tool": "smartphone_open_url",
+      "args": {
+        "url": "https://www.google.com/search?q=pizza+restaurant+near+me",
+        "why": "Suche bei Google nach Pizza-Restaurants in der Nähe"
+      },
+      "_received_at": 89978.0691334
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778925736.2386575,
+      "tool": "smartphone_open_url",
+      "_received_at": 89989.1290164
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778925804.2094822,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 540,
+        "y": 1664,
+        "why": "Tippe auf 0 für die Minuten"
+      },
+      "_received_at": 90057.099898
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778925809.53956,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 90062.4299189
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778925811.2444649,
+      "tool": "smartphone_take_screenshot",
+      "args": {
+        "why": "Überprüfe die Suchergebnisse"
+      },
+      "_received_at": 90064.1347843
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778925811.6143656,
+      "tool": "smartphone_take_screenshot",
+      "_received_at": 90064.5047189
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778925888.8615303,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Überprüfe ob 05:00 angezeigt wird"
+      },
+      "_received_at": 90141.7518515
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778925891.469542,
+      "tool": "smartphone_list_elements",
+      "_received_at": 90144.3599327
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778925897.8637075,
+      "tool": "smartphone_done",
+      "args": {
+        "message": "Pizza-Restaurants in der Nähe wurden gefunden."
+      },
+      "_received_at": 90150.7540269
+    },
+    {
+      "type": "task_finished",
+      "ts": 1778925897.8754792,
+      "ok": true,
+      "payload": {
+        "message": "Pizza-Restaurants in der Nähe wurden gefunden."
+      },
+      "_received_at": 90150.7657896
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778925897.87661,
+      "tool": "smartphone_done",
+      "_received_at": 90150.7669453
+    },
+    {
+      "type": "task_finished",
+      "ts": 1778925942.4193265,
+      "ok": false,
+      "payload": {
+        "active_skills": [
+          "deskclock.timer_5min_start",
+          "timer.start_5min_deskclock"
+        ]
+      },
+      "_received_at": 90195.3118418
+    }
+  ]
+}

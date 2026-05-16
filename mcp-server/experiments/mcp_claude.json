@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "llm-smartphone": {
+      "command": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\.venv\\Scripts\\python.exe",
+      "args": ["server.py"],
+      "cwd": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server"
+    }
+  }
+}

@@ -14,6 +14,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.llm_smartphone_v2.accessibility.AccessibilityReturnFlag
 import com.llm_smartphone_v2.accessibility.CompanionServiceLauncher
+import com.llm_smartphone_v2.overlay.OverlayService
+import com.llm_smartphone_v2.overlay.OverlaySettings
 import com.llm_smartphone_v2.overlay.ui.LlmSmartphoneTheme
 import com.llm_smartphone_v2.setup.SetupScreen
 import com.llm_smartphone_v2.setup.SetupUiState
@@ -39,6 +41,7 @@ class MainActivity : ComponentActivity() {
                     onAccessibilityClick = ::openAccessibilitySettings,
                     onOverlayClick = ::openOverlaySettings,
                     onMicClick = ::requestMic,
+                    onTogglePill = ::togglePill,
                 )
             }
         }
@@ -75,5 +78,19 @@ class MainActivity : ComponentActivity() {
 
     private fun requestMic() {
         requestMicPermission.launch(Manifest.permission.RECORD_AUDIO)
+    }
+
+    /**
+     * Flips the Baseline study condition. Restarts OverlayService so it
+     * re-reads the flag on its next onCreate — the service decides at startup
+     * whether to mount the overlay.
+     */
+    private fun togglePill(enabled: Boolean) {
+        OverlaySettings.setPillEnabled(this, enabled)
+        stopService(Intent(this, OverlayService::class.java))
+        if (Settings.canDrawOverlays(this)) {
+            startForegroundService(Intent(this, OverlayService::class.java))
+        }
+        refresh()
     }
 }

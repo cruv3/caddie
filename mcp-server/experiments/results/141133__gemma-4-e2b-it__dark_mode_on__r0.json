@@ -1,0 +1,208 @@
+{
+  "trial_id": "141133__gemma-4-e2b-it__dark_mode_on__r0",
+  "timestamp_utc": "2026-05-13T12:12:21.327272Z",
+  "model": "gemma-4-e2b-it",
+  "task": "dark_mode_on",
+  "run": 0,
+  "outcome": "done",
+  "timing": {
+    "load": 25.82,
+    "reset": 1.5,
+    "task": 43.04,
+    "total": 47.71
+  },
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\141133__gemma-4-e2b-it__dark_mode_on__r0.png",
+  "lmstudio_response": {
+    "ok": false,
+    "active_skills": [
+      "display.dark_mode_on_settings"
+    ],
+    "lmstudio": {
+      "ok": false,
+      "status": 500,
+      "error": "{\n  \"error\": {\n    \"type\": \"tool_format_generation_error\",\n    \"message\": \"Failed to parse tool call: Unexpected end of content.\"\n  }\n}",
+      "vision_unsupported": false
+    },
+    "_http_status": 502
+  },
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1778674297.1303425,
+      "task": "schalte den dark mode an",
+      "_received_at": 108256.6710094
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778674300.8566644,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.settings",
+        "why": "Öffne die Einstellungen für Dark Mode"
+      },
+      "_received_at": 108260.3977623
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778674308.9723384,
+      "tool": "smartphone_open_app",
+      "_received_at": 108268.5127977
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778674309.4251125,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Suche nach dem Display-Menü in den Einstellungen"
+      },
+      "_received_at": 108268.9656191
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778674311.6880348,
+      "tool": "smartphone_list_elements",
+      "_received_at": 108271.2285327
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778674312.4125464,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 1212,
+        "end_x": 540,
+        "end_y": 1212,
+        "duration_ms": 50,
+        "why": "Scrolle zu Display & Touchbedienung"
+      },
+      "_received_at": 108271.9530242
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778674318.24704,
+      "tool": "smartphone_swipe",
+      "_received_at": 108277.7875109
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778674318.8340394,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Suche nach Display & Touchbedienung in den Einstellungen"
+      },
+      "_received_at": 108278.3745129
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778674320.9859328,
+      "tool": "smartphone_list_elements",
+      "_received_at": 108280.526385
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778674321.7009692,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 1212,
+        "end_x": 540,
+        "end_y": 1212,
+        "duration_ms": 50,
+        "why": "Scrolle zu Dark theme"
+      },
+      "_received_at": 108281.2414934
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778674327.7141864,
+      "tool": "smartphone_swipe",
+      "_received_at": 108287.2546453
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778674328.1976306,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Suche nach Dark theme im Menü"
+      },
+      "_received_at": 108287.7381107
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778674330.344397,
+      "tool": "smartphone_list_elements",
+      "_received_at": 108289.8848801
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778674330.961882,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 540,
+        "y": 1071,
+        "why": "Tippe auf den Dark Mode Schalter"
+      },
+      "_received_at": 108290.5025003
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778674335.8759496,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 108295.4164042
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778674336.3870738,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Pruefe ob der Dark Mode aktiviert ist"
+      },
+      "_received_at": 108295.9275426
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778674338.5575945,
+      "tool": "smartphone_list_elements",
+      "_received_at": 108298.0982786
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778674339.0614085,
+      "tool": "smartphone_done",
+      "args": {
+        "message": "Dark Mode ist aktiviert."
+      },
+      "_received_at": 108298.6019855
+    },
+    {
+      "type": "task_finished",
+      "ts": 1778674339.0637043,
+      "ok": true,
+      "payload": {
+        "message": "Dark Mode ist aktiviert."
+      },
+      "_received_at": 108298.6041475
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778674339.0883286,
+      "tool": "smartphone_done",
+      "_received_at": 108298.6288353
+    },
+    {
+      "type": "task_finished",
+      "ts": 1778674339.7215908,
+      "ok": false,
+      "payload": {
+        "active_skills": [
+          "display.dark_mode_on_settings"
+        ]
+      },
+      "_received_at": 108299.2622918
+    }
+  ]
+}

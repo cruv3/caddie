@@ -3,8 +3,8 @@ id: search.pizza_restaurant_google
 title: Pizza restaurant search via Google
 description: Launches the default browser and opens a Google search for pizza restaurants
   nearby.
-triggers: suche ein pizza restaurant, pizza restaurant finden, wo gibt es pizza, fuehre
-  mich zur neachsten pizzeria
+triggers: suche ein pizza restaurant, pizza restaurant finden, wo gibt es pizza, führe
+  mich zur nächsten pizzeria
 ---
 
 # Pizza restaurant search via Google

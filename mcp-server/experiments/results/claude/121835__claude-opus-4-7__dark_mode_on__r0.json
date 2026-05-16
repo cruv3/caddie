@@ -1,0 +1,20 @@
+{
+  "outcome": "done",
+  "tools": 10,
+  "turns": 11,
+  "input_tokens": 22,
+  "output_tokens": 1178,
+  "cache_read": 394473,
+  "cache_creation": 71457,
+  "cost_usd": 0.6734027499999999,
+  "duration_s": 73.8,
+  "duration_api_ms": 29470,
+  "result_text": "Dunkles Design ist aktiviert.",
+  "returncode": 0,
+  "stderr_tail": "Warning: no stdin data received in 3s, proceeding without it. If piping from a slow command, redirect stdin explicitly: < /dev/null to skip, or wait longer.\n",
+  "trial_id": "121835__claude-opus-4-7__dark_mode_on__r0",
+  "task": "dark_mode_on",
+  "run": 0,
+  "model": "claude-opus-4-7",
+  "prompt": "schalte den dark mode an"
+}

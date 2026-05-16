@@ -39,16 +39,25 @@ class LmStudioClient:
     def __init__(self, settings: LmStudioSettings | None = None) -> None:
         self.settings = settings or LmStudioSettings.from_env()
 
-    def send_task(self, task: str, system_prompt: str, authorization: str | None = None) -> dict:
+    def send_task(self, task: str, system_prompt: str, authorization: str | None = None,
+                  model: str | None = None, context_length: int | None = None) -> dict:
+        # Integration kann komma-separiert mehrere Plugins enthalten
+        # (z.B. "mcp/llm-smartphone-tools,mcp/llm-smartphone-skills" für Tools + smartphone_save_skill)
+        integrations = [s.strip() for s in self.settings.integration.split(",") if s.strip()]
+        effective_model = model or self.settings.model
         body = {
-            "model": self.settings.model,
-            "input": "/no_think\n" + task,
+            "model": effective_model,
+            "input": task,
             "system_prompt": system_prompt,
-            "integrations": [self.settings.integration],
-            "context_length": self.settings.context_length,
+            "integrations": integrations,
+            "context_length": context_length or self.settings.context_length,
             "temperature": 0.2,
             "stream": False,
         }
+        # reasoning="off" wird nur von Modellen mit Thinking-Mode akzeptiert (Qwen3.6, …)
+        # Andere Modelle (qwen3-vl-8b, gemma, pixtral) liefern 400 wenn der Parameter gesetzt ist.
+        if "qwen3.6" in effective_model.lower():
+            body["reasoning"] = "off"
         request = Request(
             self.settings.endpoint,
             data=json.dumps(body).encode("utf-8"),
@@ -56,7 +65,7 @@ class LmStudioClient:
             method="POST",
         )
         try:
-            with urlopen(request, timeout=180) as response:
+            with urlopen(request, timeout=int(os.environ.get("LLM_STUDIO_TIMEOUT", "180"))) as response:
                 payload = response.read().decode("utf-8")
                 return {
                     "ok": True,

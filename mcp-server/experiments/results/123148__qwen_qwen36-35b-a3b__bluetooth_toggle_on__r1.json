@@ -1,0 +1,132 @@
+{
+  "trial_id": "123148__qwen_qwen36-35b-a3b__bluetooth_toggle_on__r1",
+  "timestamp_utc": "2026-05-13T10:36:55.864108Z",
+  "model": "qwen/qwen3.6-35b-a3b",
+  "task": "bluetooth_toggle_on",
+  "run": 1,
+  "outcome": "failed",
+  "timing": {
+    "load": 59.27,
+    "reset": 1.7,
+    "task": 300.27,
+    "total": 307.02
+  },
+  "screenshot": null,
+  "lmstudio_response": null,
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1778668312.56745,
+      "task": "schalte bluetooth an",
+      "_received_at": 102272.1080334
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778668358.73342,
+      "tool": "smartphone_get_skill_connectivity_bluetooth_on_settings",
+      "args": {
+        "skill_id": "connectivity.bluetooth_on_settings"
+      },
+      "_received_at": 102318.2741153
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778668358.7378826,
+      "tool": "smartphone_get_skill_connectivity_bluetooth_on_settings",
+      "_received_at": 102318.2783001
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778668410.0028615,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 433,
+        "y": 925,
+        "why": "Tippe auf Verbundene Geräte"
+      },
+      "_received_at": 102369.5433587
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778668416.4820518,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 102376.0225792
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778668418.2477639,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.settings",
+        "why": "Öffne die Einstellungen"
+      },
+      "_received_at": 102377.7882303
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778668425.4268968,
+      "tool": "smartphone_open_app",
+      "_received_at": 102384.967658
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778668464.2495978,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Schaue mir den Bluetooth-Bildschirm an"
+      },
+      "_received_at": 102423.7901168
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778668466.4633982,
+      "tool": "smartphone_list_elements",
+      "_received_at": 102426.0038781
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778668469.1496818,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Suche nach Bluetooth-Einstellungen"
+      },
+      "_received_at": 102428.6901405
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778668471.3020682,
+      "tool": "smartphone_list_elements",
+      "_received_at": 102430.8425189
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778668569.9168153,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 433,
+        "y": 925,
+        "why": "Tippe auf Verbundene Geräte"
+      },
+      "_received_at": 102529.4573089
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778668575.002373,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 102534.5429272
+    },
+    {
+      "type": "task_finished",
+      "ts": 1778668605.4388924,
+      "ok": false,
+      "payload": {
+        "active_skills": [
+          "connectivity.bluetooth_on_settings"
+        ]
+      },
+      "_received_at": 102564.9797322
+    }
+  ]
+}

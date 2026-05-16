@@ -1,0 +1,131 @@
+{
+  "trial_id": "115033__qwen_qwen36-35b-a3b__timer_set_5min__r0",
+  "timestamp_utc": "2026-05-16T09:55:39.007174Z",
+  "model": "qwen/qwen3.6-35b-a3b",
+  "task": "timer_set_5min",
+  "run": 0,
+  "outcome": "failed",
+  "timing": {
+    "load": 52.57,
+    "reset": 1.47,
+    "task": 300.26,
+    "total": 305.45
+  },
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\115033__qwen_qwen36-35b-a3b__timer_set_5min__r0.png",
+  "lmstudio_response": null,
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1778925037.0312076,
+      "task": "stelle einen timer auf 5 minuten",
+      "_received_at": 89289.9218662
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778925098.7207494,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 392,
+        "y": 1997,
+        "why": "Tippe auf Display & touch"
+      },
+      "_received_at": 89351.6110587
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778925105.0947876,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 89357.98511
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778925106.781128,
+      "tool": "smartphone_get_skill_timer_start_5min_deskclock",
+      "args": {
+        "skill_id": "timer.start_5min_deskclock"
+      },
+      "_received_at": 89359.6714608
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778925106.7822478,
+      "tool": "smartphone_get_skill_timer_start_5min_deskclock",
+      "_received_at": 89359.6725327
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778925176.230603,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Schaue mir den Display & Touch-Bildschirm an"
+      },
+      "_received_at": 89429.1209608
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778925178.4243495,
+      "tool": "smartphone_list_elements",
+      "_received_at": 89431.3146895
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778925190.1601605,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.google.android.deskclock",
+        "why": "Öffne die Clock-App für den Timer"
+      },
+      "_received_at": 89443.0504665
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778925197.8496475,
+      "tool": "smartphone_open_app",
+      "_received_at": 89450.7399597
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778925280.7080166,
+      "tool": "smartphone_press_button",
+      "args": {
+        "button": "HOME",
+        "why": "Gehe zur Startseite"
+      },
+      "_received_at": 89533.5983589
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778925287.5760145,
+      "tool": "smartphone_press_button",
+      "_received_at": 89540.4664228
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778925292.817471,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Suche den 5m Timer-Button"
+      },
+      "_received_at": 89545.7077778
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778925294.9911783,
+      "tool": "smartphone_list_elements",
+      "_received_at": 89547.8814994
+    },
+    {
+      "type": "task_finished",
+      "ts": 1778925332.0318713,
+      "ok": false,
+      "payload": {
+        "active_skills": [
+          "display.brightness_50_settings"
+        ]
+      },
+      "_received_at": 89584.9222219
+    }
+  ]
+}

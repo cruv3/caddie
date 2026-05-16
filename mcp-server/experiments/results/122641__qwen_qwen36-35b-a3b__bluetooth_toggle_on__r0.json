@@ -1,0 +1,97 @@
+{
+  "trial_id": "122641__qwen_qwen36-35b-a3b__bluetooth_toggle_on__r0",
+  "timestamp_utc": "2026-05-13T10:31:48.842430Z",
+  "model": "qwen/qwen3.6-35b-a3b",
+  "task": "bluetooth_toggle_on",
+  "run": 0,
+  "outcome": "failed",
+  "timing": {
+    "load": 59.27,
+    "reset": 1.61,
+    "task": 300.37,
+    "total": 307.03
+  },
+  "screenshot": null,
+  "lmstudio_response": null,
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1778668005.4298224,
+      "task": "schalte bluetooth an",
+      "_received_at": 101964.9722001
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778668008.8933964,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 540,
+        "y": 2231,
+        "why": "Tippe auf die Google-Suche"
+      },
+      "_received_at": 101968.4338879
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778668014.8190765,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 101974.3595621
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778668019.6177495,
+      "tool": "smartphone_get_skill_connectivity_bluetooth_on_settings",
+      "args": {
+        "skill_id": "connectivity.bluetooth_on_settings"
+      },
+      "_received_at": 101979.1581994
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778668019.6195736,
+      "tool": "smartphone_get_skill_connectivity_bluetooth_on_settings",
+      "_received_at": 101979.1599858
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778668202.7988224,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Überprüfe die Google-Suche"
+      },
+      "_received_at": 102162.3392946
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778668204.9298139,
+      "tool": "smartphone_list_elements",
+      "_received_at": 102164.4702933
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778668216.034229,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.settings",
+        "why": "Öffne die Einstellungen"
+      },
+      "_received_at": 102175.5762109
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778668224.711154,
+      "tool": "smartphone_open_app",
+      "_received_at": 102184.2516833
+    },
+    {
+      "type": "task_finished",
+      "ts": 1778668293.4405181,
+      "ok": false,
+      "payload": {
+        "active_skills": []
+      },
+      "_received_at": 102252.9816433
+    }
+  ]
+}

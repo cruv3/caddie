@@ -1,0 +1,20 @@
+{
+  "outcome": "done",
+  "tools": 11,
+  "turns": 12,
+  "input_tokens": 24,
+  "output_tokens": 1817,
+  "cache_read": 486838,
+  "cache_creation": 59165,
+  "cost_usd": 0.65874525,
+  "duration_s": 90.9,
+  "duration_api_ms": 47200,
+  "result_text": "Der Dark Mode ist ausgeschaltet — das Display zeigt jetzt das helle Design.",
+  "returncode": 0,
+  "stderr_tail": "",
+  "trial_id": "122358__claude-opus-4-7__dark_mode_off__r1",
+  "task": "dark_mode_off",
+  "run": 1,
+  "model": "claude-opus-4-7",
+  "prompt": "schalte den dark mode aus"
+}

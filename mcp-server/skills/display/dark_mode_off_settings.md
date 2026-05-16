@@ -1,8 +1,7 @@
 ---
 id: display.dark_mode_off_settings
 title: Turn off Dark Mode via Settings
-description: Deactivates Dark Mode (Dunkles Design) through Android Settings under
-  Display & Touchbedienung.
+description: Deactivates Dark Mode through Android Settings under Display & Touchbedienung.
 triggers: schalte darkmodus aus, deaktiviere dunkles design, dark mode aus, hellen
   modus aktivieren
 ---
@@ -25,16 +24,15 @@ Start from any screen; navigate to Settings > Display & Touchbedienung
 ## Rules
 
 - Use smartphone_list_elements to verify the toggle state before and after acting.
-- The toggle may be labeled 'Dunkles Design' in German UI.
+- The toggle may be labeled 'Dark theme' in English UI.
 
 ## Typical Flow
 
 1. smartphone_open_app with package_name com.android.settings
-2. smartphone_list_elements to find 'Display & Touchbedienung'
-3. smartphone_tap_coordinates on 'Display & Touchbedienung' entry
-4. smartphone_list_elements to find 'Dunkles Design' switch
-5. smartphone_tap_coordinates on the 'Dunkles Design' switch to toggle it off
-6. smartphone_list_elements to verify checked is false
+2. smartphone_list_elements to find 'Display & touch' and tap it
+3. smartphone_list_elements to find 'Dark theme' switch
+4. smartphone_tap_coordinates on the 'Dark theme' switch to toggle it off
+5. smartphone_list_elements to verify checked is false
 
 ## Device Variants
 
@@ -42,7 +40,7 @@ Start from any screen; navigate to Settings > Display & Touchbedienung
 
 ## Verification
 
-"Confirm 'Dunkles Design' switch shows checked: false via smartphone_list_elements."
+"Confirm 'Dark theme' switch shows checked: false via smartphone_list_elements."
 
 ## Failure Modes
 

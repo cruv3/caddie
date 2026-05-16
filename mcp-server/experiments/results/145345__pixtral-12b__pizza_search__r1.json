@@ -1,0 +1,85 @@
+{
+  "trial_id": "145345__pixtral-12b__pizza_search__r1",
+  "timestamp_utc": "2026-05-13T12:54:09.217977Z",
+  "model": "pixtral-12b",
+  "task": "pizza_search",
+  "run": 1,
+  "outcome": "done",
+  "timing": {
+    "load": 30.33,
+    "reset": 2.43,
+    "task": 17.58,
+    "total": 23.42
+  },
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\145345__pixtral-12b__pizza_search__r1.png",
+  "lmstudio_response": {
+    "ok": true,
+    "active_skills": [],
+    "lmstudio": {
+      "ok": true,
+      "status": 200,
+      "response": {
+        "model_instance_id": "pixtral-12b",
+        "output": [
+          {
+            "type": "tool_call",
+            "tool": "smartphone_open_url",
+            "arguments": {
+              "url": "https://www.google.com/search?q=pizza+restaurants+near+me"
+            },
+            "output": "[{\"type\":\"text\",\"text\":\"Opened URL: https://www.google.com/search?q=pizza+restaurants+near+me\"}]",
+            "provider_info": {
+              "plugin_id": "mcp/llm-smartphone-tools",
+              "type": "plugin"
+            }
+          },
+          {
+            "type": "message",
+            "content": "Ich habe nach einem Pizza-Restaurant in Ihrer Nähe gesucht."
+          }
+        ],
+        "stats": {
+          "input_tokens": 6888,
+          "total_output_tokens": 62,
+          "reasoning_output_tokens": 0,
+          "tokens_per_second": 48.66669711155147,
+          "time_to_first_token_seconds": 0.792
+        },
+        "response_id": "resp_faa98809e4fb37ede30d8ca5ce069db5a62cba9fb057c3b5"
+      }
+    }
+  },
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1778676830.2328439,
+      "task": "suche im browser ein pizza-restaurant in der nähe",
+      "_received_at": 110789.7734591
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778676832.348353,
+      "tool": "smartphone_open_url",
+      "args": {
+        "url": "https://www.google.com/search?q=pizza+restaurants+near+me",
+        "why": ""
+      },
+      "_received_at": 110791.8888448
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778676844.8993518,
+      "tool": "smartphone_open_url",
+      "_received_at": 110804.4398628
+    },
+    {
+      "type": "task_finished",
+      "ts": 1778676847.6646016,
+      "ok": true,
+      "payload": {
+        "active_skills": []
+      },
+      "_received_at": 110807.2065157
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "outcome": "done",
+  "tools": 5,
+  "turns": 6,
+  "input_tokens": 12,
+  "output_tokens": 864,
+  "cache_read": 174842,
+  "cache_creation": 42431,
+  "cost_usd": 0.37427475000000004,
+  "duration_s": 68.0,
+  "duration_api_ms": 24232,
+  "result_text": "Ich habe im Browser nach Pizza-Restaurants in der Nähe gesucht — die Google-Ergebnisse für deinen Standort (Gummersbach) werden angezeigt, u. a. Tripadvisor-Listen und das Restaurant „Piya Pronto“ auf der Karte.",
+  "returncode": 0,
+  "stderr_tail": "",
+  "trial_id": "140732__claude-opus-4-7__pizza_search__r1",
+  "task": "pizza_search",
+  "run": 1,
+  "model": "claude-opus-4-7",
+  "prompt": "suche im browser ein pizza-restaurant in der nähe"
+}

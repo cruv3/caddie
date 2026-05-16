@@ -1,0 +1,130 @@
+{
+  "trial_id": "124202__qwen_qwen36-35b-a3b__brightness_set_50__r1",
+  "timestamp_utc": "2026-05-13T10:47:10.039097Z",
+  "model": "qwen/qwen3.6-35b-a3b",
+  "task": "brightness_set_50",
+  "run": 1,
+  "outcome": "failed",
+  "timing": {
+    "load": 59.27,
+    "reset": 1.69,
+    "task": 300.3,
+    "total": 307.05
+  },
+  "screenshot": null,
+  "lmstudio_response": null,
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1778668926.6994617,
+      "task": "stelle die helligkeit auf 50 prozent",
+      "_received_at": 102886.2400373
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778668983.5458882,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 392,
+        "y": 1997,
+        "why": "Tippe auf Display & touch"
+      },
+      "_received_at": 102943.0863543
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778668989.9730065,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 102949.5134832
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778668990.1686308,
+      "tool": "smartphone_get_skill_display_brightness_50_settings",
+      "args": {
+        "skill_id": "display.brightness_50_settings"
+      },
+      "_received_at": 102949.7091825
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778668990.1705763,
+      "tool": "smartphone_get_skill_display_brightness_50_settings",
+      "_received_at": 102949.7111649
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778669059.0757878,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Schaue mir die Display-Einstellungen an"
+      },
+      "_received_at": 103018.6162944
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778669061.1996667,
+      "tool": "smartphone_list_elements",
+      "_received_at": 103020.7401467
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778669065.1620173,
+      "tool": "smartphone_list_apps",
+      "args": {
+        "include_system": false
+      },
+      "_received_at": 103024.7024952
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778669065.2067146,
+      "tool": "smartphone_list_apps",
+      "_received_at": 103024.7471653
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778669153.1088269,
+      "tool": "smartphone_press_button",
+      "args": {
+        "button": "BACK",
+        "why": "Gehe zurück zu den Einstellungen"
+      },
+      "_received_at": 103112.6493037
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778669160.0384707,
+      "tool": "smartphone_press_button",
+      "_received_at": 103119.5790617
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778669165.0222852,
+      "tool": "smartphone_press_button",
+      "args": {
+        "button": "HOME",
+        "why": "Gehe zum Home-Bildschirm"
+      },
+      "_received_at": 103124.562766
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778669170.4173288,
+      "tool": "smartphone_press_button",
+      "_received_at": 103129.957801
+    },
+    {
+      "type": "task_finished",
+      "ts": 1778669219.5986261,
+      "ok": false,
+      "payload": {
+        "active_skills": [
+          "display.brightness_50_settings"
+        ]
+      },
+      "_received_at": 103179.1391143
+    }
+  ]
+}

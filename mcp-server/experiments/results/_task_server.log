@@ -1,0 +1,7 @@
+[start_task_server] Initializing ServerContext...
+[start_task_server] Backend: AdbBridge
+[start_task_server] Skills loaded: 7
+[start_task_server] Starting AgentHttpServer on :8787...
+[start_task_server] Ready. /task at http://127.0.0.1:8787/task
+[start_task_server] /events stream at http://127.0.0.1:8787/events
+[start_task_server] Ctrl-C to stop.

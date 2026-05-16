@@ -1,0 +1,20 @@
+{
+  "outcome": "done",
+  "tools": 13,
+  "turns": 14,
+  "input_tokens": 24,
+  "output_tokens": 1732,
+  "cache_read": 506678,
+  "cache_creation": 75944,
+  "cost_usd": 0.7714089999999999,
+  "duration_s": 103.0,
+  "duration_api_ms": 46670,
+  "result_text": "Helligkeit auf 50 % gesetzt.",
+  "returncode": 0,
+  "stderr_tail": "",
+  "trial_id": "135952__claude-opus-4-7__brightness_set_50__r0",
+  "task": "brightness_set_50",
+  "run": 0,
+  "model": "claude-opus-4-7",
+  "prompt": "stelle die helligkeit auf 50 prozent"
+}

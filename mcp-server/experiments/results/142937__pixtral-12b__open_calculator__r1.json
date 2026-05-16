@@ -1,0 +1,488 @@
+{
+  "trial_id": "142937__pixtral-12b__open_calculator__r1",
+  "timestamp_utc": "2026-05-13T12:33:31.409031Z",
+  "model": "pixtral-12b",
+  "task": "open_calculator",
+  "run": 1,
+  "outcome": "fail_loop",
+  "timing": {
+    "load": 30.33,
+    "reset": 1.96,
+    "task": 228.92,
+    "total": 234.27
+  },
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\142937__pixtral-12b__open_calculator__r1.png",
+  "lmstudio_response": null,
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1778675381.099324,
+      "task": "öffne die taschenrechner-app",
+      "_received_at": 109340.6401136
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778675383.6239567,
+      "tool": "smartphone_type_text",
+      "_received_at": 109343.1644893
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778675386.6636078,
+      "tool": "smartphone_get_skill_app_launcher_calculator_search_playstore",
+      "args": {
+        "skill_id": "app_launcher.calculator_search_playstore"
+      },
+      "_received_at": 109346.2041475
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778675386.6764197,
+      "tool": "smartphone_get_skill_app_launcher_calculator_search_playstore",
+      "_received_at": 109346.2181472
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778675394.178914,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 500,
+        "y": 300,
+        "why": "Tippe auf das Suchergebnis für Taschenrechner"
+      },
+      "_received_at": 109353.7196532
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778675402.2842202,
+      "tool": "smartphone_list_apps",
+      "args": {
+        "include_system": true
+      },
+      "_received_at": 109361.824703
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778675402.511201,
+      "tool": "smartphone_list_apps",
+      "_received_at": 109362.052196
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778675404.3157022,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 109363.8562744
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778675410.8423028,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 500,
+        "start_y": 800,
+        "end_x": 500,
+        "end_y": 300,
+        "duration_ms": 300,
+        "why": "Öffne den App-Drawer"
+      },
+      "_received_at": 109370.3830419
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778675418.5753484,
+      "tool": "smartphone_swipe",
+      "_received_at": 109378.1158174
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778675419.248164,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Schaue mir den Bildschirm an"
+      },
+      "_received_at": 109378.788647
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778675422.3647316,
+      "tool": "smartphone_list_elements",
+      "_received_at": 109381.9051996
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778675427.4987273,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 500,
+        "y": 400,
+        "why": "Tippe auf die Suchleiste im App-Drawer"
+      },
+      "_received_at": 109387.0392396
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778675434.4592147,
+      "tool": "smartphone_done",
+      "args": {
+        "message": "Taschenrechner-App geöffnet"
+      },
+      "_received_at": 109393.9997039
+    },
+    {
+      "type": "task_finished",
+      "ts": 1778675434.4676127,
+      "ok": true,
+      "payload": {
+        "message": "Taschenrechner-App geöffnet"
+      },
+      "_received_at": 109394.0080415
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778675434.483554,
+      "tool": "smartphone_done",
+      "_received_at": 109394.0240805
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778675434.7703326,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 109394.3108948
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778675443.0607526,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 500,
+        "start_y": 800,
+        "end_x": 500,
+        "end_y": 300,
+        "duration_ms": 300,
+        "why": "Öffne den App-Drawer"
+      },
+      "_received_at": 109402.601343
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778675452.1210256,
+      "tool": "smartphone_type_text",
+      "args": {
+        "text": "Taschenrechner",
+        "submit": false,
+        "why": "Suche nach Taschenrechner-App"
+      },
+      "_received_at": 109411.6654175
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778675453.3186588,
+      "tool": "smartphone_swipe",
+      "_received_at": 109412.8597156
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778675462.1727295,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 500,
+        "y": 300,
+        "why": "Tippe auf die Suchleiste"
+      },
+      "_received_at": 109421.7132116
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778675467.4826956,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 109427.0232253
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778675472.0295377,
+      "tool": "smartphone_type_text",
+      "_received_at": 109431.5700173
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778675472.96402,
+      "tool": "smartphone_type_text",
+      "args": {
+        "text": "Taschenrechner",
+        "submit": false,
+        "why": "Suche nach Taschenrechner-App"
+      },
+      "_received_at": 109432.5045344
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778675481.772886,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 500,
+        "y": 400,
+        "why": "Tippe auf das Suchergebnis für Taschenrechner"
+      },
+      "_received_at": 109441.313395
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778675483.27161,
+      "tool": "smartphone_type_text",
+      "_received_at": 109442.8122308
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778675490.9845812,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 500,
+        "y": 300,
+        "why": "Tippe auf das Suchergebnis für Taschenrechner"
+      },
+      "_received_at": 109450.527716
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778675491.814074,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 109451.3545268
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778675498.3284242,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 109457.8688961
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778675500.4348598,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 500,
+        "y": 400,
+        "why": "Tippe auf das Suchergebnis für Taschenrechner"
+      },
+      "_received_at": 109459.975346
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778675507.9888783,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 109467.529366
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778675508.6616511,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Schaue mir den Bildschirm an"
+      },
+      "_received_at": 109468.2021433
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778675511.241606,
+      "tool": "smartphone_list_elements",
+      "_received_at": 109470.7820924
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778675516.510747,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 500,
+        "y": 400,
+        "why": "Tippe auf das Suchergebnis für Taschenrechner"
+      },
+      "_received_at": 109476.0512057
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778675524.1286678,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 109483.6691983
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778675528.113273,
+      "tool": "smartphone_open_url",
+      "args": {
+        "url": "https://play.google.com/store/apps/details?id=com.google.android.calculator",
+        "why": "Öffne Google Play Store zum Herunterladen von Taschenrechner-App"
+      },
+      "_received_at": 109487.6547537
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778675538.2200975,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 500,
+        "y": 400,
+        "why": "Tippe auf das Suchergebnis für Taschenrechner"
+      },
+      "_received_at": 109497.7623496
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778675538.6806204,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 109498.2210859
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778675540.2563307,
+      "tool": "smartphone_open_url",
+      "_received_at": 109499.7967902
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778675544.904649,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 500,
+        "y": 400,
+        "why": "Tippe auf das Suchergebnis für Taschenrechner"
+      },
+      "_received_at": 109504.4451278
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778675552.151951,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 109511.6925994
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778675553.9291246,
+      "tool": "smartphone_done",
+      "args": {
+        "message": "Taschenrechner-App heruntergeladen"
+      },
+      "_received_at": 109513.4700612
+    },
+    {
+      "type": "task_finished",
+      "ts": 1778675553.9348457,
+      "ok": true,
+      "payload": {
+        "message": "Taschenrechner-App heruntergeladen"
+      },
+      "_received_at": 109513.4754657
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778675553.954512,
+      "tool": "smartphone_done",
+      "_received_at": 109513.4955149
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778675560.7786305,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 500,
+        "y": 400,
+        "why": "Tippe auf das Suchergebnis für Taschenrechner"
+      },
+      "_received_at": 109520.3190913
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778675568.045289,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 109527.5857385
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778675571.5658798,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 500,
+        "start_y": 800,
+        "end_x": 500,
+        "end_y": 300,
+        "duration_ms": 300,
+        "why": "Öffne den App-Drawer"
+      },
+      "_received_at": 109531.1064832
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778675579.3843873,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 500,
+        "y": 400,
+        "why": "Tippe auf das Suchergebnis für Taschenrechner"
+      },
+      "_received_at": 109538.9248742
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778675579.4636014,
+      "tool": "smartphone_swipe",
+      "_received_at": 109539.0040873
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778675586.7199657,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 109546.2604608
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778675590.0941005,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 500,
+        "start_y": 800,
+        "end_x": 500,
+        "end_y": 300,
+        "duration_ms": 300,
+        "why": "Öffne den App-Drawer"
+      },
+      "_received_at": 109549.6347093
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778675597.727253,
+      "tool": "smartphone_swipe",
+      "_received_at": 109557.2677103
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778675597.8859718,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 500,
+        "y": 400,
+        "why": "Tippe auf das Suchergebnis für Taschenrechner"
+      },
+      "_received_at": 109557.4264543
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778675605.229568,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 109564.7700627
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778675609.1952703,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 500,
+        "start_y": 800,
+        "end_x": 500,
+        "end_y": 300,
+        "duration_ms": 300,
+        "why": "Öffne den App-Drawer"
+      },
+      "_received_at": 109568.7358584
+    }
+  ]
+}

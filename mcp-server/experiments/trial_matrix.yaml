@@ -1,0 +1,51 @@
+# Konfiguration für Experiment-Runner
+# Anpassbar via CLI: --models, --tasks, --runs
+
+backend: adb               # "http" oder "adb" — adb fuer robuste Screenshots (Bridge-unabhaengig)
+timeout_seconds: 300       # Pro Trial Max-Dauer (5 min Cap, stuck-Loops sollen schnell abbrechen)
+runs_per_combo: 2          # Wiederholungen pro Modell × Task
+reset_delay_seconds: 2     # Wartezeit nach Reset bevor Trial startet
+post_trial_delay_seconds: 1 # Wartezeit nach Trial vor Screenshot
+
+# /task und /events liegen beide auf Port 8787 (DEFAULT_AGENT_PORT).
+# AgentHttpServer wird von server.py gestartet, wenn LM Studio die MCP-Integration spawnt.
+task_server_url: http://127.0.0.1:8787
+sse_url: http://127.0.0.1:8787/events
+
+# Modell-Liste — exakte LM-Studio-IDs (von /v1/models 2026-05-12)
+models:
+  - qwen/qwen3.6-35b-a3b      # Champion, MoE 35B-A3B, Vision+Tools
+  - qwen/qwen3-vl-8b          # Mid-size Qwen mit Vision
+  - qwen/qwen3-8b             # Gleicher Stack ohne Vision — Kontrolle
+  - google/gemma-4-e4b        # Cross-Family, 7.5B, Tools
+  - gemma-4-e2b-it            # Klein (4.6B), bekannt schwach
+  - pixtral-12b               # Dritte Architektur (Llama-Base)
+
+# Tasks — werden als prompt an /task gesendet
+tasks:
+  # Easy: binär, eine Surface
+  - id: dark_mode_on
+    prompt: "schalte den dark mode an"
+    difficulty: easy
+  - id: dark_mode_off
+    prompt: "schalte den dark mode aus"
+    difficulty: easy
+  - id: open_calculator
+    prompt: "öffne die taschenrechner-app"
+    difficulty: easy
+
+  # Medium: anderes Surface oder strukturierte Eingabe
+  - id: bluetooth_toggle_on
+    prompt: "schalte bluetooth an"
+    difficulty: medium
+  - id: brightness_set_50
+    prompt: "stelle die helligkeit auf 50 prozent"
+    difficulty: medium
+  - id: timer_set_5min
+    prompt: "stelle einen timer auf 5 minuten"
+    difficulty: medium
+
+  # Hard: Browser-Navigation, Multi-Step
+  - id: pizza_search
+    prompt: "suche im browser ein pizza-restaurant in der nähe"
+    difficulty: hard

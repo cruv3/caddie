@@ -1,0 +1,467 @@
+{
+  "trial_id": "132624__qwen_qwen3-vl-8b__pizza_search__r1",
+  "timestamp_utc": "2026-05-13T11:30:02.484189Z",
+  "model": "qwen/qwen3-vl-8b",
+  "task": "pizza_search",
+  "run": 1,
+  "outcome": "fail_loop",
+  "timing": {
+    "load": 29.76,
+    "reset": 1.65,
+    "task": 213.34,
+    "total": 218.14
+  },
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\132624__qwen_qwen3-vl-8b__pizza_search__r1.png",
+  "lmstudio_response": null,
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1778671588.0113962,
+      "task": "suche im browser ein pizza-restaurant in der nähe",
+      "_received_at": 105547.552327
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778671588.543458,
+      "tool": "smartphone_save_skill",
+      "args": {
+        "id": "search_pizza_restaurant_google",
+        "title": "Suche ein Pizza-Restaurant in der Nähe",
+        "replace": true
+      },
+      "_received_at": 105548.0839301
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778671588.544732,
+      "tool": "smartphone_save_skill",
+      "_received_at": 105548.085161
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778671590.9508681,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Schaue mir den Bildschirm an"
+      },
+      "_received_at": 105550.4913431
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778671593.1832376,
+      "tool": "smartphone_list_elements",
+      "_received_at": 105552.723742
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778671607.68277,
+      "tool": "smartphone_save_skill",
+      "args": {
+        "id": "search_pizza_restaurant_google",
+        "title": "Suche ein Pizza-Restaurant in der Nähe",
+        "replace": true
+      },
+      "_received_at": 105567.2232548
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778671607.6844687,
+      "tool": "smartphone_save_skill",
+      "_received_at": 105567.2248644
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778671610.216906,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.chrome",
+        "why": "Öffne Chrome für die Suche"
+      },
+      "_received_at": 105569.7574253
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778671618.5326216,
+      "tool": "smartphone_open_app",
+      "_received_at": 105578.0731301
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778671628.9095519,
+      "tool": "smartphone_save_skill",
+      "args": {
+        "id": "search_pizza_restaurant_google",
+        "title": "Suche ein Pizza-Restaurant in der Nähe",
+        "replace": true
+      },
+      "_received_at": 105588.4510792
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778671628.9311156,
+      "tool": "smartphone_save_skill",
+      "_received_at": 105588.4715953
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778671630.7219615,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Schaue mir den Bildschirm an"
+      },
+      "_received_at": 105590.2627013
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778671633.1709404,
+      "tool": "smartphone_list_elements",
+      "_received_at": 105592.7114783
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778671648.14669,
+      "tool": "smartphone_save_skill",
+      "args": {
+        "id": "search_pizza_restaurant_google",
+        "title": "Suche ein Pizza-Restaurant in der Nähe",
+        "replace": true
+      },
+      "_received_at": 105607.6871587
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778671648.1479876,
+      "tool": "smartphone_save_skill",
+      "_received_at": 105607.6883846
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778671650.3446608,
+      "tool": "smartphone_open_url",
+      "args": {
+        "url": "https://www.google.com",
+        "why": "Suche nach Pizza-Restaurant in der Nähe"
+      },
+      "_received_at": 105609.8851267
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778671660.6591063,
+      "tool": "smartphone_open_url",
+      "_received_at": 105620.1995751
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778671667.255931,
+      "tool": "smartphone_save_skill",
+      "args": {
+        "id": "search_pizza_restaurant_google",
+        "title": "Suche ein Pizza-Restaurant in der Nähe",
+        "replace": true
+      },
+      "_received_at": 105626.7963954
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778671667.2667382,
+      "tool": "smartphone_save_skill",
+      "_received_at": 105626.8072152
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778671669.2383611,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Schaue mir den Bildschirm an"
+      },
+      "_received_at": 105628.7788397
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778671671.5836737,
+      "tool": "smartphone_list_elements",
+      "_received_at": 105631.1243308
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778671687.3142877,
+      "tool": "smartphone_save_skill",
+      "args": {
+        "id": "search_pizza_restaurant_google",
+        "title": "Suche ein Pizza-Restaurant in der Nähe",
+        "replace": true
+      },
+      "_received_at": 105646.8547565
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778671687.3175414,
+      "tool": "smartphone_save_skill",
+      "_received_at": 105646.8583084
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778671692.64085,
+      "tool": "smartphone_type_text",
+      "args": {
+        "text": "pizza restaurant near me",
+        "submit": true,
+        "why": "Gib 'pizza restaurant near me' in die Suchleiste ein und starte die Suche"
+      },
+      "_received_at": 105652.1813133
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778671699.8935957,
+      "tool": "smartphone_type_text",
+      "_received_at": 105659.4341224
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778671710.6520443,
+      "tool": "smartphone_save_skill",
+      "args": {
+        "id": "search_pizza_restaurant_google",
+        "title": "Suche ein Pizza-Restaurant in der Nähe",
+        "replace": true
+      },
+      "_received_at": 105670.1927875
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778671710.6539571,
+      "tool": "smartphone_save_skill",
+      "_received_at": 105670.1944173
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778671714.888694,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Schaue mir den Bildschirm an"
+      },
+      "_received_at": 105674.4292121
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778671717.3579001,
+      "tool": "smartphone_list_elements",
+      "_received_at": 105676.8983702
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778671733.1454551,
+      "tool": "smartphone_save_skill",
+      "args": {
+        "id": "search_pizza_restaurant_google",
+        "title": "Suche ein Pizza-Restaurant in der Nähe",
+        "replace": true
+      },
+      "_received_at": 105692.6873612
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778671733.1613078,
+      "tool": "smartphone_save_skill",
+      "_received_at": 105692.701755
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778671739.5171456,
+      "tool": "smartphone_done",
+      "args": {
+        "message": "Pizza-Restaurant in der Nähe wurde gesucht."
+      },
+      "_received_at": 105699.0576219
+    },
+    {
+      "type": "task_finished",
+      "ts": 1778671739.5530798,
+      "ok": true,
+      "payload": {
+        "message": "Pizza-Restaurant in der Nähe wurde gesucht."
+      },
+      "_received_at": 105699.0935968
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778671739.6009471,
+      "tool": "smartphone_done",
+      "_received_at": 105699.1414275
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778671746.469139,
+      "tool": "smartphone_save_skill",
+      "args": {
+        "id": "search_pizza_restaurant_google",
+        "title": "Suche ein Pizza-Restaurant in der Nähe",
+        "replace": true
+      },
+      "_received_at": 105706.0097088
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778671746.4704692,
+      "tool": "smartphone_save_skill",
+      "_received_at": 105706.0108907
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778671752.1738968,
+      "tool": "smartphone_save_skill",
+      "args": {
+        "id": "search_pizza_restaurant_google",
+        "title": "Suche ein Pizza-Restaurant in der Nähe",
+        "replace": false
+      },
+      "_received_at": 105711.714365
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778671752.1753824,
+      "tool": "smartphone_save_skill",
+      "_received_at": 105711.7159093
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778671758.2794838,
+      "tool": "smartphone_save_skill",
+      "args": {
+        "id": "search_pizza_restaurant_google",
+        "title": "Suche ein Pizza-Restaurant in der Nähe",
+        "replace": true
+      },
+      "_received_at": 105717.8199682
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778671758.2817924,
+      "tool": "smartphone_save_skill",
+      "_received_at": 105717.8223799
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778671763.8170886,
+      "tool": "smartphone_save_skill",
+      "args": {
+        "id": "search_pizza_restaurant_google",
+        "title": "Suche ein Pizza-Restaurant in der Nähe",
+        "replace": true
+      },
+      "_received_at": 105723.3575526
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778671763.81856,
+      "tool": "smartphone_save_skill",
+      "_received_at": 105723.3590924
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778671770.7437682,
+      "tool": "smartphone_save_skill",
+      "args": {
+        "id": "search_pizza_restaurant_google",
+        "title": "Suche ein Pizza-Restaurant in der Nähe",
+        "replace": true
+      },
+      "_received_at": 105730.2842589
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778671770.7479959,
+      "tool": "smartphone_save_skill",
+      "_received_at": 105730.288433
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778671776.1977732,
+      "tool": "smartphone_save_skill",
+      "args": {
+        "id": "search.google.pizza.restaurant",
+        "title": "Suche ein Pizza-Restaurant in der Nähe",
+        "replace": true
+      },
+      "_received_at": 105735.7385931
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778671776.199209,
+      "tool": "smartphone_save_skill",
+      "_received_at": 105735.7396052
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778671782.6116705,
+      "tool": "smartphone_save_skill",
+      "args": {
+        "id": "search_pizza_restaurant_google",
+        "title": "Suche ein Pizza-Restaurant in der Nähe",
+        "replace": true
+      },
+      "_received_at": 105742.152176
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778671782.6266913,
+      "tool": "smartphone_save_skill",
+      "_received_at": 105742.1671241
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778671788.2729764,
+      "tool": "smartphone_save_skill",
+      "args": {
+        "id": "search.google.pizza",
+        "title": "Suche ein Pizza-Restaurant in der Nähe",
+        "replace": true
+      },
+      "_received_at": 105747.8134471
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778671788.2746983,
+      "tool": "smartphone_save_skill",
+      "_received_at": 105747.8151037
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778671794.5840418,
+      "tool": "smartphone_save_skill",
+      "args": {
+        "id": "search_pizza_restaurant_google",
+        "title": "Suche ein Pizza-Restaurant in der Nähe",
+        "replace": true
+      },
+      "_received_at": 105754.1245434
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778671794.5854092,
+      "tool": "smartphone_save_skill",
+      "_received_at": 105754.1258643
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778671800.3391078,
+      "tool": "smartphone_save_skill",
+      "args": {
+        "id": "search.google.pizza.restaurant.near.me",
+        "title": "Suche ein Pizza-Restaurant in der Nähe",
+        "replace": true
+      },
+      "_received_at": 105759.8797535
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778671800.34544,
+      "tool": "smartphone_save_skill",
+      "_received_at": 105759.8859634
+    }
+  ]
+}

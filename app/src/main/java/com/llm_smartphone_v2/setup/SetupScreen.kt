@@ -24,6 +24,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -39,13 +40,14 @@ fun SetupScreen(
     onAccessibilityClick: () -> Unit,
     onOverlayClick: () -> Unit,
     onMicClick: () -> Unit,
+    onTogglePill: (Boolean) -> Unit,
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background,
     ) {
         if (state.allGranted) {
-            AllGreenContent()
+            AllGreenContent(state = state, onTogglePill = onTogglePill)
         } else {
             SetupContent(
                 state = state,
@@ -180,7 +182,10 @@ private fun PermissionRow(
 }
 
 @Composable
-private fun AllGreenContent() {
+private fun AllGreenContent(
+    state: SetupUiState,
+    onTogglePill: (Boolean) -> Unit,
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -209,6 +214,59 @@ private fun AllGreenContent() {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
             )
+            Spacer(Modifier.height(32.dp))
+            ConditionToggle(
+                pillEnabled = state.pillEnabled,
+                onTogglePill = onTogglePill,
+            )
+        }
+    }
+}
+
+/**
+ * Study-condition switch. Off = Baseline (agent runs without companion UI).
+ * Lives on the ready screen because the experimenter, not the proband,
+ * picks the condition before a run.
+ */
+@Composable
+private fun ConditionToggle(
+    pillEnabled: Boolean,
+    onTogglePill: (Boolean) -> Unit,
+) {
+    ElevatedCard(shape = RoundedCornerShape(20.dp)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onTogglePill(!pillEnabled) }
+                .padding(horizontal = 20.dp, vertical = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Layers,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(28.dp),
+            )
+            Spacer(Modifier.width(20.dp))
+            Column(modifier = Modifier.weight(1f).padding(end = 12.dp)) {
+                Text(
+                    text = "Companion-Anzeige",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    text = if (pillEnabled) {
+                        "Pill sichtbar während der Agent arbeitet."
+                    } else {
+                        "Baseline — Agent läuft ohne sichtbare Anzeige."
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Switch(checked = pillEnabled, onCheckedChange = onTogglePill)
         }
     }
 }

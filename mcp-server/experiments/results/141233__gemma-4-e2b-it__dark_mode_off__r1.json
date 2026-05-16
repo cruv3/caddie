@@ -1,0 +1,61 @@
+{
+  "trial_id": "141233__gemma-4-e2b-it__dark_mode_off__r1",
+  "timestamp_utc": "2026-05-13T12:12:39.513587Z",
+  "model": "gemma-4-e2b-it",
+  "task": "dark_mode_off",
+  "run": 1,
+  "outcome": "done",
+  "timing": {
+    "load": 25.82,
+    "reset": 1.39,
+    "task": 1.0,
+    "total": 5.98
+  },
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\141233__gemma-4-e2b-it__dark_mode_off__r1.png",
+  "lmstudio_response": {
+    "ok": true,
+    "active_skills": [
+      "display.dark_mode_off_settings"
+    ],
+    "lmstudio": {
+      "ok": true,
+      "status": 200,
+      "response": {
+        "model_instance_id": "gemma-4-e2b-it",
+        "output": [
+          {
+            "type": "message",
+            "content": "smartphone_get_skill_display_dark_mode_off_settings()\n"
+          }
+        ],
+        "stats": {
+          "input_tokens": 5266,
+          "total_output_tokens": 18,
+          "reasoning_output_tokens": 0,
+          "tokens_per_second": 100.99026566050439,
+          "time_to_first_token_seconds": 0.198
+        },
+        "response_id": "resp_a436d2eacff399511eecfe0347089856bbf4c0c23ea367d2"
+      }
+    }
+  },
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1778674356.940696,
+      "task": "schalte den dark mode aus",
+      "_received_at": 108316.4812182
+    },
+    {
+      "type": "task_finished",
+      "ts": 1778674357.4737377,
+      "ok": true,
+      "payload": {
+        "active_skills": [
+          "display.dark_mode_off_settings"
+        ]
+      },
+      "_received_at": 108317.0145387
+    }
+  ]
+}

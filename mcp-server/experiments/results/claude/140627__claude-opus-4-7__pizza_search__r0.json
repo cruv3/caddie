@@ -1,0 +1,20 @@
+{
+  "outcome": "done",
+  "tools": 6,
+  "turns": 7,
+  "input_tokens": 12,
+  "output_tokens": 1054,
+  "cache_read": 178423,
+  "cache_creation": 43317,
+  "cost_usd": 0.38635275,
+  "duration_s": 60.1,
+  "duration_api_ms": 22694,
+  "result_text": "Ich habe im Browser nach Pizza-Restaurants in der Nähe gesucht. Google zeigt Ergebnisse für 51643 Gummersbach — u. a. „Pizza Napoli Gummersbach\" (4,9 ★) sowie Tripadvisor- und Lieferando-Listen mit den besten Pizzerien der Umgebung.",
+  "returncode": 0,
+  "stderr_tail": "",
+  "trial_id": "140627__claude-opus-4-7__pizza_search__r0",
+  "task": "pizza_search",
+  "run": 0,
+  "model": "claude-opus-4-7",
+  "prompt": "suche im browser ein pizza-restaurant in der nähe"
+}

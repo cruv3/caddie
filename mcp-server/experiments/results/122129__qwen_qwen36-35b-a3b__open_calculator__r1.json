@@ -1,0 +1,237 @@
+{
+  "trial_id": "122129__qwen_qwen36-35b-a3b__open_calculator__r1",
+  "timestamp_utc": "2026-05-13T10:26:41.810970Z",
+  "model": "qwen/qwen3.6-35b-a3b",
+  "task": "open_calculator",
+  "run": 1,
+  "outcome": "timeout",
+  "timing": {
+    "load": 59.27,
+    "reset": 2.01,
+    "task": 300.35,
+    "total": 312.41
+  },
+  "screenshot": null,
+  "lmstudio_response": null,
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1778667693.412004,
+      "task": "öffne die taschenrechner-app",
+      "_received_at": 101652.9527386
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778667696.7377307,
+      "tool": "smartphone_list_apps",
+      "args": {
+        "include_system": false
+      },
+      "_received_at": 101656.2782257
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778667696.8006132,
+      "tool": "smartphone_list_apps",
+      "_received_at": 101656.3410979
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778667700.5401254,
+      "tool": "smartphone_list_apps",
+      "args": {
+        "include_system": true
+      },
+      "_received_at": 101660.0805939
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778667700.5854897,
+      "tool": "smartphone_list_apps",
+      "_received_at": 101660.1259333
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778667724.7161536,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.google.android.calculator",
+        "why": "Öffne die Taschenrechner-App"
+      },
+      "_received_at": 101684.2566387
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778667727.6006517,
+      "tool": "smartphone_open_app",
+      "error": "AdbError: ADB failed: adb shell monkey -p com.google.android.calculator -c android.intent.category.LAUNCHER 1\nargs: [-p, com.google.android.calculator, -c, android.intent.category.LAUNCHER, 1]\n arg: \"-p\"\n arg: \"com.google.android.calculator\"\n arg: \"-c\"\n arg: \"android.intent.category.LAUNCHER\"\n arg: \"1\"\ndata=\"com.google.android.calculator\"\ndata=\"android.intent.category.LAUNCHER\"",
+      "_received_at": 101687.1411242
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778667736.3843942,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Schaue mir den Bildschirm an"
+      },
+      "_received_at": 101695.9248543
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778667738.481392,
+      "tool": "smartphone_list_elements",
+      "_received_at": 101698.0218377
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778667768.008498,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 1800,
+        "end_x": 540,
+        "end_y": 600,
+        "duration_ms": 300,
+        "why": "Swipe nach oben, um den App-Drawer zu öffnen"
+      },
+      "_received_at": 101727.5489811
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778667774.9047506,
+      "tool": "smartphone_swipe",
+      "_received_at": 101734.4456883
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778667779.1012204,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Schaue mir den App-Drawer an"
+      },
+      "_received_at": 101738.641805
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778667781.2225971,
+      "tool": "smartphone_list_elements",
+      "_received_at": 101740.7630656
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778667825.350294,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 540,
+        "y": 242,
+        "why": "Tippe auf das Suchfeld im App-Drawer"
+      },
+      "_received_at": 101784.8908259
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778667830.4192233,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 101789.959759
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778667835.6588328,
+      "tool": "smartphone_type_text",
+      "args": {
+        "text": "calculator",
+        "submit": false,
+        "why": "Suche nach Taschenrechner-App"
+      },
+      "_received_at": 101795.1993048
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778667842.8392487,
+      "tool": "smartphone_type_text",
+      "_received_at": 101802.3797198
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778667846.9605823,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Überprüfe die Suchergebnisse"
+      },
+      "_received_at": 101806.5010819
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778667849.226363,
+      "tool": "smartphone_list_elements",
+      "_received_at": 101808.7669197
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778667926.4197886,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.vending",
+        "why": "Öffne den Play Store"
+      },
+      "_received_at": 101885.9604308
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778667933.8521202,
+      "tool": "smartphone_open_app",
+      "_received_at": 101893.392586
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778667938.459071,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Schaue mir den Play Store an"
+      },
+      "_received_at": 101897.999619
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778667940.5600512,
+      "tool": "smartphone_list_elements",
+      "_received_at": 101900.1004905
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778667958.946436,
+      "tool": "smartphone_press_button",
+      "args": {
+        "button": "HOME",
+        "why": "Zurück zum Homescreen"
+      },
+      "_received_at": 101918.4869068
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778667964.3711019,
+      "tool": "smartphone_press_button",
+      "_received_at": 101923.9115529
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778667969.0933554,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Schaue mir den Homescreen an"
+      },
+      "_received_at": 101928.633838
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778667971.1939964,
+      "tool": "smartphone_list_elements",
+      "_received_at": 101930.734441
+    }
+  ]
+}

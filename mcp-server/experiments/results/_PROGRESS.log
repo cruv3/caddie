@@ -1,0 +1,295 @@
+[2026-05-13 11:57:55] START matrix: 6 models × 7 tasks × 2 runs = 84 trials
+[2026-05-13 11:57:55] MODEL-LOAD qwen/qwen3.6-35b-a3b
+[2026-05-13 11:58:54]   loaded in 59.3s
+[2026-05-13 11:58:54] TRIAL [1/84] 115854__qwen_qwen36-35b-a3b__dark_mode_on__r0
+[2026-05-13 12:03:55]   DONE outcome=done tools=10 task_time=293.7s
+[2026-05-13 12:03:55] TRIAL [2/84] 120355__qwen_qwen36-35b-a3b__dark_mode_on__r1
+[2026-05-13 12:08:19]   DONE outcome=done tools=10 task_time=257.2s
+[2026-05-13 12:08:19] TRIAL [3/84] 120819__qwen_qwen36-35b-a3b__dark_mode_off__r0
+[2026-05-13 12:12:20]   DONE outcome=done tools=10 task_time=234.2s
+[2026-05-13 12:12:20] TRIAL [4/84] 121220__qwen_qwen36-35b-a3b__dark_mode_off__r1
+[2026-05-13 12:16:30]   DONE outcome=done tools=10 task_time=243.7s
+[2026-05-13 12:16:30] TRIAL [5/84] 121630__qwen_qwen36-35b-a3b__open_calculator__r0
+[2026-05-13 12:21:29]   DONE outcome=done tools=13 task_time=291.2s
+[2026-05-13 12:21:29] TRIAL [6/84] 122129__qwen_qwen36-35b-a3b__open_calculator__r1
+[2026-05-13 12:26:33]   TIMEOUT /task >300s
+[2026-05-13 12:26:41]   DONE outcome=timeout tools=13 task_time=300.3s
+[2026-05-13 12:26:41] TRIAL [7/84] 122641__qwen_qwen36-35b-a3b__bluetooth_toggle_on__r0
+[2026-05-13 12:31:45]   TIMEOUT /task >300s
+[2026-05-13 12:31:48]   DONE outcome=failed tools=4 task_time=300.4s
+[2026-05-13 12:31:48] TRIAL [8/84] 123148__qwen_qwen36-35b-a3b__bluetooth_toggle_on__r1
+[2026-05-13 12:36:52]   TIMEOUT /task >300s
+[2026-05-13 12:36:55]   DONE outcome=failed tools=6 task_time=300.3s
+[2026-05-13 12:36:55] TRIAL [9/84] 123655__qwen_qwen36-35b-a3b__brightness_set_50__r0
+[2026-05-13 12:41:59]   TIMEOUT /task >300s
+[2026-05-13 12:42:02]   DONE outcome=failed tools=8 task_time=300.4s
+[2026-05-13 12:42:02] TRIAL [10/84] 124202__qwen_qwen36-35b-a3b__brightness_set_50__r1
+[2026-05-13 12:47:06]   TIMEOUT /task >300s
+[2026-05-13 12:47:10]   DONE outcome=failed tools=6 task_time=300.3s
+[2026-05-13 12:47:10] TRIAL [11/84] 124710__qwen_qwen36-35b-a3b__timer_set_5min__r0
+[2026-05-13 12:52:13]   TIMEOUT /task >300s
+[2026-05-13 12:52:16]   DONE outcome=failed tools=11 task_time=300.3s
+[2026-05-13 12:52:16] TRIAL [12/84] 125216__qwen_qwen36-35b-a3b__timer_set_5min__r1
+[2026-05-13 12:56:08]   DONE outcome=failed tools=10 task_time=224.7s
+[2026-05-13 12:56:08] TRIAL [13/84] 125608__qwen_qwen36-35b-a3b__pizza_search__r0
+[2026-05-13 12:57:32]   DONE outcome=done tools=6 task_time=77.6s
+[2026-05-13 12:57:32] TRIAL [14/84] 125732__qwen_qwen36-35b-a3b__pizza_search__r1
+[2026-05-13 12:59:31]   DONE outcome=done tools=6 task_time=113.1s
+[2026-05-13 12:59:31] PHONE-REBOOT before qwen/qwen3-vl-8b
+[2026-05-13 13:00:03] MODEL-LOAD qwen/qwen3-vl-8b
+[2026-05-13 13:00:33]   loaded in 29.8s
+[2026-05-13 13:00:33] TRIAL [15/84] 130033__qwen_qwen3-vl-8b__dark_mode_on__r0
+[2026-05-13 13:02:05]   DONE outcome=done tools=12 task_time=86.6s
+[2026-05-13 13:02:05] TRIAL [16/84] 130205__qwen_qwen3-vl-8b__dark_mode_on__r1
+[2026-05-13 13:06:18]   ABORT-LOOP: > 25 tool calls
+[2026-05-13 13:06:20]   DONE outcome=fail_loop tools=26 task_time=250.7s
+[2026-05-13 13:06:20] TRIAL [17/84] 130620__qwen_qwen3-vl-8b__dark_mode_off__r0
+[2026-05-13 13:08:28]   TIMEOUT /task >300s
+[2026-05-13 13:08:29]   DONE outcome=failed tools=17 task_time=124.7s
+[2026-05-13 13:08:29] TRIAL [18/84] 130829__qwen_qwen3-vl-8b__dark_mode_off__r1
+[2026-05-13 13:09:47]   DONE outcome=done tools=13 task_time=73.1s
+[2026-05-13 13:09:47] TRIAL [19/84] 130947__qwen_qwen3-vl-8b__open_calculator__r0
+[2026-05-13 13:10:47]   DONE outcome=done tools=10 task_time=54.6s
+[2026-05-13 13:10:47] TRIAL [20/84] 131047__qwen_qwen3-vl-8b__open_calculator__r1
+[2026-05-13 13:11:48]   DONE outcome=done tools=9 task_time=56.1s
+[2026-05-13 13:11:48] TRIAL [21/84] 131148__qwen_qwen3-vl-8b__bluetooth_toggle_on__r0
+[2026-05-13 13:12:41]   DONE outcome=done tools=6 task_time=48.6s
+[2026-05-13 13:12:41] TRIAL [22/84] 131241__qwen_qwen3-vl-8b__bluetooth_toggle_on__r1
+[2026-05-13 13:13:21]   DONE outcome=done tools=6 task_time=35.5s
+[2026-05-13 13:13:21] TRIAL [23/84] 131321__qwen_qwen3-vl-8b__brightness_set_50__r0
+[2026-05-13 13:17:34]   ABORT-LOOP: > 25 tool calls
+[2026-05-13 13:17:36]   DONE outcome=fail_loop tools=26 task_time=250.0s
+[2026-05-13 13:17:36] TRIAL [24/84] 131736__qwen_qwen3-vl-8b__brightness_set_50__r1
+[2026-05-13 13:20:39]   ABORT-LOOP: > 25 tool calls
+[2026-05-13 13:20:42]   DONE outcome=fail_loop tools=26 task_time=179.8s
+[2026-05-13 13:20:42] TRIAL [25/84] 132042__qwen_qwen3-vl-8b__timer_set_5min__r0
+[2026-05-13 13:22:40]   ABORT-LOOP: > 25 tool calls
+[2026-05-13 13:22:42]   DONE outcome=fail_loop tools=26 task_time=115.2s
+[2026-05-13 13:22:42] TRIAL [26/84] 132242__qwen_qwen3-vl-8b__timer_set_5min__r1
+[2026-05-13 13:23:58]   DONE outcome=done tools=11 task_time=71.6s
+[2026-05-13 13:23:58] TRIAL [27/84] 132358__qwen_qwen3-vl-8b__pizza_search__r0
+[2026-05-13 13:26:22]   ABORT-LOOP: > 25 tool calls
+[2026-05-13 13:26:24]   DONE outcome=fail_loop tools=26 task_time=141.2s
+[2026-05-13 13:26:24] TRIAL [28/84] 132624__qwen_qwen3-vl-8b__pizza_search__r1
+[2026-05-13 13:30:00]   ABORT-LOOP: > 25 tool calls
+[2026-05-13 13:30:02]   DONE outcome=fail_loop tools=26 task_time=213.3s
+[2026-05-13 13:30:02] PHONE-REBOOT before qwen/qwen3-8b
+[2026-05-13 13:30:33] MODEL-LOAD qwen/qwen3-8b
+[2026-05-13 13:30:57]   loaded in 24.1s
+[2026-05-13 13:30:57] TRIAL [29/84] 133057__qwen_qwen3-8b__dark_mode_on__r0
+[2026-05-13 13:31:17]   DONE outcome=done tools=1 task_time=15.5s
+[2026-05-13 13:31:17] TRIAL [30/84] 133117__qwen_qwen3-8b__dark_mode_on__r1
+[2026-05-13 13:31:53]   DONE outcome=done tools=3 task_time=31.0s
+[2026-05-13 13:31:53] TRIAL [31/84] 133153__qwen_qwen3-8b__dark_mode_off__r0
+[2026-05-13 13:32:24]   DONE outcome=done tools=3 task_time=26.0s
+[2026-05-13 13:32:24] TRIAL [32/84] 133224__qwen_qwen3-8b__dark_mode_off__r1
+[2026-05-13 13:32:54]   DONE outcome=done tools=3 task_time=25.0s
+[2026-05-13 13:32:54] TRIAL [33/84] 133254__qwen_qwen3-8b__open_calculator__r0
+[2026-05-13 13:33:07]   DONE outcome=done tools=2 task_time=8.0s
+[2026-05-13 13:33:07] TRIAL [34/84] 133307__qwen_qwen3-8b__open_calculator__r1
+[2026-05-13 13:33:18]   DONE outcome=done tools=2 task_time=6.0s
+[2026-05-13 13:33:18] TRIAL [35/84] 133318__qwen_qwen3-8b__bluetooth_toggle_on__r0
+[2026-05-13 13:34:00]   DONE outcome=done tools=7 task_time=37.5s
+[2026-05-13 13:34:00] TRIAL [36/84] 133400__qwen_qwen3-8b__bluetooth_toggle_on__r1
+[2026-05-13 13:34:46]   DONE outcome=done tools=8 task_time=41.5s
+[2026-05-13 13:34:46] TRIAL [37/84] 133446__qwen_qwen3-8b__brightness_set_50__r0
+[2026-05-13 13:35:52]   DONE outcome=done tools=10 task_time=61.6s
+[2026-05-13 13:35:52] TRIAL [38/84] 133552__qwen_qwen3-8b__brightness_set_50__r1
+[2026-05-13 13:36:41]   DONE outcome=done tools=5 task_time=43.6s
+[2026-05-13 13:36:41] TRIAL [39/84] 133641__qwen_qwen3-8b__timer_set_5min__r0
+[2026-05-13 13:37:42]   DONE outcome=done tools=7 task_time=56.6s
+[2026-05-13 13:37:42] TRIAL [40/84] 133742__qwen_qwen3-8b__timer_set_5min__r1
+[2026-05-13 13:38:38]   DONE outcome=done tools=8 task_time=51.0s
+[2026-05-13 13:38:38] TRIAL [41/84] 133838__qwen_qwen3-8b__pizza_search__r0
+[2026-05-13 13:39:06]   DONE outcome=done tools=3 task_time=23.0s
+[2026-05-13 13:39:06] TRIAL [42/84] 133906__qwen_qwen3-8b__pizza_search__r1
+[2026-05-13 13:39:28]   DONE outcome=done tools=3 task_time=17.5s
+[2026-05-13 13:39:28] PHONE-REBOOT before google/gemma-4-e4b
+[2026-05-13 13:39:55] MODEL-LOAD google/gemma-4-e4b
+[2026-05-13 13:40:22]   loaded in 26.5s
+[2026-05-13 13:40:22] TRIAL [43/84] 134022__google_gemma-4-e4b__dark_mode_on__r0
+[2026-05-13 13:41:53]   DONE outcome=done tools=12 task_time=85.7s
+[2026-05-13 13:41:53] TRIAL [44/84] 134153__google_gemma-4-e4b__dark_mode_on__r1
+[2026-05-13 13:43:45]   DONE outcome=failed tools=17 task_time=107.4s
+[2026-05-13 13:43:45] TRIAL [45/84] 134345__google_gemma-4-e4b__dark_mode_off__r0
+[2026-05-13 13:44:27]   DONE outcome=done tools=6 task_time=36.6s
+[2026-05-13 13:44:27] TRIAL [46/84] 134427__google_gemma-4-e4b__dark_mode_off__r1
+[2026-05-13 13:44:32] UNHANDLED CRASH: Command '['adb', 'shell', 'input', 'keyevent', 'KEYCODE_BACK']' timed out after 5 seconds
+[2026-05-13 13:44:32] Traceback (most recent call last):
+  File "C:\Users\Andreas\dev\LLMSmartphone\mcp-server\experiments\run_trials.py", line 158, in main
+    phone.reset_to_home()
+    ~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Andreas\dev\LLMSmartphone\mcp-server\experiments\phone_helper.py", line 33, in reset_to_home
+    self._press_key("BACK")
+    ~~~~~~~~~~~~~~~^^^^^^^^
+  File "C:\Users\Andreas\dev\LLMSmartphone\mcp-server\experiments\phone_helper.py", line 122, in _press_key
+    subprocess.run(
+    ~~~~~~~~~~~~~~^
+        ["adb", "shell", "input", "keyevent", f"KEYCODE_{keycode}"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        check=False,
+        ^^^^^^^^^^^^
+        timeout=5,
+        ^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\subprocess.py", line 557, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\subprocess.py", line 1240, in communicate
+    sts = self.wait(timeout=self._remaining_time(endtime))
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\subprocess.py", line 1279, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\Andreas\AppData\Local\Programs\Python\Python314\Lib\subprocess.py", line 1608, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['adb', 'shell', 'input', 'keyevent', 'KEYCODE_BACK']' timed out after 5 seconds
+
+[2026-05-13 13:44:34] FINISHED 46 trials in 106.7 min
+[2026-05-13 13:57:12] START matrix: 3 models × 7 tasks × 2 runs = 42 trials
+[2026-05-13 13:57:12] MODEL-LOAD google/gemma-4-e4b
+[2026-05-13 13:57:43]   loaded in 30.8s
+[2026-05-13 13:57:43] TRIAL [1/42] 135743__google_gemma-4-e4b__dark_mode_on__r0
+[2026-05-13 13:58:59]   DONE outcome=done tools=10 task_time=70.6s
+[2026-05-13 13:58:59] TRIAL [2/42] 135859__google_gemma-4-e4b__dark_mode_on__r1
+[2026-05-13 14:00:17]   DONE outcome=failed tools=13 task_time=73.1s
+[2026-05-13 14:00:17] TRIAL [3/42] 140017__google_gemma-4-e4b__dark_mode_off__r0
+[2026-05-13 14:01:28]   DONE outcome=failed tools=12 task_time=65.6s
+[2026-05-13 14:01:28] TRIAL [4/42] 140128__google_gemma-4-e4b__dark_mode_off__r1
+[2026-05-13 14:02:25]   DONE outcome=failed tools=10 task_time=52.0s
+[2026-05-13 14:02:25] TRIAL [5/42] 140225__google_gemma-4-e4b__open_calculator__r0
+[2026-05-13 14:03:17]   DONE outcome=done tools=7 task_time=47.5s
+[2026-05-13 14:03:17] TRIAL [6/42] 140317__google_gemma-4-e4b__open_calculator__r1
+[2026-05-13 14:04:24]   DONE outcome=done tools=10 task_time=62.6s
+[2026-05-13 14:04:24] TRIAL [7/42] 140424__google_gemma-4-e4b__bluetooth_toggle_on__r0
+[2026-05-13 14:05:16]   DONE outcome=done tools=8 task_time=46.1s
+[2026-05-13 14:05:16] TRIAL [8/42] 140516__google_gemma-4-e4b__bluetooth_toggle_on__r1
+[2026-05-13 14:06:20]   DONE outcome=done tools=10 task_time=59.1s
+[2026-05-13 14:06:20] TRIAL [9/42] 140620__google_gemma-4-e4b__brightness_set_50__r0
+[2026-05-13 14:07:05]   DONE outcome=done tools=6 task_time=40.1s
+[2026-05-13 14:07:05] TRIAL [10/42] 140705__google_gemma-4-e4b__brightness_set_50__r1
+[2026-05-13 14:07:50]   DONE outcome=done tools=6 task_time=40.6s
+[2026-05-13 14:07:50] TRIAL [11/42] 140750__google_gemma-4-e4b__timer_set_5min__r0
+[2026-05-13 14:08:35]   DONE outcome=done tools=6 task_time=39.6s
+[2026-05-13 14:08:35] TRIAL [12/42] 140835__google_gemma-4-e4b__timer_set_5min__r1
+[2026-05-13 14:09:43]   DONE outcome=done tools=7 task_time=63.6s
+[2026-05-13 14:09:43] TRIAL [13/42] 140943__google_gemma-4-e4b__pizza_search__r0
+[2026-05-13 14:10:08]   DONE outcome=done tools=4 task_time=20.1s
+[2026-05-13 14:10:08] TRIAL [14/42] 141008__google_gemma-4-e4b__pizza_search__r1
+[2026-05-13 14:10:34]   DONE outcome=done tools=4 task_time=20.6s
+[2026-05-13 14:10:34] PHONE-REBOOT before gemma-4-e2b-it
+[2026-05-13 14:11:07] MODEL-LOAD gemma-4-e2b-it
+[2026-05-13 14:11:33]   loaded in 25.8s
+[2026-05-13 14:11:33] TRIAL [15/42] 141133__gemma-4-e2b-it__dark_mode_on__r0
+[2026-05-13 14:12:21]   DONE outcome=done tools=9 task_time=43.0s
+[2026-05-13 14:12:21] TRIAL [16/42] 141221__gemma-4-e2b-it__dark_mode_on__r1
+[2026-05-13 14:12:27]   DONE outcome=done tools=0 task_time=1.0s
+[2026-05-13 14:12:27] TRIAL [17/42] 141227__gemma-4-e2b-it__dark_mode_off__r0
+[2026-05-13 14:12:33]   DONE outcome=done tools=0 task_time=1.0s
+[2026-05-13 14:12:33] TRIAL [18/42] 141233__gemma-4-e2b-it__dark_mode_off__r1
+[2026-05-13 14:12:39]   DONE outcome=done tools=0 task_time=1.0s
+[2026-05-13 14:12:39] TRIAL [19/42] 141239__gemma-4-e2b-it__open_calculator__r0
+[2026-05-13 14:12:49]   DONE outcome=done tools=1 task_time=5.0s
+[2026-05-13 14:12:49] TRIAL [20/42] 141249__gemma-4-e2b-it__open_calculator__r1
+[2026-05-13 14:12:59]   DONE outcome=done tools=1 task_time=4.5s
+[2026-05-13 14:12:59] TRIAL [21/42] 141259__gemma-4-e2b-it__bluetooth_toggle_on__r0
+[2026-05-13 14:13:27]   DONE outcome=done tools=5 task_time=23.5s
+[2026-05-13 14:13:27] TRIAL [22/42] 141327__gemma-4-e2b-it__bluetooth_toggle_on__r1
+[2026-05-13 14:13:54]   DONE outcome=done tools=5 task_time=22.5s
+[2026-05-13 14:13:54] TRIAL [23/42] 141354__gemma-4-e2b-it__brightness_set_50__r0
+[2026-05-13 14:14:09]   DONE outcome=done tools=3 task_time=9.5s
+[2026-05-13 14:14:09] TRIAL [24/42] 141409__gemma-4-e2b-it__brightness_set_50__r1
+[2026-05-13 14:14:23]   DONE outcome=done tools=3 task_time=9.0s
+[2026-05-13 14:14:23] TRIAL [25/42] 141423__gemma-4-e2b-it__timer_set_5min__r0
+[2026-05-13 14:14:58]   DONE outcome=done tools=7 task_time=29.6s
+[2026-05-13 14:14:58] TRIAL [26/42] 141458__gemma-4-e2b-it__timer_set_5min__r1
+[2026-05-13 14:15:49]   DONE outcome=done tools=7 task_time=46.0s
+[2026-05-13 14:15:49] TRIAL [27/42] 141549__gemma-4-e2b-it__pizza_search__r0
+[2026-05-13 14:16:08]   DONE outcome=done tools=1 task_time=13.5s
+[2026-05-13 14:16:08] TRIAL [28/42] 141608__gemma-4-e2b-it__pizza_search__r1
+[2026-05-13 14:16:25]   DONE outcome=done tools=1 task_time=12.5s
+[2026-05-13 14:16:25] PHONE-REBOOT before pixtral-12b
+[2026-05-13 14:16:58] MODEL-LOAD pixtral-12b
+[2026-05-13 14:17:29]   loaded in 30.3s
+[2026-05-13 14:17:29] TRIAL [29/42] 141729__pixtral-12b__dark_mode_on__r0
+[2026-05-13 14:18:57]   DONE outcome=done tools=9 task_time=83.6s
+[2026-05-13 14:18:57] TRIAL [30/42] 141857__pixtral-12b__dark_mode_on__r1
+[2026-05-13 14:24:02]   TIMEOUT /task >300s
+[2026-05-13 14:24:08]   DONE outcome=timeout tools=26 task_time=300.4s
+[2026-05-13 14:24:08] TRIAL [31/42] 142408__pixtral-12b__dark_mode_off__r0
+[2026-05-13 14:24:59]   DONE outcome=done tools=7 task_time=44.2s
+[2026-05-13 14:24:59] TRIAL [32/42] 142459__pixtral-12b__dark_mode_off__r1
+[2026-05-13 14:26:16]   DONE outcome=failed tools=6 task_time=72.1s
+[2026-05-13 14:26:16] TRIAL [33/42] 142616__pixtral-12b__open_calculator__r0
+[2026-05-13 14:29:35]   ABORT-LOOP: > 25 tool calls
+[2026-05-13 14:29:37]   DONE outcome=fail_loop tools=26 task_time=195.4s
+[2026-05-13 14:29:37] TRIAL [34/42] 142937__pixtral-12b__open_calculator__r1
+[2026-05-13 14:33:29]   ABORT-LOOP: > 25 tool calls
+[2026-05-13 14:33:31]   DONE outcome=fail_loop tools=26 task_time=228.9s
+[2026-05-13 14:33:31] TRIAL [35/42] 143331__pixtral-12b__bluetooth_toggle_on__r0
+[2026-05-13 14:37:31]   ABORT-LOOP: > 25 tool calls
+[2026-05-13 14:37:33]   DONE outcome=fail_loop tools=26 task_time=233.5s
+[2026-05-13 14:37:33] TRIAL [36/42] 143733__pixtral-12b__bluetooth_toggle_on__r1
+[2026-05-13 14:40:33]   DONE outcome=done tools=18 task_time=173.9s
+[2026-05-13 14:40:33] TRIAL [37/42] 144033__pixtral-12b__brightness_set_50__r0
+[2026-05-13 14:41:50]   DONE outcome=done tools=7 task_time=71.3s
+[2026-05-13 14:41:50] TRIAL [38/42] 144150__pixtral-12b__brightness_set_50__r1
+[2026-05-13 14:43:08]   DONE outcome=done tools=7 task_time=72.9s
+[2026-05-13 14:43:08] TRIAL [39/42] 144308__pixtral-12b__timer_set_5min__r0
+[2026-05-13 14:48:12]   TIMEOUT /task >300s
+[2026-05-13 14:48:14]   DONE outcome=done tools=21 task_time=300.2s
+[2026-05-13 14:48:14] TRIAL [40/42] 144814__pixtral-12b__timer_set_5min__r1
+[2026-05-13 14:53:19]   TIMEOUT /task >300s
+[2026-05-13 14:53:20]   DONE outcome=done tools=21 task_time=300.1s
+[2026-05-13 14:53:20] TRIAL [41/42] 145320__pixtral-12b__pizza_search__r0
+[2026-05-13 14:53:45]   DONE outcome=done tools=2 task_time=19.6s
+[2026-05-13 14:53:45] TRIAL [42/42] 145345__pixtral-12b__pizza_search__r1
+[2026-05-13 14:54:09]   DONE outcome=done tools=1 task_time=17.6s
+[2026-05-13 14:54:11] FINISHED 42 trials in 57.0 min
+[2026-05-16 10:57:18] START matrix: 1 models × 1 tasks × 1 runs = 1 trials
+[2026-05-16 10:57:18] MODEL-LOAD qwen/qwen3.6-35b-a3b
+[2026-05-16 10:58:07]   loaded in 48.9s
+[2026-05-16 10:58:07] TRIAL [1/1] 105807__qwen_qwen36-35b-a3b__dark_mode_on__r0
+[2026-05-16 11:01:11]   ERROR /task crash: Remote end closed connection without response
+[2026-05-16 11:01:12]   DONE outcome=failed tools=5 task_time=180.1s
+[2026-05-16 11:01:14] FINISHED 1 trials in 3.9 min
+[2026-05-16 11:02:17] START matrix: 1 models × 7 tasks × 2 runs = 14 trials
+[2026-05-16 11:02:17] MODEL-LOAD qwen/qwen3.6-35b-a3b
+[2026-05-16 11:03:09]   loaded in 52.6s
+[2026-05-16 11:03:09] TRIAL [1/14] 110309__qwen_qwen36-35b-a3b__dark_mode_on__r0
+[2026-05-16 11:07:49]   DONE outcome=done tools=10 task_time=272.8s
+[2026-05-16 11:07:49] TRIAL [2/14] 110749__qwen_qwen36-35b-a3b__dark_mode_on__r1
+[2026-05-16 11:12:07]   DONE outcome=done tools=10 task_time=253.4s
+[2026-05-16 11:12:07] TRIAL [3/14] 111207__qwen_qwen36-35b-a3b__dark_mode_off__r0
+[2026-05-16 11:16:22]   DONE outcome=done tools=10 task_time=249.7s
+[2026-05-16 11:16:22] TRIAL [4/14] 111622__qwen_qwen36-35b-a3b__dark_mode_off__r1
+[2026-05-16 11:20:25]   DONE outcome=done tools=10 task_time=238.7s
+[2026-05-16 11:20:25] TRIAL [5/14] 112025__qwen_qwen36-35b-a3b__open_calculator__r0
+[2026-05-16 11:25:02]   DONE outcome=done tools=12 task_time=272.2s
+[2026-05-16 11:25:02] TRIAL [6/14] 112502__qwen_qwen36-35b-a3b__open_calculator__r1
+[2026-05-16 11:30:06]   TIMEOUT /task >300s
+[2026-05-16 11:30:13]   DONE outcome=timeout tools=15 task_time=300.2s
+[2026-05-16 11:30:13] TRIAL [7/14] 113013__qwen_qwen36-35b-a3b__bluetooth_toggle_on__r0
+[2026-05-16 11:35:16]   TIMEOUT /task >300s
+[2026-05-16 11:35:18]   DONE outcome=failed tools=4 task_time=300.2s
+[2026-05-16 11:35:18] TRIAL [8/14] 113518__qwen_qwen36-35b-a3b__bluetooth_toggle_on__r1
+[2026-05-16 11:40:22]   TIMEOUT /task >300s
+[2026-05-16 11:40:23]   DONE outcome=failed tools=9 task_time=300.3s
+[2026-05-16 11:40:23] TRIAL [9/14] 114023__qwen_qwen36-35b-a3b__brightness_set_50__r0
+[2026-05-16 11:45:27]   TIMEOUT /task >300s
+[2026-05-16 11:45:28]   DONE outcome=failed tools=7 task_time=300.3s
+[2026-05-16 11:45:28] TRIAL [10/14] 114528__qwen_qwen36-35b-a3b__brightness_set_50__r1
+[2026-05-16 11:50:32]   TIMEOUT /task >300s
+[2026-05-16 11:50:33]   DONE outcome=failed tools=7 task_time=300.3s
+[2026-05-16 11:50:33] TRIAL [11/14] 115033__qwen_qwen36-35b-a3b__timer_set_5min__r0
+[2026-05-16 11:55:37]   TIMEOUT /task >300s
+[2026-05-16 11:55:39]   DONE outcome=failed tools=6 task_time=300.3s
+[2026-05-16 11:55:39] TRIAL [12/14] 115539__qwen_qwen36-35b-a3b__timer_set_5min__r1
+[2026-05-16 12:00:42]   TIMEOUT /task >300s
+[2026-05-16 12:00:44]   DONE outcome=failed tools=8 task_time=300.4s
+[2026-05-16 12:00:44] TRIAL [13/14] 120044__qwen_qwen36-35b-a3b__pizza_search__r0
+[2026-05-16 12:05:47]   TIMEOUT /task >300s
+[2026-05-16 12:05:49]   DONE outcome=done tools=7 task_time=300.2s
+[2026-05-16 12:05:49] TRIAL [14/14] 120549__qwen_qwen36-35b-a3b__pizza_search__r1
+[2026-05-16 12:09:01]   DONE outcome=done tools=8 task_time=187.6s
+[2026-05-16 12:09:03] FINISHED 14 trials in 66.8 min

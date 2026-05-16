@@ -68,8 +68,15 @@ class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegist
         savedStateController.performAttach()
         savedStateController.performRestore(null)
         startForegroundWithNotification()
-        attachOverlay()
-        startObserver()
+        // Baseline study condition: keep the service alive (it is still the
+        // task-dispatch entry point) but mount no overlay and skip the SSE
+        // observer — there is nothing to render into.
+        if (OverlaySettings.isPillEnabled(this)) {
+            attachOverlay()
+            startObserver()
+        } else {
+            Log.i(TAG, "Baseline condition — companion pill disabled")
+        }
     }
 
     private fun startObserver() {

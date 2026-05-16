@@ -1,0 +1,166 @@
+{
+  "trial_id": "115539__qwen_qwen36-35b-a3b__timer_set_5min__r1",
+  "timestamp_utc": "2026-05-16T10:00:44.056361Z",
+  "model": "qwen/qwen3.6-35b-a3b",
+  "task": "timer_set_5min",
+  "run": 1,
+  "outcome": "failed",
+  "timing": {
+    "load": 52.57,
+    "reset": 1.4,
+    "task": 300.41,
+    "total": 305.05
+  },
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\115539__qwen_qwen36-35b-a3b__timer_set_5min__r1.png",
+  "lmstudio_response": null,
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1778925342.4115276,
+      "task": "stelle einen timer auf 5 minuten",
+      "_received_at": 89595.30349
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778925363.4560046,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.google.android.deskclock",
+        "why": "Öffne die Clock-App für den Timer"
+      },
+      "_received_at": 89616.3462854
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778925370.350661,
+      "tool": "smartphone_open_app",
+      "_received_at": 89623.2409954
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778925375.043494,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.google.android.deskclock",
+        "why": "Öffne die Clock-App für den Timer"
+      },
+      "_received_at": 89627.9338224
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778925387.1225004,
+      "tool": "smartphone_open_app",
+      "_received_at": 89640.0128099
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778925398.683146,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Überprüfe ob Clock-App offen ist"
+      },
+      "_received_at": 89651.5734703
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778925400.8206346,
+      "tool": "smartphone_list_elements",
+      "_received_at": 89653.7109822
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778925403.9755614,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Suche den 5m Timer auf dem Timer-Tab"
+      },
+      "_received_at": 89656.8659503
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778925406.0967762,
+      "tool": "smartphone_list_elements",
+      "_received_at": 89658.9870633
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778925465.814374,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 540,
+        "y": 1983,
+        "why": "Füge einen neuen Timer hinzu"
+      },
+      "_received_at": 89718.704773
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778925470.5274112,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 89723.4177273
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778925503.905176,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 540,
+        "y": 1983,
+        "why": "Tippe auf Plus, um einen neuen Timer zu erstellen"
+      },
+      "_received_at": 89756.7955643
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778925510.5414877,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 89763.4318028
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778925560.173507,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Überprüfe ob Timer-Eingabe erscheint"
+      },
+      "_received_at": 89813.0638355
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778925562.3282576,
+      "tool": "smartphone_list_elements",
+      "_received_at": 89815.2185695
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778925593.494562,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Überprüfe ob der Timer-Erstellungs-Bildschirm offen ist"
+      },
+      "_received_at": 89846.384882
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778925595.624171,
+      "tool": "smartphone_list_elements",
+      "_received_at": 89848.5144975
+    },
+    {
+      "type": "task_finished",
+      "ts": 1778925637.0552173,
+      "ok": false,
+      "payload": {
+        "active_skills": [
+          "deskclock.timer_5min_start",
+          "timer.start_5min_deskclock"
+        ]
+      },
+      "_received_at": 89889.9456208
+    }
+  ]
+}

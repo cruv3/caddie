@@ -28,3 +28,8 @@ __pycache__/
 
 # Claude local
 .claude/settings.local.json
+
+# Runtime logs / scratch (experiment runner, emulator, task server)
+mcp-server/*.log
+mcp-server/*.err
+mcp-server/active_pids.txt

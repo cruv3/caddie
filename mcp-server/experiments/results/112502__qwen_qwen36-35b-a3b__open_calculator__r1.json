@@ -1,0 +1,269 @@
+{
+  "trial_id": "112502__qwen_qwen36-35b-a3b__open_calculator__r1",
+  "timestamp_utc": "2026-05-16T09:30:13.303431Z",
+  "model": "qwen/qwen3.6-35b-a3b",
+  "task": "open_calculator",
+  "run": 1,
+  "outcome": "timeout",
+  "timing": {
+    "load": 52.57,
+    "reset": 1.41,
+    "task": 300.24,
+    "total": 310.42
+  },
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\112502__qwen_qwen36-35b-a3b__open_calculator__r1.png",
+  "lmstudio_response": null,
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1778923506.3031757,
+      "task": "öffne die taschenrechner-app",
+      "_received_at": 87759.1937707
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778923509.982967,
+      "tool": "smartphone_get_skill_app_launcher_calculator_search_playstore",
+      "args": {
+        "skill_id": "app_launcher.calculator_search_playstore"
+      },
+      "_received_at": 87762.8732832
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778923509.9948192,
+      "tool": "smartphone_get_skill_app_launcher_calculator_search_playstore",
+      "_received_at": 87762.8851802
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778923521.2400103,
+      "tool": "smartphone_list_apps",
+      "args": {
+        "include_system": true
+      },
+      "_received_at": 87774.1302928
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778923521.2983544,
+      "tool": "smartphone_list_apps",
+      "_received_at": 87774.1886554
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778923543.9750922,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 500,
+        "start_y": 750,
+        "end_x": 500,
+        "end_y": 250,
+        "duration_ms": 400,
+        "why": "App-Drawer wird geöffnet"
+      },
+      "_received_at": 87796.8654288
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778923549.0714722,
+      "tool": "smartphone_swipe",
+      "_received_at": 87801.9617752
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778923554.1201403,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Schaue mir den Bildschirm an"
+      },
+      "_received_at": 87807.0104272
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778923556.2980342,
+      "tool": "smartphone_list_elements",
+      "_received_at": 87809.1883391
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778923594.236955,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 540,
+        "y": 242,
+        "why": "Tippe auf die Suchleiste"
+      },
+      "_received_at": 87847.1275
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778923601.03024,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 87853.9205663
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778923609.0669131,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 540,
+        "y": 242,
+        "why": "Tippe auf das Suchfeld"
+      },
+      "_received_at": 87861.9572231
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778923615.6467876,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 87868.537133
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778923621.0795887,
+      "tool": "smartphone_type_text",
+      "args": {
+        "text": "Taschenrechner",
+        "submit": false,
+        "why": "Gebe Taschenrechner in die Suche ein"
+      },
+      "_received_at": 87873.969935
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778923628.0132072,
+      "tool": "smartphone_type_text",
+      "_received_at": 87880.9035087
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778923631.8212771,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Prüfe die Suchergebnisse"
+      },
+      "_received_at": 87884.7116109
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778923634.0241902,
+      "tool": "smartphone_list_elements",
+      "_received_at": 87886.9144795
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778923703.8862417,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 540,
+        "y": 2006,
+        "why": "Suche bei Google nach Taschenrechner"
+      },
+      "_received_at": 87956.7765682
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778923708.8761597,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 87961.7665574
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778923713.4543164,
+      "tool": "smartphone_take_screenshot",
+      "args": {
+        "why": "Überprüfe das Suchergebnis"
+      },
+      "_received_at": 87966.3446715
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778923713.7792675,
+      "tool": "smartphone_take_screenshot",
+      "_received_at": 87966.66956
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778923726.7070005,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.vending",
+        "why": "Öffne Play Store für Taschenrechner-Suche"
+      },
+      "_received_at": 87979.597285
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778923734.7649832,
+      "tool": "smartphone_open_app",
+      "_received_at": 87987.65531
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778923739.0867128,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Prüfe den Play Store"
+      },
+      "_received_at": 87991.9770402
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778923741.19874,
+      "tool": "smartphone_list_elements",
+      "_received_at": 87994.0890564
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778923760.8760064,
+      "tool": "smartphone_press_button",
+      "args": {
+        "button": "HOME",
+        "why": "Zurück zum Home-Bildschirm"
+      },
+      "_received_at": 88013.7663304
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778923766.0812905,
+      "tool": "smartphone_press_button",
+      "_received_at": 88018.9716076
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778923771.8159928,
+      "tool": "smartphone_press_button",
+      "args": {
+        "button": "HOME",
+        "why": "Zum Home-Bildschirm zurückkehren"
+      },
+      "_received_at": 88024.7062871
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778923778.3874655,
+      "tool": "smartphone_press_button",
+      "_received_at": 88031.2777742
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778923782.9013278,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Schaue mir den Bildschirm an"
+      },
+      "_received_at": 88035.7918386
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778923785.1744573,
+      "tool": "smartphone_list_elements",
+      "_received_at": 88038.0647453
+    }
+  ]
+}
