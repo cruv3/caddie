@@ -18,6 +18,8 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.llm_smartphone_v2.R
+import com.llm_smartphone_v2.accessibility.AgentActivityTracker
+import com.llm_smartphone_v2.accessibility.InterventionReporter
 import com.llm_smartphone_v2.overlay.OverlayService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -145,15 +147,25 @@ class WakeWordService : Service() {
     private fun onWakeWord() {
         if (!wakeHandlingActive.compareAndSet(false, true)) return
 
+        // Laeuft gerade ein Agent-Run, ist das Gesprochene eine Mid-run-
+        // Korrektur (Block 5) — kein neuer Task. Sonst wie bisher.
+        val correctionMode = AgentActivityTracker.isRunLikelyActive()
+        if (correctionMode) InterventionReporter.get().onVoiceCaptureStarted()
+
         OverlayService.notifyListening(this)
         speech.start(
             onResult = { transcript ->
-                Log.i(TAG, "transcript: $transcript")
-                OverlayService.dispatchTask(this, transcript)
+                Log.i(TAG, "transcript: $transcript (correction=$correctionMode)")
+                if (correctionMode) {
+                    InterventionReporter.get().sendCorrection(transcript)
+                } else {
+                    OverlayService.dispatchTask(this, transcript)
+                }
                 onSpeechDone()
             },
             onError = { err ->
                 Log.w(TAG, "speech error: ${err.message}")
+                if (correctionMode) InterventionReporter.get().onVoiceCaptureEnded()
                 OverlayService.notifyDismiss(this)
                 onSpeechDone()
             },

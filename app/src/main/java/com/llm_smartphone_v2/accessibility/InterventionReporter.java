@@ -7,6 +7,8 @@ import android.util.Log;
 
 import com.llm_smartphone_v2.lmstudio.LmStudioConfig;
 
+import org.json.JSONObject;
+
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.MediaType;
@@ -44,6 +46,10 @@ public final class InterventionReporter {
     private final Handler handler;
     private boolean paused = false;
     private long lastTouchMs = 0L;
+    /** True, solange der Nutzer eine gesprochene Korrektur diktiert —
+     *  unterdrueckt den Auto-Resume, damit der Agent nicht mitten im Satz
+     *  weiterlaeuft. */
+    private boolean voiceCaptureActive = false;
 
     private InterventionReporter() {
         HandlerThread thread = new HandlerThread("intervention-reporter");
@@ -62,9 +68,37 @@ public final class InterventionReporter {
         }
     }
 
+    /** Vom WakeWordService, wenn der Nutzer waehrend eines Runs zu sprechen
+     *  beginnt — setzt den Auto-Resume aus, bis die Korrektur da ist. */
+    public synchronized void onVoiceCaptureStarted() {
+        voiceCaptureActive = true;
+    }
+
+    /** Spracherfassung beendet (ohne verwertbares Ergebnis). */
+    public synchronized void onVoiceCaptureEnded() {
+        voiceCaptureActive = false;
+        if (paused) {
+            handler.post(this::checkResume);
+        }
+    }
+
+    /** Gesprochene Mid-run-Korrektur an den Host schicken. Der Run wird
+     *  host-seitig fortgesetzt, sobald die Korrektur eingespeist ist. */
+    public synchronized void sendCorrection(String text) {
+        paused = false;
+        voiceCaptureActive = false;
+        Log.i(TAG, "voice correction -> " + text);
+        postCorrection(text);
+    }
+
     /** Periodischer Check: nach genug Touch-Ruhe -> Agent fortsetzen. */
     private synchronized void checkResume() {
         if (!paused) {
+            return;
+        }
+        if (voiceCaptureActive) {
+            // Nutzer diktiert gerade eine Korrektur — Resume aufschieben.
+            handler.postDelayed(this::checkResume, 500);
             return;
         }
         long quietMs = SystemClock.uptimeMillis() - lastTouchMs;
@@ -88,6 +122,30 @@ public final class InterventionReporter {
                 Log.i(TAG, "POST /control " + action + " -> " + response.code());
             } catch (Exception exception) {
                 Log.w(TAG, "POST /control " + action + " failed: " + exception.getMessage());
+            }
+        });
+    }
+
+    private void postCorrection(String text) {
+        handler.post(() -> {
+            String body;
+            try {
+                body = new JSONObject()
+                        .put("action", "correct")
+                        .put("text", text)
+                        .toString();
+            } catch (Exception exception) {
+                Log.w(TAG, "correct payload build failed: " + exception.getMessage());
+                return;
+            }
+            Request request = new Request.Builder()
+                    .url(LmStudioConfig.CONTROL_ENDPOINT)
+                    .post(RequestBody.create(body, JSON))
+                    .build();
+            try (Response response = client.newCall(request).execute()) {
+                Log.i(TAG, "POST /control correct -> " + response.code());
+            } catch (Exception exception) {
+                Log.w(TAG, "POST /control correct failed: " + exception.getMessage());
             }
         });
     }
