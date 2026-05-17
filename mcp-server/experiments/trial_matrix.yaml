@@ -30,9 +30,6 @@ tasks:
   - id: dark_mode_off
     prompt: "schalte den dark mode aus"
     difficulty: easy
-  - id: open_calculator
-    prompt: "öffne die taschenrechner-app"
-    difficulty: easy
 
   # Medium: anderes Surface oder strukturierte Eingabe
   - id: bluetooth_toggle_on

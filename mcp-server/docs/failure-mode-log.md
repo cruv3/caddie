@@ -1,7 +1,12 @@
 # Failure-Mode-Sampling - Matrix Run 2026-05-13
 
-**Setup:** 6 Modelle x 7 Tasks x 2 Runs = 84 Trials. Pixel-9a-Emulator, HTTP-Bridge, /task auf :8787.
+**Setup:** 6 Modelle x 6 Tasks x 2 Runs = 72 Trials. Pixel-9a-Emulator, HTTP-Bridge, /task auf :8787.
 Loop-Cap: 25 Tool-Calls -> fail_loop. Hard-Timeout 300s/Trial.
+
+> Der Task `open_calculator` wurde am 2026-05-17 komplett aus der Studie
+> entfernt: auf dem Emulator ist keine Rechner-App installiert, der Task war
+> fuer alle Modelle unfair (mass nur, ob ein Modell ehrlich aufgibt). Alle
+> Zahlen unten sind ohne calculator (7 -> 6 Tasks, 84 -> 72 Trials).
 
 > WICHTIG: Die `outcome`-Spalte aus dem Runner (`done`/`failed`/...) ist KEIN Erfolgsindikator.
 > `done` heisst nur "Modell hat `smartphone_done` aufgerufen". Die echte Bewertung kommt aus
@@ -11,12 +16,12 @@ Loop-Cap: 25 Tool-Calls -> fail_loop. Hard-Timeout 300s/Trial.
 
 | Modell | done | failed | timeout | fail_loop |
 |---|---|---|---|---|
-| qwen/qwen3.6-35b-a3b | 8 | 5 | 1 | 0 |
-| qwen/qwen3-vl-8b | 7 | 1 | 0 | 6 |
-| qwen/qwen3-8b | 14 | 0 | 0 | 0 |
-| google/gemma-4-e4b | 11 | 3 | 0 | 0 |
-| gemma-4-e2b-it | 14 | 0 | 0 | 0 |
-| pixtral-12b | 9 | 1 | 1 | 3 |
+| qwen/qwen3.6-35b-a3b | 7 | 5 | 0 | 0 |
+| qwen/qwen3-vl-8b | 5 | 1 | 0 | 6 |
+| qwen/qwen3-8b | 12 | 0 | 0 | 0 |
+| google/gemma-4-e4b | 9 | 3 | 0 | 0 |
+| gemma-4-e2b-it | 12 | 0 | 0 | 0 |
+| pixtral-12b | 9 | 1 | 1 | 1 |
 
 qwen3-8b und gemma-4-e2b-it melden beide 100% `done`. Die Verifikation zeigt: real nahe 0%.
 
@@ -37,19 +42,18 @@ Kategorien:
 
 Der urspruengliche Lauf vom 2026-05-13 hatte keine Screenshots (lief als erster
 Block bevor die Bridge stabil war). Komplett neu gefahren am 2026-05-16 mit
-adb-Screenshots und LLM_STUDIO_TIMEOUT=600. Alle 14 Trials visuell verifiziert.
+adb-Screenshots und LLM_STUDIO_TIMEOUT=600. Alle 12 Trials visuell verifiziert.
 
 | Task | r0 | r1 |
 |---|---|---|
 | dark_mode_on | real_success | fail (Light Mode, Toggle OFF) |
 | dark_mode_off | fail (Dark Mode noch an) | real_success |
-| open_calculator | fail (Google-Suche statt App) | fail (Home Screen, timeout) |
 | bluetooth_toggle_on | fail (Settings-Root) | fail (Saved-Devices-Seite, nicht getoggelt) |
 | brightness_set_50 | fail (Display-Seite, 83% statt 50%) | fail (Settings-Root) |
 | timer_set_5min | fail (Home Screen) | fail (Timer-App offen, aber 00:00 nicht gesetzt) |
 | pizza_search | real_success (Yelp: 10 Pizza-Lokale in der Naehe) | real_success (Google-Suche "pizza restaurant near me") |
 
-**real_success: 4/14.** Bestes Modell der Matrix.
+**real_success: 4/12.** Bestes Modell der Matrix.
 - Einziges Modell, das `pizza_search` loest — und zwar in beiden Runs. Alle anderen
   Modelle scheitern an dieser Hard-Task komplett.
 - `timer_set_5min` r1: erreicht als einziges Modell die richtige Timer-App
@@ -63,13 +67,12 @@ adb-Screenshots und LLM_STUDIO_TIMEOUT=600. Alle 14 Trials visuell verifiziert.
 |---|---|---|
 | dark_mode_on | real_success | fail_loop |
 | dark_mode_off | fail | real_success |
-| open_calculator | fail (Timer-App geoeffnet) | fail (Suchfeld statt App) |
 | bluetooth_toggle_on | fail (Google services) | fail (Google services) |
 | brightness_set_50 | fail_loop | fail_loop |
 | timer_set_5min | fail_loop | fail (5s statt 5min) |
 | pizza_search | fail_loop | fail_loop |
 
-**real_success: 2/14.** Beide echten Erfolge sind Dark-Mode-Toggles.
+**real_success: 2/12.** Beide echten Erfolge sind Dark-Mode-Toggles.
 
 ### qwen/qwen3-8b (verifiziert)
 
@@ -77,13 +80,12 @@ adb-Screenshots und LLM_STUDIO_TIMEOUT=600. Alle 14 Trials visuell verifiziert.
 |---|---|---|
 | dark_mode_on | fail (Light Mode) | fail (Toggle OFF) |
 | dark_mode_off | passive_success | passive_success |
-| open_calculator | fail (Home Screen) | fail (Home Screen) |
 | bluetooth_toggle_on | fail (Google services) | fail (Google services) |
 | brightness_set_50 | fail (Messages-App) | fail (Messages-App) |
 | timer_set_5min | fail (5s statt 5min) | fail (5s statt 5min) |
 | pizza_search | passive_success | passive_success |
 
-**real_success: 0/14.** 14x `done` gemeldet, kein einziger echter Erfolg.
+**real_success: 0/12.** 12x `done` gemeldet, kein einziger echter Erfolg.
 
 ### google/gemma-4-e4b (verifiziert)
 
@@ -91,13 +93,12 @@ adb-Screenshots und LLM_STUDIO_TIMEOUT=600. Alle 14 Trials visuell verifiziert.
 |---|---|---|
 | dark_mode_on | real_success | fail |
 | dark_mode_off | fail | fail |
-| open_calculator | fail (Google-App) | fail (Google-Suche, Inline-Rechner) |
 | bluetooth_toggle_on | fail (Google services) | fail (Settings-Suche, nicht getoggelt) |
 | brightness_set_50 | fail (Messages-App) | fail (Messages-App) |
 | timer_set_5min | fail (5s statt 5min) | fail (5s statt 5min) |
 | pizza_search | passive_success | passive_success |
 
-**real_success: 1/14.**
+**real_success: 1/12.**
 
 ### gemma-4-e2b-it (verifiziert)
 
@@ -105,13 +106,12 @@ adb-Screenshots und LLM_STUDIO_TIMEOUT=600. Alle 14 Trials visuell verifiziert.
 |---|---|---|
 | dark_mode_on | fail + SAFETY-INCIDENT | fail (Home Screen) |
 | dark_mode_off | passive_success | passive_success |
-| open_calculator | fail (Home Screen) | fail (Home Screen) |
 | bluetooth_toggle_on | fail (Google services) | fail (Google services) |
 | brightness_set_50 | fail (Home Screen) | fail (Home Screen) |
 | timer_set_5min | fail (5s statt 5min) | fail (5s statt 5min) |
 | pizza_search | passive_success | passive_success |
 
-**real_success: 0/14.**
+**real_success: 0/12.**
 **Safety-Incident dark_mode_on r0:** Modell navigierte auf die App-Info-Seite der Agent-App
 selbst und loeste einen "Do you want to uninstall this app?"-Dialog aus. Bei einem
 Dark-Mode-Task. Der Agent stand kurz davor sich selbst zu deinstallieren.
@@ -122,41 +122,40 @@ Dark-Mode-Task. Der Agent stand kurz davor sich selbst zu deinstallieren.
 |---|---|---|
 | dark_mode_on | fail (Toggle OFF) | timeout |
 | dark_mode_off | passive_success | fail |
-| open_calculator | fail_loop | fail_loop |
 | bluetooth_toggle_on | fail_loop | fail (Google services) |
 | brightness_set_50 | fail (Messages-App) | fail (vermutl. gleich) |
 | timer_set_5min | fail (5s, Toast luegt "5 Minuten") | fail (vermutl. gleich) |
 | pizza_search | passive_success | passive_success |
 
-**real_success: 0/14** (Stichprobe).
+**real_success: 0/12** (Stichprobe).
 
 ## Gesamtbilanz
 
-Alle 6 Modelle visuell verifiziert (84 Trials):
+Alle 6 Modelle visuell verifiziert (72 Trials):
 
 | Modell | done (roh) | real_success (verifiziert) |
 |---|---|---|
-| qwen3.6-35b-a3b | 8 | 4 |
-| qwen3-vl-8b | 7 | 2 |
-| qwen3-8b | 14 | 0 |
-| gemma-4-e4b | 11 | 1 |
-| gemma-4-e2b-it | 14 | 0 |
+| qwen3.6-35b-a3b | 7 | 4 |
+| qwen3-vl-8b | 5 | 2 |
+| qwen3-8b | 12 | 0 |
+| gemma-4-e4b | 9 | 1 |
+| gemma-4-e2b-it | 12 | 0 |
 | pixtral-12b | 9 | 0 |
 
-**7 echte Erfolge bei 84 Trials. Verifizierte Erfolgsrate: ~8%.**
-Roh-`done`-Rate ueber alle 84 Trials: ~73%.
+**7 echte Erfolge bei 72 Trials. Verifizierte Erfolgsrate: ~10%.**
+Roh-`done`-Rate ueber alle 72 Trials: ~75%.
 
 Modell-Ranking nach echtem Erfolg: qwen3.6 (4) > qwen3-vl-8b (2) > gemma-4-e4b (1)
 > qwen3-8b / gemma-4-e2b-it / pixtral-12b (je 0). Die Modellgroesse korreliert —
 das groesste Modell (qwen3.6, 35B-MoE) ist auch das einzige, das die Hard-Task
-`pizza_search` loest. Aber auch der Champion liegt bei nur ~29% echtem Erfolg.
+`pizza_search` loest. Aber auch der Champion liegt bei nur ~33% echtem Erfolg.
 
 ## Failure-Modes (verifiziert beobachtet)
 
 1. **Hallucinated Success** - `done` gemeldet, Phone unveraendert (Home Screen).
    Dominant bei gemma-4-e2b-it und qwen3-8b.
 2. **Wrong-App-Navigation** - aktiv in die falsche App genavigiert:
-   brightness -> Google Messages, bluetooth -> Google services, calculator -> Timer-App.
+   brightness -> Google Messages, bluetooth -> Google services.
    Nicht nur "nichts getan", sondern selbstsicher falsch.
 3. **Unit-Confusion** - "5 Minuten" -> 5-Sekunden-Timer. Modellweit, alle Modelle.
 4. **Tool-Loop / Stuck-Loop** - >25 Tool-Calls ohne Fortschritt.
@@ -180,7 +179,7 @@ das groesste Modell (qwen3.6, 35B-MoE) ist auch das einzige, das die Hard-Task
   ggf. App-Daten-Clear zwischen Tasks. Aktuell nicht implementiert.
 - Der Safety-Incident (Uninstall-Dialog) ist das staerkste Einzelargument fuer
   Pre-Action-Confirmation (Roadmap-Item 4 / TRQ3).
-- qwen3.6 wurde am 2026-05-16 neu gefahren — Auswertung jetzt vollstaendig (84 Trials).
+- qwen3.6 wurde am 2026-05-16 neu gefahren — Auswertung jetzt vollstaendig (72 Trials).
 
 ## Tagging-Kategorien fuer kuenftige Runs
 
@@ -198,8 +197,6 @@ das groesste Modell (qwen3.6, 35B-MoE) ist auch das einzige, das die Hard-Task
 | 110749__qwen_qwen36-35b-a3b__dark_mode_on__r1 | qwen/qwen3.6-35b-a3b | dark_mode_on | 1 | ✅ done |  | 10 | 253.4 | ![s](screenshots/trials/110749__qwen_qwen36-35b-a3b__dark_mode_on__r1.png) |  |
 | 111207__qwen_qwen36-35b-a3b__dark_mode_off__r0 | qwen/qwen3.6-35b-a3b | dark_mode_off | 0 | ✅ done |  | 10 | 249.7 | ![s](screenshots/trials/111207__qwen_qwen36-35b-a3b__dark_mode_off__r0.png) |  |
 | 111622__qwen_qwen36-35b-a3b__dark_mode_off__r1 | qwen/qwen3.6-35b-a3b | dark_mode_off | 1 | ✅ done |  | 10 | 238.7 | ![s](screenshots/trials/111622__qwen_qwen36-35b-a3b__dark_mode_off__r1.png) |  |
-| 112025__qwen_qwen36-35b-a3b__open_calculator__r0 | qwen/qwen3.6-35b-a3b | open_calculator | 0 | ✅ done |  | 12 | 272.2 | ![s](screenshots/trials/112025__qwen_qwen36-35b-a3b__open_calculator__r0.png) |  |
-| 112502__qwen_qwen36-35b-a3b__open_calculator__r1 | qwen/qwen3.6-35b-a3b | open_calculator | 1 | ⏱️ timeout |  | 15 | 300.2 | ![s](screenshots/trials/112502__qwen_qwen36-35b-a3b__open_calculator__r1.png) |  |
 | 113013__qwen_qwen36-35b-a3b__bluetooth_toggle_on__r0 | qwen/qwen3.6-35b-a3b | bluetooth_toggle_on | 0 | ❌ failed |  | 4 | 300.2 | ![s](screenshots/trials/113013__qwen_qwen36-35b-a3b__bluetooth_toggle_on__r0.png) |  |
 | 113518__qwen_qwen36-35b-a3b__bluetooth_toggle_on__r1 | qwen/qwen3.6-35b-a3b | bluetooth_toggle_on | 1 | ❌ failed |  | 9 | 300.3 | ![s](screenshots/trials/113518__qwen_qwen36-35b-a3b__bluetooth_toggle_on__r1.png) |  |
 | 114023__qwen_qwen36-35b-a3b__brightness_set_50__r0 | qwen/qwen3.6-35b-a3b | brightness_set_50 | 0 | ❌ failed |  | 7 | 300.3 | ![s](screenshots/trials/114023__qwen_qwen36-35b-a3b__brightness_set_50__r0.png) |  |

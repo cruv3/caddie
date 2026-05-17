@@ -2,8 +2,12 @@
 
 Gefahren mit `experiments/claude_runner.py`: Claude Code Headless (`claude -p`),
 via --mcp-config an den llm-smartphone-MCP-Server (`server.py`) gehaengt.
-Gleiche 7 Tasks wie die lokale Matrix. Backend: adb. Tokens/Kosten/Dauer kommen
+Gleiche 6 Tasks wie die lokale Matrix. Backend: adb. Tokens/Kosten/Dauer kommen
 aus dem CLI-`stream-json`-Output (`total_cost_usd`, `usage`, `duration_ms`).
+
+> Der Task `open_calculator` wurde am 2026-05-17 aus der Studie entfernt
+> (keine Rechner-App auf dem Emulator, fuer alle Modelle unfair). Alle Zahlen
+> unten sind ohne calculator.
 
 > `outcome` = welches Lifecycle-Tool das Modell zuletzt rief (done/failed) bzw.
 > none/timeout. KEIN Erfolgsindikator — echte Bewertung per Screenshot unten.
@@ -16,8 +20,6 @@ aus dem CLI-`stream-json`-Output (`total_cost_usd`, `usage`, `duration_ms`).
 | 122135__claude-opus-4-7__dark_mode_on__r1 | dark_mode_on | 1 | done | 10 | 11 | 20 | 1289 | 380916 | 0.5850 | 65.9 | ![s](screenshots/trials/122135__claude-opus-4-7__dark_mode_on__r1.png) |
 | 122246__claude-opus-4-7__dark_mode_off__r0 | dark_mode_off | 0 | done | 10 | 11 | 20 | 1272 | 380453 | 0.5840 | 67.4 | ![s](screenshots/trials/122246__claude-opus-4-7__dark_mode_off__r0.png) |
 | 122358__claude-opus-4-7__dark_mode_off__r1 | dark_mode_off | 1 | done | 11 | 12 | 24 | 1817 | 486838 | 0.6587 | 90.9 | ![s](screenshots/trials/122358__claude-opus-4-7__dark_mode_off__r1.png) |
-| 122534__claude-opus-4-7__open_calculator__r0 | open_calculator | 0 | failed | 10 | 11 | 22 | 1837 | 401718 | 0.5949 | 67.7 | ![s](screenshots/trials/122534__claude-opus-4-7__open_calculator__r0.png) |
-| 122647__claude-opus-4-7__open_calculator__r1 | open_calculator | 1 | failed | 16 | 17 | 30 | 3119 | 781216 | 0.9786 | 122.7 | ![s](screenshots/trials/122647__claude-opus-4-7__open_calculator__r1.png) |
 | 122854__claude-opus-4-7__bluetooth_toggle_on__r0 | bluetooth_toggle_on | 0 | done | 36 | 37 | 72 | 8997 | 2011681 | 1.7429 | 308.3 | ![s](screenshots/trials/122854__claude-opus-4-7__bluetooth_toggle_on__r0.png) |
 | 123407__claude-opus-4-7__bluetooth_toggle_on__r1 | bluetooth_toggle_on | 1 | done | 31 | 32 | 62 | 4498 | 1805650 | 1.5584 | 243.3 | ![s](screenshots/trials/123407__claude-opus-4-7__bluetooth_toggle_on__r1.png) |
 | 135952__claude-opus-4-7__brightness_set_50__r0 | brightness_set_50 | 0 | done | 13 | 14 | 24 | 1732 | 506678 | 0.7714 | 103.0 | ![s](screenshots/trials/135952__claude-opus-4-7__brightness_set_50__r0.png) |
@@ -29,36 +31,31 @@ aus dem CLI-`stream-json`-Output (`total_cost_usd`, `usage`, `duration_ms`).
 
 ## Verifizierte Auswertung (Screenshot-geprueft)
 
-Alle 14 Trials visuell verifiziert. `outcome=done` ist KEIN Erfolgsindikator —
+Alle 12 Trials visuell verifiziert. `outcome=done` ist KEIN Erfolgsindikator —
 massgeblich ist der Screenshot.
 
 | Task | r0 | r1 |
 |---|---|---|
 | dark_mode_on | fail (Toggle OFF, done gemeldet) | real_success |
 | dark_mode_off | real_success | real_success |
-| open_calculator | fail (App-Drawer, keine Rechner-App) | fail (Play Store) |
 | bluetooth_toggle_on | real_success | real_success |
 | brightness_set_50 | real_success (50%) | real_success (50%) |
 | timer_set_5min | real_success (5m-Timer laeuft) | real_success (5m-Timer laeuft) |
 | pizza_search | real_success (Google-Suche, Treffer) | real_success (Google-Suche, Treffer) |
 
-**real_success: 11/14 (~79%).**
-Die 3 Fails: 1x dark_mode_on (echter Miss — `done` gemeldet, Toggle blieb aus),
-2x open_calculator. Auf dem Emulator ist **keine Rechner-App installiert** —
-Claude hat den App-Drawer durchsucht, sogar den Play Store geoeffnet, und dann
-*ehrlich* `smartphone_failed` gerufen. Die lokalen Modelle haben hier `done`
-halluziniert. Claudes Fail ist also das korrekte Verhalten; der Task ist fuer
-alle Modelle unfair. Ohne open_calculator: **11/12 (~92%)**.
+**real_success: 11/12 (~92%).**
+Der einzige Fail: dark_mode_on r0 — ein echter Miss (`done` gemeldet, der
+Toggle blieb aber aus).
 
 ## Vergleich Claude Opus 4.7 vs. lokale Modelle
 
-Lokale Daten aus `failure-mode-log.md` (Matrix 2026-05-13/16, gleiche 7 Tasks).
+Lokale Daten aus `failure-mode-log.md` (Matrix 2026-05-13/16, gleiche 6 Tasks).
 
 | Metrik | Claude Opus 4.7 (CLI) | qwen3.6-35b (bestes lokal) | lokal Durchschnitt |
 |---|---|---|---|
-| real_success | 11/14 (~79%) | 4/14 (~29%) | 7/84 (~8%) |
+| real_success | 11/12 (~92%) | 4/12 (~33%) | 7/72 (~10%) |
 | Kosten/Trial | ~$0.76 | ~$0 (lokal, nur Strom) | ~$0 |
-| Kosten gesamt | ~$10.67 (14 Trials) | $0 | $0 |
+| Kosten gesamt | ~$9.10 (12 Trials) | $0 | $0 |
 | Dauer/Trial (Median) | ~70 s | ~270 s | 200-300 s |
 
 ### Pro Task — echte Erfolge (r0+r1)
@@ -67,7 +64,6 @@ Lokale Daten aus `failure-mode-log.md` (Matrix 2026-05-13/16, gleiche 7 Tasks).
 |---|---|---|---|
 | dark_mode_on | 1/2 | 1/2 | 2/12 |
 | dark_mode_off | 2/2 | 1/2 | 4/12 |
-| open_calculator | 0/2 | 0/2 | 0/12 |
 | bluetooth_toggle_on | 2/2 | 0/2 | **0/12** |
 | brightness_set_50 | 2/2 | 0/2 | **0/12** |
 | timer_set_5min | 2/2 | 0/2 | **0/12** |
@@ -91,10 +87,7 @@ also mit der Anzahl Tool-Calls: bluetooth r0 (36 Tools) = $1.74, pizza r1
   Schicht tragfaehig (~79-92%). Der Flaschenhals der lokalen Modelle ist das
   Modell, nicht die Architektur.
 - Claude faellt NICHT in die dominanten lokalen Failure-Modes: kein Hallucinated
-  Success (calculator ehrlich als fail gemeldet), kein Unit-Confusion, kein
-  Wrong-App-Navigieren.
-- Kosten/Nutzen: ~$0.76/Task fuer ~79% echte Erfolge vs. ~$0 fuer ~8% lokal.
+  Success, kein Unit-Confusion, kein Wrong-App-Navigieren.
+- Kosten/Nutzen: ~$0.76/Task fuer ~92% echte Erfolge vs. ~$0 fuer ~10% lokal.
   Fuer die Pilot-/Hauptstudie ist Claude als "Referenz-Agent" brauchbar; die
   lokalen Modelle eignen sich eher als Failure-Mode-Generatoren.
-- open_calculator gehoert ueberarbeitet (Rechner-App vorinstallieren) oder aus
-  der Task-Liste — aktuell misst er nur, ob ein Modell ehrlich aufgibt.
