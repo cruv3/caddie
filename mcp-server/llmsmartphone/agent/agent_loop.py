@@ -23,6 +23,7 @@ from __future__ import annotations
 import json
 from typing import Any
 
+from llmsmartphone.agent import risk
 from llmsmartphone.agent.lmstudio import LmStudioClient
 from llmsmartphone.agent.run_control import RunControl, RunState
 from llmsmartphone.agent.tool_bridge import ToolCallResult, ToolDispatcher
@@ -31,6 +32,9 @@ from llmsmartphone.context import ServerContext
 # Sicherheitsnetze gegen stuck Modelle (vgl. experiments/run_trials.py).
 MAX_TOOL_CALLS = 25
 MAX_TURNS = 40
+# Wie lange der Loop vor einer kritischen Aktion auf die Swipe-Bestaetigung
+# wartet. Timeout = abgelehnt (sichere Default).
+CONFIRM_TIMEOUT_S = 120.0
 
 
 class AgentLoop:
@@ -41,6 +45,9 @@ class AgentLoop:
         self._lm = lmstudio
         self._events = context.events
         self._tool_specs = self._dispatcher.openai_tool_specs()
+        # Zuletzt gesehene list_elements-Ausgabe — Basis fuer die Risiko-
+        # Pruefung von Taps (Element unter den Tap-Koordinaten).
+        self._last_elements: list[dict] = []
         # Steuer-Objekt des gerade laufenden Runs (None = kein Run aktiv).
         # /control greift hierueber ein.
         self._active_control: RunControl | None = None
@@ -69,6 +76,10 @@ class AgentLoop:
             control.set_correction(text or "")
             control.request_resume()
             self._events.task_resumed()
+        elif action == "confirm":
+            control.resolve_confirmation(True)
+        elif action == "decline":
+            control.resolve_confirmation(False)
         elif action == "stop":
             control.request_stop()
         else:
@@ -134,11 +145,33 @@ class AgentLoop:
             terminal = False
             pending_images: list[ToolCallResult] = []
             for call in calls:
+                if control.stop_requested:
+                    outcome, terminal = "stopped_by_user", True
+                    break
                 tool_calls_made += 1
                 fn = call.get("function", {}) or {}
                 name = fn.get("name", "")
                 args = _parse_arguments(fn.get("arguments"))
+
+                # ── Swipe-to-Confirm: kritische Aktion? ──────────────────
+                verdict = risk.classify(name, args, self._last_elements)
+                if verdict.risky:
+                    self._events.confirmation_required(verdict.description, name)
+                    approved = control.await_confirmation(CONFIRM_TIMEOUT_S)
+                    self._events.confirmation_resolved(approved)
+                    if not approved:
+                        declined = ToolCallResult(
+                            name=name, ok=False,
+                            text=("Der Nutzer hat diese Aktion abgelehnt und "
+                                  "NICHT bestaetigt. Fuehre sie nicht aus — "
+                                  "waehle einen anderen Weg oder brich ab."),
+                        )
+                        messages.append(_tool_message(call.get("id", ""), declined))
+                        continue
+
                 result = self._dispatcher.call(name, args)
+                if name == "smartphone_list_elements":
+                    self._last_elements = _extract_elements(result)
                 messages.append(_tool_message(call.get("id", ""), result))
                 if result.image_b64:
                     pending_images.append(result)
@@ -263,3 +296,14 @@ def _parse_arguments(raw: Any) -> dict[str, Any]:
         return parsed if isinstance(parsed, dict) else {}
     except (json.JSONDecodeError, TypeError):
         return {}
+
+
+def _extract_elements(result: ToolCallResult) -> list[dict]:
+    """Holt die ``elements``-Liste aus einem list_elements-Tool-Ergebnis —
+    Basis fuer die Risiko-Pruefung des naechsten Taps."""
+    try:
+        data = json.loads(result.text)
+        elements = data.get("elements")
+        return elements if isinstance(elements, list) else []
+    except (json.JSONDecodeError, AttributeError, TypeError):
+        return []

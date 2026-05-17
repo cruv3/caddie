@@ -35,6 +35,10 @@ class RunControl:
         # Optionaler Nutzer-Text ("nimm das andere Restaurant"), den der Loop
         # beim naechsten _pause_point in die Conversation einspeist.
         self._pending_correction: str | None = None
+        # Swipe-to-Confirm: der Loop blockiert vor einer kritischen Aktion auf
+        # diesem Event, bis confirm/decline kommt. Gesetzt = aufgeloest.
+        self._confirm_event = threading.Event()
+        self._confirm_approved: bool = False
 
     # ---- Signal-Seite (HTTP /control, Touch-Erkennung) ----
 
@@ -69,11 +73,32 @@ class RunControl:
             self._resume_event.set()
 
     def request_stop(self) -> None:
-        """Bricht den Run terminal ab. Weckt einen pausierten Loop, damit er
-        den STOPPED-Zustand sieht."""
+        """Bricht den Run terminal ab. Weckt einen pausierten Loop und einen
+        auf eine Bestaetigung wartenden Loop, damit beide STOPPED sehen."""
         with self._lock:
             self._state = RunState.STOPPED
             self._resume_event.set()
+            self._confirm_event.set()
+
+    def resolve_confirmation(self, approved: bool) -> None:
+        """Antwort auf eine Swipe-to-Confirm-Abfrage (confirm/decline)."""
+        with self._lock:
+            self._confirm_approved = approved
+            self._confirm_event.set()
+
+    # ---- Loop-Seite ----
+
+    def await_confirmation(self, timeout: float) -> bool:
+        """Blockiert den Loop, bis confirm/decline kommt. Timeout oder Stop
+        gelten als Ablehnung (sichere Default)."""
+        self._confirm_event.clear()
+        with self._lock:
+            self._confirm_approved = False
+        got = self._confirm_event.wait(timeout)
+        if not got or self.stop_requested:
+            return False
+        with self._lock:
+            return self._confirm_approved
 
     # ---- Loop-Seite ----
 

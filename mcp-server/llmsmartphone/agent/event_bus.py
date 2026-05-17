@@ -76,6 +76,15 @@ class EventBus:
     def task_resumed(self) -> None:
         self.publish(ToolEvent(type="task_resumed"))
 
+    def confirmation_required(self, description: str, tool: str) -> None:
+        self.publish(ToolEvent(
+            type="confirmation_required", tool=tool,
+            payload={"description": description},
+        ))
+
+    def confirmation_resolved(self, approved: bool) -> None:
+        self.publish(ToolEvent(type="confirmation_resolved", ok=approved))
+
 
 EVENT_BUS = EventBus()
 
@@ -111,6 +120,15 @@ class RemoteEventBus:
 
     def task_resumed(self) -> None:
         self.publish(ToolEvent(type="task_resumed"))
+
+    def confirmation_required(self, description: str, tool: str) -> None:
+        self.publish(ToolEvent(
+            type="confirmation_required", tool=tool,
+            payload={"description": description},
+        ))
+
+    def confirmation_resolved(self, approved: bool) -> None:
+        self.publish(ToolEvent(type="confirmation_resolved", ok=approved))
 
     @contextmanager
     def subscription(self) -> Iterator[queue.Queue[ToolEvent | None]]:  # pragma: no cover
