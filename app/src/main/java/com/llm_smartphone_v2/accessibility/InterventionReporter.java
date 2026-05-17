@@ -91,6 +91,18 @@ public final class InterventionReporter {
         postCorrection(text);
     }
 
+    /** Swipe-to-Confirm: kritische Aktion bestaetigt. */
+    public void sendConfirm() {
+        Log.i(TAG, "user confirmed critical action");
+        post("confirm");
+    }
+
+    /** Swipe-to-Confirm: kritische Aktion abgelehnt. */
+    public void sendDecline() {
+        Log.i(TAG, "user declined critical action");
+        post("decline");
+    }
+
     /** Periodischer Check: nach genug Touch-Ruhe -> Agent fortsetzen. */
     private synchronized void checkResume() {
         if (!paused) {

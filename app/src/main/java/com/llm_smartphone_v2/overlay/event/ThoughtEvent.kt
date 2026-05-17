@@ -9,6 +9,8 @@ sealed class ThoughtEvent {
     data class TaskFinished(val ok: Boolean, val payload: JSONObject?) : ThoughtEvent()
     object TaskPaused : ThoughtEvent()
     object TaskResumed : ThoughtEvent()
+    data class ConfirmationRequired(val tool: String, val description: String) : ThoughtEvent()
+    object ConfirmationResolved : ThoughtEvent()
     object SessionReady : ThoughtEvent()
 
     companion object {
@@ -31,6 +33,13 @@ sealed class ThoughtEvent {
                     )
                     "task_paused" -> TaskPaused
                     "task_resumed" -> TaskResumed
+                    "confirmation_required" -> ConfirmationRequired(
+                        tool = json.optString("tool", ""),
+                        description = json.optJSONObject("payload")
+                            ?.optString("description", "").orEmpty()
+                            .ifBlank { "Kritische Aktion bestätigen?" }
+                    )
+                    "confirmation_resolved" -> ConfirmationResolved
                     "session_ready" -> SessionReady
                     else -> null
                 }

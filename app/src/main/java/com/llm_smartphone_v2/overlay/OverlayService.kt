@@ -26,6 +26,7 @@ import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.llm_smartphone_v2.R
+import com.llm_smartphone_v2.accessibility.InterventionReporter
 import com.llm_smartphone_v2.overlay.event.ThoughtEvent
 import com.llm_smartphone_v2.overlay.net.TaskEventClient
 import com.llm_smartphone_v2.overlay.ui.LlmSmartphoneTheme
@@ -50,6 +51,9 @@ class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegist
 
     private var windowManager: WindowManager? = null
     private var rootView: ComposeView? = null
+    // Aufbewahrt, damit FLAG_NOT_TOUCHABLE fuer den Swipe-to-Confirm-Dialog
+    // zur Laufzeit umgeschaltet werden kann.
+    private var layoutParams: WindowManager.LayoutParams? = null
 
     private val _state = MutableStateFlow(OverlayUiState())
     val stateFlow: StateFlow<OverlayUiState> get() = _state
@@ -220,6 +224,16 @@ class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegist
             is ThoughtEvent.TaskResumed -> {
                 setState { it.copy(state = RunState.Acting, currentStepLabel = "weiter…") }
             }
+            is ThoughtEvent.ConfirmationRequired -> {
+                // Agent wartet auf eine kritische Bestaetigung — modale
+                // Swipe-Karte zeigen und das Overlay touchbar machen.
+                setState { it.copy(confirmationText = event.description) }
+                setOverlayTouchable(true)
+            }
+            is ThoughtEvent.ConfirmationResolved -> {
+                setState { it.copy(confirmationText = null) }
+                setOverlayTouchable(false)
+            }
         }
     }
 
@@ -299,7 +313,11 @@ class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegist
             setViewTreeSavedStateRegistryOwner(this@OverlayService)
             setContent {
                 LlmSmartphoneTheme {
-                    OverlayRoot(stateFlow = stateFlow)
+                    OverlayRoot(
+                        stateFlow = stateFlow,
+                        onConfirm = { InterventionReporter.get().sendConfirm() },
+                        onDecline = { InterventionReporter.get().sendDecline() },
+                    )
                 }
             }
         }
@@ -322,6 +340,7 @@ class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegist
         ).apply {
             gravity = Gravity.TOP or Gravity.START
         }
+        layoutParams = params
 
         try {
             wm.addView(view, params)
@@ -330,6 +349,27 @@ class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegist
             Log.e(TAG, "failed to add overlay view", t)
             rootView = null
             windowManager = null
+        }
+    }
+
+    /**
+     * Schaltet FLAG_NOT_TOUCHABLE um. Normalerweise ist das Overlay
+     * durchklickbar (rein visuell); fuer den Swipe-to-Confirm-Dialog muss es
+     * Touches annehmen. Danach wieder zuruecksetzen.
+     */
+    private fun setOverlayTouchable(touchable: Boolean) {
+        val wm = windowManager ?: return
+        val view = rootView ?: return
+        val params = layoutParams ?: return
+        params.flags = if (touchable) {
+            params.flags and WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE.inv()
+        } else {
+            params.flags or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+        }
+        try {
+            wm.updateViewLayout(view, params)
+        } catch (t: Throwable) {
+            Log.w(TAG, "updateViewLayout for touchable=$touchable failed", t)
         }
     }
 

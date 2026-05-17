@@ -7,6 +7,9 @@ data class OverlayUiState(
     val currentStepLabel: String = "",
     val topMessage: String? = null,
     val topMessageIsUser: Boolean = false,
+    /** Wenn gesetzt: der Agent wartet auf eine Swipe-to-Confirm-Bestaetigung
+     *  fuer diese kritische Aktion. Loest die modale Confirm-Karte aus. */
+    val confirmationText: String? = null,
 )
 
 object ToolNarration {
