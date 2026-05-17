@@ -56,7 +56,7 @@ def classify(
         target = str(args.get("package_name") or args.get("file_path") or "").strip()
         desc = RISKY_TOOLS[name]
         if target:
-            desc = f"{desc}: {target}"
+            desc = f"{desc}: {_pretty_target(target)}"
         return RiskVerdict(True, desc)
 
     # --- Tap-Ebene ---
@@ -82,6 +82,18 @@ def _risky_label_at(x: Any, y: Any, elements: list[dict]) -> str | None:
         if label and _matches_keyword(label):
             return label
     return None
+
+
+def _pretty_target(target: str) -> str:
+    """Kuerzt einen Paketnamen auf den letzten Bestandteil fuer die Anzeige
+    (com.android.chrome -> Chrome). Dateipfade -> Dateiname."""
+    if "/" in target or "\\" in target:
+        return target.replace("\\", "/").rstrip("/").split("/")[-1] or target
+    if "." in target:
+        seg = target.rsplit(".", 1)[-1]
+        if seg:
+            return seg[:1].upper() + seg[1:]
+    return target
 
 
 def _contains(bounds: dict, x: int, y: int) -> bool:
