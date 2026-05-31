@@ -8,7 +8,7 @@ The name: a caddie carries the bag and advises the shot, but the player decides 
 
 Active development. **Thesis not yet officially registered** — scope and research questions may evolve after further discussion with supervisor.
 
-GitHub: https://github.com/cruv3/LLM-Smartphone-Companion (repo will be renamed to `caddie` in a follow-up step)
+GitHub: https://github.com/cruv3/caddie (renamed from `LLM-Smartphone-Companion` on 2026-05-31)
 
 ## Layout
 

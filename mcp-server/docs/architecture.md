@@ -1,32 +1,30 @@
-<!-- TRANSLATION PENDING: prose is still in German; paths and identifiers were updated to `caddie` on 2026-05-31. Full English translation is a deferred Phase 2 task. -->
+# Caddie MCP Server — Architecture and Design Decisions
 
-# LLM-Smartphone MCP-Server — Architektur und Design-Entscheidungen
+As of: 2026-05-01 (renamed from LLMSmartphone to Caddie on 2026-05-31)
 
-Stand: 2026-05-01
-
-Dieses Dokument beschreibt den Aufbau, die zentralen Design-Entscheidungen und die wichtigsten Trade-Offs des MCP-Servers. Es ist als Begleitdokument für eine Masterarbeit gedacht und versucht jede nicht-triviale Entscheidung zu begründen, anstatt nur den Endzustand zu beschreiben.
+This document describes the structure, central design decisions, and the most important trade-offs of the MCP server. It is intended as a companion document for a Master's thesis and tries to *justify* each non-trivial decision instead of only describing the end state.
 
 ---
 
-## 1. Ziel des Systems
+## 1. Goal of the system
 
-Ein lokales LLM (z.B. `qwen/qwen3.6-35b-a3b` in LM Studio) soll ein angeschlossenes Android-Smartphone autonom steuern: Apps starten, UI-Elemente anklicken, Wischen, Texte tippen, Screenshots machen, Inhalte verifizieren. Der LLM hat dafür *Werkzeuge* (Tools) und *Wissen* (Skills). Das System ist auf den **Model Context Protocol (MCP)** Standard von Anthropic aufgebaut und nutzt FastMCP als Server-Framework auf der Python-Seite.
+A local LLM (e.g. `qwen/qwen3.6-35b-a3b` in LM Studio) should autonomously control a connected Android smartphone: launch apps, click UI elements, swipe, type text, take screenshots, verify content. To do this the LLM has *tools* and *knowledge* (skills). The system is built on Anthropic's **Model Context Protocol (MCP)** standard and uses FastMCP as the server framework on the Python side.
 
-Architektonische Trennung in zwei Prozesse:
+Architectural separation into two processes:
 
-1. **Android-App** auf dem Smartphone — exposed eine HTTP-Bridge an einem lokalen Port (`/screen`, `/tap`, `/swipe`, `/screenshot`, …) auf Basis des Android `AccessibilityService`.
-2. **MCP-Server** auf dem PC (Python, FastMCP) — übersetzt MCP-Tool-Calls in HTTP-Requests an die Phone-Bridge oder in ADB-Befehle, je nach gewähltem Backend.
+1. **Android app** on the smartphone — exposes an HTTP bridge on a local port (`/screen`, `/tap`, `/swipe`, `/screenshot`, …) on top of the Android `AccessibilityService`.
+2. **MCP server** on the PC (Python, FastMCP) — translates MCP tool calls into HTTP requests to the phone bridge or into ADB commands, depending on the chosen backend.
 
-Der LLM-Client (LM Studio bzw. Jan) verbindet sich via stdio mit dem MCP-Server und sieht eine Liste von `smartphone_*` Tools. Er entscheidet beim Tool-Calling-Loop selbst, welche Tools in welcher Reihenfolge benötigt werden.
+The LLM client (LM Studio or Jan) connects via stdio to the MCP server and sees a list of `smartphone_*` tools. During the tool-calling loop it decides on its own which tools to use in which order.
 
 ---
 
-## 2. System-Architektur
+## 2. System architecture
 
 ```
 ┌──────────────────┐    stdio MCP    ┌──────────────────────────────┐
-│   LLM-Client     │ ──────────────► │     MCP-Server (Python)       │
-│  (LM Studio,     │                 │      caddie/*           │
+│   LLM client     │ ──────────────► │     MCP server (Python)       │
+│  (LM Studio,     │                 │          caddie/*             │
 │   Jan, …)        │ ◄────────────── │   - tools/                    │
 └──────────────────┘   tool results  │   - skills/                   │
                                      │   - agent/                    │
@@ -37,308 +35,308 @@ Der LLM-Client (LM Studio bzw. Jan) verbindet sich via stdio mit dem MCP-Server 
                                                 │ ADB             │ HTTP
                                                 ▼                 ▼
                                      ┌──────────────────┐  ┌──────────────────┐
-                                     │  adb shell …     │  │  Android-App     │
-                                     │  (PC → Phone)    │  │  HTTP-Bridge     │
-                                     └──────────────────┘  │  (Port 8765)     │
+                                     │  adb shell …     │  │  Android app     │
+                                     │  (PC → Phone)    │  │  HTTP bridge     │
+                                     └──────────────────┘  │  (port 8765)     │
                                                            └──────────────────┘
 ```
 
-**Backends.** Der Server unterstützt zwei Backends, umschaltbar via Env-Var `LLM_SMARTPHONE_BACKEND`:
+**Backends.** The server supports two backends, switchable via the env var `LLM_SMARTPHONE_BACKEND`:
 
-- `adb` — klassisch, nutzt das `adb`-Kommandozeilenwerkzeug. Funktioniert, wenn das Phone per USB oder WLAN-Debug verbunden ist.
-- `http` — kommuniziert mit der `LLMSmartphone_V2`-App auf dem Phone, die einen Mini-HTTP-Server auf Port 8765 hostet. Wird per `adb reverse` oder direkter IP erreicht.
+- `adb` — classic, uses the `adb` command-line tool. Works when the phone is connected via USB or wireless debugging.
+- `http` — talks to the Caddie Android app on the phone, which hosts a tiny HTTP server on port 8765. Reached via `adb reverse` or by direct IP.
 
-**Begründung der Backend-Trennung.** ADB ist für Devbox-Workflows zuverlässig, aber an USB-Debug gebunden. HTTP-Bridge skaliert ins Feld (z.B. WLAN, Multi-Phone, kein Debug-Brücke nötig) und gibt strukturierten Zugriff auf den Accessibility-Tree, was ADB nur per `dumpsys` oder `uiautomator dump` mühsam liefert. Beide Backends implementieren dieselbe Bridge-Schnittstelle (`take_screenshot`, `list_elements`, `tap`, `swipe`, …) — das Tool-Layer kennt den Unterschied nicht.
+**Why the backend split.** ADB is reliable for devbox workflows but tied to USB debugging. The HTTP bridge scales to the field (Wi-Fi, multi-phone, no debug bridge needed) and gives structured access to the accessibility tree — something ADB only delivers awkwardly through `dumpsys` or `uiautomator dump`. Both backends implement the same bridge interface (`take_screenshot`, `list_elements`, `tap`, `swipe`, …) — the tool layer does not see the difference.
 
-**Schichten.**
+**Layers.**
 
-| Schicht | Pfad | Verantwortung |
+| Layer | Path | Responsibility |
 |---|---|---|
-| Tools | `caddie/tools/` | MCP-Tool-Definitionen, FastMCP-`@mcp.tool()`-Wrapper |
-| Backends | `caddie/android/backends/{adb,http}` | Konkrete Phone-Kommunikation |
-| Skills | `caddie/skills/` | Skill-Bibliothek + Persistenz |
-| Agent | `caddie/agent/` | System-Prompt, optionaler `/task`-HTTP-Endpoint |
-| Server | `server.py` | FastMCP-Init, Tool-Registrierung |
+| Tools | `caddie/tools/` | MCP tool definitions, FastMCP `@mcp.tool()` wrappers |
+| Backends | `caddie/android/backends/{adb,http}` | Concrete phone communication |
+| Skills | `caddie/skills/` | Skill library + persistence |
+| Agent | `caddie/agent/` | System prompt, optional `/task` HTTP endpoint |
+| Server | `server.py` | FastMCP init, tool registration |
 
 ---
 
-## 3. Tool-Layer
+## 3. Tool layer
 
-Tools sind die *Fähigkeiten*, die der LLM hat. Sie werden bei Server-Start einmalig per `register_tools(mcp, context)` registriert. Jede Tool-Funktion ist mit `@mcp.tool()` dekoriert; FastMCP generiert daraus automatisch ein JSON-Schema (Name, Description, Parameter), das im MCP-`initialize`-Handshake an den Client geschickt wird.
+Tools are the *capabilities* the LLM has. They are registered once at server start via `register_tools(mcp, context)`. Each tool function is decorated with `@mcp.tool()`; FastMCP automatically generates a JSON schema (name, description, parameters) from it that is sent to the client during the MCP `initialize` handshake.
 
-Stand jetzt etwa 20 Tools, gegliedert in:
+About 20 tools currently, grouped into:
 
 - **device**: `smartphone_list_devices`, `smartphone_get_screen_size`, `smartphone_get_orientation`, `smartphone_set_orientation`, `smartphone_press_button`
 - **input**: `smartphone_tap_coordinates`, `smartphone_double_tap_coordinates`, `smartphone_long_press_coordinates`, `smartphone_swipe`, `smartphone_type_text`
 - **apps**: `smartphone_list_apps`, `smartphone_open_app`, `smartphone_terminate_app`, `smartphone_install_app`, `smartphone_uninstall_app`, `smartphone_open_url`
 - **screen**: `smartphone_take_screenshot`, `smartphone_list_elements`
-- **skills**: pro Skill ein `smartphone_get_skill_<sanitized_id>` plus ein einzelnes `smartphone_save_skill`
+- **skills**: one `smartphone_get_skill_<sanitized_id>` per skill, plus a single `smartphone_save_skill`
 
-### 3.1 Designprinzip: keine Tools für Use-Cases
+### 3.1 Design principle: no tools for use cases
 
-Eine bewusste Entscheidung war, **kein Tool pro Anwendungsfall** zu schreiben. Es gibt also kein `smartphone_set_brightness(percent)`, `smartphone_toggle_dark_mode(on)` oder Ähnliches.
+A deliberate decision was to **not write one tool per use case**. So there is no `smartphone_set_brightness(percent)`, no `smartphone_toggle_dark_mode(on)`, or anything similar.
 
-**Begründung.** Wenn pro Use-Case ein neues Tool entsteht, wächst die Tool-Liste linear mit der Anzahl Anwendungsfälle, und der Server braucht ständig Code-Änderungen. Stattdessen kapseln **Skills** das Wissen wie ein Use-Case zu lösen ist — und der LLM nutzt die generischen Tools (`tap`, `swipe`, `list_elements`) ausgeführt nach Anleitung des Skills. Skills sind Markdown-Dateien, also reine Daten, ohne Code-Änderung erweiterbar.
+**Reason.** If each use case becomes a new tool, the tool list grows linearly with the number of use cases and the server needs constant code changes. Instead **skills** encapsulate the knowledge of *how* to solve a use case — and the LLM uses the generic tools (`tap`, `swipe`, `list_elements`) executed by following the skill's instructions. Skills are Markdown files — pure data, extensible without code changes.
 
-### 3.2 Vision-Handling im Screenshot-Tool
+### 3.2 Vision handling in the screenshot tool
 
-`smartphone_take_screenshot(as_image: bool = True)` ist ein Beispiel für eine subtile Modell-Fähigkeits-Anpassung.
+`smartphone_take_screenshot(as_image: bool = True)` is an example of a subtle model-capability adaptation.
 
-- **`as_image=True` (Default)** liefert das Bild als FastMCP `Image(...)` zurück. Multimodale Modelle bekommen so direkt die Pixel.
-- **`as_image=False`** liefert nur den Datei-Pfad als JSON zurück. Für nicht-multimodale Modelle, die sonst beim Inferenz-Call mit einem Image-Block in der Tool-Result-History abkacken würden.
+- **`as_image=True` (default)** returns the image as a FastMCP `Image(...)`. Multimodal models receive the pixels directly.
+- **`as_image=False`** returns only the file path as JSON. For non-multimodal models that would otherwise choke on an image block in the tool-result history during inference.
 
-Tool-Description erklärt das Modell ausdrücklich: *"Set as_image=False only if your model is not multimodal — in that case you only get the file path back and cannot inspect the image."*
+The tool description tells the model explicitly: *"Set as_image=False only if your model is not multimodal — in that case you only get the file path back and cannot inspect the image."*
 
-**Warum nicht Auto-Detect.** Eine frühe Iteration nutzte eine Env-Var `LLM_SMARTPHONE_VISION` als globalen Schalter. Verworfen, weil:
+**Why not auto-detect.** An early iteration used an env var `LLM_SMARTPHONE_VISION` as a global switch. Discarded because:
 
-1. Beim Wechsel des Modells (in LM Studio per Klick) müsste der MCP-Server neu starten.
-2. Bei Multi-Client-Setups (verschiedene Clients aus verschiedenen Netzen mit verschiedenen Modellen) gibt es keinen sinnvollen globalen Wert.
-3. Der Server kennt das aktive Modell der Aufrufer-Seite nicht zuverlässig — ein `/v1/models`-Probe an LM Studio funktioniert nur lokal.
+1. Switching the model (in LM Studio with one click) would require an MCP server restart.
+2. In multi-client setups (different clients on different networks with different models) there is no sensible global value.
+3. The server cannot reliably know the caller's active model — a `/v1/models` probe against LM Studio only works locally.
 
-Pro-Aufruf-Parameter ist die einzige saubere Lösung. Der Skill (Wissen-Schicht) kann die Wahl explizit machen: *"Use `smartphone_take_screenshot(as_image=True)` for visual verification of slider position."*
+A per-call parameter is the only clean solution. The skill (knowledge layer) can make the choice explicit: *"Use `smartphone_take_screenshot(as_image=True)` for visual verification of slider position."*
 
-### 3.3 Robustheit gegen Modell-Schwächen
+### 3.3 Robustness against model weaknesses
 
-Im Tool-Result von `smartphone_take_screenshot(as_image=True)` wird **zusätzlich zum Bild ein Text-Block** zurückgegeben:
+The tool result of `smartphone_take_screenshot(as_image=True)` returns **a text block in addition to the image**:
 
 > "Screenshot saved at … . If you cannot see the inline image, your model is not multimodal — stop taking screenshots and call this tool with as_image=False or verify another way."
 
-**Warum.** Wir können nicht garantieren dass der MCP-Client (z.B. LM Studio) den `ImageContent`-Block tatsächlich an das Modell weiterleitet. LM Studio loggte teilweise `[processMcpToolResult] No working directory available, cannot save image file` und es ist unklar, ob das Bild-Token wirklich beim Modell ankommt oder nur eine Markdown-Referenz `![Image](./image-X.png)`. Der Text-Hint sorgt dafür, dass das Modell wenigstens *eine* lesbare Kommunikation aus diesem Tool-Call bekommt und sich selbst entscheiden kann.
+**Why.** We cannot guarantee that the MCP client (e.g. LM Studio) actually forwards the `ImageContent` block to the model. LM Studio has been observed logging `[processMcpToolResult] No working directory available, cannot save image file`, and it is unclear whether the image token actually arrives at the model or only a Markdown reference `![Image](./image-X.png)`. The text hint ensures the model at least gets *one* readable piece of communication from this tool call and can decide for itself.
 
-Zusätzlich wird im `/task`-HTTP-Endpoint (siehe §6) bei einem LM-Studio-Fehler heuristisch nach Vision-Schlüsselwörtern (`image`, `vision`, `multimodal`, `image_url`, `modality`) gescannt; ist eine getroffen, gibt der Server eine sprechende Klartext-Empfehlung statt eines blanken HTTP-502.
+Additionally, the `/task` HTTP endpoint (see §6) heuristically scans LM Studio errors for vision keywords (`image`, `vision`, `multimodal`, `image_url`, `modality`); if one matches, the server returns a clear plain-text recommendation instead of a bare HTTP 502.
 
 ---
 
-## 4. Skill-System
+## 4. Skill system
 
-Skills sind das *Wissen* des Systems. Jeder Skill ist eine Markdown-Datei in `skills/<category>/<name>.md` mit YAML-Frontmatter und definierten Body-Sektionen. Sie codieren wiederverwendbare Vorgehensweisen für spezifische Aufgaben.
+Skills are the system's *knowledge*. Each skill is a Markdown file under `skills/<category>/<name>.md` with YAML frontmatter and defined body sections. They encode reusable procedures for specific tasks.
 
-### 4.1 Schema (Stand jetzt)
+### 4.1 Schema (current)
 
-**Frontmatter (Pflicht):**
+**Frontmatter (required):**
 
 ```yaml
 ---
 id: display.dark_mode_off_settings
 title: Turn off Dark Mode via Settings
-description: Deactivates Dark Mode (Dunkles Design) through Android Settings under Display & Touchbedienung.
+description: Deactivates Dark Mode (Dunkles Design) through Android Settings under Display & Touch.
 triggers: schalte darkmodus aus, deaktiviere dunkles design, dark mode aus
 ---
 ```
 
-- `id` — atomic identifier `category.specific_goal_method`. Punkt-Notation, lowercase, Underscores zur Wort-Trennung.
-- `title` — kurzer, menschenlesbarer Titel.
-- `description` — 1–2 Sätze (≥ 20 Zeichen), wichtigstes Auswahl-Signal für den LLM (geht ins Tool-Description, siehe §4.4).
-- `triggers` — typische User-Phrasen (lokalisiert erlaubt, im Gegensatz zum sonstigen Body).
+- `id` — atomic identifier `category.specific_goal_method`. Dot notation, lowercase, underscores for word separation.
+- `title` — short human-readable title.
+- `description` — 1–2 sentences (≥ 20 characters); the most important selection signal for the LLM (goes into the tool description, see §4.4).
+- `triggers` — typical user phrases (localization allowed, unlike the rest of the body).
 
-**Body-Sektionen (Pflicht):**
+**Body sections (required):**
 
-- `## Tested Environments` — getestete Geräte/OS-Varianten/Sprachen.
-- `## App Context` — Ziel-App oder UI-Surface (z.B. `com.android.settings`).
-- `## Starting Context` — von welchem Screen aus der Flow funktioniert.
-- `## Rules` — Invarianten und Constraints.
-- `## Typical Flow` — nummerierte Schritte, **nur die, die tatsächlich funktioniert haben**.
-- `## Device Variants` — bekannte Geräte-spezifische Varianten.
-- `## Verification` — wie Erfolg bestätigt wird.
-- `## Failure Modes` — Bedingungen unter denen abzubrechen ist.
+- `## Tested Environments` — tested devices / OS variants / languages.
+- `## App Context` — target app or UI surface (e.g. `com.android.settings`).
+- `## Starting Context` — which screen the flow works from.
+- `## Rules` — invariants and constraints.
+- `## Typical Flow` — numbered steps, **only those that have actually worked**.
+- `## Device Variants` — known device-specific variants.
+- `## Verification` — how success is confirmed.
+- `## Failure Modes` — conditions under which to abort.
 
-### 4.2 Designprinzipien des Schemas
+### 4.2 Design principles of the schema
 
-**Atomic IDs.** `category.specific_goal_method` statt nur `category.feature`. Das heißt: `display.dark_mode_on_settings` und `display.dark_mode_off_settings` sind zwei *getrennte* Skills, ebenso `display.dark_mode_on_quick_settings`.
+**Atomic IDs.** `category.specific_goal_method` instead of just `category.feature`. That means `display.dark_mode_on_settings` and `display.dark_mode_off_settings` are two *separate* skills, as is `display.dark_mode_on_quick_settings`.
 
-*Warum.* Jede Variante hat einen anderen Pfad, andere UI-Elemente, andere Verifikations-Schritte. Sie zu mergen bedeutet, dass der LLM zur Laufzeit Branches im Skill auflösen müsste — schwaches Modell scheitert daran. Atomic IDs erlauben dem LLM, den passendsten Skill direkt am Tool-Namen zu erkennen.
+*Why.* Each variant has a different path, different UI elements, different verification steps. Merging them means the LLM would have to resolve branches *at runtime* inside the skill — a weak model fails at that. Atomic IDs let the LLM recognize the most fitting skill directly from the tool name.
 
-**English-only-Validation für Skill-Inhalt.** Beim Speichern wird der Body via Regex `GERMAN_SKILL_TEXT_PATTERN` geprüft. Trifft die Heuristik (Umlaute außerhalb von Triggers, deutsche Verben wie *einstellungen, aktivieren, schalte, gehe*), wird das Speichern abgelehnt.
+**English-only validation for skill content.** When saving, the body is checked via regex `GERMAN_SKILL_TEXT_PATTERN`. If the heuristic matches (umlauts outside triggers, German verbs like *einstellungen, aktivieren, schalte, gehe*), the save is rejected.
 
-*Warum.* Skill-Bodies werden später als Tool-Description an den LLM zurückgegeben. Inkonsistente Sprache (Deutsch/Englisch gemischt) verwirrt schwache Modelle. Triggers bleiben **bewusst lokalisiert** — das ist die Stelle wo die User-Sprache matched. UI-Labels wie *"Dunkles Design"* sind als zitierte Strings *innerhalb* englischer Anweisungen erlaubt.
+*Why.* Skill bodies are later returned as tool descriptions to the LLM. Inconsistent language (mixed German/English) confuses weak models. Triggers stay **intentionally localized** — that's the place where user language matches. UI labels like *"Dunkles Design"* are allowed as quoted strings *inside* English instructions.
 
-**Pflicht-Sektionen für Kontext.** `Tested Environments`, `App Context`, `Starting Context`, `Device Variants`, `Failure Modes` — alle Pflicht. Verhindert dass ein Skill nur die *eine* Stelle festhält wo er gerade gelernt wurde.
+**Mandatory sections for context.** `Tested Environments`, `App Context`, `Starting Context`, `Device Variants`, `Failure Modes` — all required. Prevents a skill from only capturing the *one* place where it was just learned.
 
-*Warum.* Frühe Skills enthielten oft Annahmen über den Startzustand (z.B. *"tippe auf Display & Touchbedienung"*), ohne klar zu sagen, dass der Flow voraussetzt dass die Settings-App bereits geöffnet ist. Die expliziten Sektionen erzwingen Selbstreflexion beim Skill-Schreiben.
+*Why.* Early skills often contained assumptions about the starting state (e.g. *"tap on Display & Touch"*) without making it clear that the flow assumes the Settings app is already open. The explicit sections force self-reflection while writing the skill.
 
-### 4.3 Skill-Persistenz: `write_skill` mit Round-Trip-Validation
+### 4.3 Skill persistence: `write_skill` with round-trip validation
 
-Die Funktion `write_skill` in `caddie/skills/library.py` ist der einzige Pfad, über den neue Skills entstehen. Sie:
+The `write_skill` function in `caddie/skills/library.py` is the single path through which new skills come into existence. It:
 
-1. **Validiert alle Inputs**: `id` matcht Pattern `^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$`, `description` ≥ 20 Zeichen, `triggers/rules/flow/...` non-empty.
-2. **Validiert Englisch-Only** der Pflichtfelder (Trigger-Liste ausgenommen).
-3. **Verweigert Overwrite** wenn die Datei existiert (sofern `overwrite=False`).
-4. **Backup vor Overwrite**: bei `overwrite=True` wird der alte Inhalt gemerkt.
-5. **Schreibt** den gerenderten Markdown.
-6. **Round-Trip-Check**: ruft sofort `_load_skill(target_path)` auf. Wenn das raisen würde, wird die Datei wieder gelöscht (oder auf den Backup-Inhalt zurückgesetzt). Die Schreib- und Lade-Wege benutzen damit den **gleichen Validator**, sie können nicht auseinander laufen.
+1. **Validates all inputs**: `id` matches pattern `^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$`, `description` ≥ 20 characters, `triggers/rules/flow/...` non-empty.
+2. **Validates English-only** in the required fields (trigger list excluded).
+3. **Refuses overwrite** if the file exists (when `overwrite=False`).
+4. **Backup before overwrite**: with `overwrite=True` the old content is remembered.
+5. **Writes** the rendered Markdown.
+6. **Round-trip check**: immediately calls `_load_skill(target_path)`. If it would raise, the file is deleted again (or restored from the backup). The write and load paths thereby use the **same validator** — they cannot diverge.
 
-*Warum Round-Trip-Validation.* Ohne diesen Check könnten subtile Schema-Diskrepanzen entstehen: write_skill produziert ein Frontmatter, das `_load_skill` später nicht parsen kann. Mit Round-Trip merken wir das *zum Schreibzeitpunkt* und nicht erst beim nächsten Server-Start.
+*Why round-trip validation.* Without this check, subtle schema discrepancies could appear: `write_skill` produces frontmatter that `_load_skill` later cannot parse. With round-trip we notice this *at write time*, not at the next server start.
 
-### 4.4 Skill-Sichtbarkeit für den LLM: ein Tool pro Skill
+### 4.4 Skill visibility for the LLM: one tool per skill
 
-Jeder Skill wird als **eigenes MCP-Tool** registriert: `smartphone_get_skill_<sanitized_id>`. Aufruf liefert `{skill_id, body}`. Tool-Description fasst Intent + Triggers zusammen:
+Each skill is registered as its **own MCP tool**: `smartphone_get_skill_<sanitized_id>`. Calling it returns `{skill_id, body}`. The tool description summarizes intent + triggers:
 
 > "Use this ONLY when the user task matches both the intent described below AND one of the listed triggers. Intent: {description}. Triggers: {triggers}. Calling this for related-but-different tasks (opposite direction, different method, different app, different target state) is wrong — proceed with general tools instead and consider saving a new skill afterward."
 
-*Warum so und nicht anders.* Die ursprüngliche Idee war Skills statisch ins System-Prompt zu injizieren — über den MCP-Standard-`instructions`-Feld im `initialize`-Response. Das funktioniert mit Claude Desktop und Cursor. **LM Studio greift das `instructions`-Feld jedoch nicht auf** (siehe §6.1, Bug Tracker Issue #1412 und #1154). Über MCP zu LM Studio kommen *nur Tools* zuverlässig durch.
+*Why this way and not another.* The original idea was to inject skills statically into the system prompt — via the MCP standard `instructions` field in the `initialize` response. That works with Claude Desktop and Cursor. **LM Studio, however, does not pick up the `instructions` field** (see §6.1, Bug Tracker issues #1412 and #1154). Through MCP to LM Studio, *only tools* come through reliably.
 
-Damit ist die einzig zuverlässige Methode: Skills *als* Tools sichtbar machen. Das hat den Nebeneffekt, dass die Tool-Liste mit der Skill-Anzahl wächst — bei aktuell ~5–10 Skills akzeptabel, bei vielen Skills müsste man sich Gedanken über Pagination/Filterung machen.
+This makes the only reliable method: make skills visible *as* tools. As a side effect the tool list grows with the skill count — acceptable at the current ~5–10 skills, but at many skills one would need to think about pagination/filtering.
 
-**Modell-Auswahl-Härtung.** Die Tool-Description ist bewusst restriktiv formuliert (`ONLY when ... AND ...`) und nennt explizit was Fehl-Aufrufe sind (*opposite direction, different method, different app, different target state*). Anlass war ein Test, in dem das Modell `smartphone_get_skill_display_dark_mode_off_settings` für die Aufgabe *"schalte darkmodus an"* aufrief — basierend auf Substring-Ähnlichkeit ("dark mode steht im Namen, klingt relevant"). Mit der schärferen Description versteht das Modell besser, dass *Direction* (on vs off) Teil des Match-Kriteriums ist.
+**Model-selection hardening.** The tool description is intentionally restrictive (`ONLY when ... AND ...`) and explicitly names what counts as a mis-call (*opposite direction, different method, different app, different target state*). The motivation was a test in which the model called `smartphone_get_skill_display_dark_mode_off_settings` for the task *"schalte darkmodus an"* — based on substring similarity ("dark mode appears in the name, sounds relevant"). With the sharpened description the model better understands that *direction* (on vs off) is part of the match criterion.
 
-### 4.5 Override mit Beweis-of-Read
+### 4.5 Override with proof-of-read
 
-Skills können nicht blind überschrieben werden. Der Tool `smartphone_save_skill(replace=True)` verlangt, dass der Aufrufer **in derselben Session** den existierenden Skill via `smartphone_get_skill_<id>` gelesen hat.
+Skills cannot be blindly overwritten. The tool `smartphone_save_skill(replace=True)` requires the caller to **have read the existing skill via `smartphone_get_skill_<id>` in the same session**.
 
-Der Server hält dazu `ServerContext.read_skill_ids: set[str]`. Beim Aufruf eines `smartphone_get_skill_*`-Tools wird die ID dort eingetragen. Beim Replace wird geprüft:
+The server keeps `ServerContext.read_skill_ids: set[str]` for this. When a `smartphone_get_skill_*` tool is called, the id is recorded there. On replace it is checked:
 
-- Datei existiert + `replace=False` → `error: skill_exists`
-- Datei existiert + `replace=True` + ID nicht in Read-Set → `error: must_load_existing_first`
-- Datei existiert + `replace=True` + ID in Read-Set → Overwrite mit Backup-Restore bei Round-Trip-Fehler
+- File exists + `replace=False` → `error: skill_exists`
+- File exists + `replace=True` + id not in read set → `error: must_load_existing_first`
+- File exists + `replace=True` + id in read set → overwrite with backup-restore on round-trip failure
 
-*Warum.* Verhindert dass das Modell nach einem suboptimalen Versuch existierende Skills "verbessert", ohne die existierende Lösung überhaupt anzusehen. Das schwache Modell könnte sonst schnell den Skill-Speicher mit Halluzinationen überschreiben. Server-State leert beim Restart — neuer Versuch braucht erneuten Beweis-of-Read.
+*Why.* Prevents the model, after a suboptimal attempt, from "improving" existing skills without ever looking at the existing solution. The weak model could otherwise quickly overwrite the skill store with hallucinations. Server state clears on restart — a new attempt requires a fresh proof-of-read.
 
-### 4.6 Auto-Skill-Generation
+### 4.6 Auto skill generation
 
-Das System-Prompt enthält die Direktive:
+The system prompt contains the directive:
 
 > "If the task succeeded and no matching `smartphone_get_skill_*` tool was used, you MUST call smartphone_save_skill before replying."
 
-Plus die Verfeinerung *"Skill loaded does NOT mean skill followed: if you loaded a `smartphone_get_skill_*` tool but the loaded skill turned out not to match your actual task (wrong direction, …), that counts as no skill used"*.
+Plus the refinement *"Skill loaded does NOT mean skill followed: if you loaded a `smartphone_get_skill_*` tool but the loaded skill turned out not to match your actual task (wrong direction, …), that counts as no skill used"*.
 
-*Warum.* Auto-Generation ist der Mechanismus, mit dem das System sein Wissen über Zeit aufbaut, ohne dass der Mensch jeden Skill von Hand schreibt. Die Filter-Anweisung *"include only the tool calls that actually produced the expected outcome"* steht prominent im Tool-Docstring — der LLM ist verantwortlich, seinen eigenen Trace zu kuratieren (Server hat im stdio-MCP keine Tool-Call-History-Sicht). Schwache Modelle machen das nicht perfekt — empirisch leitet die strukturierte Tool-Signatur (separate Felder für `flow`, `rules`, `verification`) sie aber dazu, gezielt zu trennen, was funktioniert hat und was nicht.
+*Why.* Auto-generation is the mechanism by which the system builds knowledge over time without a human writing every skill by hand. The filter instruction *"include only the tool calls that actually produced the expected outcome"* sits prominently in the tool docstring — the LLM is responsible for curating its own trace (the server has no tool-call history view in stdio MCP). Weak models do not do this perfectly — empirically the structured tool signature (separate fields for `flow`, `rules`, `verification`) guides them to clearly separate what worked from what didn't.
 
 ---
 
-## 5. Phone-Bridge — Dumb Pipe
+## 5. Phone bridge — dumb pipe
 
-Die Android-App ist bewusst als **dumme Pipe** gestaltet. Sie nimmt HTTP-Requests entgegen, führt Accessibility- oder Gesture-Aktionen aus und schickt rohe Daten zurück. **Filtering, Compaction und Heuristiken passieren ausschließlich im MCP-Server**.
+The Android app is intentionally designed as a **dumb pipe**. It receives HTTP requests, executes accessibility or gesture actions, and returns raw data. **Filtering, compaction, and heuristics happen exclusively in the MCP server.**
 
 ### 5.1 ScreenNodeSerializer
 
-`ScreenNodeSerializer.java` serialisiert den `AccessibilityNodeInfo`-Tree zu JSON. Felder pro Knoten:
+`ScreenNodeSerializer.java` serializes the `AccessibilityNodeInfo` tree to JSON. Fields per node:
 
 ```
 id, depth, text, description, className, resourceId,
 clickable, checkable, checked, enabled, selected, focused,
 scrollable, password, editable,
 bounds (left, top, right, bottom),
-rangeInfo (type, min, max, current)  -- optional, nur wenn vorhanden
-actions (Liste von AccessibilityAction-IDs als int)
+rangeInfo (type, min, max, current)  -- optional, only if present
+actions (list of AccessibilityAction ids as int)
 ```
 
-*Warum dieses Set.* Alles was AccessibilityNodeInfo bietet *und* potentiell für die UI-Steuerung relevant ist. Insbesondere `rangeInfo` (für Slider/ProgressBars) und `actions` (welche Aktionen Android selbst kann, z.B. `ACTION_SET_PROGRESS`) waren in einer früheren Version *nicht* enthalten — das machte deterministische Slider-Verifikation unmöglich (siehe §7.2).
+*Why this set.* Everything `AccessibilityNodeInfo` offers *and* is potentially relevant for UI control. In particular, `rangeInfo` (for sliders / progress bars) and `actions` (which actions Android itself supports, e.g. `ACTION_SET_PROGRESS`) were *not* included in an earlier version — that made deterministic slider verification impossible (see §7.2).
 
-### 5.2 Testbarkeit auf Java-Seite
+### 5.2 Testability on the Java side
 
-Frühere Iteration: `ScreenNodeSerializer.appendNode` baute den JSON-String direkt aus `AccessibilityNodeInfo`. Das ist nicht testbar, weil `AccessibilityNodeInfo` ein Android-System-Class mit package-private Constructors ist, das nicht ohne Robolectric oder Mocks instanziiert werden kann.
+Earlier iteration: `ScreenNodeSerializer.appendNode` built the JSON string directly from `AccessibilityNodeInfo`. That is not testable, because `AccessibilityNodeInfo` is an Android system class with package-private constructors that cannot be instantiated without Robolectric or mocks.
 
-Refactoring: extrahiert eine reine Wertklasse `NodeSnapshot` (alle Felder als public ohne Logik). Production-Code: `AccessibilityNodeInfo → NodeSnapshot → appendSnapshot(StringBuilder, NodeSnapshot)`. Tests konstruieren `NodeSnapshot` direkt und prüfen den JSON-Output.
+Refactor: extract a pure value class `NodeSnapshot` (all fields public, no logic). Production code: `AccessibilityNodeInfo → NodeSnapshot → appendSnapshot(StringBuilder, NodeSnapshot)`. Tests construct `NodeSnapshot` directly and check the JSON output.
 
-7 Tests in `ScreenNodeSerializerTest.java` decken: alle Standard-Felder, RangeInfo-Variationen (int/float, mit/ohne), Actions-Array, JSON-Escaping, null-Handling, alle State-Flags.
+7 tests in `ScreenNodeSerializerTest.java` cover: all standard fields, RangeInfo variations (int/float, with/without), actions array, JSON escaping, null handling, all state flags.
 
-### 5.3 Server-seitiges Compacting
+### 5.3 Server-side compacting
 
-`compact_node` in `caddie/android/backends/http/screen.py` reduziert den rohen Phone-Output:
+`compact_node` in `caddie/android/backends/http/screen.py` reduces the raw phone output:
 
-- Filtert unsichtbare Knoten (außerhalb der Bildschirmgrenzen, Bottom-Padding).
-- Filtert *unnütze* Knoten (kein Text/Description, nicht klickbar/checkbar/scrollbar/editierbar, kein Range).
-- Mappt Action-IDs auf symbolische Labels (`16 → click`, `0x800020 → set_progress`).
-- Mappt Range-Type-Codes (`0 → int`, `1 → float`, `2 → percent`).
-- Lässt Felder weg, die `false` sind oder leer (`scrollable: true` nur wenn wahr).
+- Filters invisible nodes (outside screen bounds, bottom padding).
+- Filters *useless* nodes (no text/description, not clickable/checkable/scrollable/editable, no range).
+- Maps action ids to symbolic labels (`16 → click`, `0x800020 → set_progress`).
+- Maps range type codes (`0 → int`, `1 → float`, `2 → percent`).
+- Omits fields that are `false` or empty (`scrollable: true` only when true).
 
-*Warum nicht im Phone-Code.* Filter-Logik ist Teil der *Wahrnehmungs-Strategie* — was der Agent sehen sollte und was nicht. Diese Strategie wird sich häufig ändern (z.B. wenn neue Skills neue Felder brauchen). Im Phone-Code wäre jede Änderung ein App-Rebuild + Re-Install. Im Python-Code ist's ein einfacher Restart des MCP-Servers.
-
----
-
-## 6. MCP-Client-Integration
-
-### 6.1 LM Studio-Limitationen
-
-Beim ersten Setup zeigte sich ein Architektur-Problem: das `instructions`-Feld im MCP-`initialize`-Response wird von LM Studio nicht ausgewertet. Das System-Prompt-Wissen, das ein MCP-Server seinem Client mitgeben kann (Anti-Loop-Regel, Skill-Manifest, Verifikations-Anweisungen), kommt **nicht beim Modell an**.
-
-Verifikation: ein Diagnose-Marker `[MCP_INIT_OK]` wurde in `instructions` versteckt mit der Anweisung, ihn am Ende jeder Antwort auszugeben. Modell hat ihn nie erwähnt.
-
-**Quellen:**
-- LM Studio Bug Tracker Issue #1412 — *"Feature Request: support for MCP Prompts"* — bestätigt dass MCP nur Tools (nicht Prompts/Resources/instructions) durchgereicht werden.
-- Issue #1154 — *"When using the /v1/responses API, the instructions field is not loaded"* — zeigt dass das Wort "instructions" in LM Studio generell nicht zuverlässig gehandhabt wird.
-
-**Konsequenz für unsere Architektur:**
-
-1. **Skills als individuelle Tools** registrieren (siehe §4.4) statt sie via `instructions` zu injizieren.
-2. **System-Prompt manuell in LM Studio** pasten (`Ctrl+Shift+E`), generiert via `build_mcp_instructions()`. Quelle der Wahrheit ist `BASE_SYSTEM_PROMPT` in `caddie/agent/prompt.py`.
-3. **`instructions`-Feld bleibt trotzdem gesetzt** — Clients wie Claude Desktop, Cursor, ggf. zukünftiges LM Studio greifen es korrekt auf, dann ist alles automatisch.
-
-### 6.2 Alternative Clients
-
-Im Verlauf wurde Jan ([jan.ai](https://jan.ai)) als Alternative evaluiert — nativer Multimodal-Support, MCP seit v0.6.9 stable. Erster Versuch scheiterte allerdings an einem strikten JSON-Schema-Parser: Jan akzeptiert kein `description: null` für Tools, LM Studio war hier toleranter. Fix: jeder Tool-Funktion einen Docstring geben. Damit funktioniert die Server-Seite mit beiden.
+*Why not in the phone code.* Filter logic is part of the *perception strategy* — what the agent should see and what it shouldn't. This strategy will change often (e.g. when new skills need new fields). In the phone code, every change would mean an app rebuild + reinstall. In Python it's a simple MCP-server restart.
 
 ---
 
-## 7. Empirische Beobachtungen aus Tests
+## 6. MCP client integration
 
-### 7.1 Schwaches Modell, nondeterministisches Verhalten
+### 6.1 LM Studio limitations
 
-`qwen/qwen3.6-35b-a3b` ist ein 35B-Mixture-of-Experts mit 3B aktiven Parametern — relativ klein. Beobachtbare Schwächen:
+During the first setup an architectural problem surfaced: the `instructions` field in the MCP `initialize` response is not evaluated by LM Studio. The system-prompt knowledge an MCP server can hand its client (anti-loop rule, skill manifest, verification instructions) **does not reach the model**.
 
-- **Endlosschleifen**: ohne Anti-Loop-Regel im System-Prompt swiped das Modell 8x den Brightness-Slider, weil `list_elements` keine Slider-Position liefert (vor dem `rangeInfo`-Patch) und Vision unzuverlässig ist.
-- **Verweigerung vor dem Versuch**: nach Hinzufügen der Anti-Loop-Regel kippte das Modell ins andere Extrem — es weigerte sich zu versuchen, mit der Begründung *"keine direkte Funktion zur Helligkeitseinstellung"*. Fix: System-Prompt-Zusatz *"Always attempt the user's task with the tools you have. Never refuse before trying. Stopping is only correct after a real attempt, not before."*
-- **Spekulative Tool-Calls**: Modell ruft Skill-Tools nach Substring-Ähnlichkeit (Tool-Name enthält "dark_mode" → relevant für Helligkeit). Fix: Tool-Description explizit *"Calling this for related-but-different tasks (opposite direction, different method, different app) is wrong"*.
+Verification: a diagnostic marker `[MCP_INIT_OK]` was hidden in `instructions` with the directive to emit it at the end of every reply. The model never mentioned it.
 
-### 7.2 Vision: Halluzination oder echtes Sehen?
+**Sources:**
+- LM Studio bug tracker issue #1412 — *"Feature Request: support for MCP Prompts"* — confirms that only tools (not prompts/resources/instructions) are passed through MCP.
+- Issue #1154 — *"When using the /v1/responses API, the instructions field is not loaded"* — shows that the word "instructions" is generally not handled reliably in LM Studio.
 
-Der Brightness-Test zeigte: Modell beschreibt einen Screenshot detailliert (*"blue fill is about halfway"*, später *"blue fill extending all the way to the right"*), behauptet Erfolg. Real war die Helligkeit unverändert auf 100%.
+**Consequence for our architecture:**
 
-Mögliche Erklärungen:
-1. Modell ist nicht multimodal, halluziniert basierend auf Tool-Call-Kontext.
-2. Modell ist multimodal, aber LM Studio leitet das `ImageContent` nicht durch.
-3. Modell sieht das Bild aber interpretiert Slider-Pixel unzuverlässig.
+1. **Skills as individual tools** registered (see §4.4) instead of injecting them via `instructions`.
+2. **System prompt manually pasted into LM Studio** (`Ctrl+Shift+E`), generated via `build_mcp_instructions()`. The source of truth is `BASE_SYSTEM_PROMPT` in `caddie/agent/prompt.py`.
+3. **The `instructions` field stays set anyway** — clients like Claude Desktop, Cursor, and possibly a future LM Studio pick it up correctly; then everything is automatic.
 
-Konsequenzen für die Architektur: **strukturierte Verifikation > visuelle Verifikation, wann immer möglich**. Daher der Push, `rangeInfo` aus AccessibilityNodeInfo durchzuleiten — der Slider-Wert wird damit als deterministische Zahl in `list_elements` lesbar (z.B. `range.current = 65535, max = 65535`), ohne dass das Modell Pixel interpretieren muss.
+### 6.2 Alternative clients
 
-### 7.3 Skill-Trigger: substring vs. semantisch
-
-Aktueller Match-Mechanismus in `SkillLibrary.match` ist reines Substring-Matching auf der Trigger-Liste, case-insensitive. Empirisch ausreichend, solange Triggers gut gepflegt werden.
-
-Frühe Iteration verlangte vom LLM, *im System-Prompt-Manifest* selbst zu entscheiden welcher Skill matched. Schwaches Modell schaffte das nicht zuverlässig. Substring-Match auf Server-Seite ist deterministisch, kostet kein Modell-Reasoning und ist debugbar (man kann die Triggers gezielt erweitern).
+In the meantime Jan ([jan.ai](https://jan.ai)) was evaluated as an alternative — native multimodal support, MCP stable since v0.6.9. The first attempt, however, failed at a strict JSON schema parser: Jan does not accept `description: null` for tools, LM Studio was more tolerant here. Fix: give every tool function a docstring. With that, the server side works with both.
 
 ---
 
-## 8. Design-Entscheidungen — Übersicht
+## 7. Empirical observations from tests
 
-| Entscheidung | Alternative | Warum die gewählte |
+### 7.1 Weak model, non-deterministic behavior
+
+`qwen/qwen3.6-35b-a3b` is a 35B mixture-of-experts with 3B active parameters — relatively small. Observable weaknesses:
+
+- **Infinite loops**: without an anti-loop rule in the system prompt the model swiped the brightness slider 8x because `list_elements` did not return slider position (before the `rangeInfo` patch) and vision is unreliable.
+- **Refusal before the attempt**: after adding the anti-loop rule the model swung to the other extreme — it refused to try, claiming *"no direct function for brightness adjustment"*. Fix: system-prompt addition *"Always attempt the user's task with the tools you have. Never refuse before trying. Stopping is only correct after a real attempt, not before."*
+- **Speculative tool calls**: the model calls skill tools by substring similarity (tool name contains "dark_mode" → relevant for brightness). Fix: tool description explicitly *"Calling this for related-but-different tasks (opposite direction, different method, different app) is wrong"*.
+
+### 7.2 Vision: hallucination or real seeing?
+
+The brightness test showed: the model describes a screenshot in detail (*"blue fill is about halfway"*, later *"blue fill extending all the way to the right"*), claims success. In reality, brightness was unchanged at 100%.
+
+Possible explanations:
+1. Model is not multimodal, hallucinates based on tool-call context.
+2. Model is multimodal but LM Studio does not pass through the `ImageContent`.
+3. Model sees the image but interprets slider pixels unreliably.
+
+Architectural consequences: **structured verification > visual verification whenever possible**. Hence the push to pass `rangeInfo` through from `AccessibilityNodeInfo` — the slider value becomes readable as a deterministic number in `list_elements` (e.g. `range.current = 65535, max = 65535`) without the model having to interpret pixels.
+
+### 7.3 Skill triggers: substring vs. semantic
+
+The current match mechanism in `SkillLibrary.match` is pure substring matching against the trigger list, case-insensitive. Empirically sufficient as long as triggers are well maintained.
+
+An earlier iteration required the LLM to decide *in the system-prompt manifest itself* which skill matches. The weak model could not do that reliably. Substring matching on the server side is deterministic, costs no model reasoning, and is debuggable (you can extend triggers in a targeted way).
+
+---
+
+## 8. Design decisions — overview
+
+| Decision | Alternative | Why this one |
 |---|---|---|
-| Skills als Markdown + Tools | Skills als Code-Funktionen | Wartbar ohne Server-Restart, vom LLM auto-generierbar |
-| Skill pro Variante (atomic IDs) | Ein Skill pro Feature mit Branches | Schwaches Modell scheitert an internen Branches; atomic IDs sind eindeutig |
-| English-only Skill-Body | Mehrsprachige Skills | Konsistente Modell-Eingabe, weniger Verwirrung; Triggers sind separat |
-| Skill-as-Tool statt Skill-as-Instruction | MCP `instructions`-Feld | LM Studio ignoriert `instructions`; Tools kommen garantiert beim Modell an |
-| Phone-App als dumme Pipe | App filtert/komprimiert selbst | Filter-Logik ändert sich oft → im Server billiger |
-| `as_image: bool` Parameter | Globaler Env-Flag oder Auto-Detect | Pro-Aufruf-Entscheidung, multi-client-tauglich, Skill kann's vorgeben |
-| Round-Trip-Validation in `write_skill` | Schreiben + spätere Validierung | Diskrepanzen zwischen Schreib- und Lese-Pfad werden sofort sichtbar |
-| Replace nur nach Read | Freier Overwrite | Verhindert blindes Überschreiben durch halluzinierende Modelle |
-| `resourceId`, `rangeInfo`, `actions` in compact_node | Reduzierter Output | Strukturierte Werte (z.B. Slider-Wert als Zahl) ersetzen Bildanalyse |
-| Anti-Loop-Regel im System-Prompt | Server-seitige Tool-Call-Limits | Modell-Verhalten kann nur via Prompt gesteuert werden in stdio MCP |
+| Skills as Markdown + tools | Skills as code functions | Maintainable without server restart, auto-generatable by the LLM |
+| Skill per variant (atomic IDs) | One skill per feature with branches | Weak model fails at internal branches; atomic IDs are unambiguous |
+| English-only skill body | Multilingual skills | Consistent model input, less confusion; triggers are separate |
+| Skill-as-tool instead of skill-as-instruction | MCP `instructions` field | LM Studio ignores `instructions`; tools reach the model guaranteed |
+| Phone app as dumb pipe | App filters/compacts itself | Filter logic changes often → cheaper in the server |
+| `as_image: bool` parameter | Global env flag or auto-detect | Per-call decision, multi-client capable, the skill can prescribe it |
+| Round-trip validation in `write_skill` | Write + later validation | Discrepancies between write and read paths become visible immediately |
+| Replace only after read | Free overwrite | Prevents blind overwriting by hallucinating models |
+| `resourceId`, `rangeInfo`, `actions` in compact_node | Reduced output | Structured values (e.g. slider value as number) replace image analysis |
+| Anti-loop rule in system prompt | Server-side tool-call limits | Model behavior can only be steered via prompt in stdio MCP |
 
 ---
 
-## 9. Bekannte Limitationen / Future Work
+## 9. Known limitations / future work
 
-1. **Hot-Reload neuer Skills.** Aktuell muss der MCP-Server nach `smartphone_save_skill` neu gestartet werden, damit der neue Skill als Tool sichtbar wird. FastMCP kann zwar dynamisch Tools hinzufügen — der MCP-Client muss dann aber `tools/list_changed`-Notifications respektieren, was nicht alle Clients tun.
-2. **Skill-Versioning.** Heute überschreibt `replace=True` ohne Versions-History. Eine `skills/_archive/<id>.<timestamp>.md` würde alte Varianten erhalten.
-3. **Tool-Call-History im Server.** Im stdio-MCP-Mode sieht der Server nur einzelne Tool-Aufrufe, nicht die Reihenfolge oder den Gesamtkontext einer Task. Das schränkt die Möglichkeiten für serverseitige Analysen ein. SSE/HTTP-Transport mit Session-State wäre ein Workaround.
-4. **Multi-Phone-Support.** Aktuell genau ein Phone (entweder via ADB oder via HTTP-Bridge an festem Port). Mehrere Phones bräuchten Routing im `ServerContext`.
-5. **Vision-Diagnose-Tool.** Geplant, nicht umgesetzt: ein `smartphone_vision_check`, das ein PNG mit zufälligem Text-Marker generiert. Modell-Antwort vs. Server-Log gibt deterministische Auskunft, ob Vision durchkommt.
-6. **`/task`-Endpoint vs. MCP.** Der bestehende `/task`-HTTP-Endpoint (`agent/http_api.py`) wurde für eigene Frontends gebaut, wird aber bei stdio-Verbindung von LM Studio umgangen. Beide Pfade nutzen heute denselben System-Prompt (`build_mcp_instructions()`), der `/task`-Pfad zusätzlich Trigger-Match-basiertes Skill-Inject in System-Prompt — was bei MCP-direkt nicht passiert. Zwei Auswertungspfade führen zu schwer reproduzierbaren Unterschieden.
-7. **Skill-Konflikt-Erkennung.** Wenn zwei Skills für dieselbe Aufgabe getriggert werden (gleicher Trigger), gibt es heute kein Schiedsverfahren. Pragmatisch: Modell sieht beide Tools und wählt nach Description.
-8. **Telemetrie/Audit.** Welcher Skill wann von wem ausgeführt wurde — nicht erfasst. Für die Masterarbeit eventuell relevant, würde Logging-Hooks erfordern.
+1. **Hot-reload of new skills.** Currently the MCP server must be restarted after `smartphone_save_skill` so the new skill becomes visible as a tool. FastMCP can add tools dynamically — but the MCP client must then respect `tools/list_changed` notifications, which not all clients do.
+2. **Skill versioning.** Today `replace=True` overwrites without version history. A `skills/_archive/<id>.<timestamp>.md` would preserve old variants.
+3. **Tool-call history in the server.** In stdio MCP mode the server only sees individual tool calls, not the order or total context of a task. That limits possibilities for server-side analysis. SSE/HTTP transport with session state would be a workaround.
+4. **Multi-phone support.** Currently exactly one phone (either via ADB or via HTTP bridge on a fixed port). Multiple phones would need routing in `ServerContext`.
+5. **Vision diagnostic tool.** Planned, not implemented: a `smartphone_vision_check` that generates a PNG with a random text marker. Model response vs. server log gives a deterministic verdict on whether vision actually arrives.
+6. **`/task` endpoint vs. MCP.** The existing `/task` HTTP endpoint (`agent/http_api.py`) was built for our own frontends but is bypassed under stdio connection from LM Studio. Both paths use the same system prompt today (`build_mcp_instructions()`); the `/task` path additionally does trigger-match-based skill injection into the system prompt — which does not happen on direct MCP. Two evaluation paths lead to differences that are hard to reproduce.
+7. **Skill conflict detection.** When two skills are triggered for the same task (same trigger) there is no arbitration today. Pragmatic: the model sees both tools and chooses by description.
+8. **Telemetry/audit.** Which skill was executed when by whom — not recorded. Possibly relevant for the Master's thesis; would require logging hooks.
 
 ---
 
-## 10. Verzeichnisstruktur (Stand jetzt)
+## 10. Directory structure (current)
 
 ```
 mcp-server/
 ├── server.py                          # Entry: FastMCP init, ServerContext, register_tools
 ├── requirements.txt                   # fastmcp, PyYAML, Pillow
 ├── caddie/
-│   ├── config.py                      # Env-Var-Lesen, Defaults
+│   ├── config.py                      # env-var reading, defaults
 │   ├── context.py                     # ServerContext (skills, backend, project_dir, read_skill_ids)
-│   ├── registry.py                    # ToolRegistry für Tool-Registrar-Pattern
+│   ├── registry.py                    # ToolRegistry for the tool-registrar pattern
 │   ├── tools/
 │   │   ├── device.py                  # smartphone_list_devices, _get_screen_size, …
 │   │   ├── input.py                   # smartphone_tap_coordinates, _swipe, _type_text, …
@@ -350,24 +348,24 @@ mcp-server/
 │   │   └── __init__.py
 │   ├── agent/
 │   │   ├── prompt.py                  # BASE_SYSTEM_PROMPT, build_mcp_instructions
-│   │   ├── http_api.py                # /task-Endpoint
-│   │   └── lmstudio.py                # LM-Studio-Client mit Vision-Error-Detection
+│   │   ├── http_api.py                # /task endpoint
+│   │   └── lmstudio.py                # LM Studio client with vision-error detection
 │   └── android/
 │       ├── adb.py
 │       └── backends/
-│           ├── adb/                   # ADB-Backend (Screenshot, list_elements via dumpsys)
-│           └── http/                  # HTTP-Bridge-Backend
+│           ├── adb/                   # ADB backend (screenshot, list_elements via dumpsys)
+│           └── http/                  # HTTP-bridge backend
 │               ├── client.py
 │               ├── bridge.py
 │               ├── screen.py          # compact_node, decode_actions, compact_range
 │               └── …
-├── skills/                            # Markdown-Skills, persistent
+├── skills/                            # Markdown skills, persistent
 │   └── display/
 │       └── dark_mode_off_settings.md
-└── tests/                             # Unit-Tests, ~41 Tests
+└── tests/                             # unit tests, ~41 tests
     ├── test_skills.py
     ├── test_agent_prompt.py
     └── test_compact_node.py
 ```
 
-Begleit-App in Android Studio: `LLMSmartphone_V2/app/src/main/java/com/llm_smartphone_v2/`, Java 11. Die wichtigste Klasse für den Schichten-Übergang ist `phone/ScreenNodeSerializer.java`. JUnit-4-Tests in `app/src/test/...` (`ScreenNodeSerializerTest.java` mit 7 Tests).
+Companion app in Android Studio: `LLMSmartphone/app/src/main/java/com/caddie/`, Java 11. The most important class for the layer transition is `phone/ScreenNodeSerializer.java`. JUnit 4 tests under `app/src/test/...` (`ScreenNodeSerializerTest.java` with 7 tests).

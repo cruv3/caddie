@@ -13,12 +13,12 @@ renamed: 2026-05-31 (from LLMSmartphone to Caddie)
 - **Stack**: Kotlin (Android, package `com.caddie`) + Python (MCP server, package `caddie`)
 - **Status**: active, **thesis not yet registered** — scope/questions may shift after supervisor talks
 - **Successor relationship**: replaces an earlier V1 (no longer worked on)
-- **GitHub**: https://github.com/cruv3/LLM-Smartphone-Companion (URL kept from V1; main branch was force-pushed with V2 content on 2026-05-03 — V1 history orphaned; repo rename to `caddie` planned)
-- **Local dir**: `C:\Users\Andreas\dev\LLMSmartphone\` (kept under old name for now to avoid breaking IDE/cache state — see "Folder vs. package name" below)
+- **GitHub**: https://github.com/cruv3/caddie (renamed from `LLM-Smartphone-Companion` on 2026-05-31; main branch was force-pushed with V2 content on 2026-05-03 — V1 history orphaned)
+- **Local dir**: `C:\Users\Andreas\dev\LLMSmartphone\` (intentionally kept under old name to avoid breaking IDE/cache state, gradle daemon paths, MCP server registration in LM Studio, and the running session's cwd)
 
 ## Folder vs. package name
 
-The local directory and GitHub repo still carry the old `LLMSmartphone` / `LLM-Smartphone-Companion` names. The *code* (Python package `caddie`, Android namespace `com.caddie`, app display name "Caddie") has been renamed. Don't confuse the two — when in doubt, the package name is canonical.
+The *local directory* still carries the old `LLMSmartphone` name. Everything else — Python package `caddie`, Android namespace `com.caddie`, app display name "Caddie", GitHub repo `caddie` — uses the new name. Don't confuse the two; when in doubt, the package name is canonical.
 
 ## Vault stub
 
