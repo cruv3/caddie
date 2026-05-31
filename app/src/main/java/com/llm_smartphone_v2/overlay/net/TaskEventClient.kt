@@ -30,6 +30,7 @@ class TaskEventClient {
         val body = payload.toRequestBody(JSON_MEDIA)
         val request = Request.Builder()
             .url(taskEndpoint())
+            .apply { authHeader()?.let { header("Authorization", it) } }
             .post(body)
             .build()
         try {
@@ -53,6 +54,7 @@ class TaskEventClient {
         val request = Request.Builder()
             .url(observeEndpoint())
             .header("Accept", "text/event-stream")
+            .apply { authHeader()?.let { header("Authorization", it) } }
             .get()
             .build()
         val factory = EventSources.createFactory(client)
@@ -83,6 +85,11 @@ class TaskEventClient {
 
     private fun taskEndpoint(): String = LmStudioConfig.ENDPOINT
     private fun observeEndpoint(): String = LmStudioConfig.BASE_URL + "/events"
+
+    private fun authHeader(): String? {
+        val token = LmStudioConfig.API_TOKEN?.trim().orEmpty()
+        return if (token.isEmpty()) null else "Bearer $token"
+    }
 
     companion object {
         private val JSON_MEDIA = "application/json; charset=utf-8".toMediaType()

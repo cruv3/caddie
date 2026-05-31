@@ -68,11 +68,7 @@ class LmStudioClient:
         try:
             with urlopen(request, timeout=int(os.environ.get("LLM_STUDIO_TIMEOUT", "180"))) as response:
                 payload = response.read().decode("utf-8")
-                return {
-                    "ok": True,
-                    "status": response.status,
-                    "response": json.loads(payload) if payload else {},
-                }
+                return _validate_chat_response(payload, response.status)
         except HTTPError as error:
             payload = error.read().decode("utf-8", errors="replace")
             return {
@@ -121,11 +117,7 @@ class LmStudioClient:
                 request, timeout=int(os.environ.get("LLM_STUDIO_TIMEOUT", "180"))
             ) as response:
                 payload = response.read().decode("utf-8")
-                return {
-                    "ok": True,
-                    "status": response.status,
-                    "response": json.loads(payload) if payload else {},
-                }
+                return _validate_chat_response(payload, response.status)
         except HTTPError as error:
             payload = error.read().decode("utf-8", errors="replace")
             return {
@@ -148,6 +140,57 @@ def _looks_like_vision_error(payload: str) -> bool:
     needle = payload.lower()
     keywords = ("image", "vision", "multimodal", "image_url", "modality", "unsupported content")
     return any(k in needle for k in keywords)
+
+
+def _validate_chat_response(payload: str, status: int) -> dict:
+    """LM Studio sometimes returns HTTP 200 with a non-completion body when
+    it has no model loaded, when the request hits a path its OpenAI-compat
+    server does not understand, or when the underlying backend errors out.
+    We detect that here and surface an actionable error to the agent loop
+    (which propagates it via SSE to the phone overlay) instead of letting
+    an empty / bogus "success" silently dead-end the run.
+    """
+    text = (payload or "").strip()
+    if not text:
+        return {
+            "ok": False,
+            "status": status,
+            "error": "LM Studio returned an empty body (HTTP 200). "
+                     "Likely cause: no model loaded — open LM Studio and load "
+                     "the configured model.",
+        }
+    try:
+        data = json.loads(text)
+    except json.JSONDecodeError:
+        snippet = text[:300]
+        return {
+            "ok": False,
+            "status": status,
+            "error": f"LM Studio returned non-JSON body (HTTP {status}): {snippet}",
+        }
+    # Real OpenAI-compatible response carries either `choices` or `error`.
+    if isinstance(data, dict) and data.get("choices"):
+        return {"ok": True, "status": status, "response": data}
+    if isinstance(data, dict) and data.get("error"):
+        err = data["error"]
+        msg = err.get("message") if isinstance(err, dict) else str(err)
+        return {
+            "ok": False,
+            "status": status,
+            "error": msg or json.dumps(err),
+            "vision_unsupported": _looks_like_vision_error(text),
+        }
+    # HTTP 200 but neither choices nor error — classic "Unexpected endpoint
+    # or method. Returning 200 anyway" stub from LM Studio when no handler
+    # matched the request.
+    snippet = json.dumps(data)[:300] if isinstance(data, (dict, list)) else text[:300]
+    return {
+        "ok": False,
+        "status": status,
+        "error": "LM Studio responded HTTP 200 but the body is not a chat "
+                 "completion (no `choices`). Likely no model loaded or the "
+                 f"endpoint is unrecognized. Body: {snippet}",
+    }
 
 
 def _headers(authorization: str | None) -> dict[str, str]:
