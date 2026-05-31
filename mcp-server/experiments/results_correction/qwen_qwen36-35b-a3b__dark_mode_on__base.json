@@ -1,0 +1,26 @@
+{
+  "phase": "baseline",
+  "model": "qwen/qwen3.6-35b-a3b",
+  "task": "dark_mode_on",
+  "prompt": "schalte den dark mode an",
+  "criterion": "Display im Dunkel-Modus, Dark-Theme-Toggle AN",
+  "outcome": "done",
+  "duration_s": 226.5,
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\corrtest\\qwen_qwen36-35b-a3b__dark_mode_on__base.png",
+  "response": {
+    "ok": true,
+    "active_skills": [
+      "display.dark_mode_on_settings"
+    ],
+    "follow_up_context": false,
+    "lmstudio": {
+      "ok": true,
+      "outcome": "done",
+      "tool_calls": 7,
+      "turns": 7,
+      "final_text": "",
+      "error": null,
+      "vision_unsupported": false
+    }
+  }
+}

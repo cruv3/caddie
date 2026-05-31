@@ -1,0 +1,29 @@
+{
+  "phase": "baseline",
+  "model": "google/gemma-4-e4b",
+  "task": "pizza_search",
+  "prompt": "suche im browser ein pizza-restaurant in der nähe",
+  "criterion": "Detailseite EINES konkreten Restaurants offen (nicht nur Trefferliste/Suche)",
+  "outcome": "done",
+  "duration_s": 17.0,
+  "verify": {
+    "auto": false,
+    "passed": null,
+    "detail": "manual (Screenshot)"
+  },
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\corrtest\\google_gemma-4-e4b__pizza_search__base.png",
+  "response": {
+    "ok": true,
+    "active_skills": [],
+    "follow_up_context": false,
+    "lmstudio": {
+      "ok": true,
+      "outcome": "done",
+      "tool_calls": 4,
+      "turns": 4,
+      "final_text": "",
+      "error": null,
+      "vision_unsupported": false
+    }
+  }
+}

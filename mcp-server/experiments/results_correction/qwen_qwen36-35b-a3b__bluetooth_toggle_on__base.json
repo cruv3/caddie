@@ -1,0 +1,32 @@
+{
+  "phase": "baseline",
+  "model": "qwen/qwen3.6-35b-a3b",
+  "task": "bluetooth_toggle_on",
+  "prompt": "schalte bluetooth an",
+  "criterion": "Bluetooth-Schalter AN",
+  "outcome": "done",
+  "duration_s": 201.9,
+  "verify": {
+    "auto": true,
+    "passed": true,
+    "detail": "bluetooth_on=1"
+  },
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\corrtest\\qwen_qwen36-35b-a3b__bluetooth_toggle_on__base.png",
+  "response": {
+    "ok": true,
+    "active_skills": [
+      "connectivity.bluetooth_on_settings",
+      "connectivity.bluetooth_on_settings_search"
+    ],
+    "follow_up_context": false,
+    "lmstudio": {
+      "ok": true,
+      "outcome": "done",
+      "tool_calls": 7,
+      "turns": 7,
+      "final_text": "",
+      "error": null,
+      "vision_unsupported": false
+    }
+  }
+}

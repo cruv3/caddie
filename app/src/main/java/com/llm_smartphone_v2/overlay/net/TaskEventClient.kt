@@ -25,8 +25,8 @@ class TaskEventClient {
      * lifecycle + tool events on the EventBus; the phone observes those via
      * [observe]. This call returns once the task is fully done (or fails).
      */
-    fun fireTask(task: String, onError: (Throwable) -> Unit = {}) {
-        val payload = JSONObject().put("task", task).toString()
+    fun fireTask(task: String, followUp: Boolean = false, onError: (Throwable) -> Unit = {}) {
+        val payload = JSONObject().put("task", task).put("follow_up", followUp).toString()
         val body = payload.toRequestBody(JSON_MEDIA)
         val request = Request.Builder()
             .url(taskEndpoint())

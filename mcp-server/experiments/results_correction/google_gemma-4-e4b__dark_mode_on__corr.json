@@ -1,0 +1,30 @@
+{
+  "phase": "correction",
+  "model": "google/gemma-4-e4b",
+  "task": "dark_mode_on",
+  "correction": "prüfe ob der dunkle modus wirklich aktiv ist — falls nicht, schalte ihn jetzt an",
+  "criterion": "Display im Dunkel-Modus, Dark-Theme-Toggle AN",
+  "outcome": "done",
+  "follow_up_context": true,
+  "verify": {
+    "auto": true,
+    "passed": true,
+    "detail": "night-mode=yes"
+  },
+  "duration_s": 64.9,
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\corrtest\\google_gemma-4-e4b__dark_mode_on__corr.png",
+  "response": {
+    "ok": true,
+    "active_skills": [],
+    "follow_up_context": true,
+    "lmstudio": {
+      "ok": true,
+      "outcome": "done",
+      "tool_calls": 10,
+      "turns": 10,
+      "final_text": "",
+      "error": null,
+      "vision_unsupported": false
+    }
+  }
+}

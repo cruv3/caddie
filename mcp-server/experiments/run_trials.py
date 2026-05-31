@@ -37,10 +37,13 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_CONFIG = REPO_ROOT / "experiments" / "trial_matrix.yaml"
 
 
-def post_task(task_server_url: str, prompt: str, timeout: float, model: str | None = None) -> dict:
+def post_task(task_server_url: str, prompt: str, timeout: float, model: str | None = None,
+              follow_up: bool = False) -> dict:
     body: dict = {"task": prompt}
     if model:
         body["model"] = model
+    if follow_up:
+        body["follow_up"] = True
     payload = json.dumps(body).encode("utf-8")
     headers = {"Content-Type": "application/json"}
     token = os.environ.get("LM_STUDIO_API_KEY") or os.environ.get("LMS_API_TOKEN")

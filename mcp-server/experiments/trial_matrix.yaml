@@ -1,5 +1,19 @@
 # Konfiguration für Experiment-Runner
 # Anpassbar via CLI: --models, --tasks, --runs
+#
+# NEU (Korrektur-Test): jeder Task hat zusaetzlich
+#   pre_state          — adb-shell-Befehle, die VOR der Baseline den
+#                        Gegen-Zustand erzwingen (eliminiert passive_success)
+#   correction         — Folge-Prompt, der nach der Baseline mit follow_up=true
+#                        gefeuert wird (kein Reset dazwischen)
+#   success_criterion  — Klartext, woran ein echter Erfolg erkennbar ist
+#                        (fuer die manuelle/Claude-Screenshot-Verifikation)
+#
+# WICHTIG (Smoke-Test 2026-05-26): die Korrektur ist BEDINGT formuliert
+# ("falls X noch nicht stimmt, mach X") — KEINE feste Falsch-Behauptung
+# ("es ist noch falsch"). Sonst zwingt eine fixe Korrektur das Modell, ein
+# bereits korrektes Baseline-Ergebnis umzudrehen (beobachtet bei dark_mode_on).
+# So ist der Test fair, egal ob die Baseline schon stimmte.
 
 backend: adb               # "http" oder "adb" — adb fuer robuste Screenshots (Bridge-unabhaengig)
 timeout_seconds: 300       # Pro Trial Max-Dauer (5 min Cap, stuck-Loops sollen schnell abbrechen)
@@ -7,8 +21,11 @@ runs_per_combo: 2          # Wiederholungen pro Modell × Task
 reset_delay_seconds: 2     # Wartezeit nach Reset bevor Trial startet
 post_trial_delay_seconds: 1 # Wartezeit nach Trial vor Screenshot
 
+# Reset-Strategie (Korrektur-Test): voller Emulator-Reboot + erzwungener
+# Vor-Zustand vor JEDER Baseline (nicht zwischen Baseline und Korrektur).
+reboot_before_each_trial: true
+
 # /task und /events liegen beide auf Port 8787 (DEFAULT_AGENT_PORT).
-# AgentHttpServer wird von server.py gestartet, wenn LM Studio die MCP-Integration spawnt.
 task_server_url: http://127.0.0.1:8787
 sse_url: http://127.0.0.1:8787/events
 
@@ -21,28 +38,56 @@ models:
   - gemma-4-e2b-it            # Klein (4.6B), bekannt schwach
   - pixtral-12b               # Dritte Architektur (Llama-Base)
 
-# Tasks — werden als prompt an /task gesendet
+# Tasks — prompt = Baseline, correction = Folge-Auftrag mit Kontext
 tasks:
   # Easy: binär, eine Surface
   - id: dark_mode_on
     prompt: "schalte den dark mode an"
     difficulty: easy
+    pre_state: ["cmd uimode night no"]
+    correction: "prüfe ob der dunkle modus wirklich aktiv ist — falls nicht, schalte ihn jetzt an"
+    success_criterion: "Display im Dunkel-Modus, Dark-Theme-Toggle AN"
+
   - id: dark_mode_off
     prompt: "schalte den dark mode aus"
     difficulty: easy
+    pre_state: ["cmd uimode night yes"]
+    correction: "prüfe ob der dunkle modus wirklich aus ist — falls nicht, schalte ihn jetzt aus"
+    success_criterion: "Display im Hell-Modus, Dark-Theme-Toggle AUS"
 
   # Medium: anderes Surface oder strukturierte Eingabe
   - id: bluetooth_toggle_on
     prompt: "schalte bluetooth an"
     difficulty: medium
+    pre_state: ["svc bluetooth disable"]
+    correction: "prüfe ob bluetooth wirklich an ist — falls nicht, geh zu den bluetooth-einstellungen und schalte es an"
+    success_criterion: "Bluetooth-Schalter AN"
+
   - id: brightness_set_50
     prompt: "stelle die helligkeit auf 50 prozent"
     difficulty: medium
+    pre_state:
+      - "settings put system screen_brightness_mode 0"
+      - "settings put system screen_brightness 230"
+    correction: "prüfe die helligkeit — falls sie nicht auf 50 prozent steht, stelle den regler genau auf die mitte"
+    success_criterion: "Helligkeits-Slider ~50% (nicht ~90%)"
+
   - id: timer_set_5min
     prompt: "stelle einen timer auf 5 minuten"
     difficulty: medium
+    # pm clear loescht gespeicherte Timer/Alarme (force-stop tut das nicht ->
+    # sonst bleiben Streu-Timer aus Vor-Laeufen liegen).
+    # Hinweis: bei langsamen Modellen laeuft ein gesetzter 5-min-Timer waehrend
+    # des Runs ab -> Verifikation per "wurde ein 5-MINUTEN-Timer erstellt"
+    # (nicht "zeigt jetzt 5:00"), entscheidend ist Minuten statt Sekunden.
+    pre_state: ["pm clear com.google.android.deskclock"]
+    correction: "prüfe den timer — falls nicht genau 5 minuten eingestellt sind, stelle 5 minuten ein (nicht sekunden) und starte ihn"
+    success_criterion: "Timer laeuft bei 5:00 (Minuten, nicht Sekunden)"
 
   # Hard: Browser-Navigation, Multi-Step
   - id: pizza_search
     prompt: "suche im browser ein pizza-restaurant in der nähe"
     difficulty: hard
+    pre_state: ["am force-stop com.android.chrome"]
+    correction: "falls nur eine suche oder trefferliste zu sehen ist, oeffne ein konkretes pizza-restaurant und zeig dessen detailseite"
+    success_criterion: "Detailseite EINES konkreten Restaurants offen (nicht nur Trefferliste/Suche)"

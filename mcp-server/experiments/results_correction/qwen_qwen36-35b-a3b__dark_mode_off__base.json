@@ -1,0 +1,31 @@
+{
+  "phase": "baseline",
+  "model": "qwen/qwen3.6-35b-a3b",
+  "task": "dark_mode_off",
+  "prompt": "schalte den dark mode aus",
+  "criterion": "Display im Hell-Modus, Dark-Theme-Toggle AUS",
+  "outcome": "done",
+  "duration_s": 212.7,
+  "verify": {
+    "auto": true,
+    "passed": true,
+    "detail": "night-mode=no"
+  },
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\corrtest\\qwen_qwen36-35b-a3b__dark_mode_off__base.png",
+  "response": {
+    "ok": true,
+    "active_skills": [
+      "display.dark_mode_off_settings"
+    ],
+    "follow_up_context": false,
+    "lmstudio": {
+      "ok": true,
+      "outcome": "done",
+      "tool_calls": 7,
+      "turns": 7,
+      "final_text": "",
+      "error": null,
+      "vision_unsupported": false
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "phase": "baseline",
+  "model": "qwen/qwen3.6-35b-a3b",
+  "task": "timer_set_5min",
+  "prompt": "stelle einen timer auf 5 minuten",
+  "criterion": "Timer laeuft bei 5:00 (Minuten, nicht Sekunden)",
+  "outcome": "done",
+  "duration_s": 415.7,
+  "verify": {
+    "auto": false,
+    "passed": null,
+    "detail": "manual (Screenshot)"
+  },
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\corrtest\\qwen_qwen36-35b-a3b__timer_set_5min__base.png",
+  "response": {
+    "ok": true,
+    "active_skills": [
+      "deskclock.timer_5min_start",
+      "timer.start_5min_deskclock"
+    ],
+    "follow_up_context": false,
+    "lmstudio": {
+      "ok": true,
+      "outcome": "done",
+      "tool_calls": 7,
+      "turns": 7,
+      "final_text": "",
+      "error": null,
+      "vision_unsupported": false
+    }
+  }
+}

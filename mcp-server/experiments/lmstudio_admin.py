@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import time
 import urllib.error
@@ -10,6 +11,10 @@ import urllib.request
 
 
 DEFAULT_LMS_API = "http://127.0.0.1:1234/v1/models"
+
+
+def _lms_token() -> str | None:
+    return os.environ.get("LM_STUDIO_API_KEY") or os.environ.get("LMS_API_TOKEN")
 
 
 class LmStudioAdmin:
@@ -25,7 +30,8 @@ class LmStudioAdmin:
         # damit alle Trials konsistente Modell-Settings bekommen.
         try:
             # vorher andere unloaden um Memory zu sparen
-            subprocess.run(["lms", "unload", "--all"], capture_output=True, text=True, timeout=30, check=False)
+            subprocess.run(["lms", "unload", "--all"], capture_output=True, text=True,
+                           encoding="utf-8", errors="replace", timeout=30, check=False)
             proc = subprocess.run(
                 ["lms", "load", model_id,
                  "--yes",
@@ -35,6 +41,8 @@ class LmStudioAdmin:
                  "--gpu", "max"],
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 timeout=wait_seconds,
                 check=False,
             )
@@ -55,9 +63,13 @@ class LmStudioAdmin:
 
     def wait_ready(self, model_id: str, timeout: float = 20) -> bool:
         deadline = time.monotonic() + timeout
+        token = _lms_token()
+        req = urllib.request.Request(self.models_endpoint)
+        if token:
+            req.add_header("Authorization", f"Bearer {token}")
         while time.monotonic() < deadline:
             try:
-                with urllib.request.urlopen(self.models_endpoint, timeout=3) as resp:
+                with urllib.request.urlopen(req, timeout=3) as resp:
                     data = json.loads(resp.read().decode("utf-8"))
                 # /v1/models listet nur geladene Modelle (state-Feld existiert hier nicht)
                 ids = {m.get("id") for m in data.get("data", [])}

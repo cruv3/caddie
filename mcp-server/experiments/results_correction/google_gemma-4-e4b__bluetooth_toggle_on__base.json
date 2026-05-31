@@ -1,0 +1,32 @@
+{
+  "phase": "baseline",
+  "model": "google/gemma-4-e4b",
+  "task": "bluetooth_toggle_on",
+  "prompt": "schalte bluetooth an",
+  "criterion": "Bluetooth-Schalter AN",
+  "outcome": "done",
+  "duration_s": 55.4,
+  "verify": {
+    "auto": true,
+    "passed": true,
+    "detail": "bluetooth_on=1"
+  },
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\corrtest\\google_gemma-4-e4b__bluetooth_toggle_on__base.png",
+  "response": {
+    "ok": true,
+    "active_skills": [
+      "connectivity.bluetooth_on_settings",
+      "connectivity.bluetooth_on_settings_search"
+    ],
+    "follow_up_context": false,
+    "lmstudio": {
+      "ok": true,
+      "outcome": "done",
+      "tool_calls": 9,
+      "turns": 9,
+      "final_text": "",
+      "error": null,
+      "vision_unsupported": false
+    }
+  }
+}

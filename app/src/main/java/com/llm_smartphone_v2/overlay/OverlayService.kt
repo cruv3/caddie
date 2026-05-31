@@ -10,6 +10,7 @@ import android.graphics.PixelFormat
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import android.util.Log
 import android.view.Gravity
 import android.view.View
@@ -26,6 +27,7 @@ import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.llm_smartphone_v2.R
+import com.llm_smartphone_v2.accessibility.AgentActivityTracker
 import com.llm_smartphone_v2.accessibility.InterventionReporter
 import com.llm_smartphone_v2.overlay.event.ThoughtEvent
 import com.llm_smartphone_v2.overlay.net.TaskEventClient
@@ -153,11 +155,19 @@ class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegist
         return START_STICKY
     }
 
+    /** elapsedRealtime des letzten task_finished — fuer die Folge-Task-Erkennung. */
+    private var lastFinishElapsedMs = 0L
+
     private fun handleTask(task: String) {
         showEphemeralTop(task, isUser = true)
         setState { it.copy(state = RunState.Thinking, currentStepLabel = "verstanden") }
+        // Kommt der Auftrag kurz nach einem "fertig", behandeln wir ihn als
+        // Korrektur des vorigen Laufs: der Host bekommt follow_up=true und
+        // gibt dem neuen Run den vorherigen Auftrag als Kontext mit.
+        val followUp = lastFinishElapsedMs > 0L &&
+            SystemClock.elapsedRealtime() - lastFinishElapsedMs < FOLLOW_UP_WINDOW_MS
         scope.launch(Dispatchers.IO) {
-            client.fireTask(task) { err ->
+            client.fireTask(task, followUp) { err ->
                 mainHandler.post {
                     Log.w(TAG, "task POST failed", err)
                     setState { it.copy(state = RunState.Error, currentStepLabel = "Fehler") }
@@ -206,6 +216,12 @@ class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegist
                 scheduleIdleHide(TASK_IDLE_HIDE_MS)
             }
             is ThoughtEvent.TaskFinished -> {
+                // "Run aktiv"-Fenster sofort schliessen (statt ~90 s auslaufen)
+                // und Finish-Zeit merken: eine Sprach-Eingabe kurz danach ist
+                // dann ein Folge-Auftrag mit Kontext, keine Mid-run-Korrektur
+                // ins Leere.
+                AgentActivityTracker.markRunFinished()
+                lastFinishElapsedMs = SystemClock.elapsedRealtime()
                 val message = event.payload?.optString("message", "")?.takeIf { it.isNotBlank() }
                 if (event.ok) {
                     setState { it.copy(state = RunState.Done, currentStepLabel = "fertig") }
@@ -417,6 +433,8 @@ class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegist
         // bridge typical LLM thinking gaps (5-30s) plus a safety margin
         // for genuine task end without a task_finished signal.
         private const val TASK_IDLE_HIDE_MS = 90_000L
+        // Auftrag innerhalb dieses Fensters nach "fertig" = Korrektur-Folge-Task.
+        private const val FOLLOW_UP_WINDOW_MS = 120_000L
 
         const val ACTION_LISTENING = "com.llm_smartphone_v2.overlay.LISTENING"
         const val ACTION_TASK = "com.llm_smartphone_v2.overlay.TASK"

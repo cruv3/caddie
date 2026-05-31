@@ -1,0 +1,32 @@
+{
+  "phase": "baseline",
+  "model": "google/gemma-4-e4b",
+  "task": "dark_mode_on",
+  "prompt": "schalte den dark mode an",
+  "criterion": "Display im Dunkel-Modus, Dark-Theme-Toggle AN",
+  "outcome": "failed",
+  "duration_s": 187.9,
+  "verify": {
+    "auto": true,
+    "passed": false,
+    "detail": "night-mode=no"
+  },
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\corrtest\\google_gemma-4-e4b__dark_mode_on__base.png",
+  "response": {
+    "ok": false,
+    "active_skills": [
+      "display.dark_mode_on_settings"
+    ],
+    "follow_up_context": false,
+    "lmstudio": {
+      "ok": false,
+      "outcome": "failed",
+      "tool_calls": 24,
+      "turns": 24,
+      "final_text": "",
+      "error": null,
+      "vision_unsupported": false
+    },
+    "_http_status": 502
+  }
+}

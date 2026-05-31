@@ -1,0 +1,30 @@
+{
+  "phase": "correction",
+  "model": "google/gemma-4-e4b",
+  "task": "timer_set_5min",
+  "correction": "prüfe den timer — falls nicht genau 5 minuten eingestellt sind, stelle 5 minuten ein (nicht sekunden) und starte ihn",
+  "criterion": "Timer laeuft bei 5:00 (Minuten, nicht Sekunden)",
+  "outcome": "done",
+  "follow_up_context": true,
+  "verify": {
+    "auto": false,
+    "passed": null,
+    "detail": "manual (Screenshot)"
+  },
+  "duration_s": 79.3,
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\corrtest\\google_gemma-4-e4b__timer_set_5min__corr.png",
+  "response": {
+    "ok": true,
+    "active_skills": [],
+    "follow_up_context": true,
+    "lmstudio": {
+      "ok": true,
+      "outcome": "done",
+      "tool_calls": 13,
+      "turns": 12,
+      "final_text": "",
+      "error": null,
+      "vision_unsupported": false
+    }
+  }
+}

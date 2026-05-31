@@ -11,6 +11,8 @@ import org.json.JSONObject;
 
 import java.util.concurrent.TimeUnit;
 
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -42,6 +44,13 @@ public final class InterventionReporter {
     private final OkHttpClient client = new OkHttpClient.Builder()
             .connectTimeout(3, TimeUnit.SECONDS)
             .callTimeout(5, TimeUnit.SECONDS)
+            .build();
+    /** Eigener Client fuer den Folge-Task-Fallback: /task blockiert bis der
+     *  ganze Run fertig ist (Minuten), darf also keinen kurzen Timeout haben. */
+    private final OkHttpClient taskClient = new OkHttpClient.Builder()
+            .connectTimeout(3, TimeUnit.SECONDS)
+            .readTimeout(0, TimeUnit.MILLISECONDS)
+            .callTimeout(0, TimeUnit.MILLISECONDS)
             .build();
     private final Handler handler;
     private boolean paused = false;
@@ -156,8 +165,49 @@ public final class InterventionReporter {
                     .build();
             try (Response response = client.newCall(request).execute()) {
                 Log.i(TAG, "POST /control correct -> " + response.code());
+                // Race: der Run war beim Sprechen noch aktiv, ist aber genau
+                // jetzt fertig geworden -> "no active run". Statt die Worte zu
+                // schlucken, als Folge-Auftrag mit Kontext nachreichen.
+                if (!response.isSuccessful()) {
+                    Log.i(TAG, "no active run -> falling back to follow-up task");
+                    postFollowUpTask(text);
+                }
             } catch (Exception exception) {
                 Log.w(TAG, "POST /control correct failed: " + exception.getMessage());
+            }
+        });
+    }
+
+    /** Fallback, wenn eine Korrektur ins Leere lief: neuer /task mit
+     *  follow_up=true, damit der Host den vorherigen Lauf als Kontext zieht. */
+    private void postFollowUpTask(String text) {
+        String body;
+        try {
+            body = new JSONObject()
+                    .put("task", text)
+                    .put("follow_up", true)
+                    .toString();
+        } catch (Exception exception) {
+            Log.w(TAG, "follow-up payload build failed: " + exception.getMessage());
+            return;
+        }
+        Request request = new Request.Builder()
+                .url(LmStudioConfig.ENDPOINT)
+                .post(RequestBody.create(body, JSON))
+                .build();
+        // Async + ohne Timeout: /task laeuft den ganzen Run durch; das Ergebnis
+        // sehen wir ohnehin live ueber den SSE-Stream, nicht ueber diese Antwort.
+        taskClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onResponse(Call call, Response response) {
+                try (Response r = response) {
+                    Log.i(TAG, "POST /task (follow-up) -> " + r.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call call, java.io.IOException exception) {
+                Log.w(TAG, "POST /task (follow-up) failed: " + exception.getMessage());
             }
         });
     }

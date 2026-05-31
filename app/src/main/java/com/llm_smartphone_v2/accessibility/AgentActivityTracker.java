@@ -41,6 +41,17 @@ public final class AgentActivityTracker {
         lastRunActivityMs = SystemClock.uptimeMillis();
     }
 
+    /**
+     * Beim {@code task_finished}-Event aufzurufen. Schliesst das
+     * "Run aktiv"-Fenster sofort, statt es ~90 s auslaufen zu lassen — sonst
+     * wuerde eine Sprach-Eingabe direkt nach "fertig" faelschlich als
+     * Mid-run-Korrektur an einen nicht mehr existenten Run gehen und verpuffen.
+     */
+    public static void markRunFinished() {
+        lastRunActivityMs = 0L;
+        agentBusyUntilMs = 0L;
+    }
+
     /** True, solange ein gerade beobachteter Klick vom Agenten stammen kann. */
     public static boolean isAgentActive() {
         return SystemClock.uptimeMillis() < agentBusyUntilMs;

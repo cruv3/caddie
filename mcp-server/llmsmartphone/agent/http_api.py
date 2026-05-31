@@ -182,6 +182,10 @@ def _handler_factory(
 
             matched = context.skills.match(task)
             system_prompt = build_system_prompt(matched)
+            # Folge-Auftrag kurz nach "fertig" (z.B. "nimm ein anderes
+            # Restaurant"): den zuletzt beendeten Run als Kontext mitgeben,
+            # damit die Korrektur Bezug hat. Nur wenn er frisch genug ist.
+            prior = agent_loop.recent_run() if payload.get("follow_up") else None
             EVENT_BUS.task_started(task)
             result: dict = {"ok": False}
             model_override = payload.get("model")
@@ -191,6 +195,7 @@ def _handler_factory(
                     system_prompt=system_prompt,
                     authorization=self.headers.get("Authorization"),
                     model=model_override,
+                    prior=prior,
                 )
             finally:
                 EVENT_BUS.task_finished(
@@ -200,6 +205,9 @@ def _handler_factory(
             response: dict = {
                 "ok": result.get("ok", False),
                 "active_skills": [skill.id for skill in matched],
+                # Nachweis fuer Tests: wurde der vorherige Run als Kontext
+                # injiziert? (follow_up=true UND es gab einen frischen Run)
+                "follow_up_context": prior is not None,
                 "lmstudio": result,
             }
             if result.get("vision_unsupported"):

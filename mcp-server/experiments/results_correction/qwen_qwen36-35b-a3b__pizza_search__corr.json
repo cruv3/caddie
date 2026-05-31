@@ -1,0 +1,31 @@
+{
+  "phase": "correction",
+  "model": "qwen/qwen3.6-35b-a3b",
+  "task": "pizza_search",
+  "correction": "falls nur eine suche oder trefferliste zu sehen ist, oeffne ein konkretes pizza-restaurant und zeig dessen detailseite",
+  "criterion": "Detailseite EINES konkreten Restaurants offen (nicht nur Trefferliste/Suche)",
+  "outcome": "failed",
+  "follow_up_context": true,
+  "verify": {
+    "auto": false,
+    "passed": null,
+    "detail": "manual (Screenshot)"
+  },
+  "duration_s": 380.3,
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\corrtest\\qwen_qwen36-35b-a3b__pizza_search__corr.png",
+  "response": {
+    "ok": false,
+    "active_skills": [],
+    "follow_up_context": true,
+    "lmstudio": {
+      "ok": false,
+      "outcome": "failed",
+      "tool_calls": 17,
+      "turns": 17,
+      "final_text": "",
+      "error": null,
+      "vision_unsupported": false
+    },
+    "_http_status": 502
+  }
+}

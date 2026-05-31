@@ -1,0 +1,30 @@
+{
+  "phase": "correction",
+  "model": "google/gemma-4-e4b",
+  "task": "dark_mode_off",
+  "correction": "prüfe ob der dunkle modus wirklich aus ist — falls nicht, schalte ihn jetzt aus",
+  "criterion": "Display im Hell-Modus, Dark-Theme-Toggle AUS",
+  "outcome": "done",
+  "follow_up_context": true,
+  "verify": {
+    "auto": true,
+    "passed": false,
+    "detail": "night-mode=yes"
+  },
+  "duration_s": 218.4,
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\corrtest\\google_gemma-4-e4b__dark_mode_off__corr.png",
+  "response": {
+    "ok": true,
+    "active_skills": [],
+    "follow_up_context": true,
+    "lmstudio": {
+      "ok": true,
+      "outcome": "done",
+      "tool_calls": 24,
+      "turns": 24,
+      "final_text": "",
+      "error": null,
+      "vision_unsupported": false
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "phase": "correction",
+  "model": "qwen/qwen3.6-35b-a3b",
+  "task": "brightness_set_50",
+  "correction": "prüfe die helligkeit — falls sie nicht auf 50 prozent steht, stelle den regler genau auf die mitte",
+  "criterion": "Helligkeits-Slider ~50% (nicht ~90%)",
+  "outcome": "done",
+  "follow_up_context": true,
+  "verify": {
+    "auto": true,
+    "passed": false,
+    "detail": "brightness=22 (~9%)"
+  },
+  "duration_s": 231.0,
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\corrtest\\qwen_qwen36-35b-a3b__brightness_set_50__corr.png",
+  "response": {
+    "ok": true,
+    "active_skills": [],
+    "follow_up_context": true,
+    "lmstudio": {
+      "ok": true,
+      "outcome": "done",
+      "tool_calls": 6,
+      "turns": 5,
+      "final_text": "",
+      "error": null,
+      "vision_unsupported": false
+    }
+  }
+}

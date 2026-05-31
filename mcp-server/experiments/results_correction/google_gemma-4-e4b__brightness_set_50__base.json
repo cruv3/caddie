@@ -1,0 +1,31 @@
+{
+  "phase": "baseline",
+  "model": "google/gemma-4-e4b",
+  "task": "brightness_set_50",
+  "prompt": "stelle die helligkeit auf 50 prozent",
+  "criterion": "Helligkeits-Slider ~50% (nicht ~90%)",
+  "outcome": "done",
+  "duration_s": 35.6,
+  "verify": {
+    "auto": true,
+    "passed": false,
+    "detail": "brightness=230 (~90%)"
+  },
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\corrtest\\google_gemma-4-e4b__brightness_set_50__base.png",
+  "response": {
+    "ok": true,
+    "active_skills": [
+      "display.brightness_50_settings"
+    ],
+    "follow_up_context": false,
+    "lmstudio": {
+      "ok": true,
+      "outcome": "done",
+      "tool_calls": 6,
+      "turns": 6,
+      "final_text": "",
+      "error": null,
+      "vision_unsupported": false
+    }
+  }
+}

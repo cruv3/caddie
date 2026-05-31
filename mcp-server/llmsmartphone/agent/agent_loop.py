@@ -21,6 +21,7 @@ fuellen ihn.
 from __future__ import annotations
 
 import json
+import time
 from typing import Any
 
 from llmsmartphone.agent import risk
@@ -35,6 +36,11 @@ MAX_TURNS = 40
 # Wie lange der Loop vor einer kritischen Aktion auf die Swipe-Bestaetigung
 # wartet. Timeout = abgelehnt (sichere Default).
 CONFIRM_TIMEOUT_S = 120.0
+# Wie lange ein gerade beendeter Run als "Kontext fuer eine Korrektur" gilt.
+# Sagt der Nutzer kurz nach "fertig" z.B. "nimm ein anderes Restaurant",
+# bekommt der Folge-Run den vorherigen Auftrag als Kontext mit. Aelter = der
+# neue Auftrag startet ohne Bezug.
+FOLLOW_UP_MAX_AGE_S = 180.0
 
 
 class AgentLoop:
@@ -51,6 +57,20 @@ class AgentLoop:
         # Steuer-Objekt des gerade laufenden Runs (None = kein Run aktiv).
         # /control greift hierueber ein.
         self._active_control: RunControl | None = None
+        # Kompakter Merker des zuletzt beendeten Runs — Grundlage fuer eine
+        # Korrektur NACH "fertig" (Folge-Task mit Kontext, siehe recent_run).
+        self._last_run: dict | None = None
+
+    def recent_run(self, max_age_s: float = FOLLOW_UP_MAX_AGE_S) -> dict | None:
+        """Der zuletzt beendete Run, falls er juenger als ``max_age_s`` ist —
+        sonst None. Damit entscheidet ``/task``, ob ein Folge-Auftrag den
+        vorherigen Lauf als Kontext mitbekommt."""
+        run = self._last_run
+        if not run:
+            return None
+        if time.monotonic() - run.get("finished_at", 0.0) > max_age_s:
+            return None
+        return run
 
     def apply_control(self, action: str, text: str | None = None) -> dict:
         """Wendet ein ``/control``-Signal auf den aktiven Run an.
@@ -92,12 +112,21 @@ class AgentLoop:
         system_prompt: str,
         authorization: str | None = None,
         model: str | None = None,
+        prior: dict | None = None,
     ) -> dict[str, Any]:
-        """Faehrt die Session bis done/failed/Abbruch und liefert das Resultat."""
+        """Faehrt die Session bis done/failed/Abbruch und liefert das Resultat.
+
+        ``prior`` ist optional der zuletzt beendete Run (siehe ``recent_run``):
+        wird er mitgegeben, sieht das Modell vor der eigentlichen Aufgabe einen
+        kurzen Kontext, was es zuvor getan hat — damit eine Korrektur wie "nimm
+        ein anderes Restaurant" Bezug auf den vorigen Lauf hat, obwohl es ein
+        frischer Run ohne Conversation-Gedaechtnis ist."""
         messages: list[dict] = [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": task},
         ]
+        if prior:
+            messages.append({"role": "user", "content": _prior_context_note(prior)})
+        messages.append({"role": "user", "content": task})
         control = RunControl()
         self._active_control = control
         tool_calls_made = 0
@@ -193,6 +222,13 @@ class AgentLoop:
                 break
 
         self._active_control = None
+        # Diesen Run als moeglichen Korrektur-Kontext merken (siehe recent_run).
+        self._last_run = {
+            "task": task,
+            "outcome": outcome,
+            "final_text": final_text,
+            "finished_at": time.monotonic(),
+        }
         return {
             "ok": outcome in ("done", "stopped"),
             "outcome": outcome,
@@ -245,6 +281,32 @@ class AgentLoop:
                 "Bild vom aktuellen Screen, bevor du fortfaehrst."
             )
         messages.append({"role": "user", "content": note})
+
+
+def _prior_context_note(prior: dict) -> str:
+    """Neutraler Kontext-Satz fuer einen Folge-Run kurz nach "fertig".
+
+    Wichtig: NICHT annehmen, dass der neue Auftrag eine Korrektur ist — das
+    laesst sich aus dem Timing allein nicht entscheiden. "Suche eine Pizza"
+    nach "schalte Dark Mode an" ist ein eigenstaendiger Auftrag, kein
+    Nachbessern. Daher wird der vorige Lauf nur als *Info* mitgegeben; das
+    Modell entscheidet selbst, ob der neue Auftrag daran anknuepft."""
+    prev_task = str(prior.get("task") or "").strip()
+    final_text = str(prior.get("final_text") or "").strip()
+    note = (
+        f"Zur Info: Dein unmittelbar vorheriger Auftrag war \"{prev_task}\" "
+        f"(abgeschlossen"
+    )
+    if final_text:
+        note += f", gemeldet: \"{final_text}\""
+    note += (
+        "). Falls der folgende Auftrag eine Korrektur oder Fortsetzung davon "
+        "ist (z.B. \"nimm ein anderes\"), beziehe dich darauf. Andernfalls "
+        "behandle ihn als eigenstaendigen neuen Auftrag und ignoriere diesen "
+        "Hinweis. Mache dir in jedem Fall zuerst per Screenshot oder "
+        "Element-Liste ein frisches Bild vom aktuellen Screen."
+    )
+    return note
 
 
 def _first_choice(response: dict) -> dict | None:
