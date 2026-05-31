@@ -59,7 +59,7 @@ echo   AVD:         %AVD_NAME%
 echo   HTTP bridge: http://127.0.0.1:8765 (host -^> device)
 echo   Agent SSE:   http://127.0.0.1:8787 (device -^> host, overlay observer)
 echo.
-echo Tip: make sure the LLMSmartphone Android app is installed and its
+echo Tip: make sure the caddie Android app is installed and its
 echo      Accessibility Service is enabled before calling MCP tools.
 
 endlocal

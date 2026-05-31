@@ -1,3 +1,5 @@
+<!-- TRANSLATION PENDING: prose is still in German; paths and identifiers were updated to `caddie` on 2026-05-31. Full English translation is a deferred Phase 2 task. -->
+
 # LLM-Smartphone MCP-Server — Architektur und Design-Entscheidungen
 
 Stand: 2026-05-01
@@ -24,7 +26,7 @@ Der LLM-Client (LM Studio bzw. Jan) verbindet sich via stdio mit dem MCP-Server 
 ```
 ┌──────────────────┐    stdio MCP    ┌──────────────────────────────┐
 │   LLM-Client     │ ──────────────► │     MCP-Server (Python)       │
-│  (LM Studio,     │                 │      llmsmartphone/*           │
+│  (LM Studio,     │                 │      caddie/*           │
 │   Jan, …)        │ ◄────────────── │   - tools/                    │
 └──────────────────┘   tool results  │   - skills/                   │
                                      │   - agent/                    │
@@ -52,10 +54,10 @@ Der LLM-Client (LM Studio bzw. Jan) verbindet sich via stdio mit dem MCP-Server 
 
 | Schicht | Pfad | Verantwortung |
 |---|---|---|
-| Tools | `llmsmartphone/tools/` | MCP-Tool-Definitionen, FastMCP-`@mcp.tool()`-Wrapper |
-| Backends | `llmsmartphone/android/backends/{adb,http}` | Konkrete Phone-Kommunikation |
-| Skills | `llmsmartphone/skills/` | Skill-Bibliothek + Persistenz |
-| Agent | `llmsmartphone/agent/` | System-Prompt, optionaler `/task`-HTTP-Endpoint |
+| Tools | `caddie/tools/` | MCP-Tool-Definitionen, FastMCP-`@mcp.tool()`-Wrapper |
+| Backends | `caddie/android/backends/{adb,http}` | Konkrete Phone-Kommunikation |
+| Skills | `caddie/skills/` | Skill-Bibliothek + Persistenz |
+| Agent | `caddie/agent/` | System-Prompt, optionaler `/task`-HTTP-Endpoint |
 | Server | `server.py` | FastMCP-Init, Tool-Registrierung |
 
 ---
@@ -156,7 +158,7 @@ triggers: schalte darkmodus aus, deaktiviere dunkles design, dark mode aus
 
 ### 4.3 Skill-Persistenz: `write_skill` mit Round-Trip-Validation
 
-Die Funktion `write_skill` in `llmsmartphone/skills/library.py` ist der einzige Pfad, über den neue Skills entstehen. Sie:
+Die Funktion `write_skill` in `caddie/skills/library.py` ist der einzige Pfad, über den neue Skills entstehen. Sie:
 
 1. **Validiert alle Inputs**: `id` matcht Pattern `^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$`, `description` ≥ 20 Zeichen, `triggers/rules/flow/...` non-empty.
 2. **Validiert Englisch-Only** der Pflichtfelder (Trigger-Liste ausgenommen).
@@ -232,7 +234,7 @@ Refactoring: extrahiert eine reine Wertklasse `NodeSnapshot` (alle Felder als pu
 
 ### 5.3 Server-seitiges Compacting
 
-`compact_node` in `llmsmartphone/android/backends/http/screen.py` reduziert den rohen Phone-Output:
+`compact_node` in `caddie/android/backends/http/screen.py` reduziert den rohen Phone-Output:
 
 - Filtert unsichtbare Knoten (außerhalb der Bildschirmgrenzen, Bottom-Padding).
 - Filtert *unnütze* Knoten (kein Text/Description, nicht klickbar/checkbar/scrollbar/editierbar, kein Range).
@@ -259,7 +261,7 @@ Verifikation: ein Diagnose-Marker `[MCP_INIT_OK]` wurde in `instructions` verste
 **Konsequenz für unsere Architektur:**
 
 1. **Skills als individuelle Tools** registrieren (siehe §4.4) statt sie via `instructions` zu injizieren.
-2. **System-Prompt manuell in LM Studio** pasten (`Ctrl+Shift+E`), generiert via `build_mcp_instructions()`. Quelle der Wahrheit ist `BASE_SYSTEM_PROMPT` in `llmsmartphone/agent/prompt.py`.
+2. **System-Prompt manuell in LM Studio** pasten (`Ctrl+Shift+E`), generiert via `build_mcp_instructions()`. Quelle der Wahrheit ist `BASE_SYSTEM_PROMPT` in `caddie/agent/prompt.py`.
 3. **`instructions`-Feld bleibt trotzdem gesetzt** — Clients wie Claude Desktop, Cursor, ggf. zukünftiges LM Studio greifen es korrekt auf, dann ist alles automatisch.
 
 ### 6.2 Alternative Clients
@@ -333,7 +335,7 @@ Frühe Iteration verlangte vom LLM, *im System-Prompt-Manifest* selbst zu entsch
 mcp-server/
 ├── server.py                          # Entry: FastMCP init, ServerContext, register_tools
 ├── requirements.txt                   # fastmcp, PyYAML, Pillow
-├── llmsmartphone/
+├── caddie/
 │   ├── config.py                      # Env-Var-Lesen, Defaults
 │   ├── context.py                     # ServerContext (skills, backend, project_dir, read_skill_ids)
 │   ├── registry.py                    # ToolRegistry für Tool-Registrar-Pattern

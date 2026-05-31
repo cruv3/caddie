@@ -1,6 +1,6 @@
-# LLM Smartphone MCP Server
+# Caddie MCP Server
 
-Python/FastMCP server for controlling an Android device through ADB or the Android HTTP bridge app.
+Python/FastMCP server for controlling an Android device through ADB or the Android HTTP bridge app. Part of the Caddie project (Master's thesis — see top-level README).
 
 This is the first V2 layer:
 
@@ -22,13 +22,13 @@ Android app
 -> Android HTTP bridge (:8765) or ADB
 ```
 
-The server intentionally exposes primitive MCP tools. Higher-level smartphone skills live as Markdown files in `skills/` and are loaded internally by `llmsmartphone.skills`; they are not registered as MCP tools and therefore do not appear in LM Studio's tool list.
+The server intentionally exposes primitive MCP tools. Higher-level smartphone skills live as Markdown files in `skills/` and are loaded internally by `caddie.skills`; they are not registered as MCP tools and therefore do not appear in LM Studio's tool list.
 
 To add a new MCP tool:
 
 1. Create a module with a `register_..._tools(mcp, context)` function.
-2. Add that registrar in `llmsmartphone/tools/__init__.py`.
-3. Keep the actual Android access inside `llmsmartphone/android/`.
+2. Add that registrar in `caddie/tools/__init__.py`.
+3. Keep the actual Android access inside `caddie/android/`.
 
 To add a new internal skill:
 
@@ -42,7 +42,7 @@ To add a new internal skill:
 Use a real Python install, not the Microsoft Store stub.
 
 ```powershell
-cd C:\Users\Andreas\AndroidStudioProjects\LLMSmartphone_V2\mcp-server
+cd C:\Users\Andreas\dev\LLMSmartphone\mcp-server
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
@@ -60,10 +60,10 @@ Default ADB backend:
 ```json
 {
   "mcpServers": {
-    "llm-smartphone": {
-      "command": "C:\\Users\\Andreas\\AndroidStudioProjects\\LLMSmartphone_V2\\mcp-server\\.venv\\Scripts\\python.exe",
+    "caddie": {
+      "command": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\.venv\\Scripts\\python.exe",
       "args": [
-        "C:\\Users\\Andreas\\AndroidStudioProjects\\LLMSmartphone_V2\\mcp-server\\server.py"
+        "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\server.py"
       ]
     }
   }
@@ -75,10 +75,10 @@ Android app HTTP backend:
 ```json
 {
   "mcpServers": {
-    "llm-smartphone": {
-      "command": "C:\\Users\\Andreas\\AndroidStudioProjects\\LLMSmartphone_V2\\mcp-server\\.venv\\Scripts\\python.exe",
+    "caddie": {
+      "command": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\.venv\\Scripts\\python.exe",
       "args": [
-        "C:\\Users\\Andreas\\AndroidStudioProjects\\LLMSmartphone_V2\\mcp-server\\server.py"
+        "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\server.py"
       ],
       "env": {
         "LLM_SMARTPHONE_BACKEND": "http"
@@ -96,7 +96,7 @@ adb forward tcp:8765 tcp:8765
 
 The HTTP backend uses `http://127.0.0.1:8765` by default, so the phone URL does not need to be in `mcp.json`.
 
-For a real phone on the same LAN, only then override the URL:
+For a real phone on the same LAN (or over Tailscale), only then override the URL:
 
 ```json
 "env": {
@@ -115,11 +115,12 @@ LM Studio starts this server automatically. Manual execution is only useful for 
 
 With stdio transport, no output is expected while the server waits for MCP messages.
 
-The agent API is started automatically together with the MCP server. It listens on `0.0.0.0:8787` by default so Android emulators can reach it through `10.0.2.2`.
+The agent API is started automatically together with the MCP server. It listens on `0.0.0.0:8787` by default so Android emulators can reach it through `10.0.2.2` and real devices can reach it via Tailscale or LAN.
 
 ```text
 GET  http://127.0.0.1:8787/health
 POST http://127.0.0.1:8787/task
+GET  http://127.0.0.1:8787/events    (SSE)
 ```
 
 The Android emulator reaches the host agent API through:
@@ -129,6 +130,8 @@ http://10.0.2.2:8787/task
 ```
 
 The app forwards its LM Studio authorization header to the agent, and the agent forwards it to LM Studio.
+
+> **Note on environment variable names:** the env vars are still prefixed `LLM_SMARTPHONE_*` and `LLM_STUDIO_*` for backwards compatibility with existing local configs. The Python package itself is `caddie`.
 
 ## Current tools
 

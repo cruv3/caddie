@@ -1,4 +1,4 @@
-package com.llm_smartphone_v2.lmstudio;
+package com.caddie.lmstudio;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

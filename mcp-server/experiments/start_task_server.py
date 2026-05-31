@@ -2,7 +2,7 @@
 
 Damit ist /task auf :8787 erreichbar, auch wenn LM Studio die MCP-Integration
 gerade nicht aktiviert hat. Dieser Pfad ist nur für den Experiment-Runner gedacht
-— LM Studio braucht trotzdem eine konfigurierte `llmsmartphone`-Integration in
+— LM Studio braucht trotzdem eine konfigurierte `caddie`-Integration in
 seiner mcp.json, damit das Modell während eines /task-Aufrufs Tools rufen darf.
 """
 
@@ -12,8 +12,8 @@ import signal
 import sys
 import time
 
-from llmsmartphone.agent import AgentHttpServer
-from llmsmartphone.context import ServerContext
+from caddie.agent import AgentHttpServer
+from caddie.context import ServerContext
 
 
 def main() -> int:

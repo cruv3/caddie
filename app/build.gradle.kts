@@ -13,7 +13,7 @@ val secrets = Properties().apply {
 val lmStudioToken: String = secrets.getProperty("LM_STUDIO_TOKEN", "")
 
 android {
-    namespace = "com.llm_smartphone_v2"
+    namespace = "com.caddie"
     compileSdk {
         version = release(36) {
             minorApiLevel = 1
@@ -21,7 +21,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.llm_smartphone_v2"
+        applicationId = "com.caddie"
         minSdk = 36
         targetSdk = 36
         versionCode = 1

@@ -1,9 +1,9 @@
-package com.llm_smartphone_v2.phone;
+package com.caddie.phone;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import com.llm_smartphone_v2.phone.ScreenNodeSerializer.NodeSnapshot;
+import com.caddie.phone.ScreenNodeSerializer.NodeSnapshot;
 
 import org.junit.Test;
 

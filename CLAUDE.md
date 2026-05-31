@@ -1,23 +1,29 @@
 ---
 tags: [project, claude-config, thesis]
-project: LLMSmartphone
+project: Caddie
 created: 2026-05-03
+renamed: 2026-05-31 (from LLMSmartphone to Caddie)
 ---
 
-# LLMSmartphone — Claude Project Rules
+# Caddie — Claude Project Rules
 
 ## Project context
 
-- **Description**: Master's thesis Android app exploring UI abstraction layers for LLM-based smartphone agents. V2 is built around an MCP server (different from V1).
-- **Stack**: Kotlin (Android) + Python (MCP server)
+- **Description**: Master's thesis Android app exploring UI transparency and user control in LLM-based smartphone agents. The agent operates the phone visibly, the user supervises and can intervene. V2 is built around an MCP server (different from V1).
+- **Stack**: Kotlin (Android, package `com.caddie`) + Python (MCP server, package `caddie`)
 - **Status**: active, **thesis not yet registered** — scope/questions may shift after supervisor talks
 - **Successor relationship**: replaces an earlier V1 (no longer worked on)
-- **GitHub**: https://github.com/cruv3/LLM-Smartphone-Companion (URL kept from V1; main branch was force-pushed with V2 content on 2026-05-03 — V1 history orphaned)
+- **GitHub**: https://github.com/cruv3/LLM-Smartphone-Companion (URL kept from V1; main branch was force-pushed with V2 content on 2026-05-03 — V1 history orphaned; repo rename to `caddie` planned)
+- **Local dir**: `C:\Users\Andreas\dev\LLMSmartphone\` (kept under old name for now to avoid breaking IDE/cache state — see "Folder vs. package name" below)
+
+## Folder vs. package name
+
+The local directory and GitHub repo still carry the old `LLMSmartphone` / `LLM-Smartphone-Companion` names. The *code* (Python package `caddie`, Android namespace `com.caddie`, app display name "Caddie") has been renamed. Don't confuse the two — when in doubt, the package name is canonical.
 
 ## Vault stub
 
 Strategic / cross-session docs live in the vault at:
-`C:\Users\Andreas\dev\Vault\01 Projects\LLMSmartphone\`
+`C:\Users\Andreas\dev\Vault\01 Projects\LLMSmartphone\` (vault folder name preserved for historical continuity)
 
 - `LLMSmartphone.md` — overview / dashboard
 - `log.md` — session-by-session narrative
@@ -26,15 +32,15 @@ Strategic / cross-session docs live in the vault at:
 
 Thesis exposé: `C:\Users\Andreas\dev\Vault\02 University\MasterExpose.pdf` (pre-registration draft).
 
-The repo's `docs/` (`accessibility_and_screen_experience.md`, `agent_orchestrator_and_skills_notes.md`, `mcp_smartphone_agent_research.md`) stays canonical for technical research notes.
+The repo's `docs/` (under `mcp-server/docs/`) stays canonical for technical research notes. The `dossier/`, `meeting-vorstellung.md`, and experiment logs there are intentionally in German for thesis-meeting prep — do not translate.
 
 ## Read order
 
 1. Vault overview: `Vault/01 Projects/LLMSmartphone/LLMSmartphone.md`
 2. Vault `log.md` for recent session context
 3. Vault `02 University/MasterExpose.pdf` if thesis-scope question
-4. Repo `docs/` for technical research
-5. Code via jCodemunch (Kotlin in `app/src/`, Python in `mcp-server/`)
+4. Repo `mcp-server/docs/` for technical research
+5. Code via jCodemunch (Kotlin in `app/src/`, Python in `mcp-server/caddie/`)
 
 ## Write boundary
 
@@ -43,11 +49,12 @@ The repo's `docs/` (`accessibility_and_screen_experience.md`, `agent_orchestrato
 - Vault overview, repo `docs/` files — additions only, no rewrites without ask
 - **Master exposé PDF** — never edit; if changes are needed, work from a fresh source
 - Code in `app/src/` and `mcp-server/` — edit normally as part of the task
+- German thesis-prep docs (dossier, meeting-vorstellung, experiment logs) — stay German
 
 After editing code, re-index: `mcp__jcodemunch__index_file { path: "<abs path>" }`.
 
 ## Conventions
 
-- Kotlin code in `app/` follows Android Studio defaults
-- MCP server Python uses requirements.txt (no pyproject.toml currently)
+- Kotlin code in `app/` follows Android Studio defaults; package root is `com.caddie`
+- MCP server Python uses requirements.txt (no pyproject.toml currently); package root is `caddie`
 - Accessibility-Service-related changes need manual on-device test (emulator via `mcp-server/start-emulator.bat`)

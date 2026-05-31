@@ -1,4 +1,4 @@
-package com.llm_smartphone_v2.agent;
+package com.caddie.agent;
 
 import static org.junit.Assert.assertEquals;
 

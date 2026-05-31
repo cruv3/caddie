@@ -4,11 +4,11 @@ from collections.abc import Sequence
 
 from fastmcp import FastMCP
 
-from llmsmartphone.agent import AgentHttpServer
-from llmsmartphone.agent.event_bus import RemoteEventBus
-from llmsmartphone.agent.prompt import build_mcp_instructions
-from llmsmartphone.context import ServerContext
-from llmsmartphone.tools import register_tools
+from caddie.agent import AgentHttpServer
+from caddie.agent.event_bus import RemoteEventBus
+from caddie.agent.prompt import build_mcp_instructions
+from caddie.context import ServerContext
+from caddie.tools import register_tools
 
 
 logging.basicConfig(level=logging.CRITICAL)

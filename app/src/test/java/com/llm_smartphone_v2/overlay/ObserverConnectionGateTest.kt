@@ -1,4 +1,4 @@
-package com.llm_smartphone_v2.overlay
+package com.caddie.overlay
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

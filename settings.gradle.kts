@@ -22,6 +22,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "LLM-Smartphone_V2"
+rootProject.name = "Caddie"
 include(":app")
  

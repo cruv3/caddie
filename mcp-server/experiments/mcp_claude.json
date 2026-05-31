@@ -1,9 +1,9 @@
 {
   "mcpServers": {
     "llm-smartphone": {
-      "command": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\.venv\\Scripts\\python.exe",
+      "command": "C:\\Users\\Andreas\\dev\\caddie\\mcp-server\\.venv\\Scripts\\python.exe",
       "args": ["server.py"],
-      "cwd": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server"
+      "cwd": "C:\\Users\\Andreas\\dev\\caddie\\mcp-server"
     }
   }
 }

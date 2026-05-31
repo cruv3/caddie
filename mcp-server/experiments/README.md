@@ -7,8 +7,8 @@ und `experiments/results/<trial_id>.json`.
 ## Voraussetzungen (vor dem Start manuell)
 
 1. **Phone verbunden** über HTTP-Bridge (Port 8765) oder ADB. Die `LLMSmartphone_V2`-App muss laufen und der AccessibilityService aktiv sein.
-2. **MCP-Server** läuft (LM Studio MCP-Integration `llmsmartphone` ist konfiguriert und aktiv).
-3. **/task-HTTP-Server** läuft auf Port 5000. Start: `python -m llmsmartphone.agent.http_api` aus `mcp-server/`.
+2. **MCP-Server** läuft (LM Studio MCP-Integration `caddie` ist konfiguriert und aktiv).
+3. **/task-HTTP-Server** läuft auf Port 5000. Start: `python -m caddie.agent.http_api` aus `mcp-server/`.
 4. **SSE-Owner** auf Port 8787 läuft (passiert automatisch, sobald der MCP-Server bootet).
 5. **`lms` CLI** im PATH (LM-Studio-Command-Line). Test: `lms --help`.
 6. **Test-Modelle** sind in LM Studio gedownloadet (Liste in `trial_matrix.yaml`).
@@ -18,7 +18,7 @@ und `experiments/results/<trial_id>.json`.
 
 ```powershell
 # Aus mcp-server/
-cd C:\Users\Andreas\dev\LLMSmartphone\mcp-server
+cd C:\Users\Andreas\dev\caddie\mcp-server
 . .venv\Scripts\Activate.ps1
 
 # Dry-Run: nur Plan anzeigen
