@@ -5,14 +5,20 @@
   aggressively rebinding the AS, which tore down our overlay window each
   cycle. typeWindowStateChanged + typeWindowContentChanged keep
   getRootInActiveWindow fresh for the agent's screen reads.
-  typeViewClicked|typeViewLongClicked were added for the knopflose
-  Intervention-Erkennung (Block 3) — discrete clicks only, low-frequency.
-  typeViewScrolled was tried too but is too noisy (list-settling after
-  navigation fires it without any human touch) — left out on purpose.
-  notificationTimeout=500 is also less aggressive than 100ms.
+
+  typeViewClicked|typeViewLongClicked catch discrete tap interventions.
+  typeTouchInteractionStart catches the moment a human finger lands on
+  the screen — fires for taps AND scrolls/swipes, but NOT for the
+  agent's own dispatchGesture() calls (the system suppresses these
+  events for programmatic gestures). This is what makes scrolling
+  pause the agent without false-positive pauses after the agent's own
+  swipes. (typeViewScrolled was tried earlier but too noisy because
+  list-settling fires it after navigation.)
+
+  notificationTimeout=500 is less aggressive than 100ms.
 -->
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
-    android:accessibilityEventTypes="typeWindowStateChanged|typeWindowContentChanged|typeViewClicked|typeViewLongClicked"
+    android:accessibilityEventTypes="typeWindowStateChanged|typeWindowContentChanged|typeViewClicked|typeViewLongClicked|typeTouchInteractionStart"
     android:accessibilityFeedbackType="feedbackGeneric"
     android:accessibilityFlags="flagReportViewIds|flagRetrieveInteractiveWindows"
     android:canPerformGestures="true"

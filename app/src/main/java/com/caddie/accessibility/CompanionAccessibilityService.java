@@ -106,18 +106,24 @@ public class CompanionAccessibilityService extends AccessibilityService {
         int type = event.getEventType();
         boolean interactive =
                 type == AccessibilityEvent.TYPE_VIEW_CLICKED
-                || type == AccessibilityEvent.TYPE_VIEW_LONG_CLICKED;
+                || type == AccessibilityEvent.TYPE_VIEW_LONG_CLICKED
+                || type == AccessibilityEvent.TYPE_TOUCH_INTERACTION_START;
         if (!interactive) {
             return;
         }
-        // Knopflose Intervention-Erkennung: ein Klick/Scroll waehrend eines
-        // laufenden Runs, der NICHT aus einer Agenten-Geste stammt, ist ein
-        // menschlicher Eingriff -> Agent pausieren.
+        // Knopflose Intervention-Erkennung: jede Interaktion waehrend eines
+        // laufenden Runs ist ein menschlicher Eingriff -> Agent pausieren.
+        // TYPE_TOUCH_INTERACTION_START feuert NICHT bei dispatchGesture(),
+        // also kein Self-Pause bei Agent-Swipes. Fuer TYPE_VIEW_CLICKED /
+        // _LONG_CLICKED filtern wir weiterhin per isAgentActive(), weil der
+        // Agent diese Events durch eigene Gesten ausloesen kann.
         boolean runActive = AgentActivityTracker.isRunLikelyActive();
         boolean agentActive = AgentActivityTracker.isAgentActive();
+        boolean fromTouchStart = type == AccessibilityEvent.TYPE_TOUCH_INTERACTION_START;
         android.util.Log.i("CompanionA11y", "interactive event type=" + type
-                + " runActive=" + runActive + " agentActive=" + agentActive);
-        if (runActive && !agentActive) {
+                + " runActive=" + runActive + " agentActive=" + agentActive
+                + " fromTouchStart=" + fromTouchStart);
+        if (runActive && (fromTouchStart || !agentActive)) {
             InterventionReporter.get().onHumanInteraction();
         }
     }

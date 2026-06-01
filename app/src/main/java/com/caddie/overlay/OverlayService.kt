@@ -234,7 +234,7 @@ class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegist
             }
             is ThoughtEvent.TaskPaused -> {
                 setState {
-                    it.copy(state = RunState.Paused, currentStepLabel = "pausiert – du bist dran")
+                    it.copy(state = RunState.Paused, currentStepLabel = "pausiert")
                 }
             }
             is ThoughtEvent.TaskResumed -> {
