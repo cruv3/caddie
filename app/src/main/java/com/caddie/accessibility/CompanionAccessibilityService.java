@@ -104,23 +104,32 @@ public class CompanionAccessibilityService extends AccessibilityService {
             return;
         }
         int type = event.getEventType();
+        // Diagnose: jedes ankommende Event loggen, damit wir sehen welche
+        // Typen ueberhaupt durchkommen. Wenn pausieren nicht feuert liegt's
+        // entweder an fehlender Subscription oder an einem Filter weiter unten.
+        android.util.Log.v("CompanionA11y", "event arrived type=" + type
+                + " (" + AccessibilityEvent.eventTypeToString(type) + ")"
+                + " pkg=" + event.getPackageName());
         boolean interactive =
                 type == AccessibilityEvent.TYPE_VIEW_CLICKED
                 || type == AccessibilityEvent.TYPE_VIEW_LONG_CLICKED
-                || type == AccessibilityEvent.TYPE_TOUCH_INTERACTION_START;
+                || type == AccessibilityEvent.TYPE_TOUCH_INTERACTION_START
+                || type == AccessibilityEvent.TYPE_VIEW_SCROLLED;
         if (!interactive) {
             return;
         }
-        // Knopflose Intervention-Erkennung: jede Interaktion waehrend eines
-        // laufenden Runs ist ein menschlicher Eingriff -> Agent pausieren.
-        // TYPE_TOUCH_INTERACTION_START feuert NICHT bei dispatchGesture(),
-        // also kein Self-Pause bei Agent-Swipes. Fuer TYPE_VIEW_CLICKED /
-        // _LONG_CLICKED filtern wir weiterhin per isAgentActive(), weil der
-        // Agent diese Events durch eigene Gesten ausloesen kann.
+        // Knopflose Intervention-Erkennung: Interaktionen waehrend eines
+        // laufenden Runs sind menschliche Eingriffe -> Agent pausieren.
+        // TYPE_TOUCH_INTERACTION_START feuert NICHT bei dispatchGesture()
+        // (sofern es ueberhaupt feuert — braucht teils Touch-Exploration).
+        // TYPE_VIEW_SCROLLED feuert leider auch beim Settling nach
+        // Agent-Swipes — daher Filter per isAgentActive(): Scroll-Events
+        // innerhalb des Agent-Aktiv-Fensters ignorieren.
         boolean runActive = AgentActivityTracker.isRunLikelyActive();
         boolean agentActive = AgentActivityTracker.isAgentActive();
         boolean fromTouchStart = type == AccessibilityEvent.TYPE_TOUCH_INTERACTION_START;
         android.util.Log.i("CompanionA11y", "interactive event type=" + type
+                + " (" + AccessibilityEvent.eventTypeToString(type) + ")"
                 + " runActive=" + runActive + " agentActive=" + agentActive
                 + " fromTouchStart=" + fromTouchStart);
         if (runActive && (fromTouchStart || !agentActive)) {

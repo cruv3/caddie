@@ -85,6 +85,7 @@ class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegist
         }
     }
 
+
     private fun startObserver() {
         // Always run on main thread to avoid races: previous EventSource
         // cancel + new EventSource creation must be atomic, otherwise
@@ -198,15 +199,23 @@ class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegist
                 //      active task label with "bereit".
             }
             is ThoughtEvent.TaskStarted -> {
+                // ADB-Backend bypasst die Phone-HTTP-Bridge, also feuert dort
+                // niemand markRunActivity(). Ohne diesen Marker ist
+                // isRunLikelyActive()==false und Touch-Interventions werden
+                // verworfen ("not during a run"). Daher hier explizit aus
+                // den SSE-Events den Run-Aktiv-Zustand mitfuehren.
+                AgentActivityTracker.markRunActivity()
                 setState { it.copy(state = RunState.Acting, currentStepLabel = "starte…") }
                 if (event.task.isNotBlank()) showEphemeralTop(event.task, isUser = true)
             }
             is ThoughtEvent.ToolCallStarted -> {
+                AgentActivityTracker.markRunActivity()
                 val args = parseArgs(event.argsSummary)
                 val label = ToolNarration.humanLabel(event.tool, args)
                 setState { it.copy(state = RunState.Acting, currentStepLabel = label) }
             }
             is ThoughtEvent.ToolCallFinished -> {
+                AgentActivityTracker.markRunActivity()
                 // Don't auto-hide between tool calls — the pill should stay
                 // visible for the duration of the LLM's task and only its
                 // text updates as new tools fire. We still schedule a
@@ -289,7 +298,43 @@ class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegist
 
     private fun setState(block: (OverlayUiState) -> OverlayUiState) {
         _state.update(block)
+        updateKeepScreenOn(_state.value.state)
     }
+
+    /**
+     * Hält den Bildschirm wach, solange das Pill etwas "Laufendes" zeigt.
+     * Active runstates: Listening, Thinking, Acting, Paused. Terminal/idle:
+     * Hidden, Done, Error → Bildschirm darf wieder auslaufen.
+     *
+     * Flag wird per FLAG_KEEP_SCREEN_ON auf der Overlay-Window-LayoutParams
+     * getoggelt — solange das Overlay angeheftet ist und das Flag gesetzt
+     * ist, hält Android den Bildschirm an, ohne dass wir eine separate
+     * WakeLock-Permission brauchen.
+     */
+    private var keepScreenOnActive = false
+    private fun updateKeepScreenOn(state: RunState) {
+        val shouldKeep = when (state) {
+            RunState.Listening, RunState.Thinking, RunState.Acting, RunState.Paused -> true
+            RunState.Hidden, RunState.Done, RunState.Error -> false
+        }
+        if (shouldKeep == keepScreenOnActive) return
+        keepScreenOnActive = shouldKeep
+        val wm = windowManager ?: return
+        val view = rootView ?: return
+        val params = layoutParams ?: return
+        params.flags = if (shouldKeep) {
+            params.flags or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+        } else {
+            params.flags and WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON.inv()
+        }
+        try {
+            wm.updateViewLayout(view, params)
+            Log.i(TAG, "FLAG_KEEP_SCREEN_ON -> $shouldKeep (state=$state)")
+        } catch (t: Throwable) {
+            Log.w(TAG, "updateViewLayout for keep-screen-on failed", t)
+        }
+    }
+
 
     private fun detachOverlay() {
         val wm = windowManager

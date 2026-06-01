@@ -7,10 +7,15 @@ from caddie.context import ServerContext
 
 def register_app_tools(mcp: FastMCP, context: ServerContext) -> None:
     @mcp.tool()
-    def smartphone_list_apps(include_system: bool = False) -> list[str]:
-        """List installed Android packages. By default only third-party apps are returned."""
+    def smartphone_list_apps(include_system: bool = False, why: str = "") -> list[str]:
+        """List installed Android packages. By default only third-party apps are returned.
+
+        Args:
+            include_system: If True, also include system packages.
+            why: Brief German reason shown live on the device overlay (max 80 chars).
+        """
         with publish_tool_call(
-            "smartphone_list_apps", bus=context.events, include_system=include_system
+            "smartphone_list_apps", bus=context.events, include_system=include_system, why=why
         ):
             return context.backend.list_apps(include_system=include_system)
 
