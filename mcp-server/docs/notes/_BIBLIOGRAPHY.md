@@ -1,8 +1,12 @@
 # Caddie Thesis — Bibliography Index
 
-**Total papers: 73** (target was ~60: average CS/HCI master thesis cites ~50, +25% buffer = 62; this corpus has comfortable headroom for pruning during writing).
+**Total papers: 84** (was 73; +11 prompt-engineering papers added 2026-06-01).
+
+Target was ~60 (average CS/HCI master thesis cites ~50, +25% buffer = 62). The corpus now has substantial headroom for pruning during writing.
 
 This index groups every paper in `notes/` by thesis role. When writing a chapter, start here, jump to the per-paper notes, and quote only from there (workflow rules: see `_README.md`).
+
+For an annotated "improvements" view focused on what Caddie can learn from these papers, see [`_IMPROVEMENTS.md`](_IMPROVEMENTS.md).
 
 ---
 
@@ -134,6 +138,22 @@ Empirical taxonomies of agentic failure.
 - [mast-multi-agent-failures](mast-multi-agent-failures.md) — **MAST taxonomy** (14 modes; task-verification cluster matches Caddie's gemma-4-e4b hallucination).
 - [training-verifiers](training-verifiers.md) — Generator/verifier asymmetry (Caddie's user is the verifier).
 
+## L. Prompt engineering (now actively used in Caddie's BASE_SYSTEM_PROMPT)
+
+Techniques applied or planned for Caddie's system prompt. See [`_IMPROVEMENTS.md`](_IMPROVEMENTS.md) §3 for the application checklist.
+
+- [lost-in-the-middle](lost-in-the-middle.md) — **APPLIED** — restructured prompt top/middle/bottom.
+- [constitutional-ai](constitutional-ai.md) — **APPLIED** — 6-line constitution block.
+- [indirect-prompt-injection](indirect-prompt-injection.md) — **APPLIED** — UNTRUSTED INPUT rule (security-critical).
+- [plan-and-solve](plan-and-solve.md) — **APPLIED** — Plan: block at session start.
+- [zero-shot-cot](zero-shot-cot.md) — **APPLIED** — "Let's think step by step" trigger.
+- [self-refine](self-refine.md) — Planned — pre-action critique for irreversible actions.
+- [self-consistency](self-consistency.md) — Planned — for high-stakes single-shot decisions.
+- [least-to-most](least-to-most.md) — Planned — decomposition for multi-app tasks.
+- [self-discover](self-discover.md) — Future work — structured JSON working memory.
+- [active-prompting](active-prompting.md) — Future work — failure-mode-log as exemplar source.
+- [prompt-report](prompt-report.md) — Survey reference for auditing the prompt against the 58-technique taxonomy.
+
 ---
 
 ## Cross-reference map (where each thesis chapter draws from)
@@ -145,11 +165,12 @@ Empirical taxonomies of agentic failure.
 | **3. Related Work — Mobile Agents** | G, parts of H |
 | **3. Related Work — Transparency/Trust HCI** | A + C |
 | **3. Related Work — Failure Modes** | B (hallucination cluster), K |
-| **4. Architecture (Caddie itself)** | D (ReAct), E (MCP), F (Qwen-VL, Set-of-Mark) |
+| **4. Architecture (Caddie itself)** | D (ReAct), E (MCP), F (Qwen-VL, Set-of-Mark), **L (prompt engineering)** |
+| **4. Security threat model** | L (indirect-prompt-injection) |
 | **5. Voice channel design** | J |
 | **6. Evaluation methodology** | I — choose 1–2 benchmarks |
-| **7. Discussion / Positioning** | G + A (continuum position B/A) |
-| **8. Future Work** | E (sub-skill rubric), I (broader benchmarks), K (formal verifiers) |
+| **7. Discussion / Positioning** | G + A (continuum position B/A), `_IMPROVEMENTS.md` |
+| **8. Future Work** | E (sub-skill rubric), I (broader benchmarks), K (formal verifiers), L (unapplied prompt techniques) |
 
 ---
 
@@ -167,3 +188,10 @@ If you're starting from zero on the thesis topic, read in this order to build th
 8. **VLAA-GUI** → architectural sibling for failure-mode handling.
 
 That's 8 papers to land the thesis's argument. Everything else in the bibliography supports specific paragraphs.
+
+For the *Architecture* and *Future Work* chapters add:
+
+9. **Lost in the Middle (Liu et al. TACL 2024)** → why Caddie's prompt is structured top/middle/bottom.
+10. **Constitutional AI (Bai et al. 2022)** → why the prompt contains an explicit constitution.
+11. **Greshake et al. AISec '23** → why the prompt has an UNTRUSTED INPUT rule (security).
+12. **Plan-and-Solve (Wang et al. ACL 2023)** → why the prompt requires a Plan: block.
