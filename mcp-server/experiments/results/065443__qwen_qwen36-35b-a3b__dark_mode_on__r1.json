@@ -1,0 +1,148 @@
+{
+  "trial_id": "065443__qwen_qwen36-35b-a3b__dark_mode_on__r1",
+  "timestamp_utc": "2026-06-02T04:58:06.482413Z",
+  "model": "qwen/qwen3.6-35b-a3b",
+  "task": "dark_mode_on",
+  "run": 1,
+  "outcome": "done",
+  "timing": {
+    "load": 41.43,
+    "reset": 1.85,
+    "task": 197.17,
+    "total": 202.73
+  },
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\065443__qwen_qwen36-35b-a3b__dark_mode_on__r1.png",
+  "lmstudio_response": {
+    "ok": false,
+    "active_skills": [
+      "display.dark_mode_on_settings"
+    ],
+    "follow_up_context": false,
+    "lmstudio": {
+      "ok": false,
+      "outcome": "error",
+      "tool_calls": 3,
+      "turns": 4,
+      "final_text": "",
+      "error": "{\"error\":\"Model unloaded.\"}",
+      "vision_unsupported": false
+    },
+    "_http_status": 502
+  },
+  "events": [
+    {
+      "type": "task_paused",
+      "ts": 1780376084.803543,
+      "_received_at": 1540367.3945245
+    },
+    {
+      "type": "task_started",
+      "ts": 1780376087.6040971,
+      "task": "schalte den dark mode an",
+      "_received_at": 1540370.1951758
+    },
+    {
+      "type": "task_resumed",
+      "ts": 1780376088.8928573,
+      "_received_at": 1540371.4840354
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780376117.9355438,
+      "tool": "smartphone_done",
+      "args": {
+        "message": "Dark mode ist aktiviert."
+      },
+      "_received_at": 1540400.52622
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780376117.9356232,
+      "ok": true,
+      "payload": {
+        "message": "Dark mode ist aktiviert."
+      },
+      "_received_at": 1540400.5262733
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780376117.935647,
+      "tool": "smartphone_done",
+      "_received_at": 1540400.5264737
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780376117.9363258,
+      "ok": true,
+      "payload": {
+        "active_skills": [
+          "display.dark_mode_on_settings"
+        ]
+      },
+      "_received_at": 1540400.5271579
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780376129.7480857,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.settings",
+        "why": "Öffne die Einstellungen"
+      },
+      "_received_at": 1540412.3386787
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780376136.7373724,
+      "tool": "smartphone_open_app",
+      "_received_at": 1540419.3280036
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780376162.239058,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Suche nach Display & Touch"
+      },
+      "_received_at": 1540444.829718
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780376164.3529406,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1540446.9435553
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780376265.741685,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 392,
+        "y": 1997,
+        "why": "Tippe auf Display & Touch"
+      },
+      "_received_at": 1540548.3322825
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780376272.2713807,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 1540554.8620034
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780376284.704959,
+      "ok": false,
+      "payload": {
+        "active_skills": [
+          "display.dark_mode_on_settings"
+        ],
+        "error": "{\"error\":\"Model unloaded.\"}",
+        "message": "{\"error\":\"Model unloaded.\"}",
+        "outcome": "error"
+      },
+      "_received_at": 1540567.296426
+    }
+  ]
+}

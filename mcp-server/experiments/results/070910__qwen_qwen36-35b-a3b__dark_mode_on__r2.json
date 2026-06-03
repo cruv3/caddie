@@ -1,0 +1,188 @@
+{
+  "trial_id": "070910__qwen_qwen36-35b-a3b__dark_mode_on__r2",
+  "timestamp_utc": "2026-06-02T05:14:05.806079Z",
+  "model": "qwen/qwen3.6-35b-a3b",
+  "task": "dark_mode_on",
+  "run": 2,
+  "outcome": "done",
+  "timing": {
+    "load": 0.0,
+    "reset": 2.24,
+    "task": 289.72,
+    "total": 295.64
+  },
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\070910__qwen_qwen36-35b-a3b__dark_mode_on__r2.png",
+  "lmstudio_response": {
+    "ok": true,
+    "active_skills": [
+      "display.dark_mode_on_settings"
+    ],
+    "follow_up_context": false,
+    "lmstudio": {
+      "ok": true,
+      "outcome": "done",
+      "tool_calls": 8,
+      "turns": 7,
+      "final_text": "",
+      "error": null,
+      "vision_unsupported": false
+    }
+  },
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1780376954.4157805,
+      "task": "schalte den dark mode an",
+      "_received_at": 1541237.0066346
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780376963.3227336,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.settings",
+        "why": "Öffne die Einstellungen"
+      },
+      "_received_at": 1541245.9133161
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780376970.4323177,
+      "tool": "smartphone_open_app",
+      "_received_at": 1541253.0232409
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780376998.2587788,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Suche nach Display-Einstellungen"
+      },
+      "_received_at": 1541280.8493669
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780377000.364118,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1541282.9546897
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780377000.3667035,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Suche nach Display-Einstellungen"
+      },
+      "_received_at": 1541282.9572317
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780377002.4558775,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1541285.0469811
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780377083.845265,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 392,
+        "y": 1997,
+        "why": "Tippe auf Display & touch"
+      },
+      "_received_at": 1541366.4358665
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780377090.3092508,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 1541372.8998202
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780377097.4488888,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Suche nach Dark theme Toggle"
+      },
+      "_received_at": 1541380.0394967
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780377099.526151,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1541382.1167282
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780377148.7429996,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 969,
+        "y": 1738,
+        "why": "Aktiviere Dark theme"
+      },
+      "_received_at": 1541431.3335827
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780377155.2729816,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 1541437.8636126
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780377167.684166,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Verifiziere Dark theme Toggle"
+      },
+      "_received_at": 1541450.2747507
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780377169.7838867,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1541452.3744811
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780377243.9479964,
+      "tool": "smartphone_done",
+      "args": {
+        "message": "Dunkles Design ist aktiviert."
+      },
+      "_received_at": 1541526.5385776
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780377243.9480119,
+      "ok": true,
+      "payload": {
+        "message": "Dunkles Design ist aktiviert."
+      },
+      "_received_at": 1541526.5386785
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780377243.9480152,
+      "tool": "smartphone_done",
+      "_received_at": 1541526.5387915
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780377243.948617,
+      "ok": true,
+      "payload": {
+        "active_skills": [
+          "display.dark_mode_on_settings"
+        ]
+      },
+      "_received_at": 1541526.5393443
+    }
+  ]
+}

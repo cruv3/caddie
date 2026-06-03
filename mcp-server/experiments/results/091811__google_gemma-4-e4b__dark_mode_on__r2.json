@@ -1,0 +1,215 @@
+{
+  "trial_id": "091811__google_gemma-4-e4b__dark_mode_on__r2",
+  "timestamp_utc": "2026-06-01T07:19:23.602417Z",
+  "model": "google/gemma-4-e4b",
+  "task": "dark_mode_on",
+  "run": 2,
+  "outcome": "failed",
+  "timing": {
+    "load": 0.0,
+    "reset": 3.82,
+    "task": 64.04,
+    "total": 72.47
+  },
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\091811__google_gemma-4-e4b__dark_mode_on__r2.png",
+  "lmstudio_response": {
+    "ok": false,
+    "active_skills": [
+      "display.dark_mode_on_settings"
+    ],
+    "follow_up_context": false,
+    "lmstudio": {
+      "ok": false,
+      "outcome": "failed",
+      "tool_calls": 9,
+      "turns": 9,
+      "final_text": "",
+      "error": null,
+      "vision_unsupported": false
+    },
+    "_http_status": 502
+  },
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1780298296.966688,
+      "task": "schalte den dark mode an",
+      "_received_at": 1462577.8152689
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780298299.321505,
+      "tool": "smartphone_get_skill_display_dark_mode_on_settings",
+      "args": {
+        "skill_id": "display.dark_mode_on_settings"
+      },
+      "_received_at": 1462580.1698541
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780298299.321572,
+      "tool": "smartphone_get_skill_display_dark_mode_on_settings",
+      "_received_at": 1462580.1698984
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780298300.8570085,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.settings",
+        "why": "Ich öffne die Einstellungen-App, um zum Display-Menü zu gelangen."
+      },
+      "_received_at": 1462581.7053011
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780298311.4451964,
+      "tool": "smartphone_open_app",
+      "_received_at": 1462592.29351
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780298312.963934,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich schaue mir die Elemente in den Einstellungen an, um 'Anzeige' oder 'Display' zu finden."
+      },
+      "_received_at": 1462593.8122322
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780298316.3665159,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1462597.2148185
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780298319.4398434,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 2300,
+        "end_x": 540,
+        "end_y": 100,
+        "duration_ms": 300,
+        "why": "Ich scrolle nach oben, um die vollständige Liste der Einstellungen zu sehen."
+      },
+      "_received_at": 1462600.2881422
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780298326.7875128,
+      "tool": "smartphone_swipe",
+      "_received_at": 1462607.6358059
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780298329.4595032,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich liste die Elemente in den Einstellungen auf, um 'Anzeige' oder 'Display' zu finden."
+      },
+      "_received_at": 1462610.3078011
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780298332.3075292,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1462613.1560957
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780298334.3469515,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 2300,
+        "end_x": 540,
+        "end_y": 100,
+        "duration_ms": 300,
+        "why": "Ich scrolle erneut nach oben, um die Einstellungen zu durchsuchen und 'Anzeige' zu finden."
+      },
+      "_received_at": 1462615.1952535
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780298341.1813443,
+      "tool": "smartphone_swipe",
+      "_received_at": 1462622.0296595
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780298343.4106622,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 2300,
+        "end_x": 540,
+        "end_y": 100,
+        "duration_ms": 300,
+        "why": "Ich scrolle ein letztes Mal nach oben, um die Einstellungen zu durchsuchen und 'Anzeige' oder 'Display' zu finden."
+      },
+      "_received_at": 1462624.258972
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780298350.4399226,
+      "tool": "smartphone_swipe",
+      "_received_at": 1462631.2882845
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780298354.0753362,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich liste die Elemente in den Einstellungen erneut auf, um 'Anzeige' oder 'Display' zu finden."
+      },
+      "_received_at": 1462634.9236496
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780298357.1945114,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1462638.0430415
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780298360.9429817,
+      "tool": "smartphone_failed",
+      "args": {
+        "reason": "Ich kann das Menü \"Anzeige\" nicht finden, da die Elementliste nur System-UI-Komponenten anzeigt und keine Einstellungsoptionen."
+      },
+      "_received_at": 1462641.7912699
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780298360.9429958,
+      "ok": false,
+      "payload": {
+        "message": "Ich kann das Menü \"Anzeige\" nicht finden, da die Elementliste nur System-UI-Komponenten anzeigt und keine Einstellungsoptionen."
+      },
+      "_received_at": 1462641.791292
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780298360.9429991,
+      "tool": "smartphone_failed",
+      "_received_at": 1462641.7915221
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780298360.9435523,
+      "ok": false,
+      "payload": {
+        "active_skills": [
+          "display.dark_mode_on_settings"
+        ],
+        "outcome": "failed"
+      },
+      "_received_at": 1462641.7918802
+    }
+  ]
+}

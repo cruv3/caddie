@@ -1,0 +1,510 @@
+{
+  "trial_id": "111455__google_gemma-4-e4b__brightness_set_50__r1",
+  "timestamp_utc": "2026-06-02T09:18:16.239748Z",
+  "model": "google/gemma-4-e4b",
+  "task": "brightness_set_50",
+  "run": 1,
+  "outcome": "failed",
+  "timing": {
+    "load": 0.0,
+    "reset": 1.51,
+    "task": 195.76,
+    "total": 201.02
+  },
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\111455__google_gemma-4-e4b__brightness_set_50__r1.png",
+  "lmstudio_response": {
+    "ok": true,
+    "active_skills": [
+      "display.brightness_50_settings",
+      "display.brightness_50_settings_display_touch"
+    ],
+    "follow_up_context": false,
+    "lmstudio": {
+      "ok": true,
+      "outcome": "done",
+      "tool_calls": 24,
+      "turns": 24,
+      "final_text": "",
+      "error": null,
+      "vision_unsupported": false
+    }
+  },
+  "events": [
+    {
+      "type": "verification_result",
+      "ts": 1780391698.0326083,
+      "ok": false,
+      "payload": {
+        "reason": "The screenshot shows a notification confirming the brightness was set to 50%, but it does not display the actual settings panel or brightness slider visibly set at 50%."
+      },
+      "_received_at": 9916.9242714
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780391698.0326436,
+      "ok": false,
+      "payload": {
+        "active_skills": [
+          "display.brightness_50_settings",
+          "display.brightness_50_settings_display_touch"
+        ],
+        "outcome": "verify_failed"
+      },
+      "_received_at": 9916.9242795
+    },
+    {
+      "type": "task_started",
+      "ts": 1780391698.749891,
+      "task": "stelle die helligkeit auf 50 prozent",
+      "_received_at": 9917.6416852
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780391700.6519647,
+      "tool": "smartphone_get_skill_display_brightness_50_settings_display_touch",
+      "args": {
+        "skill_id": "display.brightness_50_settings_display_touch"
+      },
+      "_received_at": 9919.5435764
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780391700.651979,
+      "tool": "smartphone_get_skill_display_brightness_50_settings_display_touch",
+      "_received_at": 9919.5435953
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780391702.361942,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.settings",
+        "why": "Ich öffne die Einstellungen, um zum Helligkeitsregler zu gelangen."
+      },
+      "_received_at": 9921.253441
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780391709.3132067,
+      "tool": "smartphone_open_app",
+      "_received_at": 9928.2049416
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780391711.0959275,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich schaue mir die Elemente in den Einstellungen an, um zu 'Display' zu navigieren."
+      },
+      "_received_at": 9929.9874301
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780391713.1990404,
+      "tool": "smartphone_list_elements",
+      "_received_at": 9932.0905464
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780391715.336385,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 20,
+        "why": "Ich liste die Hauptelemente der Einstellungen auf, um den Bereich \"Anzeige\" zu finden."
+      },
+      "_received_at": 9934.2280176
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780391717.4438424,
+      "tool": "smartphone_list_elements",
+      "_received_at": 9936.3353627
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780391721.5651476,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 50,
+        "why": "Ich liste die Elemente erneut auf, um den Hauptmenüpunkt \"Anzeige\" zu finden und diesen anzutippen."
+      },
+      "_received_at": 9940.4567733
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780391723.647488,
+      "tool": "smartphone_list_elements",
+      "_received_at": 9942.5392964
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780391729.6757102,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 540,
+        "y": 1212,
+        "why": "Ich tippe auf den Hauptinhaltsbereich, um die eigentlichen Einstellungen zu sehen und nicht nur die Suchergebnisse."
+      },
+      "_received_at": 9948.5672239
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780391736.1887157,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 9955.0802732
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780391739.424399,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 50,
+        "why": "Ich liste die Elemente erneut auf, um das Hauptmenü der Einstellungen zu sehen und den Punkt 'Anzeige' zu finden."
+      },
+      "_received_at": 9958.3158935
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780391741.5141716,
+      "tool": "smartphone_list_elements",
+      "_received_at": 9960.405707
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780391744.8592188,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 50,
+        "why": "Ich liste die Elemente erneut auf, um das Hauptmenü der Einstellungen zu sehen und den Punkt 'Anzeige' zu finden."
+      },
+      "_received_at": 9963.7507349
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780391746.9915214,
+      "tool": "smartphone_list_elements",
+      "_received_at": 9965.8830754
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780391752.1181016,
+      "tool": "smartphone_type_text",
+      "args": {
+        "text": "Anzeige",
+        "submit": true,
+        "why": "Ich suche nach 'Anzeige' in den Einstellungen, um zum richtigen Menü zu gelangen."
+      },
+      "_received_at": 9971.009723
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780391758.8894653,
+      "tool": "smartphone_type_text",
+      "_received_at": 9977.7810377
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780391762.4717705,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 50,
+        "why": "Ich liste die Elemente auf, um den Menüpunkt Anzeige zu finden."
+      },
+      "_received_at": 9981.3632651
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780391764.5983632,
+      "tool": "smartphone_list_elements",
+      "_received_at": 9983.4899121
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780391769.3567488,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 2300,
+        "end_x": 540,
+        "end_y": 120,
+        "duration_ms": 300,
+        "why": "Ich scrolle nach oben, um die eigentlichen Einstellungsoptionen zu sehen."
+      },
+      "_received_at": 9988.2490792
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780391776.1294067,
+      "tool": "smartphone_swipe",
+      "_received_at": 9995.0209242
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780391780.2237039,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 50,
+        "why": "Ich liste die Elemente erneut auf, um den Hauptmenüpunkt \"Anzeige\" zu finden und darauf zu tippen."
+      },
+      "_received_at": 9999.1152506
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780391782.363306,
+      "tool": "smartphone_list_elements",
+      "_received_at": 10001.2548166
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780391785.0651433,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 50,
+        "why": "Ich liste die Elemente erneut auf, um den Menüpunkt 'Anzeige' oder 'Display' zu finden."
+      },
+      "_received_at": 10003.9567349
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780391787.157874,
+      "tool": "smartphone_list_elements",
+      "_received_at": 10006.0494645
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780391790.678122,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 540,
+        "y": 1212,
+        "why": "Ich tippe auf den Hauptinhaltsbereich erneut, um die Suchansicht zu verlassen und zur Hauptmenüliste zurückzukehren."
+      },
+      "_received_at": 10009.5696403
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780391797.1188958,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 10016.0104294
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780391802.8260467,
+      "tool": "smartphone_press_button",
+      "args": {
+        "button": "BACK",
+        "why": "Ich drücke den Zurück-Button, um die Suchansicht zu verlassen und zur Hauptmenüliste zurückzukehren."
+      },
+      "_received_at": 10021.7175557
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780391807.9075282,
+      "tool": "smartphone_press_button",
+      "_received_at": 10026.7990877
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780391810.6067858,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 50,
+        "why": "Ich liste die Elemente erneut auf, um den Menüpunkt 'Anzeige' oder 'Display' zu finden und darauf zu tippen."
+      },
+      "_received_at": 10029.4983024
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780391812.7190144,
+      "tool": "smartphone_list_elements",
+      "_received_at": 10031.6105111
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780391821.843875,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 1800,
+        "end_x": 540,
+        "end_y": 200,
+        "duration_ms": 300,
+        "why": "Ich scrolle nach oben, um alle verfügbaren Einstellungsoptionen zu sehen und 'Anzeige' zu finden."
+      },
+      "_received_at": 10040.7361479
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780391828.908885,
+      "tool": "smartphone_swipe",
+      "_received_at": 10047.8004537
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780391834.2059557,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 200,
+        "end_x": 540,
+        "end_y": 100,
+        "duration_ms": 300,
+        "why": "Ich scrolle weiter nach oben, um den Menüpunkt 'Anzeige' oder 'Display' zu finden."
+      },
+      "_received_at": 10053.0974824
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780391841.1147327,
+      "tool": "smartphone_swipe",
+      "_received_at": 10060.0062417
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780391846.1095743,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 540,
+        "y": 300,
+        "why": "Ich tippe in den Bereich der Einstellungen, wo normalerweise 'Anzeige' zu finden ist, um das Menü zu öffnen."
+      },
+      "_received_at": 10065.001228
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780391851.2765496,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 10070.1682656
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780391855.7739763,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 200,
+        "end_x": 540,
+        "end_y": 1800,
+        "duration_ms": 300,
+        "why": "Ich scrolle nach unten, um den Menüpunkt 'Anzeige' oder 'Display' zu finden."
+      },
+      "_received_at": 10074.6656314
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780391862.5154305,
+      "tool": "smartphone_swipe",
+      "_received_at": 10081.4069968
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780391864.3469222,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 50,
+        "why": "Ich liste die Elemente erneut auf, um den Menüpunkt 'Anzeige' oder 'Display' zu finden und darauf zu tippen."
+      },
+      "_received_at": 10083.2384993
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780391866.4777484,
+      "tool": "smartphone_list_elements",
+      "_received_at": 10085.369251
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780391872.7245998,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 540,
+        "y": 1057,
+        "why": "Ich tippe auf 'Display & touch', um zu den Einstellungen für die Bildschirmhelligkeit zu gelangen."
+      },
+      "_received_at": 10091.6160874
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780391879.4580917,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 10098.3496517
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780391886.0102115,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 50,
+        "why": "Ich suche nun gezielt nach dem Helligkeitsregler oder einem Menüpunkt mit 'Helligkeit' oder 'Brightness'."
+      },
+      "_received_at": 10104.9016883
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780391888.131989,
+      "tool": "smartphone_list_elements",
+      "_received_at": 10107.0235184
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780391892.971968,
+      "tool": "smartphone_done",
+      "args": {
+        "message": "Die Helligkeit ist auf 50 % eingestellt."
+      },
+      "_received_at": 10111.8638476
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780391892.9719834,
+      "ok": true,
+      "payload": {
+        "message": "Die Helligkeit ist auf 50 % eingestellt."
+      },
+      "_received_at": 10111.8638813
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780391892.9719868,
+      "tool": "smartphone_done",
+      "_received_at": 10111.8639188
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780391892.9733398,
+      "tool": "smartphone_take_screenshot",
+      "args": {
+        "why": ""
+      },
+      "_received_at": 10111.8647993
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780391893.2834334,
+      "tool": "smartphone_take_screenshot",
+      "_received_at": 10112.1749455
+    },
+    {
+      "type": "verification_result",
+      "ts": 1780391894.1189415,
+      "ok": true,
+      "payload": {
+        "reason": "The brightness level is explicitly shown as 50%."
+      },
+      "_received_at": 10113.0107568
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780391894.1190224,
+      "ok": true,
+      "payload": {
+        "active_skills": [
+          "display.brightness_50_settings",
+          "display.brightness_50_settings_display_touch"
+        ]
+      },
+      "_received_at": 10113.0108502
+    }
+  ]
+}

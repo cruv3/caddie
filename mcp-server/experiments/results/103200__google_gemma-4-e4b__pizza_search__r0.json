@@ -1,0 +1,110 @@
+{
+  "trial_id": "103200__google_gemma-4-e4b__pizza_search__r0",
+  "timestamp_utc": "2026-06-02T08:32:53.455648Z",
+  "model": "google/gemma-4-e4b",
+  "task": "pizza_search",
+  "run": 0,
+  "outcome": "done",
+  "timing": {
+    "load": 6.07,
+    "reset": 1.44,
+    "task": 47.54,
+    "total": 52.84
+  },
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\103200__google_gemma-4-e4b__pizza_search__r0.png",
+  "lmstudio_response": {
+    "ok": true,
+    "active_skills": [],
+    "follow_up_context": false,
+    "lmstudio": {
+      "ok": true,
+      "outcome": "stopped",
+      "tool_calls": 7,
+      "turns": 8,
+      "final_text": "Ich habe nach Pizza-Restaurants in Ihrer Nähe gesucht.",
+      "error": null,
+      "vision_unsupported": false
+    }
+  },
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1780389124.0792103,
+      "task": "suche im browser ein pizza-restaurant in der nähe",
+      "_received_at": 7342.9710183
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780389142.093196,
+      "tool": "smartphone_open_url",
+      "args": {
+        "url": "https://www.google.com/search?q=pizza+restaurant+in+der+nähe",
+        "why": "Ich öffne den Browser und suche nach einem Pizza-Restaurant in meiner Nähe."
+      },
+      "_received_at": 7360.9848983
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780389153.7343547,
+      "tool": "smartphone_open_url",
+      "_received_at": 7372.6259281
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780389156.1328442,
+      "tool": "smartphone_done",
+      "args": {
+        "message": "Ich habe nach Pizza-Restaurants in Ihrer Nähe gesucht."
+      },
+      "_received_at": 7375.0243379
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780389156.1328583,
+      "ok": true,
+      "payload": {
+        "message": "Ich habe nach Pizza-Restaurants in Ihrer Nähe gesucht."
+      },
+      "_received_at": 7375.0245882
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780389156.1328614,
+      "tool": "smartphone_done",
+      "_received_at": 7375.0246969
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780389156.13432,
+      "tool": "smartphone_take_screenshot",
+      "args": {
+        "why": ""
+      },
+      "_received_at": 7375.0258019
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780389156.555637,
+      "tool": "smartphone_take_screenshot",
+      "_received_at": 7375.4471444
+    },
+    {
+      "type": "verification_result",
+      "ts": 1780389161.0604553,
+      "ok": false,
+      "payload": {
+        "reason": "The screen shows a search query and local suggestions ('Orte'), but it does not show a completed browser search result page or a detailed profile for a found restaurant, making the task of 'searching'"
+      },
+      "_received_at": 7379.9522623
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780389171.1732213,
+      "ok": true,
+      "payload": {
+        "active_skills": []
+      },
+      "_received_at": 7390.0647946
+    }
+  ]
+}

@@ -1,0 +1,291 @@
+{
+  "trial_id": "091611__google_gemma-4-e4b__dark_mode_on__r1",
+  "timestamp_utc": "2026-06-01T07:18:11.133366Z",
+  "model": "google/gemma-4-e4b",
+  "task": "dark_mode_on",
+  "run": 1,
+  "outcome": "failed",
+  "timing": {
+    "load": 0.0,
+    "reset": 3.58,
+    "task": 111.57,
+    "total": 119.81
+  },
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\091611__google_gemma-4-e4b__dark_mode_on__r1.png",
+  "lmstudio_response": {
+    "ok": false,
+    "active_skills": [
+      "display.dark_mode_on_settings"
+    ],
+    "follow_up_context": false,
+    "lmstudio": {
+      "ok": false,
+      "outcome": "failed",
+      "tool_calls": 13,
+      "turns": 13,
+      "final_text": "",
+      "error": null,
+      "vision_unsupported": false
+    },
+    "_http_status": 502
+  },
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1780298176.9168792,
+      "task": "schalte den dark mode an",
+      "_received_at": 1462457.7654732
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780298179.4394186,
+      "tool": "smartphone_get_skill_display_dark_mode_on_settings",
+      "args": {
+        "skill_id": "display.dark_mode_on_settings"
+      },
+      "_received_at": 1462460.2877374
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780298179.439433,
+      "tool": "smartphone_get_skill_display_dark_mode_on_settings",
+      "_received_at": 1462460.2877783
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780298181.0732434,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.settings",
+        "why": "Ich öffne die Einstellungen-App, um zu Dark Mode zu navigieren."
+      },
+      "_received_at": 1462461.9215047
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780298191.3057635,
+      "tool": "smartphone_open_app",
+      "_received_at": 1462472.1540626
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780298193.816225,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich suche nach dem Menüpunkt \"Anzeige\" oder \"Display\", um zu den Einstellungen für das Dark Mode zu gelangen."
+      },
+      "_received_at": 1462474.6645272
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780298197.2553806,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1462478.1036892
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780298199.9219992,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 2300,
+        "end_x": 540,
+        "end_y": 100,
+        "duration_ms": 300,
+        "why": "Ich scrolle nach oben, um die Einstellungen zu durchsuchen und den Punkt \"Anzeige\" zu finden."
+      },
+      "_received_at": 1462480.7703314
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780298207.0189064,
+      "tool": "smartphone_swipe",
+      "_received_at": 1462487.8672488
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780298209.2740052,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich liste die sichtbaren Einstellungsmenüpunkte auf, um 'Display' oder 'Anzeige' zu finden."
+      },
+      "_received_at": 1462490.1222732
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780298212.5265157,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1462493.3748177
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780298215.9410279,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 2300,
+        "end_x": 540,
+        "end_y": 100,
+        "duration_ms": 300,
+        "why": "Ich scrolle erneut nach oben, um die Hauptkategorien der Einstellungen zu sehen und 'Anzeige' zu finden."
+      },
+      "_received_at": 1462496.789332
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780298222.9791813,
+      "tool": "smartphone_swipe",
+      "_received_at": 1462503.8275021
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780298226.2525983,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 2300,
+        "end_x": 540,
+        "end_y": 100,
+        "duration_ms": 300,
+        "why": "Ich scrolle ein drittes Mal nach oben, um die Hauptkategorien der Einstellungen zu sehen und 'Anzeige' oder 'Display' zu finden."
+      },
+      "_received_at": 1462507.1009064
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780298233.9587069,
+      "tool": "smartphone_swipe",
+      "_received_at": 1462514.807057
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780298238.2487247,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 2300,
+        "end_x": 540,
+        "end_y": 100,
+        "duration_ms": 300,
+        "why": "Ich scrolle ein viertes Mal nach oben, um die Einstellungsoptionen zu durchsuchen und den Punkt \"Anzeige\" zu finden."
+      },
+      "_received_at": 1462519.0970395
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780298245.9438605,
+      "tool": "smartphone_swipe",
+      "_received_at": 1462526.7925729
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780298250.123507,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 2300,
+        "end_x": 540,
+        "end_y": 100,
+        "duration_ms": 300,
+        "why": "Ich scrolle ein fünftes Mal nach oben, um die Einstellungsoptionen zu durchsuchen und den Punkt \"Anzeige\" zu finden."
+      },
+      "_received_at": 1462530.9718069
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780298257.0374498,
+      "tool": "smartphone_swipe",
+      "_received_at": 1462537.8857973
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780298261.1523838,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 20,
+        "why": "Ich liste die sichtbaren Elemente erneut auf, um einen anklickbaren Menüpunkt wie \"Anzeige\" oder \"Display\" zu finden."
+      },
+      "_received_at": 1462542.0006739
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780298264.4210289,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1462545.2693522
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780298268.326744,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 2300,
+        "end_x": 540,
+        "end_y": 100,
+        "duration_ms": 300,
+        "why": "Ich scrolle ein letztes Mal nach oben, um sicherzustellen, dass ich die Hauptkategorien der Einstellungen sehe."
+      },
+      "_received_at": 1462549.175066
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780298275.1844833,
+      "tool": "smartphone_swipe",
+      "_received_at": 1462556.0328736
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780298279.995258,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 20,
+        "why": "Ich liste die sichtbaren Elemente ein letztes Mal auf, um einen anklickbaren Menüpunkt wie \"Anzeige\" oder \"Display\" zu finden."
+      },
+      "_received_at": 1462560.8435539
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780298283.7383742,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1462564.586664
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780298288.2850342,
+      "tool": "smartphone_failed",
+      "args": {
+        "reason": "Ich kann den Menüpunkt \"Anzeige\" oder \"Display & touch\" in den Einstellungen nicht finden, um Dark Mode zu aktivieren."
+      },
+      "_received_at": 1462569.1333369
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780298288.2850473,
+      "ok": false,
+      "payload": {
+        "message": "Ich kann den Menüpunkt \"Anzeige\" oder \"Display & touch\" in den Einstellungen nicht finden, um Dark Mode zu aktivieren."
+      },
+      "_received_at": 1462569.1333558
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780298288.2850506,
+      "tool": "smartphone_failed",
+      "_received_at": 1462569.1334286
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780298288.2856395,
+      "ok": false,
+      "payload": {
+        "active_skills": [
+          "display.dark_mode_on_settings"
+        ],
+        "outcome": "failed"
+      },
+      "_received_at": 1462569.1340189
+    }
+  ]
+}

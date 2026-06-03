@@ -181,7 +181,8 @@ def _handler_factory(
                 return
 
             matched = context.skills.match(task)
-            system_prompt = build_system_prompt(matched)
+            criterion = payload.get("criterion")
+            system_prompt = build_system_prompt(matched, criterion)
             # Folge-Auftrag kurz nach "fertig" (z.B. "nimm ein anderes
             # Restaurant"): den zuletzt beendeten Run als Kontext mitgeben,
             # damit die Korrektur Bezug hat. Nur wenn er frisch genug ist.
@@ -196,6 +197,7 @@ def _handler_factory(
                     authorization=self.headers.get("Authorization"),
                     model=model_override,
                     prior=prior,
+                    criterion=criterion,
                 )
             finally:
                 _finished_payload: dict = {"active_skills": [s.id for s in matched]}
@@ -242,7 +244,8 @@ def _handler_factory(
                 return
 
             matched = context.skills.match(task)
-            system_prompt = build_system_prompt(matched)
+            criterion = payload.get("criterion")
+            system_prompt = build_system_prompt(matched, criterion)
             authorization = self.headers.get("Authorization")
             active_skill_ids = [skill.id for skill in matched]
 
@@ -265,6 +268,7 @@ def _handler_factory(
                             task=task,
                             system_prompt=system_prompt,
                             authorization=authorization,
+                            criterion=criterion,
                         )
                     except Exception as exc:
                         lmstudio_result = {"ok": False, "error": f"{type(exc).__name__}: {exc}"}

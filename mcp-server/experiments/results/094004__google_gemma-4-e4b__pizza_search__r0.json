@@ -1,0 +1,171 @@
+{
+  "trial_id": "094004__google_gemma-4-e4b__pizza_search__r0",
+  "timestamp_utc": "2026-06-01T07:41:13.861912Z",
+  "model": "google/gemma-4-e4b",
+  "task": "pizza_search",
+  "run": 0,
+  "outcome": "done",
+  "timing": {
+    "load": 0.0,
+    "reset": 3.19,
+    "task": 62.04,
+    "total": 69.73
+  },
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\094004__google_gemma-4-e4b__pizza_search__r0.png",
+  "lmstudio_response": {
+    "ok": true,
+    "active_skills": [],
+    "follow_up_context": false,
+    "lmstudio": {
+      "ok": true,
+      "outcome": "done",
+      "tool_calls": 9,
+      "turns": 9,
+      "final_text": "",
+      "error": null,
+      "vision_unsupported": false
+    }
+  },
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1780299609.3347037,
+      "task": "suche im browser ein pizza-restaurant in der nähe",
+      "_received_at": 1463890.1834569
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780299618.3101132,
+      "tool": "smartphone_open_url",
+      "args": {
+        "url": "https://www.google.com/search?q=pizza+restaurant+in+der+nähe",
+        "why": "Ich suche nach einem Pizza-Restaurant in meiner Nähe bei Google."
+      },
+      "_received_at": 1463899.1584084
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780299631.8049047,
+      "tool": "smartphone_open_url",
+      "_received_at": 1463912.6532371
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780299633.6873515,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 50,
+        "why": "Ich schaue mir die Suchergebnisse an, um ein Restaurant zu finden."
+      },
+      "_received_at": 1463914.535646
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780299637.0120444,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1463917.860401
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780299639.0421028,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 50,
+        "why": "Ich suche nach interaktiven Elementen wie einer Karte oder einem direkten Eintrag für Restaurants."
+      },
+      "_received_at": 1463919.8903891
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780299641.9449618,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1463922.7932434
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780299645.630772,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 540,
+        "y": 800,
+        "why": "Ich tippe auf die Suchergebnisse, um eine Karte oder einen direkten Eintrag zu öffnen."
+      },
+      "_received_at": 1463926.4790751
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780299652.70523,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 1463933.5535644
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780299656.246709,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 50,
+        "why": "Ich überprüfe den Bildschirm nach sichtbaren Restaurantnamen oder Kartenkontrollen."
+      },
+      "_received_at": 1463937.094968
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780299659.2261698,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1463940.0744723
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780299661.8178236,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 2300,
+        "end_x": 540,
+        "end_y": 100,
+        "duration_ms": 300,
+        "why": "Ich scrolle nach oben, um mehr Suchergebnisse zu sehen."
+      },
+      "_received_at": 1463942.6661263
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780299669.0223484,
+      "tool": "smartphone_swipe",
+      "_received_at": 1463949.8706649
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780299671.234356,
+      "tool": "smartphone_done",
+      "args": {
+        "message": "Ich habe die Suche nach einem Pizza-Restaurant in Ihrer Nähe durchgeführt."
+      },
+      "_received_at": 1463952.0827239
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780299671.2343693,
+      "ok": true,
+      "payload": {
+        "message": "Ich habe die Suche nach einem Pizza-Restaurant in Ihrer Nähe durchgeführt."
+      },
+      "_received_at": 1463952.0829093
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780299671.2343724,
+      "tool": "smartphone_done",
+      "_received_at": 1463952.0829227
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780299671.2349358,
+      "ok": true,
+      "payload": {
+        "active_skills": []
+      },
+      "_received_at": 1463952.0832453
+    }
+  ]
+}

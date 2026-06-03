@@ -293,3 +293,332 @@ subprocess.TimeoutExpired: Command '['adb', 'shell', 'input', 'keyevent', 'KEYCO
 [2026-05-16 12:05:49] TRIAL [14/14] 120549__qwen_qwen36-35b-a3b__pizza_search__r1
 [2026-05-16 12:09:01]   DONE outcome=done tools=8 task_time=187.6s
 [2026-05-16 12:09:03] FINISHED 14 trials in 66.8 min
+[2026-06-01 09:13:21] START matrix: 1 models × 6 tasks × 3 runs = 18 trials
+[2026-06-01 09:13:21] MODEL-LOAD google/gemma-4-e4b
+[2026-06-01 09:13:21]   loaded in 0.0s
+[2026-06-01 09:13:21] TRIAL [1/18] 091321__google_gemma-4-e4b__dark_mode_on__r0
+[2026-06-01 09:16:11]   DONE outcome=failed tools=20 task_time=161.1s
+[2026-06-01 09:16:11] TRIAL [2/18] 091611__google_gemma-4-e4b__dark_mode_on__r1
+[2026-06-01 09:18:11]   DONE outcome=failed tools=13 task_time=111.6s
+[2026-06-01 09:18:11] TRIAL [3/18] 091811__google_gemma-4-e4b__dark_mode_on__r2
+[2026-06-01 09:19:23]   DONE outcome=failed tools=9 task_time=64.0s
+[2026-06-01 09:19:23] TRIAL [4/18] 091923__google_gemma-4-e4b__dark_mode_off__r0
+[2026-06-01 09:23:17]   DONE outcome=failed tools=25 task_time=225.6s
+[2026-06-01 09:23:17] TRIAL [5/18] 092317__google_gemma-4-e4b__dark_mode_off__r1
+[2026-06-01 09:25:28]   DONE outcome=failed tools=16 task_time=123.6s
+[2026-06-01 09:25:28] TRIAL [6/18] 092528__google_gemma-4-e4b__dark_mode_off__r2
+[2026-06-01 09:26:55]   DONE outcome=failed tools=11 task_time=78.6s
+[2026-06-01 09:26:55] TRIAL [7/18] 092655__google_gemma-4-e4b__bluetooth_toggle_on__r0
+[2026-06-01 09:28:36]   DONE outcome=done tools=12 task_time=93.1s
+[2026-06-01 09:28:36] TRIAL [8/18] 092836__google_gemma-4-e4b__bluetooth_toggle_on__r1
+[2026-06-01 09:30:05]   DONE outcome=done tools=12 task_time=80.6s
+[2026-06-01 09:30:05] TRIAL [9/18] 093005__google_gemma-4-e4b__bluetooth_toggle_on__r2
+[2026-06-01 09:31:41]   DONE outcome=done tools=13 task_time=88.1s
+[2026-06-01 09:31:41] TRIAL [10/18] 093141__google_gemma-4-e4b__brightness_set_50__r0
+[2026-06-01 09:33:10]   DONE outcome=done tools=11 task_time=81.1s
+[2026-06-01 09:33:10] TRIAL [11/18] 093310__google_gemma-4-e4b__brightness_set_50__r1
+[2026-06-01 09:34:20]   DONE outcome=done tools=9 task_time=61.5s
+[2026-06-01 09:34:20] TRIAL [12/18] 093420__google_gemma-4-e4b__brightness_set_50__r2
+[2026-06-01 09:36:13]   DONE outcome=failed tools=14 task_time=104.6s
+[2026-06-01 09:36:13] TRIAL [13/18] 093613__google_gemma-4-e4b__timer_set_5min__r0
+[2026-06-01 09:37:35]   DONE outcome=done tools=11 task_time=74.5s
+[2026-06-01 09:37:35] TRIAL [14/18] 093735__google_gemma-4-e4b__timer_set_5min__r1
+[2026-06-01 09:38:47]   DONE outcome=done tools=9 task_time=64.5s
+[2026-06-01 09:38:47] TRIAL [15/18] 093847__google_gemma-4-e4b__timer_set_5min__r2
+[2026-06-01 09:40:04]   DONE outcome=done tools=10 task_time=69.0s
+[2026-06-01 09:40:04] TRIAL [16/18] 094004__google_gemma-4-e4b__pizza_search__r0
+[2026-06-01 09:41:13]   DONE outcome=done tools=7 task_time=62.0s
+[2026-06-01 09:41:13] TRIAL [17/18] 094113__google_gemma-4-e4b__pizza_search__r1
+[2026-06-01 09:41:39]   DONE outcome=done tools=2 task_time=17.0s
+[2026-06-01 09:41:39] TRIAL [18/18] 094139__google_gemma-4-e4b__pizza_search__r2
+[2026-06-01 09:42:12]   DONE outcome=done tools=2 task_time=24.5s
+[2026-06-01 09:42:14] FINISHED 18 trials in 28.9 min
+[2026-06-01 13:02:08] START matrix: 1 models × 6 tasks × 3 runs = 18 trials
+[2026-06-01 13:02:08] MODEL-LOAD google/gemma-4-e4b
+[2026-06-01 13:02:08]   loaded in 0.0s
+[2026-06-01 13:02:08] TRIAL [1/18] 130208__google_gemma-4-e4b__dark_mode_on__r0
+[2026-06-01 13:04:31]   DONE outcome=failed tools=15 task_time=135.1s
+[2026-06-01 13:04:31] TRIAL [2/18] 130431__google_gemma-4-e4b__dark_mode_on__r1
+[2026-06-01 13:08:19]   DONE outcome=failed tools=21 task_time=211.6s
+[2026-06-01 13:08:19] TRIAL [3/18] 130819__google_gemma-4-e4b__dark_mode_on__r2
+[2026-06-01 13:10:14]   DONE outcome=done tools=11 task_time=106.6s
+[2026-06-01 13:10:14] TRIAL [4/18] 131014__google_gemma-4-e4b__dark_mode_off__r0
+[2026-06-01 13:11:38]   DONE outcome=failed tools=10 task_time=76.5s
+[2026-06-01 13:11:38] TRIAL [5/18] 131138__google_gemma-4-e4b__dark_mode_off__r1
+[2026-06-01 13:14:55]   DONE outcome=failed tools=20 task_time=189.6s
+[2026-06-01 13:14:55] TRIAL [6/18] 131455__google_gemma-4-e4b__dark_mode_off__r2
+[2026-06-01 13:16:38]   DONE outcome=failed tools=11 task_time=95.1s
+[2026-06-01 13:16:38] TRIAL [7/18] 131638__google_gemma-4-e4b__bluetooth_toggle_on__r0
+[2026-06-01 13:18:33]   DONE outcome=done tools=10 task_time=98.1s
+[2026-06-01 13:18:33] TRIAL [8/18] 131833__google_gemma-4-e4b__bluetooth_toggle_on__r1
+[2026-06-01 13:20:22]   DONE outcome=done tools=10 task_time=92.6s
+[2026-06-01 13:20:22] TRIAL [9/18] 132022__google_gemma-4-e4b__bluetooth_toggle_on__r2
+[2026-06-01 13:22:16]   DONE outcome=done tools=10 task_time=98.1s
+[2026-06-01 13:22:16] TRIAL [10/18] 132216__google_gemma-4-e4b__brightness_set_50__r0
+[2026-06-01 13:24:50]   DONE outcome=failed tools=16 task_time=147.1s
+[2026-06-01 13:24:50] TRIAL [11/18] 132450__google_gemma-4-e4b__brightness_set_50__r1
+[2026-06-01 13:28:53]   ABORT-LOOP: > 25 tool calls
+[2026-06-01 13:28:56]   DONE outcome=fail_loop tools=26 task_time=237.7s
+[2026-06-01 13:28:56] TRIAL [12/18] 132856__google_gemma-4-e4b__brightness_set_50__r2
+[2026-06-01 13:31:00]   DONE outcome=done tools=12 task_time=107.6s
+[2026-06-01 13:31:00] TRIAL [13/18] 133100__google_gemma-4-e4b__timer_set_5min__r0
+[2026-06-01 13:32:41]   DONE outcome=done tools=12 task_time=94.1s
+[2026-06-01 13:32:41] TRIAL [14/18] 133241__google_gemma-4-e4b__timer_set_5min__r1
+[2026-06-01 13:34:10]   DONE outcome=done tools=10 task_time=81.6s
+[2026-06-01 13:34:10] TRIAL [15/18] 133410__google_gemma-4-e4b__timer_set_5min__r2
+[2026-06-01 13:36:01]   DONE outcome=done tools=13 task_time=103.1s
+[2026-06-01 13:36:01] TRIAL [16/18] 133601__google_gemma-4-e4b__pizza_search__r0
+[2026-06-01 13:36:47]   DONE outcome=done tools=2 task_time=29.5s
+[2026-06-01 13:36:47] TRIAL [17/18] 133647__google_gemma-4-e4b__pizza_search__r1
+[2026-06-01 13:38:39]   DONE outcome=done tools=8 task_time=95.6s
+[2026-06-01 13:38:39] TRIAL [18/18] 133839__google_gemma-4-e4b__pizza_search__r2
+[2026-06-01 13:39:12]   DONE outcome=done tools=2 task_time=19.5s
+[2026-06-01 13:39:13] FINISHED 18 trials in 37.1 min
+[2026-06-02 06:00:35] START matrix: 1 models × 6 tasks × 3 runs = 18 trials
+[2026-06-02 06:00:35] MODEL-LOAD google/gemma-4-e4b
+[2026-06-02 06:01:01]   loaded in 26.2s
+[2026-06-02 06:01:01] TRIAL [1/18] 060101__google_gemma-4-e4b__dark_mode_on__r0
+[2026-06-02 06:01:08]   DONE outcome=failed tools=0 task_time=0.5s
+[2026-06-02 06:01:08] TRIAL [2/18] 060108__google_gemma-4-e4b__dark_mode_on__r1
+[2026-06-02 06:01:14]   DONE outcome=failed tools=0 task_time=0.5s
+[2026-06-02 06:01:14] TRIAL [3/18] 060114__google_gemma-4-e4b__dark_mode_on__r2
+[2026-06-02 06:01:20]   DONE outcome=failed tools=0 task_time=0.5s
+[2026-06-02 06:01:20] TRIAL [4/18] 060120__google_gemma-4-e4b__dark_mode_off__r0
+[2026-06-02 06:01:26]   DONE outcome=failed tools=0 task_time=0.5s
+[2026-06-02 06:01:26] TRIAL [5/18] 060126__google_gemma-4-e4b__dark_mode_off__r1
+[2026-06-02 06:01:32]   DONE outcome=failed tools=0 task_time=0.5s
+[2026-06-02 06:01:32] TRIAL [6/18] 060132__google_gemma-4-e4b__dark_mode_off__r2
+[2026-06-02 06:01:37]   DONE outcome=failed tools=0 task_time=0.5s
+[2026-06-02 06:01:37] TRIAL [7/18] 060137__google_gemma-4-e4b__bluetooth_toggle_on__r0
+[2026-06-02 06:01:43]   DONE outcome=failed tools=0 task_time=0.5s
+[2026-06-02 06:01:43] TRIAL [8/18] 060143__google_gemma-4-e4b__bluetooth_toggle_on__r1
+[2026-06-02 06:01:49]   DONE outcome=failed tools=0 task_time=0.5s
+[2026-06-02 06:01:49] TRIAL [9/18] 060149__google_gemma-4-e4b__bluetooth_toggle_on__r2
+[2026-06-02 06:02:33] START matrix: 1 models × 6 tasks × 3 runs = 18 trials
+[2026-06-02 06:02:33] MODEL-LOAD google/gemma-4-e4b
+[2026-06-02 06:02:38]   loaded in 4.1s
+[2026-06-02 06:02:38] TRIAL [1/18] 060238__google_gemma-4-e4b__dark_mode_on__r0
+[2026-06-02 06:06:08]   ABORT-LOOP: > 25 tool calls
+[2026-06-02 06:06:10]   DONE outcome=fail_loop tools=26 task_time=207.2s
+[2026-06-02 06:06:10] TRIAL [2/18] 060610__google_gemma-4-e4b__dark_mode_on__r1
+[2026-06-02 06:07:21]   DONE outcome=failed tools=10 task_time=66.0s
+[2026-06-02 06:07:21] TRIAL [3/18] 060721__google_gemma-4-e4b__dark_mode_on__r2
+[2026-06-02 06:08:43]   DONE outcome=done tools=10 task_time=76.6s
+[2026-06-02 06:08:43] TRIAL [4/18] 060843__google_gemma-4-e4b__dark_mode_off__r0
+[2026-06-02 06:09:56]   DONE outcome=done tools=9 task_time=68.0s
+[2026-06-02 06:09:56] TRIAL [5/18] 060956__google_gemma-4-e4b__dark_mode_off__r1
+[2026-06-02 06:11:16]   DONE outcome=failed tools=11 task_time=74.0s
+[2026-06-02 06:11:16] TRIAL [6/18] 061116__google_gemma-4-e4b__dark_mode_off__r2
+[2026-06-02 06:14:53]   ABORT-LOOP: > 25 tool calls
+[2026-06-02 06:14:55]   DONE outcome=fail_loop tools=26 task_time=213.7s
+[2026-06-02 06:14:55] TRIAL [7/18] 061455__google_gemma-4-e4b__bluetooth_toggle_on__r0
+[2026-06-02 06:16:26]   DONE outcome=failed tools=15 task_time=85.1s
+[2026-06-02 06:16:26] TRIAL [8/18] 061626__google_gemma-4-e4b__bluetooth_toggle_on__r1
+[2026-06-02 06:17:21]   DONE outcome=done tools=7 task_time=49.6s
+[2026-06-02 06:17:21] TRIAL [9/18] 061721__google_gemma-4-e4b__bluetooth_toggle_on__r2
+[2026-06-02 06:17:48]   DONE outcome=done tools=3 task_time=21.5s
+[2026-06-02 06:17:48] TRIAL [10/18] 061748__google_gemma-4-e4b__brightness_set_50__r0
+[2026-06-02 06:19:11]   DONE outcome=done tools=11 task_time=78.1s
+[2026-06-02 06:19:11] TRIAL [11/18] 061911__google_gemma-4-e4b__brightness_set_50__r1
+[2026-06-02 06:19:43]   DONE outcome=done tools=4 task_time=26.0s
+[2026-06-02 06:19:43] TRIAL [12/18] 061943__google_gemma-4-e4b__brightness_set_50__r2
+[2026-06-02 06:20:55]   DONE outcome=failed tools=10 task_time=67.0s
+[2026-06-02 06:20:55] TRIAL [13/18] 062055__google_gemma-4-e4b__timer_set_5min__r0
+[2026-06-02 06:22:02]   DONE outcome=done tools=10 task_time=61.6s
+[2026-06-02 06:22:02] TRIAL [14/18] 062202__google_gemma-4-e4b__timer_set_5min__r1
+[2026-06-02 06:23:15]   DONE outcome=done tools=10 task_time=67.1s
+[2026-06-02 06:23:15] TRIAL [15/18] 062315__google_gemma-4-e4b__timer_set_5min__r2
+[2026-06-02 06:24:25]   DONE outcome=done tools=10 task_time=64.6s
+[2026-06-02 06:24:25] TRIAL [16/18] 062425__google_gemma-4-e4b__pizza_search__r0
+[2026-06-02 06:26:00]   DONE outcome=failed tools=8 task_time=90.6s
+[2026-06-02 06:26:00] TRIAL [17/18] 062600__google_gemma-4-e4b__pizza_search__r1
+[2026-06-02 06:26:29]   DONE outcome=done tools=3 task_time=22.5s
+[2026-06-02 06:26:29] TRIAL [18/18] 062629__google_gemma-4-e4b__pizza_search__r2
+[2026-06-02 06:26:57]   DONE outcome=done tools=3 task_time=22.5s
+[2026-06-02 06:26:59] FINISHED 18 trials in 24.4 min
+[2026-06-02 06:31:22] START matrix: 1 models × 6 tasks × 3 runs = 18 trials
+[2026-06-02 06:31:22] MODEL-LOAD qwen/qwen3.6-35b-a3b
+[2026-06-02 06:31:56]   loaded in 34.3s
+[2026-06-02 06:31:56] TRIAL [1/18] 063156__qwen_qwen36-35b-a3b__dark_mode_on__r0
+[2026-06-02 06:37:04]   TIMEOUT /task >300s
+[2026-06-02 06:37:11]   DONE outcome=timeout tools=4 task_time=300.3s
+[2026-06-02 06:37:11] TRIAL [2/18] 063711__qwen_qwen36-35b-a3b__dark_mode_on__r1
+[2026-06-02 06:40:15]   ERROR /task crash: Remote end closed connection without response
+[2026-06-02 06:40:18]   DONE outcome=failed tools=0 task_time=180.1s
+[2026-06-02 06:40:18] TRIAL [3/18] 064018__qwen_qwen36-35b-a3b__dark_mode_on__r2
+[2026-06-02 06:45:21]   TIMEOUT /task >300s
+[2026-06-02 06:45:28]   DONE outcome=timeout tools=4 task_time=300.2s
+[2026-06-02 06:45:28] TRIAL [4/18] 064528__qwen_qwen36-35b-a3b__dark_mode_off__r0
+[2026-06-02 06:48:50] START matrix: 1 models × 6 tasks × 3 runs = 18 trials
+[2026-06-02 06:48:50] MODEL-LOAD qwen/qwen3.6-35b-a3b
+[2026-06-02 06:49:32]   loaded in 41.4s
+[2026-06-02 06:49:32] TRIAL [1/18] 064932__qwen_qwen36-35b-a3b__dark_mode_on__r0
+[2026-06-02 06:54:36]   TIMEOUT /task >300s
+[2026-06-02 06:54:43]   DONE outcome=timeout tools=6 task_time=300.2s
+[2026-06-02 06:54:43] TRIAL [2/18] 065443__qwen_qwen36-35b-a3b__dark_mode_on__r1
+[2026-06-02 06:58:06]   DONE outcome=done tools=4 task_time=197.2s
+[2026-06-02 06:58:06] TRIAL [3/18] 065806__qwen_qwen36-35b-a3b__dark_mode_on__r2
+[2026-06-02 06:58:12]   DONE outcome=failed tools=0 task_time=0.5s
+[2026-06-02 06:58:12] TRIAL [4/18] 065812__qwen_qwen36-35b-a3b__dark_mode_off__r0
+[2026-06-02 06:58:18]   DONE outcome=failed tools=0 task_time=0.5s
+[2026-06-02 06:58:18] TRIAL [5/18] 065818__qwen_qwen36-35b-a3b__dark_mode_off__r1
+[2026-06-02 06:58:24]   DONE outcome=failed tools=0 task_time=0.5s
+[2026-06-02 06:58:24] TRIAL [6/18] 065824__qwen_qwen36-35b-a3b__dark_mode_off__r2
+[2026-06-02 06:58:30]   DONE outcome=failed tools=0 task_time=0.5s
+[2026-06-02 06:58:30] TRIAL [7/18] 065830__qwen_qwen36-35b-a3b__bluetooth_toggle_on__r0
+[2026-06-02 06:58:36]   DONE outcome=failed tools=0 task_time=0.5s
+[2026-06-02 06:58:36] TRIAL [8/18] 065836__qwen_qwen36-35b-a3b__bluetooth_toggle_on__r1
+[2026-06-02 06:58:42]   DONE outcome=failed tools=0 task_time=0.5s
+[2026-06-02 06:58:42] TRIAL [9/18] 065842__qwen_qwen36-35b-a3b__bluetooth_toggle_on__r2
+[2026-06-02 06:58:48]   DONE outcome=failed tools=0 task_time=0.5s
+[2026-06-02 06:58:48] TRIAL [10/18] 065848__qwen_qwen36-35b-a3b__brightness_set_50__r0
+[2026-06-02 07:02:45] START matrix: 1 models × 6 tasks × 3 runs = 18 trials
+[2026-06-02 07:02:45] MODEL-LOAD qwen/qwen3.6-35b-a3b
+[2026-06-02 07:02:45]   loaded in 0.0s
+[2026-06-02 07:02:45] TRIAL [1/18] 070245__qwen_qwen36-35b-a3b__dark_mode_on__r0
+[2026-06-02 07:06:25]   DONE outcome=done tools=8 task_time=214.2s
+[2026-06-02 07:06:25] TRIAL [2/18] 070625__qwen_qwen36-35b-a3b__dark_mode_on__r1
+[2026-06-02 07:09:10]   DONE outcome=done tools=5 task_time=159.1s
+[2026-06-02 07:09:10] TRIAL [3/18] 070910__qwen_qwen36-35b-a3b__dark_mode_on__r2
+[2026-06-02 07:14:05]   DONE outcome=done tools=8 task_time=289.7s
+[2026-06-02 07:14:05] TRIAL [4/18] 071405__qwen_qwen36-35b-a3b__dark_mode_off__r0
+[2026-06-02 07:18:41]   DONE outcome=done tools=7 task_time=270.7s
+[2026-06-02 07:18:41] TRIAL [5/18] 071841__qwen_qwen36-35b-a3b__dark_mode_off__r1
+[2026-06-02 07:24:55]   ERROR /task crash: Remote end closed connection without response
+[2026-06-02 07:24:57]   DONE outcome=failed tools=5 task_time=370.4s
+[2026-06-02 07:24:57] TRIAL [6/18] 072457__qwen_qwen36-35b-a3b__dark_mode_off__r2
+[2026-06-02 07:31:29]   ERROR /task crash: Remote end closed connection without response
+[2026-06-02 07:31:31]   DONE outcome=failed tools=5 task_time=387.9s
+[2026-06-02 07:31:31] TRIAL [7/18] 073131__qwen_qwen36-35b-a3b__bluetooth_toggle_on__r0
+[2026-06-02 07:41:36]   TIMEOUT /task >600s
+[2026-06-02 07:41:42]   DONE outcome=timeout tools=13 task_time=600.5s
+[2026-06-02 07:41:42] TRIAL [8/18] 074142__qwen_qwen36-35b-a3b__bluetooth_toggle_on__r1
+[2026-06-02 07:51:46]   TIMEOUT /task >600s
+[2026-06-02 07:51:48]   DONE outcome=failed tools=12 task_time=600.0s
+[2026-06-02 07:51:48] TRIAL [9/18] 075148__qwen_qwen36-35b-a3b__bluetooth_toggle_on__r2
+[2026-06-02 08:01:52]   TIMEOUT /task >600s
+[2026-06-02 08:01:59]   DONE outcome=timeout tools=20 task_time=600.1s
+[2026-06-02 08:01:59] TRIAL [10/18] 080159__qwen_qwen36-35b-a3b__brightness_set_50__r0
+[2026-06-02 08:05:03]   ERROR /task crash: Remote end closed connection without response
+[2026-06-02 08:05:06]   DONE outcome=failed tools=2 task_time=180.2s
+[2026-06-02 08:05:06] TRIAL [11/18] 080506__qwen_qwen36-35b-a3b__brightness_set_50__r1
+[2026-06-02 08:08:11]   ERROR /task crash: Remote end closed connection without response
+[2026-06-02 08:08:12]   DONE outcome=failed tools=2 task_time=180.2s
+[2026-06-02 08:08:12] TRIAL [12/18] 080812__qwen_qwen36-35b-a3b__brightness_set_50__r2
+[2026-06-02 08:15:10]   DONE outcome=failed tools=9 task_time=412.4s
+[2026-06-02 08:15:10] TRIAL [13/18] 081510__qwen_qwen36-35b-a3b__timer_set_5min__r0
+[2026-06-02 08:18:14]   ERROR /task crash: Remote end closed connection without response
+[2026-06-02 08:18:17]   DONE outcome=failed tools=0 task_time=180.2s
+[2026-06-02 08:18:17] TRIAL [14/18] 081817__qwen_qwen36-35b-a3b__timer_set_5min__r1
+[2026-06-02 08:21:20]   ERROR /task crash: Remote end closed connection without response
+[2026-06-02 08:21:23]   DONE outcome=failed tools=0 task_time=180.2s
+[2026-06-02 08:21:23] TRIAL [15/18] 082123__qwen_qwen36-35b-a3b__timer_set_5min__r2
+[2026-06-02 08:37:35] START matrix: 1 models × 6 tasks × 3 runs = 18 trials
+[2026-06-02 08:37:35] MODEL-LOAD qwen/qwen3.6-35b-a3b
+[2026-06-02 08:37:35]   loaded in 0.0s
+[2026-06-02 08:37:35] TRIAL [1/18] 083735__qwen_qwen36-35b-a3b__dark_mode_on__r0
+[2026-06-02 08:40:38]   ERROR /task crash: Remote end closed connection without response
+[2026-06-02 08:40:41]   DONE outcome=failed tools=0 task_time=180.2s
+[2026-06-02 08:40:41] TRIAL [2/18] 084041__qwen_qwen36-35b-a3b__dark_mode_on__r1
+[2026-06-02 08:43:52] START matrix: 1 models × 6 tasks × 3 runs = 18 trials
+[2026-06-02 08:43:52] MODEL-LOAD qwen/qwen3.6-35b-a3b
+[2026-06-02 08:43:52]   loaded in 0.0s
+[2026-06-02 08:43:52] TRIAL [1/18] 084352__qwen_qwen36-35b-a3b__dark_mode_on__r0
+[2026-06-02 08:51:39]   DONE outcome=done tools=6 task_time=461.8s
+[2026-06-02 08:51:39] TRIAL [2/18] 085139__qwen_qwen36-35b-a3b__dark_mode_on__r1
+[2026-06-02 09:01:43]   TIMEOUT /task >600s
+[2026-06-02 09:01:49]   DONE outcome=timeout tools=8 task_time=600.5s
+[2026-06-02 09:01:49] TRIAL [3/18] 090149__qwen_qwen36-35b-a3b__dark_mode_on__r2
+[2026-06-02 09:08:55] START matrix: 1 models × 6 tasks × 3 runs = 18 trials
+[2026-06-02 09:08:55] MODEL-LOAD qwen/qwen3.6-35b-a3b
+[2026-06-02 09:08:55]   loaded in 0.0s
+[2026-06-02 09:08:55] TRIAL [1/18] 090855__qwen_qwen36-35b-a3b__dark_mode_on__r0
+[2026-06-02 09:29:53] START matrix: 1 models × 6 tasks × 3 runs = 18 trials
+[2026-06-02 09:29:53] MODEL-LOAD qwen/qwen3.6-35b-a3b
+[2026-06-02 09:29:53]   loaded in 0.0s
+[2026-06-02 09:29:53] TRIAL [1/18] 092953__qwen_qwen36-35b-a3b__dark_mode_on__r0
+[2026-06-02 09:51:00] START matrix: 1 models × 6 tasks × 3 runs = 18 trials
+[2026-06-02 09:51:00] MODEL-LOAD google/gemma-4-e4b
+[2026-06-02 09:51:06]   loaded in 6.1s
+[2026-06-02 09:51:06] TRIAL [1/18] 095106__google_gemma-4-e4b__dark_mode_on__r0
+[2026-06-02 09:57:25]   ABORT-LOOP: > 25 tool calls
+[2026-06-02 09:57:27]   DONE outcome=fail_loop tools=26 task_time=375.9s
+[2026-06-02 09:57:27] TRIAL [2/18] 095727__google_gemma-4-e4b__dark_mode_on__r1
+[2026-06-02 09:59:29]   DONE outcome=done tools=10 task_time=117.1s
+[2026-06-02 09:59:29] TRIAL [3/18] 095929__google_gemma-4-e4b__dark_mode_on__r2
+[2026-06-02 10:00:20]   DONE outcome=done tools=4 task_time=43.2s
+[2026-06-02 10:00:20] TRIAL [4/18] 100020__google_gemma-4-e4b__dark_mode_off__r0
+[2026-06-02 10:02:56]   DONE outcome=failed tools=11 task_time=150.6s
+[2026-06-02 10:02:56] TRIAL [5/18] 100256__google_gemma-4-e4b__dark_mode_off__r1
+[2026-06-02 10:05:42]   DONE outcome=failed tools=13 task_time=160.6s
+[2026-06-02 10:05:42] TRIAL [6/18] 100542__google_gemma-4-e4b__dark_mode_off__r2
+[2026-06-02 10:09:32]   DONE outcome=failed tools=17 task_time=224.2s
+[2026-06-02 10:09:32] TRIAL [7/18] 100932__google_gemma-4-e4b__bluetooth_toggle_on__r0
+[2026-06-02 10:11:45]   DONE outcome=done tools=17 task_time=127.6s
+[2026-06-02 10:11:45] TRIAL [8/18] 101145__google_gemma-4-e4b__bluetooth_toggle_on__r1
+[2026-06-02 10:13:51]   DONE outcome=done tools=16 task_time=121.1s
+[2026-06-02 10:13:51] TRIAL [9/18] 101351__google_gemma-4-e4b__bluetooth_toggle_on__r2
+[2026-06-02 10:16:10]   DONE outcome=done tools=17 task_time=134.1s
+[2026-06-02 10:16:10] TRIAL [10/18] 101610__google_gemma-4-e4b__brightness_set_50__r0
+[2026-06-02 10:18:36]   DONE outcome=failed tools=17 task_time=140.7s
+[2026-06-02 10:18:36] TRIAL [11/18] 101836__google_gemma-4-e4b__brightness_set_50__r1
+[2026-06-02 10:21:34]   DONE outcome=done tools=25 task_time=172.6s
+[2026-06-02 10:21:34] TRIAL [12/18] 102134__google_gemma-4-e4b__brightness_set_50__r2
+[2026-06-02 10:25:07]   ABORT-LOOP: > 25 tool calls
+[2026-06-02 10:25:09]   DONE outcome=fail_loop tools=26 task_time=210.2s
+[2026-06-02 10:25:09] TRIAL [13/18] 102509__google_gemma-4-e4b__timer_set_5min__r0
+[2026-06-02 10:26:43]   DONE outcome=done tools=12 task_time=88.6s
+[2026-06-02 10:26:43] TRIAL [14/18] 102643__google_gemma-4-e4b__timer_set_5min__r1
+[2026-06-02 10:28:54]   DONE outcome=done tools=9 task_time=125.6s
+[2026-06-02 10:28:54] TRIAL [15/18] 102854__google_gemma-4-e4b__timer_set_5min__r2
+[2026-06-02 10:32:00]   DONE outcome=done tools=11 task_time=181.1s
+[2026-06-02 10:32:00] TRIAL [16/18] 103200__google_gemma-4-e4b__pizza_search__r0
+[2026-06-02 10:32:53]   DONE outcome=done tools=3 task_time=47.5s
+[2026-06-02 10:32:53] TRIAL [17/18] 103253__google_gemma-4-e4b__pizza_search__r1
+[2026-06-02 10:33:30]   DONE outcome=done tools=5 task_time=31.5s
+[2026-06-02 10:33:30] TRIAL [18/18] 103330__google_gemma-4-e4b__pizza_search__r2
+[2026-06-02 10:34:25]   DONE outcome=done tools=8 task_time=49.5s
+[2026-06-02 10:34:27] FINISHED 18 trials in 43.5 min
+[2026-06-02 10:54:16] START matrix: 1 models × 6 tasks × 3 runs = 18 trials
+[2026-06-02 10:54:16] MODEL-LOAD google/gemma-4-e4b
+[2026-06-02 10:54:16]   loaded in 0.0s
+[2026-06-02 10:54:16] TRIAL [1/18] 105416__google_gemma-4-e4b__dark_mode_on__r0
+[2026-06-02 10:55:36]   DONE outcome=done tools=7 task_time=74.6s
+[2026-06-02 10:55:36] TRIAL [2/18] 105536__google_gemma-4-e4b__dark_mode_on__r1
+[2026-06-02 10:58:17]   DONE outcome=failed tools=20 task_time=156.1s
+[2026-06-02 10:58:17] TRIAL [3/18] 105817__google_gemma-4-e4b__dark_mode_on__r2
+[2026-06-02 11:01:48]   ABORT-LOOP: > 25 tool calls
+[2026-06-02 11:01:51]   DONE outcome=fail_loop tools=26 task_time=207.7s
+[2026-06-02 11:01:51] TRIAL [4/18] 110151__google_gemma-4-e4b__dark_mode_off__r0
+[2026-06-02 11:02:36]   DONE outcome=failed tools=6 task_time=40.5s
+[2026-06-02 11:02:36] TRIAL [5/18] 110236__google_gemma-4-e4b__dark_mode_off__r1
+[2026-06-02 11:05:43]   DONE outcome=done tools=21 task_time=180.6s
+[2026-06-02 11:05:43] TRIAL [6/18] 110543__google_gemma-4-e4b__dark_mode_off__r2
+[2026-06-02 11:09:24]   ABORT-LOOP: > 25 tool calls
+[2026-06-02 11:09:27]   DONE outcome=fail_loop tools=26 task_time=218.7s
+[2026-06-02 11:09:27] TRIAL [7/18] 110927__google_gemma-4-e4b__bluetooth_toggle_on__r0
+[2026-06-02 11:10:45]   DONE outcome=failed tools=16 task_time=73.1s
+[2026-06-02 11:10:45] TRIAL [8/18] 111045__google_gemma-4-e4b__bluetooth_toggle_on__r1
+[2026-06-02 11:11:18]   DONE outcome=done tools=4 task_time=28.0s
+[2026-06-02 11:11:18] TRIAL [9/18] 111118__google_gemma-4-e4b__bluetooth_toggle_on__r2
+[2026-06-02 11:11:54]   DONE outcome=done tools=3 task_time=30.5s
+[2026-06-02 11:11:54] TRIAL [10/18] 111154__google_gemma-4-e4b__brightness_set_50__r0
+[2026-06-02 11:14:52]   ABORT-LOOP: > 25 tool calls
+[2026-06-02 11:14:55]   DONE outcome=fail_loop tools=27 task_time=174.6s
+[2026-06-02 11:14:55] TRIAL [11/18] 111455__google_gemma-4-e4b__brightness_set_50__r1
+[2026-06-02 11:18:16]   DONE outcome=failed tools=25 task_time=195.8s
+[2026-06-02 11:18:16] TRIAL [12/18] 111816__google_gemma-4-e4b__brightness_set_50__r2
+[2026-06-02 11:21:32]   DONE outcome=done tools=22 task_time=191.1s
+[2026-06-02 11:21:32] TRIAL [13/18] 112132__google_gemma-4-e4b__timer_set_5min__r0
+[2026-06-02 11:23:51]   DONE outcome=done tools=18 task_time=134.1s
+[2026-06-02 11:23:51] TRIAL [14/18] 112351__google_gemma-4-e4b__timer_set_5min__r1
+[2026-06-02 11:25:45]   DONE outcome=done tools=16 task_time=108.6s
+[2026-06-02 11:25:45] TRIAL [15/18] 112545__google_gemma-4-e4b__timer_set_5min__r2
+[2026-06-02 11:28:08]   DONE outcome=done tools=13 task_time=137.6s
+[2026-06-02 11:28:08] TRIAL [16/18] 112808__google_gemma-4-e4b__pizza_search__r0
+[2026-06-02 11:29:18]   DONE outcome=done tools=9 task_time=64.6s
+[2026-06-02 11:29:18] TRIAL [17/18] 112918__google_gemma-4-e4b__pizza_search__r1
+[2026-06-02 11:31:04]   DONE outcome=failed tools=12 task_time=100.1s
+[2026-06-02 11:31:04] TRIAL [18/18] 113104__google_gemma-4-e4b__pizza_search__r2
+[2026-06-02 11:31:47]   DONE outcome=failed tools=6 task_time=37.6s
+[2026-06-02 11:31:49] FINISHED 18 trials in 37.6 min

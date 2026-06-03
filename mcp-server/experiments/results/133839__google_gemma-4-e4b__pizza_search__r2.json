@@ -1,0 +1,86 @@
+{
+  "trial_id": "133839__google_gemma-4-e4b__pizza_search__r2",
+  "timestamp_utc": "2026-06-01T11:39:12.905386Z",
+  "model": "google/gemma-4-e4b",
+  "task": "pizza_search",
+  "run": 2,
+  "outcome": "done",
+  "timing": {
+    "load": 0.0,
+    "reset": 3.38,
+    "task": 19.51,
+    "total": 33.46
+  },
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\133839__google_gemma-4-e4b__pizza_search__r2.png",
+  "lmstudio_response": {
+    "ok": true,
+    "active_skills": [],
+    "follow_up_context": false,
+    "lmstudio": {
+      "ok": true,
+      "outcome": "done",
+      "tool_calls": 3,
+      "turns": 3,
+      "final_text": "",
+      "error": null,
+      "vision_unsupported": false
+    }
+  },
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1780313924.8438976,
+      "task": "suche im browser ein pizza-restaurant in der nähe",
+      "_received_at": 1478205.6924158
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780313928.835563,
+      "tool": "smartphone_open_url",
+      "args": {
+        "url": "https://www.google.com/search?q=pizza+restaurant+in+der+naehe",
+        "why": "Ich suche direkt bei Google nach einem Pizza-Restaurant in der Nähe."
+      },
+      "_received_at": 1478209.6838584
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780313941.9668722,
+      "tool": "smartphone_open_url",
+      "_received_at": 1478222.81518
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780313943.9540746,
+      "tool": "smartphone_done",
+      "args": {
+        "message": "Ich habe die Suche nach einem Pizza-Restaurant gestartet."
+      },
+      "_received_at": 1478224.8025776
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780313943.954089,
+      "ok": true,
+      "payload": {
+        "message": "Ich habe die Suche nach einem Pizza-Restaurant gestartet."
+      },
+      "_received_at": 1478224.8026429
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780313943.954092,
+      "tool": "smartphone_done",
+      "_received_at": 1478224.8026709
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780313943.9547055,
+      "ok": true,
+      "payload": {
+        "active_skills": []
+      },
+      "_received_at": 1478224.8030114
+    }
+  ]
+}

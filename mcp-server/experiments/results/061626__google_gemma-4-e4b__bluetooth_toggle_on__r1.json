@@ -1,0 +1,175 @@
+{
+  "trial_id": "061626__google_gemma-4-e4b__bluetooth_toggle_on__r1",
+  "timestamp_utc": "2026-06-02T04:17:21.336470Z",
+  "model": "google/gemma-4-e4b",
+  "task": "bluetooth_toggle_on",
+  "run": 1,
+  "outcome": "done",
+  "timing": {
+    "load": 4.15,
+    "reset": 1.79,
+    "task": 49.56,
+    "total": 55.07
+  },
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\061626__google_gemma-4-e4b__bluetooth_toggle_on__r1.png",
+  "lmstudio_response": {
+    "ok": true,
+    "active_skills": [
+      "connectivity.bluetooth_on_settings",
+      "connectivity.bluetooth_on_settings_search"
+    ],
+    "follow_up_context": false,
+    "lmstudio": {
+      "ok": true,
+      "outcome": "done",
+      "tool_calls": 7,
+      "turns": 7,
+      "final_text": "",
+      "error": null,
+      "vision_unsupported": false
+    }
+  },
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1780373790.0636828,
+      "task": "schalte bluetooth an",
+      "_received_at": 1538072.6545467
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780373794.8191583,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.settings",
+        "why": "Öffne die Einstellungen-App, um Bluetooth zu suchen und einzuschalten."
+      },
+      "_received_at": 1538077.4097487
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780373801.9613366,
+      "tool": "smartphone_open_app",
+      "_received_at": 1538084.5519851
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780373805.2237318,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 540,
+        "y": 257,
+        "why": "Tippe auf die Suchleiste in den Einstellungen."
+      },
+      "_received_at": 1538087.8143562
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780373810.3719065,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 1538092.9625655
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780373812.134061,
+      "tool": "smartphone_type_text",
+      "args": {
+        "text": "Bluetooth",
+        "submit": false,
+        "why": "Ich suche nach dem Begriff Bluetooth in den Einstellungen."
+      },
+      "_received_at": 1538094.724656
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780373819.2399173,
+      "tool": "smartphone_type_text",
+      "_received_at": 1538101.8305834
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780373821.17728,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 147,
+        "y": 343,
+        "why": "Ich tippe auf das Suchergebnis für die Bluetooth-Einstellungen."
+      },
+      "_received_at": 1538103.767887
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780373826.3601928,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 1538108.9508383
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780373828.167661,
+      "tool": "smartphone_take_screenshot",
+      "args": {
+        "why": "Ich überprüfe den aktuellen Status des Bluetooth-Schalters."
+      },
+      "_received_at": 1538110.7582499
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780373828.4678762,
+      "tool": "smartphone_take_screenshot",
+      "_received_at": 1538111.0590139
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780373830.4681683,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 890,
+        "y": 571,
+        "why": "Ich schalte den Bluetooth-Schalter auf 'an'."
+      },
+      "_received_at": 1538113.0587323
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780373837.1397066,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 1538119.7303173
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780373839.4619267,
+      "tool": "smartphone_done",
+      "args": {
+        "message": "Bluetooth wurde erfolgreich eingeschaltet."
+      },
+      "_received_at": 1538122.0528111
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780373839.4620376,
+      "ok": true,
+      "payload": {
+        "message": "Bluetooth wurde erfolgreich eingeschaltet."
+      },
+      "_received_at": 1538122.0529568
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780373839.462045,
+      "tool": "smartphone_done",
+      "_received_at": 1538122.0530543
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780373839.4626994,
+      "ok": true,
+      "payload": {
+        "active_skills": [
+          "connectivity.bluetooth_on_settings",
+          "connectivity.bluetooth_on_settings_search"
+        ]
+      },
+      "_received_at": 1538122.0533036
+    }
+  ]
+}

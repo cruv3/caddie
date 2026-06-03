@@ -21,6 +21,8 @@ fuellen ihn.
 from __future__ import annotations
 
 import json
+import os
+import re
 import time
 from typing import Any
 
@@ -33,6 +35,57 @@ from caddie.context import ServerContext
 # Sicherheitsnetze gegen stuck Modelle (vgl. experiments/run_trials.py).
 MAX_TOOL_CALLS = 25
 MAX_TURNS = 40
+# Completeness verifier (after VLAA-GUI 2026): before smartphone_done is
+# accepted, a SEPARATE model call checks the fresh screenshot against the task.
+# A "done" may be rejected this many times before the run ends as failed
+# (prevents an infinite done -> reject -> done loop).
+MAX_VERIFY_REJECTS = 2
+
+# Tools that only OBSERVE the screen (no state change). Used by the Stage-1
+# completion gate and the loop breaker to tell "looking" from "acting".
+_OBSERVATION_TOOLS = frozenset({
+    "smartphone_take_screenshot", "smartphone_list_elements",
+})
+# Terminal tools — never counted as repeated actions by the loop breaker.
+_TERMINAL_TOOLS = frozenset({
+    "smartphone_done", "smartphone_failed", "smartphone_save_skill",
+})
+
+# Stage-1 completion gate (deterministic, cheaper than the model judge): if the
+# agent declares done without a fresh screen observation within the last N
+# state-changing calls, reject before spending a judge call.
+GATE_MAX_STALE_CALLS = 3
+
+# Loop breaker (after VLAA-GUI's Loop Breaker): escalate when the SAME action
+# repeats with no progress. Tiered by how many identical trailing actions:
+#   3 identical -> tier 1 nudge ("try a different approach")
+#   4 identical -> tier 2 nudge ("go back to home and re-plan")
+#   5 identical -> give up (outcome=loop_broken) instead of grinding to the cap.
+LOOP_TIER1_AT = 3
+LOOP_TIER2_AT = 4
+LOOP_GIVEUP_AT = 5
+_LOOP_TIER1_NOTE = (
+    "LOOP BREAKER (tier 1): you have repeated the exact same action with no "
+    "visible change. Do NOT repeat it again. In your next Thought, diagnose why "
+    "the screen did not change and try a DIFFERENT approach."
+)
+_LOOP_TIER2_NOTE = (
+    "LOOP BREAKER (tier 2): still stuck on the same action. Abandon this path. "
+    "Go back to the home screen (or reopen the relevant app from scratch) and "
+    "re-plan from a known state before acting again."
+)
+# Strict judge prompt: demands direct visual evidence, rejects when in doubt.
+_VERIFIER_SYSTEM = (
+    "You are a strict completion verifier for a smartphone agent. You are given "
+    "a task and ONE current screenshot. Decide whether the task is DIRECTLY and "
+    "UNAMBIGUOUSLY visible as completed on this screenshot. Require visible "
+    "evidence: a toggle actually ON/OFF, the correct value shown, the right "
+    "detail page open. A mere search box or results list, a home screen, an "
+    "alarm instead of a timer, or the wrong settings screen does NOT count as "
+    "complete. When in doubt: verified=false. The task may be phrased in German; "
+    "judge it regardless of language. "
+    "Reply with JSON only: {\"verified\": true|false, \"reason\": \"short\"}."
+)
 # Wie lange der Loop vor einer kritischen Aktion auf die Swipe-Bestaetigung
 # wartet. Timeout = abgelehnt (sichere Default).
 CONFIRM_TIMEOUT_S = 120.0
@@ -113,6 +166,7 @@ class AgentLoop:
         authorization: str | None = None,
         model: str | None = None,
         prior: dict | None = None,
+        criterion: str | None = None,
     ) -> dict[str, Any]:
         """Faehrt die Session bis done/failed/Abbruch und liefert das Resultat.
 
@@ -130,6 +184,11 @@ class AgentLoop:
         control = RunControl()
         self._active_control = control
         tool_calls_made = 0
+        verify_rejects = 0
+        # Loop-breaker + Stage-1-gate state (per run).
+        action_sigs: list[str] = []   # signatures of state-changing tool calls
+        calls_since_obs = 0           # actions since the last screen observation
+        loop_warned: set[int] = set()  # which loop-breaker tiers already fired
         turns = 0
         outcome = "max_turns"
         final_text = ""
@@ -146,6 +205,26 @@ class AgentLoop:
                 outcome = "stopped_by_user"
                 break
 
+            # ── LOOP BREAKER ──────────────────────────────────────────────
+            # Detect the same action repeating with no progress and escalate
+            # in tiers instead of grinding into MAX_TOOL_CALLS. Each tier fires
+            # at most once; at LOOP_GIVEUP_AT we stop the run.
+            repeat = _trailing_repeat(action_sigs)
+            if repeat >= LOOP_GIVEUP_AT:
+                outcome = "loop_broken"
+                break
+            if repeat >= LOOP_TIER2_AT and LOOP_TIER2_AT not in loop_warned:
+                loop_warned.add(LOOP_TIER2_AT)
+                messages.append({"role": "user", "content": _LOOP_TIER2_NOTE})
+            elif repeat >= LOOP_TIER1_AT and LOOP_TIER1_AT not in loop_warned:
+                loop_warned.add(LOOP_TIER1_AT)
+                messages.append({"role": "user", "content": _LOOP_TIER1_NOTE})
+
+            # Keep only the most recent screenshot in context — otherwise
+            # vision tokens grow quadratically (every old screen is re-encoded
+            # each turn) and slow the model down. The agent perceives the screen
+            # fresh every turn anyway; older screenshots are stale.
+            _prune_old_images(messages)
             resp = self._lm.chat_completion(
                 messages, tools=self._tool_specs,
                 authorization=authorization, model=model,
@@ -201,12 +280,74 @@ class AgentLoop:
                 result = self._dispatcher.call(name, args)
                 if name == "smartphone_list_elements":
                     self._last_elements = _extract_elements(result)
+
+                # Track observe-vs-act for the completion gate + loop breaker.
+                if name in _OBSERVATION_TOOLS:
+                    calls_since_obs = 0
+                elif name not in _TERMINAL_TOOLS:
+                    calls_since_obs += 1
+                    sig = name + json.dumps(args, sort_keys=True, default=str)
+                    if action_sigs and action_sigs[-1] != sig:
+                        # A genuinely different action -> let the tiers re-arm.
+                        loop_warned.clear()
+                    action_sigs.append(sig)
+
+                # ── COMPLETENESS VERIFIER ────────────────────────────────
+                # smartphone_done is NOT accepted blindly: a separate model call
+                # checks the fresh screenshot against the task. Without visual
+                # evidence the "done" is rejected and the agent must keep going
+                # (instead of reporting a hallucination as success). After
+                # MAX_VERIFY_REJECTS the run ends as verify_failed.
+                if name == "smartphone_done":
+                    # Stage 1 — cheap deterministic gate before the model judge.
+                    gate_ok, gate_reason = _completion_gate(calls_since_obs)
+                    if not gate_ok:
+                        verify_rejects += 1
+                        self._events.verification_result(False, gate_reason)
+                        messages.append(_tool_message(
+                            call.get("id", ""),
+                            ToolCallResult(
+                                name=name, ok=False,
+                                text="COMPLETION GATE: " + gate_reason + ".",
+                            ),
+                        ))
+                        if verify_rejects > MAX_VERIFY_REJECTS:
+                            outcome, terminal = "verify_failed", True
+                        continue
+                    # Stage 2 — model judge against task + criterion + screenshot.
+                    verdict = self._verify_completion(
+                        task, criterion, authorization, model
+                    )
+                    self._events.verification_result(
+                        verdict.verified, verdict.reason
+                    )
+                    if verdict.verified:
+                        messages.append(_tool_message(call.get("id", ""), result))
+                        outcome, terminal = "done", True
+                    else:
+                        verify_rejects += 1
+                        messages.append(_tool_message(
+                            call.get("id", ""),
+                            ToolCallResult(
+                                name=name, ok=False,
+                                text=(
+                                    "VERIFICATION FAILED: "
+                                    + verdict.reason
+                                    + " The task is NOT yet complete according to "
+                                    "the screenshot. Keep going and only call "
+                                    "smartphone_done once the screen clearly shows "
+                                    "the result."
+                                ),
+                            ),
+                        ))
+                        if verify_rejects > MAX_VERIFY_REJECTS:
+                            outcome, terminal = "verify_failed", True
+                    continue
+
                 messages.append(_tool_message(call.get("id", ""), result))
                 if result.image_b64:
                     pending_images.append(result)
-                if name == "smartphone_done":
-                    outcome, terminal = "done", True
-                elif name == "smartphone_failed":
+                if name == "smartphone_failed":
                     outcome, terminal = "failed", True
 
             # Bilder (Screenshots) NACH allen tool-Messages anhaengen — das
@@ -238,6 +379,53 @@ class AgentLoop:
             "error": error,
             "vision_unsupported": vision_unsupported,
         }
+
+    def _verify_completion(self, task: str, criterion: str | None,
+                           authorization: str | None,
+                           model: str | None) -> "_Verdict":
+        """Separate model call that checks the current screen against the task
+        before smartphone_done is accepted (VLAA-GUI completeness verifier).
+
+        Takes a fresh screenshot, asks a judge model in a CLEAN context (not the
+        agent's own biased trajectory) whether the task is visibly complete, and
+        returns a strict verdict. If ``criterion`` is given it is handed to the
+        judge as the explicit, UI-observable success signal (much stronger than
+        guessing from the task text). The judge model can be overridden with
+        CADDIE_JUDGE_MODEL (else the run model is reused). On judge error it
+        lets the claim through rather than falsely blocking — but records why."""
+        shot = self._dispatcher.call("smartphone_take_screenshot", {})
+        img_b64 = getattr(shot, "image_b64", None)
+        if not img_b64:
+            return _Verdict(False, "no screenshot available for verification")
+        mime = getattr(shot, "image_mime", None) or "image/png"
+        criterion_line = (
+            f"\nSuccess criterion (must be visibly met): {criterion}"
+            if criterion else ""
+        )
+        judge_messages = [
+            {"role": "system", "content": _VERIFIER_SYSTEM},
+            {"role": "user", "content": [
+                {"type": "text", "text": (
+                    f"Task: {task}{criterion_line}\n\nIs this task clearly and "
+                    "visibly complete on this screenshot? Reply with JSON only: "
+                    "{\"verified\": true|false, \"reason\": \"short\"}."
+                )},
+                {"type": "image_url",
+                 "image_url": {"url": f"data:{mime};base64,{img_b64}"}},
+            ]},
+        ]
+        judge_model = os.environ.get("CADDIE_JUDGE_MODEL") or model
+        resp = self._lm.chat_completion(
+            judge_messages, tools=None,
+            authorization=authorization, model=judge_model,
+        )
+        if not resp.get("ok"):
+            return _Verdict(
+                True, "verifier unreachable: " + str(resp.get("error", ""))[:120]
+            )
+        choice = _first_choice(resp.get("response", {}))
+        content = ((choice or {}).get("message", {}) or {}).get("content", "") or ""
+        return _parse_verdict(content)
 
     def _pause_point(self, messages: list[dict], control: RunControl) -> str:
         """Pause/Stop/Resume-Hook, einmal pro Turn.
@@ -329,6 +517,79 @@ def _tool_message(tool_call_id: str, result: ToolCallResult) -> dict:
         "tool_call_id": tool_call_id,
         "content": result.text,
     }
+
+
+def _trailing_repeat(sigs: list[str]) -> int:
+    """How many identical action signatures trail at the end of the list.
+    Used by the loop breaker: a long trailing run = the agent is stuck
+    repeating the same action with no progress."""
+    if not sigs:
+        return 0
+    last = sigs[-1]
+    count = 0
+    for sig in reversed(sigs):
+        if sig == last:
+            count += 1
+        else:
+            break
+    return count
+
+
+def _completion_gate(calls_since_obs: int) -> tuple[bool, str]:
+    """Deterministic Stage-1 gate (cheaper than the model judge): reject a
+    done that was declared without a fresh screen observation in the last
+    GATE_MAX_STALE_CALLS state-changing calls. Catches blind "done" claims
+    before spending a judge call. Returns (passed, reason)."""
+    if calls_since_obs > GATE_MAX_STALE_CALLS:
+        return False, (
+            f"no fresh screen observation in the last {calls_since_obs} actions; "
+            "re-check the screen (smartphone_take_screenshot / "
+            "smartphone_list_elements) before declaring done"
+        )
+    return True, ""
+
+
+class _Verdict:
+    """Result of the completeness verifier: a pass/fail flag plus a short
+    reason that is fed back to the agent on rejection."""
+    __slots__ = ("verified", "reason")
+
+    def __init__(self, verified: bool, reason: str) -> None:
+        self.verified = bool(verified)
+        self.reason = reason or ""
+
+
+def _parse_verdict(content: str) -> _Verdict:
+    """Extract {verified, reason} JSON from the judge's reply, robust to code
+    fences and surrounding prose. Unparseable -> reject (conservative)."""
+    match = re.search(r"\{.*\}", content, re.DOTALL)
+    if not match:
+        return _Verdict(False, "verifier reply not parseable: " + content[:120])
+    try:
+        data = json.loads(match.group(0))
+    except (ValueError, TypeError):
+        return _Verdict(False, "verifier JSON invalid: " + content[:120])
+    return _Verdict(bool(data.get("verified")), str(data.get("reason", ""))[:200])
+
+
+def _prune_old_images(messages: list[dict]) -> None:
+    """Replace every screenshot message except the most recent with a text
+    placeholder. In-place. Idempotent (the placeholder is text-only and is no
+    longer detected as an image on the next pass)."""
+    image_idxs = [
+        i for i, m in enumerate(messages)
+        if m.get("role") == "user"
+        and isinstance(m.get("content"), list)
+        and any(
+            isinstance(part, dict) and part.get("type") == "image_url"
+            for part in m["content"]
+        )
+    ]
+    for i in image_idxs[:-1]:
+        messages[i] = {
+            "role": "user",
+            "content": "[screenshot from an earlier step removed]",
+        }
 
 
 def _image_message(result: ToolCallResult) -> dict:

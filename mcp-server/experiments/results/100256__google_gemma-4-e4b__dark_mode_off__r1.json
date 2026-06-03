@@ -1,0 +1,275 @@
+{
+  "trial_id": "100256__google_gemma-4-e4b__dark_mode_off__r1",
+  "timestamp_utc": "2026-06-02T08:05:42.705317Z",
+  "model": "google/gemma-4-e4b",
+  "task": "dark_mode_off",
+  "run": 1,
+  "outcome": "failed",
+  "timing": {
+    "load": 6.07,
+    "reset": 1.45,
+    "task": 160.61,
+    "total": 166.2
+  },
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\100256__google_gemma-4-e4b__dark_mode_off__r1.png",
+  "lmstudio_response": {
+    "ok": false,
+    "active_skills": [
+      "display.dark_mode_off_settings"
+    ],
+    "follow_up_context": false,
+    "lmstudio": {
+      "ok": false,
+      "outcome": "failed",
+      "tool_calls": 13,
+      "turns": 13,
+      "final_text": "",
+      "error": null,
+      "vision_unsupported": false
+    },
+    "_http_status": 502
+  },
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1780387379.959188,
+      "task": "schalte den dark mode aus",
+      "_received_at": 5598.8509305
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387385.145245,
+      "tool": "smartphone_get_skill_display_dark_mode_off_settings",
+      "args": {
+        "skill_id": "display.dark_mode_off_settings"
+      },
+      "_received_at": 5604.0368554
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387385.1452599,
+      "tool": "smartphone_get_skill_display_dark_mode_off_settings",
+      "_received_at": 5604.0369192
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387389.612254,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.settings",
+        "why": "Ich öffne die Einstellungen-App, um zu Dark Mode zu navigieren."
+      },
+      "_received_at": 5608.5037507
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387397.251779,
+      "tool": "smartphone_open_app",
+      "_received_at": 5616.1433321
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387402.9379942,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich schaue mir die Elemente in den Einstellungen an, um zu Display-Einstellungen zu gelangen."
+      },
+      "_received_at": 5621.8295031
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387405.0745442,
+      "tool": "smartphone_list_elements",
+      "_received_at": 5623.9660925
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387412.7060988,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 2361,
+        "end_x": 540,
+        "end_y": 100,
+        "duration_ms": 300,
+        "why": "Ich scrolle nach unten, um die Display-Einstellungen zu finden."
+      },
+      "_received_at": 5631.5976081
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387418.0509763,
+      "tool": "smartphone_swipe",
+      "_received_at": 5636.9424725
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387423.1200309,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich schaue mir die neuen Elemente in den Einstellungen an, um 'Anzeige' oder Ähnliches zu finden."
+      },
+      "_received_at": 5642.0116252
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387425.1930473,
+      "tool": "smartphone_list_elements",
+      "_received_at": 5644.0845762
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387437.6851904,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich liste die Elemente erneut auf, um sicherzustellen, dass ich immer noch in den Einstellungen bin oder einen Suchbalken finde."
+      },
+      "_received_at": 5656.5766801
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387439.7515976,
+      "tool": "smartphone_list_elements",
+      "_received_at": 5658.6430618
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387451.1152296,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich liste die Elemente erneut auf, um zu sehen, ob ich nun eine tatsächliche Einstellungsliste sehe."
+      },
+      "_received_at": 5670.0067426
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387453.203843,
+      "tool": "smartphone_list_elements",
+      "_received_at": 5672.0953709
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387462.6062627,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich liste die Elemente erneut auf, um zu sehen, ob ich nun eine tatsächliche Einstellungsliste sehe oder einen Suchbalken finde."
+      },
+      "_received_at": 5681.497788
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387464.6833487,
+      "tool": "smartphone_list_elements",
+      "_received_at": 5683.5748486
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387480.1435666,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.settings",
+        "why": "Ich versuche erneut, die Einstellungen zu öffnen, um das Menü zu finden."
+      },
+      "_received_at": 5699.0351914
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387487.047969,
+      "tool": "smartphone_open_app",
+      "_received_at": 5705.9394532
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387496.3646963,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich liste die Elemente erneut auf, um zu prüfen, ob ich nun eine tatsächliche Einstellungsliste sehe."
+      },
+      "_received_at": 5715.2561972
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387498.4613829,
+      "tool": "smartphone_list_elements",
+      "_received_at": 5717.3529151
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387506.972786,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 2361,
+        "end_x": 540,
+        "end_y": 100,
+        "duration_ms": 300,
+        "why": "Ich scrolle noch einmal nach unten in den Einstellungen."
+      },
+      "_received_at": 5725.8642954
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387512.3806937,
+      "tool": "smartphone_swipe",
+      "_received_at": 5731.2722139
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387523.194698,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich liste die Elemente erneut auf, um 'Anzeige' oder ähnliche Einstellungen zu finden und den nächsten Schritt des Skills durchzuführen."
+      },
+      "_received_at": 5742.0861941
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387525.263478,
+      "tool": "smartphone_list_elements",
+      "_received_at": 5744.1550011
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387540.4090111,
+      "tool": "smartphone_failed",
+      "args": {
+        "reason": "Ich kann die notwendigen Einstellungsmenüs nicht finden, um Dark Mode zu deaktivieren."
+      },
+      "_received_at": 5759.3005226
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780387540.409027,
+      "ok": false,
+      "payload": {
+        "message": "Ich kann die notwendigen Einstellungsmenüs nicht finden, um Dark Mode zu deaktivieren."
+      },
+      "_received_at": 5759.3007577
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387540.4090302,
+      "tool": "smartphone_failed",
+      "_received_at": 5759.3008641
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780387540.4097211,
+      "ok": false,
+      "payload": {
+        "active_skills": [
+          "display.dark_mode_off_settings"
+        ],
+        "outcome": "failed"
+      },
+      "_received_at": 5759.3012985
+    }
+  ]
+}

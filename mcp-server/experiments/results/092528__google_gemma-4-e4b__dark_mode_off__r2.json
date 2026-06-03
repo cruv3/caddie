@@ -1,0 +1,243 @@
+{
+  "trial_id": "092528__google_gemma-4-e4b__dark_mode_off__r2",
+  "timestamp_utc": "2026-06-01T07:26:55.827003Z",
+  "model": "google/gemma-4-e4b",
+  "task": "dark_mode_off",
+  "run": 2,
+  "outcome": "failed",
+  "timing": {
+    "load": 0.0,
+    "reset": 3.5,
+    "task": 78.55,
+    "total": 86.93
+  },
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\092528__google_gemma-4-e4b__dark_mode_off__r2.png",
+  "lmstudio_response": {
+    "ok": false,
+    "active_skills": [
+      "display.dark_mode_off_settings"
+    ],
+    "follow_up_context": false,
+    "lmstudio": {
+      "ok": false,
+      "outcome": "failed",
+      "tool_calls": 11,
+      "turns": 11,
+      "final_text": "",
+      "error": null,
+      "vision_unsupported": false
+    },
+    "_http_status": 502
+  },
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1780298734.4168496,
+      "task": "schalte den dark mode aus",
+      "_received_at": 1463015.2654052
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780298737.0350971,
+      "tool": "smartphone_get_skill_display_dark_mode_off_settings",
+      "args": {
+        "skill_id": "display.dark_mode_off_settings"
+      },
+      "_received_at": 1463017.8834708
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780298737.03511,
+      "tool": "smartphone_get_skill_display_dark_mode_off_settings",
+      "_received_at": 1463017.8835793
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780298738.4605412,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.settings",
+        "why": "Ich öffne die Einstellungen-App, um zum Display zu gelangen."
+      },
+      "_received_at": 1463019.3088437
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780298749.5409632,
+      "tool": "smartphone_open_app",
+      "_received_at": 1463030.3892742
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780298751.6838195,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich schaue mir die Elemente in den Einstellungen an, um zu Display & Touchbedienung zu navigieren."
+      },
+      "_received_at": 1463032.5321192
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780298754.7636728,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1463035.6119831
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780298758.3934844,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 20,
+        "why": "Ich liste die Elemente erneut auf, um nach der Kategorie \"Display & Touchbedienung\" zu suchen."
+      },
+      "_received_at": 1463039.241782
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780298761.5231924,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1463042.3714827
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780298765.1625288,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 20,
+        "why": "Ich liste die Elemente ein drittes Mal auf, um die Hauptkategorien der Einstellungen zu finden."
+      },
+      "_received_at": 1463046.0108254
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780298768.5623333,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1463049.4106981
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780298771.3260767,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 2300,
+        "end_x": 540,
+        "end_y": 100,
+        "duration_ms": 300,
+        "why": "Ich scrolle nach oben, um die eigentlichen Einstellungskategorien zu sehen."
+      },
+      "_received_at": 1463052.1743838
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780298778.6753907,
+      "tool": "smartphone_swipe",
+      "_received_at": 1463059.5237459
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780298780.980986,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich liste die Elemente erneut auf, um die Einstellungskategorien zu sehen und \"Display\" zu finden."
+      },
+      "_received_at": 1463061.8292836
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780298784.477222,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1463065.3254802
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780298786.966238,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 20,
+        "why": "Ich liste die Elemente erneut auf, um die tatsächlichen Einstellungskategorien zu sehen und \"Display\" zu finden."
+      },
+      "_received_at": 1463067.8145412
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780298790.9302878,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1463071.778583
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780298794.1385577,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 2300,
+        "end_x": 540,
+        "end_y": 100,
+        "duration_ms": 300,
+        "why": "Ich scrolle erneut nach oben, um die Einstellungskategorien zu sehen und \"Display\" zu finden."
+      },
+      "_received_at": 1463074.9868629
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780298801.708971,
+      "tool": "smartphone_swipe",
+      "_received_at": 1463082.5573191
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780298805.666161,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 20,
+        "why": "Ich liste die Elemente ein letztes Mal auf und suche nach dem Text \"Display\", um zu sehen, ob es in den sichtbaren Elementen auftaucht."
+      },
+      "_received_at": 1463086.5144567
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780298808.9519463,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1463089.8002683
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780298812.731883,
+      "tool": "smartphone_failed",
+      "args": {
+        "reason": "Ich kann die Kategorie \"Anzeige\" oder \"Display\" nicht finden, um den Dark Mode zu deaktivieren."
+      },
+      "_received_at": 1463093.5803576
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780298812.7318985,
+      "ok": false,
+      "payload": {
+        "message": "Ich kann die Kategorie \"Anzeige\" oder \"Display\" nicht finden, um den Dark Mode zu deaktivieren."
+      },
+      "_received_at": 1463093.5804278
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780298812.7319021,
+      "tool": "smartphone_failed",
+      "_received_at": 1463093.5804685
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780298812.7324507,
+      "ok": false,
+      "payload": {
+        "active_skills": [
+          "display.dark_mode_off_settings"
+        ],
+        "outcome": "failed"
+      },
+      "_received_at": 1463093.5808165
+    }
+  ]
+}

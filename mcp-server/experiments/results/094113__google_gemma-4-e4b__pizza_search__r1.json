@@ -1,0 +1,86 @@
+{
+  "trial_id": "094113__google_gemma-4-e4b__pizza_search__r1",
+  "timestamp_utc": "2026-06-01T07:41:39.653376Z",
+  "model": "google/gemma-4-e4b",
+  "task": "pizza_search",
+  "run": 1,
+  "outcome": "done",
+  "timing": {
+    "load": 0.0,
+    "reset": 3.94,
+    "task": 17.01,
+    "total": 25.79
+  },
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\094113__google_gemma-4-e4b__pizza_search__r1.png",
+  "lmstudio_response": {
+    "ok": true,
+    "active_skills": [],
+    "follow_up_context": false,
+    "lmstudio": {
+      "ok": true,
+      "outcome": "done",
+      "tool_calls": 3,
+      "turns": 3,
+      "final_text": "",
+      "error": null,
+      "vision_unsupported": false
+    }
+  },
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1780299679.814765,
+      "task": "suche im browser ein pizza-restaurant in der nähe",
+      "_received_at": 1463960.6633839
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780299683.9914572,
+      "tool": "smartphone_open_url",
+      "args": {
+        "url": "https://www.google.com/search?q=pizza+restaurant+in+der+naehe",
+        "why": "Ich öffne den Browser und suche nach einem Pizza-Restaurant in der Nähe bei Google."
+      },
+      "_received_at": 1463964.8397547
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780299694.5752478,
+      "tool": "smartphone_open_url",
+      "_received_at": 1463975.4235865
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780299696.328892,
+      "tool": "smartphone_done",
+      "args": {
+        "message": "Die Suche nach einem Pizza-Restaurant wurde gestartet."
+      },
+      "_received_at": 1463977.1772371
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780299696.3289046,
+      "ok": true,
+      "payload": {
+        "message": "Die Suche nach einem Pizza-Restaurant wurde gestartet."
+      },
+      "_received_at": 1463977.1774036
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780299696.3289077,
+      "tool": "smartphone_done",
+      "_received_at": 1463977.1774289
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780299696.3295,
+      "ok": true,
+      "payload": {
+        "active_skills": []
+      },
+      "_received_at": 1463977.1778156
+    }
+  ]
+}

@@ -1,0 +1,471 @@
+{
+  "trial_id": "105817__google_gemma-4-e4b__dark_mode_on__r2",
+  "timestamp_utc": "2026-06-02T09:01:51.207115Z",
+  "model": "google/gemma-4-e4b",
+  "task": "dark_mode_on",
+  "run": 2,
+  "outcome": "fail_loop",
+  "timing": {
+    "load": 0.0,
+    "reset": 1.43,
+    "task": 207.65,
+    "total": 213.4
+  },
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\105817__google_gemma-4-e4b__dark_mode_on__r2.png",
+  "lmstudio_response": null,
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1780390701.2558413,
+      "task": "schalte den dark mode an",
+      "_received_at": 8920.1476243
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780390703.1276352,
+      "tool": "smartphone_get_skill_display_dark_mode_on_settings",
+      "args": {
+        "skill_id": "display.dark_mode_on_settings"
+      },
+      "_received_at": 8922.0191405
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780390703.1276531,
+      "tool": "smartphone_get_skill_display_dark_mode_on_settings",
+      "_received_at": 8922.019159
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780390704.779242,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.settings",
+        "why": "Ich öffne die Einstellungen, um den Dark Mode zu aktivieren."
+      },
+      "_received_at": 8923.6707471
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780390711.6939878,
+      "tool": "smartphone_open_app",
+      "_received_at": 8930.5856286
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780390713.3792214,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich schaue mir die Elemente in den Einstellungen an, um zu Display & Touch zu navigieren."
+      },
+      "_received_at": 8932.2707552
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780390715.484053,
+      "tool": "smartphone_list_elements",
+      "_received_at": 8934.3755907
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780390718.9292116,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 1377,
+        "end_x": 540,
+        "end_y": 600,
+        "duration_ms": 300,
+        "why": "Ich scrolle nach unten, um die Kategorie 'Anzeige' oder Ähnliches zu finden."
+      },
+      "_received_at": 8937.820848
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780390723.9110975,
+      "tool": "smartphone_swipe",
+      "_received_at": 8942.8026282
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780390726.1521986,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich liste die Elemente erneut auf, nachdem ich gescrollt habe, um den richtigen Menüpunkt zu finden."
+      },
+      "_received_at": 8945.0437551
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780390728.3326879,
+      "tool": "smartphone_list_elements",
+      "_received_at": 8947.2244987
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780390730.7744586,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 600,
+        "end_x": 540,
+        "end_y": 100,
+        "duration_ms": 300,
+        "why": "Ich scrolle weiter nach oben/unten, um die Kategorie 'Anzeige' zu finden."
+      },
+      "_received_at": 8949.6659658
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780390737.8263342,
+      "tool": "smartphone_swipe",
+      "_received_at": 8956.7178834
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780390739.9988737,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 540,
+        "y": 222,
+        "why": "Ich tippe auf die Suchleiste, um nach 'Dunkelmodus' zu suchen."
+      },
+      "_received_at": 8958.8903856
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780390745.1989732,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 8964.0905351
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780390746.5276124,
+      "tool": "smartphone_type_text",
+      "args": {
+        "text": "dark mode",
+        "submit": false,
+        "why": "Ich suche nach 'dark mode', um die entsprechende Einstellung zu finden."
+      },
+      "_received_at": 8965.419116
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780390753.322556,
+      "tool": "smartphone_type_text",
+      "_received_at": 8972.2141215
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780390755.1583786,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich liste die Elemente auf, um die Suchergebnisse für 'dark mode' zu sehen und den richtigen Eintrag anzutippen."
+      },
+      "_received_at": 8974.0498748
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780390757.307442,
+      "tool": "smartphone_list_elements",
+      "_received_at": 8976.1989579
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780390762.9863026,
+      "tool": "smartphone_press_button",
+      "args": {
+        "button": "BACK",
+        "why": "Ich drücke den Zurück-Button, um zur Hauptseite der Einstellungen zurückzukehren und die Kategorie 'Anzeige' zu suchen."
+      },
+      "_received_at": 8981.8779538
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780390768.0240746,
+      "tool": "smartphone_press_button",
+      "_received_at": 8986.9155614
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780390770.7582974,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 2361,
+        "end_x": 540,
+        "end_y": 100,
+        "duration_ms": 300,
+        "why": "Ich scrolle weiter nach unten in den Einstellungen, um die Kategorie 'Anzeige' zu finden."
+      },
+      "_received_at": 8989.6498102
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780390776.1512027,
+      "tool": "smartphone_swipe",
+      "_received_at": 8995.0427831
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780390778.5671258,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich liste die Elemente auf der Hauptseite der Einstellungen auf, um 'Anzeige' oder 'Display' zu finden."
+      },
+      "_received_at": 8997.4594208
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780390780.6756835,
+      "tool": "smartphone_list_elements",
+      "_received_at": 8999.5671865
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780390783.2218497,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.settings",
+        "why": "Ich öffne die Einstellungen erneut, um zur Hauptseite zu gelangen und von dort aus 'Anzeige' zu suchen oder zu navigieren."
+      },
+      "_received_at": 9002.1133526
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780390790.4222703,
+      "tool": "smartphone_open_app",
+      "_received_at": 9009.3138127
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780390794.1816502,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 2424,
+        "end_x": 540,
+        "end_y": 100,
+        "duration_ms": 300,
+        "why": "Ich scrolle erneut nach unten in den Einstellungen, um die Kategorie 'Anzeige' zu finden."
+      },
+      "_received_at": 9013.0731286
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780390799.6739872,
+      "tool": "smartphone_swipe",
+      "_received_at": 9018.5655524
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780390805.8510308,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 2424,
+        "end_x": 540,
+        "end_y": 100,
+        "duration_ms": 300,
+        "why": "Ich scrolle erneut nach unten in den Einstellungen, um die Kategorie 'Anzeige' zu finden."
+      },
+      "_received_at": 9024.7442492
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780390810.787778,
+      "tool": "smartphone_swipe",
+      "_received_at": 9029.6793264
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780390813.7218711,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 540,
+        "y": 222,
+        "why": "Ich tippe auf die Suchleiste, um nach 'Anzeige' zu suchen."
+      },
+      "_received_at": 9032.6133796
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780390820.1211605,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 9039.0127066
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780390822.533408,
+      "tool": "smartphone_type_text",
+      "args": {
+        "text": "Anzeige",
+        "submit": false,
+        "why": "Ich suche nach 'Anzeige', um zum Display-Menü zu gelangen."
+      },
+      "_received_at": 9041.4249837
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780390828.946145,
+      "tool": "smartphone_type_text",
+      "_received_at": 9047.8376461
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780390831.544831,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich liste die Elemente auf, um das Suchergebnis für 'Anzeige' zu finden und darauf zu tippen."
+      },
+      "_received_at": 9050.4363373
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780390833.6427724,
+      "tool": "smartphone_list_elements",
+      "_received_at": 9052.5343269
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780390838.6604397,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 2424,
+        "end_x": 540,
+        "end_y": 100,
+        "duration_ms": 300,
+        "why": "Ich scrolle erneut nach oben in den Einstellungen, um die Kategorie 'Anzeige' zu finden."
+      },
+      "_received_at": 9057.5520345
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780390845.8082545,
+      "tool": "smartphone_swipe",
+      "_received_at": 9064.6997816
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780390850.687545,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich liste die Elemente erneut auf der Einstellungsseite auf, um 'Anzeige' oder 'Display' zu finden."
+      },
+      "_received_at": 9069.5790453
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780390852.7638628,
+      "tool": "smartphone_list_elements",
+      "_received_at": 9071.6553943
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780390857.783067,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 2424,
+        "end_x": 540,
+        "end_y": 100,
+        "duration_ms": 300,
+        "why": "Ich scrolle ein letztes Mal nach unten in den Einstellungen, um die Kategorie 'Anzeige' zu finden."
+      },
+      "_received_at": 9076.6746952
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780390864.770651,
+      "tool": "smartphone_swipe",
+      "_received_at": 9083.6622253
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780390868.9418187,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 540,
+        "y": 222,
+        "why": "Ich tippe erneut auf die Suchleiste, um nach 'Display' zu suchen."
+      },
+      "_received_at": 9087.8333224
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780390875.3698685,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 9094.2614102
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780390880.2700114,
+      "tool": "smartphone_type_text",
+      "args": {
+        "text": "Anzeige",
+        "submit": true,
+        "why": "Ich suche nach 'Anzeige' und bestätige die Suche, um zum Display-Menü zu gelangen."
+      },
+      "_received_at": 9099.1615136
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780390889.3071241,
+      "tool": "smartphone_type_text",
+      "_received_at": 9108.1986726
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780390892.1114328,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich liste die Elemente auf, um zu sehen, ob ich nun im Display-Menü bin und den Dark Mode Toggle finde."
+      },
+      "_received_at": 9111.0032727
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780390894.2382996,
+      "tool": "smartphone_list_elements",
+      "_received_at": 9113.1298097
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780390899.1626308,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 2424,
+        "end_x": 540,
+        "end_y": 100,
+        "duration_ms": 300,
+        "why": "Ich scrolle nach oben in den Einstellungen, um die Kategorie 'Anzeige' zu finden."
+      },
+      "_received_at": 9118.0541686
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780390904.5127728,
+      "tool": "smartphone_swipe",
+      "_received_at": 9123.4043165
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780390908.2884116,
+      "tool": "smartphone_press_button",
+      "args": {
+        "button": "BACK",
+        "why": "Ich drücke den Zurück-Button, um die Suchergebnisse zu verlassen und zur Hauptseite der Einstellungen zurückzukehren."
+      },
+      "_received_at": 9127.1799189
+    }
+  ]
+}

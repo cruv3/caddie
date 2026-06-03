@@ -1,0 +1,173 @@
+{
+  "trial_id": "071405__qwen_qwen36-35b-a3b__dark_mode_off__r0",
+  "timestamp_utc": "2026-06-02T05:18:41.946730Z",
+  "model": "qwen/qwen3.6-35b-a3b",
+  "task": "dark_mode_off",
+  "run": 0,
+  "outcome": "done",
+  "timing": {
+    "load": 0.0,
+    "reset": 1.72,
+    "task": 270.72,
+    "total": 276.14
+  },
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\071405__qwen_qwen36-35b-a3b__dark_mode_off__r0.png",
+  "lmstudio_response": {
+    "ok": true,
+    "active_skills": [
+      "display.dark_mode_off_settings"
+    ],
+    "follow_up_context": false,
+    "lmstudio": {
+      "ok": true,
+      "outcome": "done",
+      "tool_calls": 7,
+      "turns": 6,
+      "final_text": "",
+      "error": null,
+      "vision_unsupported": false
+    }
+  },
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1780377249.5508838,
+      "task": "schalte den dark mode aus",
+      "_received_at": 1541532.141921
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780377283.0342386,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.settings",
+        "why": "Öffne die Einstellungen"
+      },
+      "_received_at": 1541565.624855
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780377290.1809049,
+      "tool": "smartphone_open_app",
+      "_received_at": 1541572.7714898
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780377308.1725564,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Suche nach Display-Einstellungen"
+      },
+      "_received_at": 1541590.7631238
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780377310.2646773,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1541592.8552566
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780377389.8146586,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 392,
+        "y": 1997,
+        "why": "Tippe auf Display & touch"
+      },
+      "_received_at": 1541672.4052199
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780377396.346457,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 1541678.9370872
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780377410.85276,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Suche nach Dark theme Schalter"
+      },
+      "_received_at": 1541693.4433485
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780377412.9971838,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1541695.5877879
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780377470.6320298,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 969,
+        "y": 1738,
+        "why": "Deaktiviere Dark theme"
+      },
+      "_received_at": 1541753.2226163
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780377477.1604984,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 1541759.7513128
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780377519.936159,
+      "tool": "smartphone_done",
+      "args": {
+        "message": "Dark Mode ist deaktiviert."
+      },
+      "_received_at": 1541802.5267441
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780377519.936174,
+      "ok": true,
+      "payload": {
+        "message": "Dark Mode ist deaktiviert."
+      },
+      "_received_at": 1541802.5267976
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780377519.9361768,
+      "tool": "smartphone_done",
+      "_received_at": 1541802.5268579
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780377519.937464,
+      "tool": "smartphone_save_skill",
+      "args": {
+        "id": "display.dark_mode_off_settings",
+        "title": "Turn off Dark Mode via Settings",
+        "replace": false
+      },
+      "_received_at": 1541802.5280142
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780377519.9376075,
+      "tool": "smartphone_save_skill",
+      "_received_at": 1541802.5281175
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780377519.9380233,
+      "ok": true,
+      "payload": {
+        "active_skills": [
+          "display.dark_mode_off_settings"
+        ]
+      },
+      "_received_at": 1541802.5286778
+    }
+  ]
+}

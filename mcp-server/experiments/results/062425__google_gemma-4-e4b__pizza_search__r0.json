@@ -1,0 +1,187 @@
+{
+  "trial_id": "062425__google_gemma-4-e4b__pizza_search__r0",
+  "timestamp_utc": "2026-06-02T04:26:00.963602Z",
+  "model": "google/gemma-4-e4b",
+  "task": "pizza_search",
+  "run": 0,
+  "outcome": "failed",
+  "timing": {
+    "load": 4.15,
+    "reset": 1.52,
+    "task": 90.64,
+    "total": 95.91
+  },
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\062425__google_gemma-4-e4b__pizza_search__r0.png",
+  "lmstudio_response": {
+    "ok": false,
+    "active_skills": [],
+    "follow_up_context": false,
+    "lmstudio": {
+      "ok": false,
+      "outcome": "failed",
+      "tool_calls": 9,
+      "turns": 9,
+      "final_text": "",
+      "error": null,
+      "vision_unsupported": false
+    },
+    "_http_status": 502
+  },
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1780374268.5700772,
+      "task": "suche im browser ein pizza-restaurant in der nähe",
+      "_received_at": 1538551.1614076
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780374274.9496677,
+      "tool": "smartphone_open_url",
+      "args": {
+        "url": "https://www.google.com/search?q=pizza+restaurant+in+der+naehe",
+        "why": "Ich öffne Google und suche nach einem Pizza-Restaurant in der Nähe."
+      },
+      "_received_at": 1538557.5403662
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780374289.0480566,
+      "tool": "smartphone_open_url",
+      "_received_at": 1538571.6387202
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780374291.0231965,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 5,
+        "why": "Ich schaue mir die Elemente an, um ein Restaurant zu finden."
+      },
+      "_received_at": 1538573.6137516
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780374293.8355532,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1538576.4262043
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780374297.4149196,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 509,
+        "start_y": 40,
+        "end_x": 509,
+        "end_y": 1280,
+        "duration_ms": 300,
+        "why": "Ich scrolle die Suchergebnisse nach unten, um alle Restaurants zu sehen."
+      },
+      "_received_at": 1538580.0056474
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780374303.294379,
+      "tool": "smartphone_swipe",
+      "_received_at": 1538585.8849873
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780374305.2529783,
+      "tool": "smartphone_take_screenshot",
+      "args": {
+        "why": "Ich mache einen Screenshot der Suchergebnisse, um die Restaurants zu identifizieren."
+      },
+      "_received_at": 1538587.843528
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780374305.542467,
+      "tool": "smartphone_take_screenshot",
+      "_received_at": 1538588.1331589
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780374312.1030858,
+      "tool": "smartphone_open_url",
+      "args": {
+        "url": "https://www.google.com/search?q=pizza+restaurant+in+der+naehe",
+        "why": "Ich öffne erneut die Google-Suche nach einem Pizza-Restaurant in der Nähe, da ich im falschen Menü bin."
+      },
+      "_received_at": 1538594.6936566
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780374322.917035,
+      "tool": "smartphone_open_url",
+      "_received_at": 1538605.5076684
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780374328.3207295,
+      "tool": "smartphone_open_url",
+      "args": {
+        "url": "https://www.google.com/search?q=pizza+restaurant+in+der+naehe",
+        "why": "Ich öffne Google erneut und suche nach Pizza-Restaurants in der Nähe."
+      },
+      "_received_at": 1538610.9113358
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780374338.970975,
+      "tool": "smartphone_open_url",
+      "_received_at": 1538621.561534
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780374344.0269682,
+      "tool": "smartphone_open_url",
+      "args": {
+        "url": "https://www.google.com/search?q=pizza+restaurant+in+der+naehe",
+        "why": "Ich versuche noch einmal, die Google-Suche nach einem Pizza-Restaurant zu öffnen, um das Ziel zu erreichen."
+      },
+      "_received_at": 1538626.6176042
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780374354.8621323,
+      "tool": "smartphone_open_url",
+      "_received_at": 1538637.4527573
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780374358.7130945,
+      "tool": "smartphone_failed",
+      "args": {
+        "reason": "Ich kann die Google-Suche nach Restaurants nicht öffnen oder die Ergebnisse sehen."
+      },
+      "_received_at": 1538641.3037264
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780374358.7131195,
+      "ok": false,
+      "payload": {
+        "message": "Ich kann die Google-Suche nach Restaurants nicht öffnen oder die Ergebnisse sehen."
+      },
+      "_received_at": 1538641.3038675
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780374358.7131279,
+      "tool": "smartphone_failed",
+      "_received_at": 1538641.3043925
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780374358.7137282,
+      "ok": false,
+      "payload": {
+        "active_skills": [],
+        "outcome": "failed"
+      },
+      "_received_at": 1538641.3043999
+    }
+  ]
+}

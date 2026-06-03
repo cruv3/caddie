@@ -16,7 +16,7 @@
 # So ist der Test fair, egal ob die Baseline schon stimmte.
 
 backend: adb               # "http" oder "adb" — adb fuer robuste Screenshots (Bridge-unabhaengig)
-timeout_seconds: 300       # Pro Trial Max-Dauer (5 min Cap, stuck-Loops sollen schnell abbrechen)
+timeout_seconds: 600       # Pro Trial Max-Dauer (10 min Cap — qwen3.6-35b spillt aus 16GB VRAM, daher langsamer)
 runs_per_combo: 2          # Wiederholungen pro Modell × Task
 reset_delay_seconds: 2     # Wartezeit nach Reset bevor Trial startet
 post_trial_delay_seconds: 1 # Wartezeit nach Trial vor Screenshot

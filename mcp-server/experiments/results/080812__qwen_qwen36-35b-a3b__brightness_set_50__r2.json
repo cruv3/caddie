@@ -1,0 +1,232 @@
+{
+  "trial_id": "080812__qwen_qwen36-35b-a3b__brightness_set_50__r2",
+  "timestamp_utc": "2026-06-02T06:15:10.832323Z",
+  "model": "qwen/qwen3.6-35b-a3b",
+  "task": "brightness_set_50",
+  "run": 2,
+  "outcome": "failed",
+  "timing": {
+    "load": 0.0,
+    "reset": 1.75,
+    "task": 412.41,
+    "total": 417.87
+  },
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\080812__qwen_qwen36-35b-a3b__brightness_set_50__r2.png",
+  "lmstudio_response": {
+    "ok": true,
+    "active_skills": [
+      "display.brightness_50_settings",
+      "display.brightness_50_settings_display_touch"
+    ],
+    "follow_up_context": false,
+    "lmstudio": {
+      "ok": true,
+      "outcome": "done",
+      "tool_calls": 7,
+      "turns": 7,
+      "final_text": "",
+      "error": null,
+      "vision_unsupported": false
+    }
+  },
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1780380496.7283955,
+      "task": "stelle die helligkeit auf 50 prozent",
+      "_received_at": 1544779.3192909
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780380506.8470588,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Prüfe ob Bluetooth-Seite geöffnet ist"
+      },
+      "_received_at": 1544789.4376415
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780380509.0124428,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1544791.6030972
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780380547.2859058,
+      "ok": false,
+      "payload": {
+        "active_skills": [
+          "connectivity.bluetooth_on_settings",
+          "connectivity.bluetooth_on_settings_search"
+        ]
+      },
+      "_received_at": 1544829.8765869
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780380565.2367754,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.settings",
+        "why": "Öffne die Einstellungen"
+      },
+      "_received_at": 1544847.8273657
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780380573.1455922,
+      "tool": "smartphone_open_app",
+      "_received_at": 1544855.7362116
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780380573.1467133,
+      "ok": false,
+      "payload": {
+        "active_skills": [
+          "connectivity.bluetooth_on_settings",
+          "connectivity.bluetooth_on_settings_search"
+        ],
+        "outcome": "fail_loop"
+      },
+      "_received_at": 1544855.7375774
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780380602.1997197,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Schaue mir den aktuellen Bildschirm an"
+      },
+      "_received_at": 1544884.7903022
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780380604.4021492,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1544886.9927323
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780380707.7904842,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 392,
+        "y": 1997,
+        "why": "Tippe auf Display & touch"
+      },
+      "_received_at": 1544990.3810567
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780380714.6255548,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 1544997.2161898
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780380729.9342911,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Schaue mir die Display-Einstellungen an"
+      },
+      "_received_at": 1545012.5248703
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780380732.0161762,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1545014.6067919
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780380806.188072,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 540,
+        "y": 850,
+        "why": "Tippe auf Helligkeitsregelung"
+      },
+      "_received_at": 1545088.778655
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780380812.6157765,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 1545095.2064667
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780380827.31121,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Schaue mir den Helligkeitsregler an"
+      },
+      "_received_at": 1545109.9017797
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780380829.3961892,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1545111.9867763
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780380858.3602765,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 540,
+        "y": 268,
+        "why": "Stelle die Helligkeit auf 50 % ein"
+      },
+      "_received_at": 1545140.9512645
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780380864.7295883,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 1545147.320178
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780380908.9617176,
+      "tool": "smartphone_done",
+      "args": {
+        "message": "Helligkeit auf 50 % eingestellt"
+      },
+      "_received_at": 1545191.5547807
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780380908.9617338,
+      "ok": true,
+      "payload": {
+        "message": "Helligkeit auf 50 % eingestellt"
+      },
+      "_received_at": 1545191.5547878
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780380908.9617372,
+      "tool": "smartphone_done",
+      "_received_at": 1545191.554792
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780380908.9620905,
+      "ok": true,
+      "payload": {
+        "active_skills": [
+          "display.brightness_50_settings",
+          "display.brightness_50_settings_display_touch"
+        ]
+      },
+      "_received_at": 1545191.5547986
+    }
+  ]
+}

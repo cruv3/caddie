@@ -1,0 +1,88 @@
+{
+  "trial_id": "063156__qwen_qwen36-35b-a3b__dark_mode_on__r0",
+  "timestamp_utc": "2026-06-02T04:37:11.566249Z",
+  "model": "qwen/qwen3.6-35b-a3b",
+  "task": "dark_mode_on",
+  "run": 0,
+  "outcome": "timeout",
+  "timing": {
+    "load": 34.31,
+    "reset": 5.5,
+    "task": 300.29,
+    "total": 314.74
+  },
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\063156__qwen_qwen36-35b-a3b__dark_mode_on__r0.png",
+  "lmstudio_response": null,
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1780374724.3399565,
+      "task": "schalte den dark mode an",
+      "_received_at": 1539006.9389785
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780374789.8273559,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.settings",
+        "why": "Öffne die Einstellungen"
+      },
+      "_received_at": 1539072.4198105
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780374799.848594,
+      "tool": "smartphone_open_app",
+      "_received_at": 1539082.4405147
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780374811.7244282,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Suche nach Display-Einstellungen"
+      },
+      "_received_at": 1539094.315012
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780374813.9915664,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1539096.5821476
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780374854.388282,
+      "tool": "smartphone_press_button",
+      "args": {
+        "button": "BACK",
+        "why": "Zurück zur Hauptseite der Einstellungen"
+      },
+      "_received_at": 1539136.9789349
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780374860.4053004,
+      "tool": "smartphone_press_button",
+      "_received_at": 1539142.9958785
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780374871.804918,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Suche nach Display & touch"
+      },
+      "_received_at": 1539154.3955465
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780374874.4846814,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1539157.0753133
+    }
+  ]
+}

@@ -1,0 +1,343 @@
+{
+  "trial_id": "100542__google_gemma-4-e4b__dark_mode_off__r2",
+  "timestamp_utc": "2026-06-02T08:09:32.502324Z",
+  "model": "google/gemma-4-e4b",
+  "task": "dark_mode_off",
+  "run": 2,
+  "outcome": "failed",
+  "timing": {
+    "load": 6.07,
+    "reset": 1.48,
+    "task": 224.16,
+    "total": 229.8
+  },
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\100542__google_gemma-4-e4b__dark_mode_off__r2.png",
+  "lmstudio_response": {
+    "ok": false,
+    "active_skills": [
+      "display.dark_mode_off_settings"
+    ],
+    "follow_up_context": false,
+    "lmstudio": {
+      "ok": false,
+      "outcome": "failed",
+      "tool_calls": 17,
+      "turns": 17,
+      "final_text": "",
+      "error": null,
+      "vision_unsupported": false
+    },
+    "_http_status": 502
+  },
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1780387546.2033124,
+      "task": "schalte den dark mode aus",
+      "_received_at": 5765.0951157
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387552.107462,
+      "tool": "smartphone_get_skill_display_dark_mode_off_settings",
+      "args": {
+        "skill_id": "display.dark_mode_off_settings"
+      },
+      "_received_at": 5770.999037
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387552.1074786,
+      "tool": "smartphone_get_skill_display_dark_mode_off_settings",
+      "_received_at": 5770.9993178
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387556.2056105,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.settings",
+        "why": "Ich öffne die Einstellungen-App, um zum Display-Menü zu gelangen."
+      },
+      "_received_at": 5775.0971096
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387563.166554,
+      "tool": "smartphone_open_app",
+      "_received_at": 5782.0580799
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387568.8033304,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich schaue mir die Elemente in den Einstellungen an, um das Display-Menü zu finden."
+      },
+      "_received_at": 5787.6948391
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387570.9200637,
+      "tool": "smartphone_list_elements",
+      "_received_at": 5789.8116129
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387577.0618823,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 2361,
+        "end_x": 540,
+        "end_y": 100,
+        "duration_ms": 300,
+        "why": "Ich scrolle nach unten, um das Display-Menü zu finden."
+      },
+      "_received_at": 5795.9533836
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387582.4805908,
+      "tool": "smartphone_swipe",
+      "_received_at": 5801.3720907
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387588.0740287,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich liste die Elemente erneut auf, um das Display-Menü zu finden, nachdem ich gescrollt habe."
+      },
+      "_received_at": 5806.9655261
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387590.1653066,
+      "tool": "smartphone_list_elements",
+      "_received_at": 5809.0568284
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387599.143482,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich liste die Elemente erneut auf, um zu bestätigen, dass ich mich noch in den Einstellungen befinde und das Display-Menü finde."
+      },
+      "_received_at": 5818.0349816
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387601.22344,
+      "tool": "smartphone_list_elements",
+      "_received_at": 5820.1149349
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387609.4039168,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich liste die Elemente erneut auf, um das tatsächliche Einstellungsmenü zu sehen und den Bereich 'Anzeige' zu finden."
+      },
+      "_received_at": 5828.2953821
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387611.4770763,
+      "tool": "smartphone_list_elements",
+      "_received_at": 5830.3685962
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387621.7860699,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich liste die Elemente erneut auf, um das tatsächliche Einstellungsmenü zu sehen und den Bereich 'Anzeige' zu finden."
+      },
+      "_received_at": 5840.6775356
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387623.8597732,
+      "tool": "smartphone_list_elements",
+      "_received_at": 5842.7513459
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387635.2150266,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich liste die Elemente ein letztes Mal auf, um das tatsächliche Einstellungsmenü zu sehen und den Bereich 'Anzeige' zu finden."
+      },
+      "_received_at": 5854.1065519
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387637.2913172,
+      "tool": "smartphone_list_elements",
+      "_received_at": 5856.1831306
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387649.0195434,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich liste die Elemente erneut auf, um das tatsächliche Einstellungsmenü zu sehen und den Bereich 'Anzeige' zu finden."
+      },
+      "_received_at": 5867.911015
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387651.1182911,
+      "tool": "smartphone_list_elements",
+      "_received_at": 5870.0097761
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387663.3626459,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich liste die Elemente ein letztes Mal auf, um 'Anzeige' oder 'Display' zu finden und den nächsten Schritt im Skill-Flow durchzuführen."
+      },
+      "_received_at": 5882.2542795
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387665.4297779,
+      "tool": "smartphone_list_elements",
+      "_received_at": 5884.3212416
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387685.9878657,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich suche nach dem Eintrag \"Anzeige\" oder \"Display\", um zum richtigen Menü zu gelangen."
+      },
+      "_received_at": 5904.8793634
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387688.0616682,
+      "tool": "smartphone_list_elements",
+      "_received_at": 5906.9531582
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387696.8379886,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.settings",
+        "why": "Ich öffne die Einstellungen-App erneut, um zum Display-Menü zu gelangen."
+      },
+      "_received_at": 5915.7294668
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387703.6287885,
+      "tool": "smartphone_open_app",
+      "_received_at": 5922.5203489
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387713.5697014,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich liste die Elemente erneut auf, um den Eintrag \"Anzeige\" oder \"Display & Touchbedienung\" zu finden und fortzufahren."
+      },
+      "_received_at": 5932.4612025
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387715.663997,
+      "tool": "smartphone_list_elements",
+      "_received_at": 5934.5554958
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387728.8131976,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 2361,
+        "end_x": 540,
+        "end_y": 100,
+        "duration_ms": 300,
+        "why": "Ich scrolle erneut nach unten im Einstellungsmenü, um den Bereich \"Anzeige\" zu finden."
+      },
+      "_received_at": 5947.7047114
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387734.2207985,
+      "tool": "smartphone_swipe",
+      "_received_at": 5953.1123401
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387747.2421534,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 2361,
+        "end_x": 540,
+        "end_y": 100,
+        "duration_ms": 300,
+        "why": "Ich scrolle ein letztes Mal nach unten im Einstellungsmenü, um den Eintrag \"Anzeige\" oder \"Display & Touchbedienung\" zu finden."
+      },
+      "_received_at": 5966.1336846
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387754.3581386,
+      "tool": "smartphone_swipe",
+      "_received_at": 5973.2496265
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387769.8626168,
+      "tool": "smartphone_failed",
+      "args": {
+        "reason": "Ich kann den Eintrag \"Anzeige\" oder \"Display & Touchbedienung\" in den Einstellungen nicht finden."
+      },
+      "_received_at": 5988.7547199
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780387769.8626304,
+      "ok": false,
+      "payload": {
+        "message": "Ich kann den Eintrag \"Anzeige\" oder \"Display & Touchbedienung\" in den Einstellungen nicht finden."
+      },
+      "_received_at": 5988.7547495
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387769.8626337,
+      "tool": "smartphone_failed",
+      "_received_at": 5988.754754
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780387769.8631341,
+      "ok": false,
+      "payload": {
+        "active_skills": [
+          "display.dark_mode_off_settings"
+        ],
+        "outcome": "failed"
+      },
+      "_received_at": 5988.7547628
+    }
+  ]
+}

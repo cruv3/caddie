@@ -1,0 +1,89 @@
+{
+  "trial_id": "064018__qwen_qwen36-35b-a3b__dark_mode_on__r2",
+  "timestamp_utc": "2026-06-02T04:45:28.682087Z",
+  "model": "qwen/qwen3.6-35b-a3b",
+  "task": "dark_mode_on",
+  "run": 2,
+  "outcome": "timeout",
+  "timing": {
+    "load": 34.31,
+    "reset": 1.45,
+    "task": 300.25,
+    "total": 310.64
+  },
+  "screenshot": "C:\\Users\\Andreas\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\064018__qwen_qwen36-35b-a3b__dark_mode_on__r2.png",
+  "lmstudio_response": null,
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1780375221.509678,
+      "task": "schalte den dark mode an",
+      "_received_at": 1539504.101988
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780375261.29894,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.settings",
+        "why": "Öffne die Einstellungen"
+      },
+      "_received_at": 1539543.8897145
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780375270.504636,
+      "tool": "smartphone_open_app",
+      "_received_at": 1539553.0953048
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780375320.0138812,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Suche nach Display-Einstellungen"
+      },
+      "_received_at": 1539602.6046135
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780375322.2155495,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1539604.8062059
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780375431.6580758,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 392,
+        "y": 1997,
+        "why": "Tippe auf Display & touch"
+      },
+      "_received_at": 1539714.2486675
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780375438.5338361,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 1539721.1244849
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780375457.531003,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Suche nach Dark-Theme-Toggle"
+      },
+      "_received_at": 1539740.1217025
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780375459.7121525,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1539742.3027966
+    }
+  ]
+}

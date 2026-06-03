@@ -85,6 +85,12 @@ class EventBus:
     def confirmation_resolved(self, approved: bool) -> None:
         self.publish(ToolEvent(type="confirmation_resolved", ok=approved))
 
+    def verification_result(self, verified: bool, reason: str) -> None:
+        self.publish(ToolEvent(
+            type="verification_result", ok=verified,
+            payload={"reason": reason},
+        ))
+
 
 EVENT_BUS = EventBus()
 
@@ -129,6 +135,12 @@ class RemoteEventBus:
 
     def confirmation_resolved(self, approved: bool) -> None:
         self.publish(ToolEvent(type="confirmation_resolved", ok=approved))
+
+    def verification_result(self, verified: bool, reason: str) -> None:
+        self.publish(ToolEvent(
+            type="verification_result", ok=verified,
+            payload={"reason": reason},
+        ))
 
     @contextmanager
     def subscription(self) -> Iterator[queue.Queue[ToolEvent | None]]:  # pragma: no cover

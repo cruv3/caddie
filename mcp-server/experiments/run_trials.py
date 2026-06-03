@@ -38,12 +38,16 @@ DEFAULT_CONFIG = REPO_ROOT / "experiments" / "trial_matrix.yaml"
 
 
 def post_task(task_server_url: str, prompt: str, timeout: float, model: str | None = None,
-              follow_up: bool = False) -> dict:
+              follow_up: bool = False, criterion: str | None = None) -> dict:
     body: dict = {"task": prompt}
     if model:
         body["model"] = model
     if follow_up:
         body["follow_up"] = True
+    if criterion:
+        # Explicit success criterion -> the agent + the completeness verifier
+        # judge against THIS, not a guess from the task text (after VLAA-GUI).
+        body["criterion"] = criterion
     payload = json.dumps(body).encode("utf-8")
     headers = {"Content-Type": "application/json"}
     token = os.environ.get("LM_STUDIO_API_KEY") or os.environ.get("LMS_API_TOKEN")
@@ -171,6 +175,7 @@ def main() -> int:
                         try:
                             holder["response"] = post_task(
                                 task_server_url, task["prompt"], timeout, model=model,
+                                criterion=task.get("success_criterion"),
                             )
                         except urllib.error.URLError as exc:
                             holder["error"] = ("URLError", exc)

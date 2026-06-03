@@ -100,6 +100,16 @@ class PhoneHelper:
     def take_screenshot(self, trial_id: str) -> Path:
         out_path = self.screenshots_dir / f"{trial_id}.png"
         if self.backend == "adb":
+            # Wake + dismiss keyguard so we don't capture a black/lockscreen
+            # frame. On emulator these are effectively no-ops; on physical
+            # Pixels with stay-on disabled or after long idles, they're what
+            # makes the capture real.
+            for cmd in (
+                ["adb", "shell", "input", "keyevent", "KEYCODE_WAKEUP"],
+                ["adb", "shell", "wm", "dismiss-keyguard"],
+            ):
+                subprocess.run(cmd, check=False, timeout=5)
+            time.sleep(0.4)
             # ADB schreibt direkt nach Datei
             subprocess.run(
                 ["adb", "exec-out", "screencap", "-p"],
