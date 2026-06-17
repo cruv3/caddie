@@ -118,21 +118,70 @@ public class PhoneController {
     }
 
     public String openApp(String packageName) {
-        Intent intent = service.getPackageManager().getLaunchIntentForPackage(packageName);
+        // Mark this as agent activity so the launched app's settling scrolls
+        // don't get mistaken for a human intervention (no false self-pause).
+        AgentActivityTracker.markDispatch(1500);
+        PackageManager pm = service.getPackageManager();
+        Intent intent = pm.getLaunchIntentForPackage(packageName);
+        if (intent == null) {
+            // Agent may have passed a display name ("WhatsApp") -> resolve it.
+            String resolved = resolvePackage(packageName);
+            if (resolved != null) {
+                intent = pm.getLaunchIntentForPackage(resolved);
+            }
+        }
         if (intent == null) {
             return JsonUtil.error("package_not_launchable");
         }
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        // Launch through the Application context, not the AS context.
-        // Starting Activities directly from an AccessibilityService context
-        // causes Android 14+ to unbind+rebind the AS aggressively (each
-        // launch triggers a fresh-context refresh), which in turn tears
-        // down our overlay window over and over.
+        // Launch through the Application context, not the AS context (Android 14+
+        // would otherwise rebind the AS and tear down the overlay).
+        service.getApplicationContext().startActivity(intent);
+        return JsonUtil.ok(true);
+    }
+
+    /** Resolve a display name ("WhatsApp") or partial id to a launchable package. */
+    private String resolvePackage(String query) {
+        if (query == null || query.isEmpty()) {
+            return null;
+        }
+        String q = query.toLowerCase(Locale.ROOT);
+        PackageManager pm = service.getPackageManager();
+        String best = null;
+        for (ApplicationInfo app : pm.getInstalledApplications(0)) {
+            if (pm.getLaunchIntentForPackage(app.packageName) == null) {
+                continue;
+            }
+            String label = String.valueOf(pm.getApplicationLabel(app)).toLowerCase(Locale.ROOT);
+            String pkg = app.packageName.toLowerCase(Locale.ROOT);
+            if (label.equals(q) || pkg.equals(q)) {
+                return app.packageName;
+            }
+            if (best == null && (label.contains(q) || pkg.contains(q))) {
+                best = app.packageName;
+            }
+        }
+        return best;
+    }
+
+    /** Launch the system uninstall dialog for a package; the user confirms. */
+    public String uninstallApp(String packageName) {
+        AgentActivityTracker.markDispatch(1000);
+        String pkg = packageName;
+        if (service.getPackageManager().getLaunchIntentForPackage(pkg) == null) {
+            String resolved = resolvePackage(packageName);
+            if (resolved != null) {
+                pkg = resolved;
+            }
+        }
+        Intent intent = new Intent(Intent.ACTION_DELETE, Uri.parse("package:" + pkg));
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         service.getApplicationContext().startActivity(intent);
         return JsonUtil.ok(true);
     }
 
     public String openUrl(String url) {
+        AgentActivityTracker.markDispatch(1500);
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         service.getApplicationContext().startActivity(intent);

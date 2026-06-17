@@ -62,6 +62,11 @@ public class CompanionAccessibilityService extends AccessibilityService {
         return controller == null ? JsonUtil.error("accessibility_service_not_connected") : controller.openApp(packageName);
     }
 
+    public static String uninstallApp(String packageName) {
+        PhoneController controller = controllerOrNull();
+        return controller == null ? JsonUtil.error("accessibility_service_not_connected") : controller.uninstallApp(packageName);
+    }
+
     public static String openUrl(String url) {
         PhoneController controller = controllerOrNull();
         return controller == null ? JsonUtil.error("accessibility_service_not_connected") : controller.openUrl(url);

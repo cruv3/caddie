@@ -72,6 +72,11 @@ public class PhoneBridgeRouter {
                     JsonBody.stringValue(body, "url")
             ));
         }
+        if (request.startsWith("POST /uninstall ")) {
+            return HttpResponse.json(CompanionAccessibilityService.uninstallApp(
+                    JsonBody.stringValue(body, "packageName")
+            ));
+        }
         if (request.startsWith("POST /back ")) {
             return HttpResponse.json(CompanionAccessibilityService.globalAction(
                     AccessibilityService.GLOBAL_ACTION_BACK

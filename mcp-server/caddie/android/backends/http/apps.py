@@ -16,7 +16,8 @@ class AppCommands(InputCommands):
         return "Installing apps is not implemented in the Android HTTP backend yet."
 
     def uninstall_app(self, package_name: str, keep_data: bool = False) -> str:
-        return "Uninstalling apps is not implemented in the Android HTTP backend yet."
+        result = self.request_json("POST", "/uninstall", {"packageName": package_name})
+        return f"Opened the uninstall dialog for {package_name} (user confirms): {result.get('ok', False)}"
 
     def open_url(self, url: str) -> str:
         result = self.request_json("POST", "/open_url", {"url": url})
