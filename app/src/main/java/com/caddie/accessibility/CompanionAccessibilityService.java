@@ -142,6 +142,7 @@ public class CompanionAccessibilityService extends AccessibilityService {
                 + " isTap=" + isTap + " isScroll=" + isScroll);
         if (runActive && (isTap || (isScroll && !agentActive))) {
             InterventionReporter.get().onHumanInteraction();
+            com.caddie.overlay.OverlayService.Companion.notifyPaused(this);
         }
     }
 

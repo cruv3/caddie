@@ -32,7 +32,7 @@ public final class InterventionReporter {
 
     private static final String TAG = "Intervention";
     /** Touch-Ruhe, nach der der Agent automatisch fortsetzt. */
-    private static final long RESUME_QUIET_MS = 4000L;
+    private static final long RESUME_QUIET_MS = 2000L;
     private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
 
     private static final InterventionReporter INSTANCE = new InterventionReporter();

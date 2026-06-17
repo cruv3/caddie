@@ -18,7 +18,7 @@ import android.os.SystemClock;
 public final class AgentActivityTracker {
 
     /** Puffer nach Gesten-Ende, bis das ausgeloeste Klick-Event eintrifft. */
-    private static final long GESTURE_MARGIN_MS = 1200L;
+    private static final long GESTURE_MARGIN_MS = 2500L;
 
     /** Wie lange nach der letzten Agenten-Aktion ein Run als laufend gilt. */
     private static final long RUN_ACTIVE_WINDOW_MS = 90_000L;

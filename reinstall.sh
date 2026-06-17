@@ -10,11 +10,14 @@ ADB="${ADB:-/c/Users/Andreas/AppData/Local/Android/Sdk/platform-tools/adb.exe}"
 export JAVA_HOME="${JAVA_HOME:-/c/Program Files/Android/Android Studio/jbr}"
 cd "$(dirname "$0")"
 
+echo "==> build (before uninstall, so a build failure never leaves you appless)"
+./gradlew assembleDebug --console=plain 2>&1 | tail -4 || { echo "BUILD FAILED"; exit 1; }
+
 echo "==> uninstall $PKG (ignore if absent)"
 "$ADB" uninstall "$PKG" >/dev/null 2>&1 || true
 
-echo "==> build + install"
-./gradlew installDebug --console=plain 2>&1 | tail -4 || { echo "BUILD/INSTALL FAILED"; exit 1; }
+echo "==> install"
+./gradlew installDebug --console=plain 2>&1 | tail -4 || { echo "INSTALL FAILED"; exit 1; }
 
 echo "==> grant runtime + overlay permissions"
 "$ADB" shell pm grant "$PKG" android.permission.RECORD_AUDIO 2>/dev/null || true

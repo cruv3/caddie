@@ -147,6 +147,10 @@ class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegist
         startForegroundWithNotification()
         when (intent?.action) {
             ACTION_LISTENING -> setState { it.copy(state = RunState.Listening, currentStepLabel = "listening…") }
+            ACTION_PAUSED -> setState {
+                if (it.state == RunState.Thinking || it.state == RunState.Acting || it.state == RunState.Listening)
+                    it.copy(state = RunState.Paused, currentStepLabel = "paused") else it
+            }
             ACTION_TASK -> {
                 val task = intent.getStringExtra(EXTRA_TASK).orEmpty()
                 if (task.isNotBlank()) handleTask(task)
@@ -493,6 +497,7 @@ class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegist
         private const val FOLLOW_UP_WINDOW_MS = 120_000L
 
         const val ACTION_LISTENING = "com.caddie.overlay.LISTENING"
+        const val ACTION_PAUSED = "com.caddie.overlay.PAUSED"
         const val ACTION_TASK = "com.caddie.overlay.TASK"
         const val ACTION_DISMISS = "com.caddie.overlay.DISMISS"
         const val EXTRA_TASK = "task"
@@ -500,6 +505,14 @@ class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegist
         fun notifyListening(context: Context) {
             context.startService(Intent(context, OverlayService::class.java).apply {
                 action = ACTION_LISTENING
+            })
+        }
+
+        /** Optimistic local "paused" so the pill reacts instantly on a human
+         *  touch, without waiting for the server's task_paused SSE round-trip. */
+        fun notifyPaused(context: Context) {
+            context.startService(Intent(context, OverlayService::class.java).apply {
+                action = ACTION_PAUSED
             })
         }
 
