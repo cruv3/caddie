@@ -140,28 +140,64 @@ public class PhoneController {
         return JsonUtil.ok(true);
     }
 
-    /** Resolve a display name ("WhatsApp") or partial id to a launchable package. */
+    private static final String[] APP_FILLER = {
+            "open", "launch", "start", "the", "a", "app", "application", "browser",
+            "öffne", "starte", "die", "der", "das", "mir", "bitte",
+    };
+
+    /** Resolve a display name ("Chrome", "open chrome browser") or partial id to a
+     *  launchable package. Drops filler words, then tiers matches: exact label/pkg
+     *  -> label prefix -> all query tokens contained -> any token. Deterministic
+     *  (exact always wins; among equal tiers the first installed app). */
     private String resolvePackage(String query) {
-        if (query == null || query.isEmpty()) {
+        if (query == null || query.trim().isEmpty()) {
             return null;
         }
-        String q = query.toLowerCase(Locale.ROOT);
+        String q = query.trim().toLowerCase(Locale.ROOT);
+        java.util.List<String> tokens = new java.util.ArrayList<>();
+        for (String w : q.split(" ")) {
+            boolean filler = false;
+            for (String f : APP_FILLER) {
+                if (w.equals(f)) { filler = true; break; }
+            }
+            if (!filler && !w.isEmpty()) {
+                tokens.add(w);
+            }
+        }
+        if (tokens.isEmpty()) {
+            tokens.add(q);
+        }
+        String joined = String.join(" ", tokens);
         PackageManager pm = service.getPackageManager();
-        String best = null;
+        String prefix = null, allTokens = null, anyToken = null;
         for (ApplicationInfo app : pm.getInstalledApplications(0)) {
             if (pm.getLaunchIntentForPackage(app.packageName) == null) {
                 continue;
             }
             String label = String.valueOf(pm.getApplicationLabel(app)).toLowerCase(Locale.ROOT);
             String pkg = app.packageName.toLowerCase(Locale.ROOT);
-            if (label.equals(q) || pkg.equals(q)) {
-                return app.packageName;
+            if (label.equals(joined) || label.equals(q) || pkg.equals(q)) {
+                return app.packageName; // exact wins immediately
             }
-            if (best == null && (label.contains(q) || pkg.contains(q))) {
-                best = app.packageName;
+            if (prefix == null && (label.startsWith(joined) || label.startsWith(tokens.get(0)))) {
+                prefix = app.packageName;
+            }
+            boolean all = true;
+            for (String tk : tokens) {
+                if (!label.contains(tk) && !pkg.contains(tk)) { all = false; break; }
+            }
+            if (allTokens == null && all) {
+                allTokens = app.packageName;
+            }
+            if (anyToken == null) {
+                for (String tk : tokens) {
+                    if (label.contains(tk) || pkg.contains(tk)) { anyToken = app.packageName; break; }
+                }
             }
         }
-        return best;
+        if (prefix != null) return prefix;
+        if (allTokens != null) return allTokens;
+        return anyToken;
     }
 
     /** Launch the system uninstall dialog for a package; the user confirms. */
@@ -202,7 +238,9 @@ public class PhoneController {
             if (count > 0) {
                 builder.append(',');
             }
-            builder.append('"').append(JsonUtil.escape(app.packageName)).append('"');
+            String label = String.valueOf(packageManager.getApplicationLabel(app));
+            builder.append("{\"package\":\"").append(JsonUtil.escape(app.packageName))
+                    .append("\",\"label\":\"").append(JsonUtil.escape(label)).append("\"}");
             count++;
         }
         builder.append("]}");

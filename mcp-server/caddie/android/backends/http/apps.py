@@ -3,7 +3,14 @@ from caddie.android.backends.http.input import InputCommands
 
 class AppCommands(InputCommands):
     def list_apps(self, include_system: bool = False) -> list[str]:
-        return self.request_json("GET", "/apps").get("packages", [])
+        raw = self.request_json("GET", "/apps").get("packages", [])
+        out = []
+        for a in raw:
+            if isinstance(a, dict):
+                out.append(f"{a.get('label', '?')} ({a.get('package', '')})")
+            else:
+                out.append(str(a))
+        return out
 
     def open_app(self, package_name: str) -> str:
         result = self.request_json("POST", "/open_app", {"packageName": package_name})
