@@ -189,13 +189,17 @@ class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegist
         if (event is ThoughtEvent.ToolCallStarted && isSilentTool(event.tool)) return
         if (event is ThoughtEvent.ToolCallFinished && isSilentTool(event.tool)) return
 
-        // While the user is dictating (wake word fired -> Listening, agent being
-        // paused), don't let the agent's trailing tool/paused events overwrite
-        // the "listening" pill and steal the user's floor. Listening is cleared
-        // by a real follow-up event (TaskResumed after the correction, or
-        // TaskFinished on stop).
-        if (_state.value.state == RunState.Listening &&
-            (event is ThoughtEvent.ToolCallStarted || event is ThoughtEvent.TaskPaused)
+        // While the user is dictating (wake word -> Listening, agent paused),
+        // show ONLY "listening": block every agent event from changing the pill
+        // except the ones that legitimately END listening — the agent resuming
+        // (after a correction / auto-resume), the run finishing, or a critical
+        // confirmation. Everything else (tool calls, task_paused, session_ready,
+        // task_started) is suppressed so no other pill flickers through.
+        if (_state.value.state == RunState.Listening
+            && event !is ThoughtEvent.TaskResumed
+            && event !is ThoughtEvent.TaskFinished
+            && event !is ThoughtEvent.ConfirmationRequired
+            && event !is ThoughtEvent.ConfirmationResolved
         ) {
             return
         }
