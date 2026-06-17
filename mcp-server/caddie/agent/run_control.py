@@ -58,8 +58,9 @@ class RunControl:
             self._resume_event.clear()
             # An intervention during a pending Swipe-to-Confirm cancels it
             # (treated as decline) so a risky action never auto-runs while the
-            # user is taking over.
+            # user is taking over. Also wake a pending question wait.
             self._confirm_event.set()
+            self._answer_event.set()
 
     def set_correction(self, text: str) -> None:
         """Hinterlegt eine gesprochene Nutzer-Korrektur. Markiert zugleich den
@@ -71,8 +72,10 @@ class RunControl:
             self._pending_correction = text.strip() or None
             self._intervened = True
             # Wake a pending confirm wait so a voice correction is not blocked
-            # behind await_confirmation (treated as decline).
+            # behind await_confirmation (treated as decline). Same for a
+            # pending question wait (await_answer).
             self._confirm_event.set()
+            self._answer_event.set()
 
     def request_resume(self) -> None:
         with self._lock:

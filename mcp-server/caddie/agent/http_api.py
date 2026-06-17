@@ -217,10 +217,13 @@ def _handler_factory(
                         _finished_payload["error"] = _err_str
                         # Overlay reads `message` for the ephemeral toast.
                         _finished_payload["message"] = _err_str
-                EVENT_BUS.task_finished(
-                    ok=_clean,
-                    payload=_finished_payload,
-                )
+                # The agent loop is the single owner of task_finished; only
+                # emit here as a crash-safety net (loop raised before emitting).
+                if not (isinstance(result, dict) and result.get("finished_emitted")):
+                    EVENT_BUS.task_finished(
+                        ok=_clean,
+                        payload=_finished_payload,
+                    )
             response: dict = {
                 "ok": result.get("ok", False),
                 "active_skills": [skill.id for skill in matched],

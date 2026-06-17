@@ -48,8 +48,8 @@ def register_lifecycle_tools(mcp: FastMCP, context: ServerContext) -> None:
         with publish_tool_call(
             "smartphone_failed", bus=context.events, reason=reason
         ):
-            payload = {"message": reason} if reason else None
-            context.events.task_finished(ok=False, payload=payload)
+            # task_finished(ok=False) is emitted once by the agent loop (the
+            # single owner of terminal events) -- don't double-emit here.
             return "ok"
 
     @mcp.tool()

@@ -214,6 +214,9 @@ class LmStudioClient:
                         slot["arguments"] += fn["arguments"]
                 if choice.get("finish_reason"):
                     finish_reason = choice["finish_reason"]
+        except Exception as exc:
+            # Connection reset / timeout mid-stream -> clean result, not a crash.
+            return {"ok": False, "status": 0, "error": f"stream read failed: {exc}"}
         finally:
             try:
                 response.close()

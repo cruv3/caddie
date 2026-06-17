@@ -196,6 +196,8 @@ class AgentLoop:
         tool_calls_made = 0
         verify_rejects = 0
         asks_made = 0
+        done_message = None
+        fail_reason = None
         # Loop-breaker + Stage-1-gate state (per run).
         action_sigs: list[str] = []   # signatures of state-changing tool calls
         calls_since_obs = 0           # actions since the last screen observation
@@ -357,6 +359,12 @@ class AgentLoop:
                         messages.append(_tool_message(call.get("id", ""), ToolCallResult(
                             name=name, ok=False, text="Run stopped by user.")))
                         break
+                    if answer is None and (control.is_paused or control.has_intervention):
+                        # User intervened (pause / voice correction) during the
+                        # question -> hand off to the pause/correction flow.
+                        messages.append(_tool_message(call.get("id", ""), ToolCallResult(
+                            name=name, ok=True, text="Question interrupted by user input.")))
+                        continue
                     answer_text = (
                         f'The user answered: "{answer}". Continue accordingly.'
                         if answer else
@@ -428,11 +436,7 @@ class AgentLoop:
                     )
                     if verdict.verified:
                         messages.append(_tool_message(call.get("id", ""), result))
-                        _msg = args.get("message")
-                        self._events.task_finished(
-                            ok=True,
-                            payload=({"message": _msg} if _msg else None),
-                        )
+                        done_message = args.get("message")
                         outcome, terminal = "done", True
                     else:
                         verify_rejects += 1
@@ -458,6 +462,7 @@ class AgentLoop:
                 if result.image_b64:
                     pending_images.append(result)
                 if name == "smartphone_failed":
+                    fail_reason = str(args.get("reason") or "").strip() or None
                     outcome, terminal = "failed", True
 
             # Bilder (Screenshots) NACH allen tool-Messages anhaengen — das
@@ -473,6 +478,18 @@ class AgentLoop:
                 break
 
         self._active_control = None
+        # Single owner of the terminal event: emit exactly one task_finished per
+        # run (http_api only emits as a crash-safety net, see finished_emitted).
+        _clean = outcome in ("done", "stopped", "stopped_by_user")
+        _fin: dict = {"outcome": outcome}
+        if outcome == "done" and done_message:
+            _fin["message"] = done_message
+        elif not _clean:
+            _emsg = fail_reason or error
+            if _emsg:
+                _fin["error"] = str(_emsg)[:500]
+                _fin["message"] = str(_emsg)[:500]
+        self._events.task_finished(ok=_clean, payload=_fin)
         # Diesen Run als moeglichen Korrektur-Kontext merken (siehe recent_run).
         self._last_run = {
             "task": task,
@@ -481,7 +498,8 @@ class AgentLoop:
             "finished_at": time.monotonic(),
         }
         return {
-            "ok": outcome in ("done", "stopped"),
+            "ok": outcome in ("done", "stopped", "stopped_by_user"),
+            "finished_emitted": True,
             "outcome": outcome,
             "tool_calls": tool_calls_made,
             "turns": turns,
