@@ -7,7 +7,10 @@ public final class LmStudioConfig {
     // instead of going through emulator NAT (10.0.2.2). Bypasses Windows
     // Firewall and works identically on a real device over USB.
     // Required setup: `adb reverse tcp:8787 tcp:8787` (see start-emulator.bat).
-    public static final String BASE_URL = "http://127.0.0.1:8787";
+    // DEMO over Tailscale: phone reaches the PC agent server via the PC's
+    // Tailscale IP (no adb needed). Revert to "http://127.0.0.1:8787" for the
+    // local USB/adb-reverse setup.
+    public static final String BASE_URL = "http://100.73.52.13:8787";
     public static final String TASK_PATH = "/task";
     public static final String STREAM_PATH = "/task/stream";
     public static final String CONTROL_PATH = "/control";
