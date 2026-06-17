@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -33,6 +34,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -53,6 +55,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.caddie.overlay.OverlayUiState
@@ -69,7 +72,7 @@ fun OverlayRoot(
     val state by stateFlow.collectAsStateValue()
     Box(modifier = Modifier.fillMaxSize()) {
 
-        // Top ephemeral bubble (user transcript / "fertig" toast)
+        // Top ephemeral bubble (user transcript / "done" toast)
         AnimatedVisibility(
             visible = state.topMessage != null,
             enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(),
@@ -193,7 +196,7 @@ private fun SwipeToConfirmTrack(onConfirm: () -> Unit) {
         val threshold = maxOffset * 0.75f
 
         Text(
-            text = if (confirmed) "Bestätigt" else "Zum Bestätigen wischen  →",
+            text = if (confirmed) "Confirmed" else "Swipe to confirm  →",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -282,8 +285,8 @@ private fun BottomPill(state: OverlayUiState) {
         Row(
             modifier = Modifier
                 .fillMaxWidth(0.8f)
-                .height(56.dp)
-                .padding(horizontal = 18.dp),
+                .heightIn(min = 56.dp)
+                .padding(horizontal = 18.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
         ) {
@@ -296,12 +299,16 @@ private fun BottomPill(state: OverlayUiState) {
                         .togetherWith(fadeOut(animationSpec = tween(180)))
                 },
                 label = "pill-label",
+                modifier = Modifier.weight(1f, fill = false),
             ) { label ->
                 Text(
                     text = label,
                     color = pillTextColor(state.state),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
+                    textAlign = TextAlign.Center,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }
@@ -326,7 +333,7 @@ private fun PillLeading(state: RunState) {
             modifier = Modifier.size(22.dp),
         )
         RunState.Error -> Icon(
-            Icons.Filled.Check,
+            Icons.Filled.Close,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onError,
             modifier = Modifier.size(22.dp),
@@ -424,11 +431,11 @@ private fun pillTextColor(state: RunState): Color = when (state) {
 }
 
 private fun pillLabel(state: OverlayUiState): String = when (state.state) {
-    RunState.Listening -> "höre…"
-    RunState.Thinking -> state.currentStepLabel.ifEmpty { "denke nach" }
-    RunState.Acting -> state.currentStepLabel.ifEmpty { "arbeite" }
-    RunState.Paused -> state.currentStepLabel.ifEmpty { "pausiert" }
-    RunState.Done -> "fertig"
-    RunState.Error -> "Fehler"
+    RunState.Listening -> "listening…"
+    RunState.Thinking -> state.currentStepLabel.ifEmpty { "thinking" }
+    RunState.Acting -> state.currentStepLabel.ifEmpty { "working" }
+    RunState.Paused -> state.currentStepLabel.ifEmpty { "paused" }
+    RunState.Done -> "done"
+    RunState.Error -> "Error"
     RunState.Hidden -> ""
 }

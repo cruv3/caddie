@@ -146,7 +146,7 @@ class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegist
         // promotes a stale background-start to a foreground one.
         startForegroundWithNotification()
         when (intent?.action) {
-            ACTION_LISTENING -> setState { it.copy(state = RunState.Listening, currentStepLabel = "höre…") }
+            ACTION_LISTENING -> setState { it.copy(state = RunState.Listening, currentStepLabel = "listening…") }
             ACTION_TASK -> {
                 val task = intent.getStringExtra(EXTRA_TASK).orEmpty()
                 if (task.isNotBlank()) handleTask(task)
@@ -162,7 +162,7 @@ class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegist
     private fun handleTask(task: String) {
         showEphemeralTop(task, isUser = true)
         setState { it.copy(state = RunState.Thinking, currentStepLabel = "verstanden") }
-        // Kommt der Auftrag kurz nach einem "fertig", behandeln wir ihn als
+        // Kommt der Auftrag kurz nach einem "done", behandeln wir ihn als
         // Korrektur des vorigen Laufs: der Host bekommt follow_up=true und
         // gibt dem neuen Run den vorherigen Auftrag als Kontext mit.
         val followUp = lastFinishElapsedMs > 0L &&
@@ -171,7 +171,7 @@ class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegist
             client.fireTask(task, followUp) { err ->
                 mainHandler.post {
                     Log.w(TAG, "task POST failed", err)
-                    setState { it.copy(state = RunState.Error, currentStepLabel = "Fehler") }
+                    setState { it.copy(state = RunState.Error, currentStepLabel = "Error") }
                     scheduleHide(3000L)
                 }
             }
@@ -184,6 +184,17 @@ class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegist
         // letting them update the pill would mask the actual action.
         if (event is ThoughtEvent.ToolCallStarted && isSilentTool(event.tool)) return
         if (event is ThoughtEvent.ToolCallFinished && isSilentTool(event.tool)) return
+
+        // While the user is dictating (wake word fired -> Listening, agent being
+        // paused), don't let the agent's trailing tool/paused events overwrite
+        // the "listening" pill and steal the user's floor. Listening is cleared
+        // by a real follow-up event (TaskResumed after the correction, or
+        // TaskFinished on stop).
+        if (_state.value.state == RunState.Listening &&
+            (event is ThoughtEvent.ToolCallStarted || event is ThoughtEvent.TaskPaused)
+        ) {
+            return
+        }
 
         idleHideRunnable?.let { mainHandler.removeCallbacks(it) }
         idleHideRunnable = null
@@ -233,17 +244,17 @@ class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegist
                 lastFinishElapsedMs = SystemClock.elapsedRealtime()
                 val message = event.payload?.optString("message", "")?.takeIf { it.isNotBlank() }
                 if (event.ok) {
-                    setState { it.copy(state = RunState.Done, currentStepLabel = "fertig") }
-                    showEphemeralTop(message ?: "Fertig", isUser = false)
+                    setState { it.copy(state = RunState.Done, currentStepLabel = "done") }
+                    showEphemeralTop(message ?: "Done", isUser = false)
                 } else {
-                    setState { it.copy(state = RunState.Error, currentStepLabel = "Fehler") }
+                    setState { it.copy(state = RunState.Error, currentStepLabel = "Error") }
                     if (message != null) showEphemeralTop(message, isUser = false)
                 }
                 scheduleHide(2500L)
             }
             is ThoughtEvent.TaskPaused -> {
                 setState {
-                    it.copy(state = RunState.Paused, currentStepLabel = "pausiert")
+                    it.copy(state = RunState.Paused, currentStepLabel = "paused")
                 }
             }
             is ThoughtEvent.TaskResumed -> {
@@ -478,7 +489,7 @@ class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegist
         // bridge typical LLM thinking gaps (5-30s) plus a safety margin
         // for genuine task end without a task_finished signal.
         private const val TASK_IDLE_HIDE_MS = 90_000L
-        // Auftrag innerhalb dieses Fensters nach "fertig" = Korrektur-Folge-Task.
+        // Auftrag innerhalb dieses Fensters nach "done" = Korrektur-Folge-Task.
         private const val FOLLOW_UP_WINDOW_MS = 120_000L
 
         const val ACTION_LISTENING = "com.caddie.overlay.LISTENING"

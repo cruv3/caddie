@@ -57,7 +57,7 @@ class LmStudioClient:
         }
         # reasoning="off" wird nur von Modellen mit Thinking-Mode akzeptiert (Qwen3.6, …)
         # Andere Modelle (qwen3-vl-8b, gemma, pixtral) liefern 400 wenn der Parameter gesetzt ist.
-        if "qwen3.6" in effective_model.lower():
+        if "qwen3.6" in effective_model.lower() and os.environ.get("LLM_STUDIO_REASONING", "off").lower() != "on":
             body["reasoning"] = "off"
         request = Request(
             self.settings.endpoint,
@@ -104,7 +104,7 @@ class LmStudioClient:
         if tools:
             body["tools"] = tools
         # reasoning="off" nur fuer Modelle mit Thinking-Mode (Qwen3.6, …).
-        if "qwen3.6" in effective_model.lower():
+        if "qwen3.6" in effective_model.lower() and os.environ.get("LLM_STUDIO_REASONING", "off").lower() != "on":
             body["reasoning"] = "off"
         request = Request(
             self._chat_completions_url(),
@@ -128,6 +128,118 @@ class LmStudioClient:
             }
         except URLError as error:
             return {"ok": False, "status": 0, "error": str(error.reason)}
+
+    def chat_completion_stream(
+        self,
+        messages: list[dict],
+        tools: list[dict] | None = None,
+        authorization: str | None = None,
+        model: str | None = None,
+        should_cancel=None,
+    ) -> dict | None:
+        """Streaming variant of :meth:`chat_completion` that can be TRULY
+        aborted mid-generation. Reads the SSE stream chunk-by-chunk and checks
+        ``should_cancel()`` between chunks; on cancel it closes the connection,
+        which makes the inference server stop generating (no wasted GPU, no
+        orphaned worker), and returns ``None``. Otherwise it reassembles the
+        deltas into the same response shape ``chat_completion`` returns.
+        Thinking arrives as ``reasoning_content`` deltas and is intentionally
+        dropped (only ``content`` + ``tool_calls`` go into the message)."""
+        effective_model = model or self.settings.model
+        body: dict = {
+            "model": effective_model,
+            "messages": messages,
+            "temperature": 0.2,
+            "stream": True,
+        }
+        if tools:
+            body["tools"] = tools
+        if ("qwen3.6" in effective_model.lower()
+                and os.environ.get("LLM_STUDIO_REASONING", "off").lower() != "on"):
+            body["reasoning"] = "off"
+        request = Request(
+            self._chat_completions_url(),
+            data=json.dumps(body, ensure_ascii=False).encode("utf-8"),
+            headers=_headers(authorization),
+            method="POST",
+        )
+        try:
+            response = urlopen(
+                request, timeout=int(os.environ.get("LLM_STUDIO_TIMEOUT", "180"))
+            )
+        except HTTPError as error:
+            payload = error.read().decode("utf-8", errors="replace")
+            return {
+                "ok": False, "status": error.code, "error": payload,
+                "vision_unsupported": _looks_like_vision_error(payload),
+            }
+        except URLError as error:
+            return {"ok": False, "status": 0, "error": str(error.reason)}
+
+        content_parts: list[str] = []
+        tool_slots: dict[int, dict] = {}
+        finish_reason = None
+        try:
+            for raw in response:
+                if should_cancel is not None and should_cancel():
+                    return None  # finally closes the conn -> server aborts gen
+                line = raw.decode("utf-8", errors="replace").strip()
+                if not line.startswith("data:"):
+                    continue
+                data = line[5:].strip()
+                if data == "[DONE]":
+                    break
+                try:
+                    chunk = json.loads(data)
+                except json.JSONDecodeError:
+                    continue
+                choices = chunk.get("choices") or []
+                if not choices:
+                    continue
+                choice = choices[0]
+                delta = choice.get("delta") or {}
+                if delta.get("content"):
+                    content_parts.append(delta["content"])
+                for tc in (delta.get("tool_calls") or []):
+                    idx = tc.get("index", 0)
+                    slot = tool_slots.setdefault(
+                        idx, {"id": "", "name": "", "arguments": ""}
+                    )
+                    if tc.get("id"):
+                        slot["id"] = tc["id"]
+                    fn = tc.get("function") or {}
+                    if fn.get("name"):
+                        slot["name"] = fn["name"]
+                    if fn.get("arguments"):
+                        slot["arguments"] += fn["arguments"]
+                if choice.get("finish_reason"):
+                    finish_reason = choice["finish_reason"]
+        finally:
+            try:
+                response.close()
+            except Exception:
+                pass
+
+        message: dict = {"role": "assistant"}
+        content = "".join(content_parts)
+        message["content"] = content or None
+        if tool_slots:
+            message["tool_calls"] = [
+                {
+                    "id": slot["id"] or f"call_{i}",
+                    "type": "function",
+                    "function": {
+                        "name": slot["name"], "arguments": slot["arguments"]
+                    },
+                }
+                for i, slot in sorted(tool_slots.items())
+            ]
+        return {
+            "ok": True,
+            "response": {
+                "choices": [{"message": message, "finish_reason": finish_reason}]
+            },
+        }
 
     def _chat_completions_url(self) -> str:
         """Leitet den OpenAI-kompatiblen Endpoint aus dem konfigurierten

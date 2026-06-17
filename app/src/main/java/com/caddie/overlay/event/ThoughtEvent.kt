@@ -37,7 +37,7 @@ sealed class ThoughtEvent {
                         tool = json.optString("tool", ""),
                         description = json.optJSONObject("payload")
                             ?.optString("description", "").orEmpty()
-                            .ifBlank { "Kritische Aktion bestätigen?" }
+                            .ifBlank { "Confirm critical action?" }
                     )
                     "confirmation_resolved" -> ConfirmationResolved
                     "session_ready" -> SessionReady

@@ -127,12 +127,20 @@ public class CompanionAccessibilityService extends AccessibilityService {
         // innerhalb des Agent-Aktiv-Fensters ignorieren.
         boolean runActive = AgentActivityTracker.isRunLikelyActive();
         boolean agentActive = AgentActivityTracker.isAgentActive();
-        boolean fromTouchStart = type == AccessibilityEvent.TYPE_TOUCH_INTERACTION_START;
+        // HTTP-bridge backend: the agent acts via dispatchGesture, which fires
+        // NO accessibility events. So a click / long-click / touch-start during
+        // a run is ALWAYS the human -> pause immediately (no agent-active guess).
+        // Scrolls still fire from the agent's own list-settling after a swipe,
+        // so keep the agent-active guard for scroll events only.
+        boolean isTap = type == AccessibilityEvent.TYPE_VIEW_CLICKED
+                || type == AccessibilityEvent.TYPE_VIEW_LONG_CLICKED
+                || type == AccessibilityEvent.TYPE_TOUCH_INTERACTION_START;
+        boolean isScroll = type == AccessibilityEvent.TYPE_VIEW_SCROLLED;
         android.util.Log.i("CompanionA11y", "interactive event type=" + type
                 + " (" + AccessibilityEvent.eventTypeToString(type) + ")"
                 + " runActive=" + runActive + " agentActive=" + agentActive
-                + " fromTouchStart=" + fromTouchStart);
-        if (runActive && (fromTouchStart || !agentActive)) {
+                + " isTap=" + isTap + " isScroll=" + isScroll);
+        if (runActive && (isTap || (isScroll && !agentActive))) {
             InterventionReporter.get().onHumanInteraction();
         }
     }

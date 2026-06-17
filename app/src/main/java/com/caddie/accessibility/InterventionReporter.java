@@ -81,6 +81,15 @@ public final class InterventionReporter {
      *  beginnt — setzt den Auto-Resume aus, bis die Korrektur da ist. */
     public synchronized void onVoiceCaptureStarted() {
         voiceCaptureActive = true;
+        // Wake word fired mid-run -> pause the agent NOW so it stops acting and
+        // the user actually gets the floor to dictate a correction or say
+        // "stop". No auto-resume timer here: resume comes from sendCorrection /
+        // stopRun, or onVoiceCaptureEnded if speech capture yields nothing.
+        if (!paused) {
+            paused = true;
+            Log.i(TAG, "voice capture -> pausing agent so user can speak");
+            post("intervene");
+        }
     }
 
     /** Spracherfassung beendet (ohne verwertbares Ergebnis). */
@@ -110,6 +119,14 @@ public final class InterventionReporter {
     public void sendDecline() {
         Log.i(TAG, "user declined critical action");
         post("decline");
+    }
+
+    /** Harter Stop: den laufenden Agent-Run beenden (Sprachbefehl "stop"). */
+    public synchronized void stopRun() {
+        Log.i(TAG, "user requested stop -> ending run");
+        paused = false;
+        voiceCaptureActive = false;
+        post("stop");
     }
 
     /** Periodischer Check: nach genug Touch-Ruhe -> Agent fortsetzen. */
@@ -174,6 +191,10 @@ public final class InterventionReporter {
                 }
             } catch (Exception exception) {
                 Log.w(TAG, "POST /control correct failed: " + exception.getMessage());
+                // Network failure: the server may still be paused waiting for
+                // this correction. Don't lose it — resend as a follow-up task
+                // so the run continues instead of hanging in pause.
+                postFollowUpTask(text);
             }
         });
     }

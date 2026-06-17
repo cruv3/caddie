@@ -19,39 +19,39 @@ object ToolNarration {
         // Prefer the LLM's own brief explanation if it passed one via the
         // `why` parameter on the tool call. That gives the user a real
         // sentence ("Sucht nach Pizza bei Google") instead of a generic
-        // verb ("Öffne URL"). Fall back to tool-derived labels.
+        // verb ("Opening URL"). Fall back to tool-derived labels.
         val why = (args["why"] as? String).orEmpty().trim()
         if (why.isNotEmpty()) return why.take(MAX_LABEL_CHARS)
 
         return when {
-            tool == "smartphone_tap_coordinates" -> "Tippe"
-            tool == "smartphone_double_tap_coordinates" -> "Doppel-Tippe"
-            tool == "smartphone_long_press_coordinates" -> "Halte gedrückt"
-            tool == "smartphone_swipe" -> "Wische"
-            tool == "smartphone_type_text" -> "Tippe Text"
+            tool == "smartphone_tap_coordinates" -> "Tapping"
+            tool == "smartphone_double_tap_coordinates" -> "Double-tapping"
+            tool == "smartphone_long_press_coordinates" -> "Long-pressing"
+            tool == "smartphone_swipe" -> "Swiping"
+            tool == "smartphone_type_text" -> "Typing text"
             tool == "smartphone_press_button" -> {
                 val b = args["button"]?.toString() ?: ""
-                if (b.isNotEmpty()) "Drücke $b" else "Drücke Taste"
+                if (b.isNotEmpty()) "Pressing $b" else "Pressing key"
             }
             tool == "smartphone_open_app" -> {
                 val pkg = args["package_name"]?.toString().orEmpty()
-                if (pkg.isNotEmpty()) "Öffne $pkg" else "Öffne App"
+                if (pkg.isNotEmpty()) "Opening $pkg" else "Opening app"
             }
-            tool == "smartphone_terminate_app" -> "Schließe App"
-            tool == "smartphone_install_app" -> "Installiere App"
-            tool == "smartphone_uninstall_app" -> "Deinstalliere App"
-            tool == "smartphone_open_url" -> "Öffne URL"
-            tool == "smartphone_take_screenshot" -> "Schaue auf den Screen"
-            tool == "smartphone_list_elements" -> "Lese Screen"
-            tool == "smartphone_list_apps" -> "Liste Apps"
-            tool == "smartphone_list_devices" -> "Suche Geräte"
-            tool == "smartphone_get_screen_size" -> "Lese Bildschirmgröße"
-            tool == "smartphone_get_orientation" -> "Lese Ausrichtung"
-            tool == "smartphone_set_orientation" -> "Ändere Ausrichtung"
-            tool == "smartphone_save_skill" -> "Speichere Anleitung"
-            tool == "smartphone_done" -> "fertig"
-            tool == "smartphone_failed" -> "abgebrochen"
-            tool.startsWith("smartphone_get_skill_") -> "Lade Anleitung"
+            tool == "smartphone_terminate_app" -> "Closing app"
+            tool == "smartphone_install_app" -> "Installing app"
+            tool == "smartphone_uninstall_app" -> "Uninstalling app"
+            tool == "smartphone_open_url" -> "Opening URL"
+            tool == "smartphone_take_screenshot" -> "Looking at the screen"
+            tool == "smartphone_list_elements" -> "Reading screen"
+            tool == "smartphone_list_apps" -> "Listing apps"
+            tool == "smartphone_list_devices" -> "Finding devices"
+            tool == "smartphone_get_screen_size" -> "Reading screen size"
+            tool == "smartphone_get_orientation" -> "Reading orientation"
+            tool == "smartphone_set_orientation" -> "Changing orientation"
+            tool == "smartphone_save_skill" -> "Saving skill"
+            tool == "smartphone_done" -> "done"
+            tool == "smartphone_failed" -> "cancelled"
+            tool.startsWith("smartphone_get_skill_") -> "Loading skill"
             else -> tool.removePrefix("smartphone_").replace('_', ' ')
         }
     }

@@ -19,7 +19,7 @@ def register_lifecycle_tools(mcp: FastMCP, context: ServerContext) -> None:
             message: Brief German confirmation shown briefly to the user
                 in the top bubble (max 80 chars). Example:
                 "Dunkles Design ist aktiviert.", "Pizza-Restaurants gefunden.",
-                "App geöffnet." If unsure, leave empty and a generic
+                "App opened." If unsure, leave empty and a generic
                 "Fertig" is used.
 
         Returns:
@@ -28,8 +28,9 @@ def register_lifecycle_tools(mcp: FastMCP, context: ServerContext) -> None:
         with publish_tool_call(
             "smartphone_done", bus=context.events, message=message
         ):
-            payload = {"message": message} if message else None
-            context.events.task_finished(ok=True, payload=payload)
+            # task_finished(ok=True) is emitted by the agent loop AFTER the
+            # completeness verifier accepts this done -- not here -- so the app
+            # never shows "done" for a completion the judge later rejects.
             return "ok"
 
     @mcp.tool()
@@ -38,7 +39,7 @@ def register_lifecycle_tools(mcp: FastMCP, context: ServerContext) -> None:
         
         Args:
             reason: Brief German user-facing explanation (max 80 chars).
-                Example: "Standortfreigabe nicht möglich.",
+                Example: "Location access not possible.",
                 "Element nicht gefunden.".
 
         Returns:

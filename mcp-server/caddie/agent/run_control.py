@@ -53,6 +53,10 @@ class RunControl:
             if intervention:
                 self._intervened = True
             self._resume_event.clear()
+            # An intervention during a pending Swipe-to-Confirm cancels it
+            # (treated as decline) so a risky action never auto-runs while the
+            # user is taking over.
+            self._confirm_event.set()
 
     def set_correction(self, text: str) -> None:
         """Hinterlegt eine gesprochene Nutzer-Korrektur. Markiert zugleich den
@@ -63,6 +67,9 @@ class RunControl:
                 return
             self._pending_correction = text.strip() or None
             self._intervened = True
+            # Wake a pending confirm wait so a voice correction is not blocked
+            # behind await_confirmation (treated as decline).
+            self._confirm_event.set()
 
     def request_resume(self) -> None:
         with self._lock:
@@ -114,6 +121,12 @@ class RunControl:
     @property
     def is_paused(self) -> bool:
         return self.state is RunState.PAUSED
+
+    @property
+    def has_intervention(self) -> bool:
+        """True solange ein Eingriff/Korrektur ansteht (nicht-konsumierend)."""
+        with self._lock:
+            return self._intervened
 
     def consume_intervention(self) -> bool:
         """True (genau einmal), wenn seit der letzten Abfrage ein menschlicher

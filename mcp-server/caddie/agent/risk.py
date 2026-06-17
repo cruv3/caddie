@@ -36,6 +36,13 @@ RISK_KEYWORDS: tuple[str, ...] = (
     "uninstall", "deinstallier", "delete", "loesch", "lösch", "entfern",
     "remove", "bezahl", "payment", "kaufen", "purchase", "abbuch",
     "zuruecksetz", "zurücksetz", "factory", "wipe",
+    # kostenpflichtig / Abo / Checkout
+    "subscribe", "abonnier", "checkout", "kasse", "bestell", "buy",
+    # senden / Geld bewegen
+    "senden", "absenden", "überweis", "ueberweis", "transfer",
+    # Konto / destruktiv
+    "deaktivier", "deactivate", "close account", "konto schließ",
+    "konto schliess",
 )
 
 
@@ -78,7 +85,10 @@ def _risky_label_at(x: Any, y: Any, elements: list[dict]) -> str | None:
         bounds = el.get("bounds") or {}
         if not _contains(bounds, px, py):
             continue
-        label = (el.get("text") or el.get("content_description") or "").strip()
+        label = (
+            el.get("text") or el.get("content_description")
+            or el.get("label") or el.get("description") or ""
+        ).strip()
         if label and _matches_keyword(label):
             return label
     return None

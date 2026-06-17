@@ -131,6 +131,7 @@ class WakeWordService : Service() {
                 if (read <= 0) continue
                 if (read != frameSize) continue
                 val score = det.process(buf)
+                if (score != null && score > 0.1f) Log.i(TAG, "ww score=$score")
                 if (det.shouldFire(score)) {
                     Log.i(TAG, "wake-word fired (score=$score)")
                     onWakeWord()
@@ -156,7 +157,11 @@ class WakeWordService : Service() {
         speech.start(
             onResult = { transcript ->
                 Log.i(TAG, "transcript: $transcript (correction=$correctionMode)")
-                if (correctionMode) {
+                if (isStopCommand(transcript)) {
+                    Log.i(TAG, "stop command recognized -> stopping run")
+                    InterventionReporter.get().stopRun()
+                    OverlayService.notifyDismiss(this)
+                } else if (correctionMode) {
                     InterventionReporter.get().sendCorrection(transcript)
                 } else {
                     OverlayService.dispatchTask(this, transcript)
@@ -177,6 +182,12 @@ class WakeWordService : Service() {
         detector?.reset()
     }
 
+    /** True if the spoken text is a stop command ("stop", "halt", "cancel", …). */
+    private fun isStopCommand(text: String): Boolean {
+        val norm = text.trim().lowercase()
+        return STOP_WORDS.any { norm == it || norm.startsWith("$it ") || norm.startsWith("$it.") }
+    }
+
     override fun onDestroy() {
         captureRunning.set(false)
         captureJob?.cancel()
@@ -191,5 +202,8 @@ class WakeWordService : Service() {
         private const val TAG = "WakeWordService"
         private const val CHANNEL_ID = "wakeword_channel"
         private const val NOTIF_ID = 4242
+        private val STOP_WORDS = listOf(
+            "stop", "stopp", "stoppen", "stop it", "halt", "anhalten", "abbrechen", "cancel",
+        )
     }
 }

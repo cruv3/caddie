@@ -22,7 +22,7 @@ import java.nio.FloatBuffer
  */
 class OpenWakeWordDetector(
     private val context: Context,
-    private val threshold: Float = 0.5f,
+    private val threshold: Float = 0.25f,
     private val refractorySamples: Int = 16_000,  // 1s lockout after a hit
 ) : Closeable {
 

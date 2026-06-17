@@ -204,18 +204,21 @@ def _handler_factory(
                 # Surface error / outcome to the phone overlay so a failed
                 # run does not silently leave the pill stuck at "Verstanden".
                 _lm = result.get("lmstudio") if isinstance(result.get("lmstudio"), dict) else result
-                if not result.get("ok", False):
+                _outcome = _lm.get("outcome") if isinstance(_lm, dict) else None
+                if _outcome:
+                    _finished_payload["outcome"] = _outcome
+                # A user-initiated stop is a clean terminal, NOT an error -- the
+                # overlay must not flash red for a deliberate "stop".
+                _clean = bool(result.get("ok", False)) or _outcome == "stopped_by_user"
+                if not _clean:
                     _err = _lm.get("error") if isinstance(_lm, dict) else None
                     if _err:
                         _err_str = str(_err)[:500]
                         _finished_payload["error"] = _err_str
                         # Overlay reads `message` for the ephemeral toast.
                         _finished_payload["message"] = _err_str
-                    _outcome = _lm.get("outcome") if isinstance(_lm, dict) else None
-                    if _outcome:
-                        _finished_payload["outcome"] = _outcome
                 EVENT_BUS.task_finished(
-                    ok=bool(result.get("ok", False)),
+                    ok=_clean,
                     payload=_finished_payload,
                 )
             response: dict = {

@@ -80,7 +80,7 @@ private fun SetupContent(
         )
         Spacer(Modifier.height(8.dp))
         Text(
-            text = "Damit Jarvis dich versteht, brauchen wir noch ein paar Berechtigungen.",
+            text = "For Jarvis to understand you, we need a few more permissions.",
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -93,7 +93,7 @@ private fun SetupContent(
             PermissionRow(
                 icon = Icons.Filled.Visibility,
                 title = "Accessibility",
-                description = "Damit der Agent Apps lesen und steuern kann.",
+                description = "So the agent can read and control apps.",
                 granted = state.accessibility,
                 onClick = onAccessibilityClick,
             )
@@ -104,7 +104,7 @@ private fun SetupContent(
             PermissionRow(
                 icon = Icons.Outlined.Layers,
                 title = "Bildschirm-Overlay",
-                description = "Zeigt die Live-Anzeige während der Agent arbeitet.",
+                description = "Shows the live display while the agent works.",
                 granted = state.overlay,
                 onClick = onOverlayClick,
             )
@@ -115,7 +115,7 @@ private fun SetupContent(
             PermissionRow(
                 icon = Icons.Filled.Mic,
                 title = "Mikrofon",
-                description = "Hört auf das Wake-Word „Jarvis“.",
+                description = "Listens for the wake word 'Hey Jarvis'.",
                 granted = state.mic,
                 onClick = onMicClick,
             )
@@ -173,7 +173,7 @@ private fun PermissionRow(
         } else {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                contentDescription = "öffnen",
+                contentDescription = "open",
                 tint = MaterialTheme.colorScheme.outline,
                 modifier = Modifier.size(24.dp),
             )
@@ -209,7 +209,7 @@ private fun AllGreenContent(
             )
             Spacer(Modifier.height(8.dp))
             Text(
-                text = "Sag „Jarvis“ auf jedem Screen.",
+                text = "Say 'Hey Jarvis' on any screen.",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -258,9 +258,9 @@ private fun ConditionToggle(
                 Spacer(Modifier.height(2.dp))
                 Text(
                     text = if (pillEnabled) {
-                        "Pill sichtbar während der Agent arbeitet."
+                        "Pill visible while the agent works."
                     } else {
-                        "Baseline — Agent läuft ohne sichtbare Anzeige."
+                        "Baseline — agent runs with no visible display."
                     },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,

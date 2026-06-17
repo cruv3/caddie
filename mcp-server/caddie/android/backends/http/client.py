@@ -17,7 +17,7 @@ class HttpClient:
         data = None
         headers = {"Accept": "application/json"}
         if body is not None:
-            data = json.dumps(body).encode("utf-8")
+            data = json.dumps(body, ensure_ascii=False).encode("utf-8")
             headers["Content-Type"] = "application/json; charset=utf-8"
         request = urllib.request.Request(
             f"{self.base_url}{path}",

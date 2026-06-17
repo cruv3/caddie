@@ -35,6 +35,10 @@ from caddie.context import ServerContext
 # Sicherheitsnetze gegen stuck Modelle (vgl. experiments/run_trials.py).
 MAX_TOOL_CALLS = 25
 MAX_TURNS = 40
+# Compact the conversation when the estimated prompt exceeds this fraction of
+# the model context (env LLM_STUDIO_CONTEXT_LENGTH), leaving room for the reply
+# + reasoning tokens. Turn-aware so tool_call/result pairs stay intact.
+COMPACT_FRACTION = 0.6
 # Completeness verifier (after VLAA-GUI 2026): before smartphone_done is
 # accepted, a SEPARATE model call checks the fresh screenshot against the task.
 # A "done" may be rejected this many times before the run ends as failed
@@ -225,10 +229,26 @@ class AgentLoop:
             # each turn) and slow the model down. The agent perceives the screen
             # fresh every turn anyway; older screenshots are stale.
             _prune_old_images(messages)
-            resp = self._lm.chat_completion(
-                messages, tools=self._tool_specs,
-                authorization=authorization, model=model,
-            )
+            # ── AUTO-COMPACTION ───────────────────────────────────────────
+            # Keep the prompt under a fraction of the context so long runs do
+            # not overflow it. Drop oldest whole turns first, then shrink the
+            # kept window if still over budget.
+            budget = self._lm.settings.context_length or 16000
+            threshold = int(budget * COMPACT_FRACTION)
+            for _keep in (6, 4, 2, 1):
+                if _estimate_tokens(messages) <= threshold:
+                    break
+                compacted = _compact_messages(messages, _keep)
+                if len(compacted) < len(messages):
+                    messages[:] = compacted
+            resp = self._chat_with_cancel(messages, control, authorization, model)
+            if resp is None:
+                # Cancelled mid-inference by pause/stop/intervention. Don't run
+                # stale calls; stop ends the run, pause/intervention re-plans.
+                if control.stop_requested:
+                    outcome = "stopped_by_user"
+                    break
+                continue
             if not resp.get("ok"):
                 outcome = "error"
                 error = str(resp.get("error", "chat_completion failed"))
@@ -250,12 +270,64 @@ class AgentLoop:
                 outcome = "stopped"
                 break
 
+            # ── MID-TURN PAUSE/STOP CHECKPOINT ────────────────────────────
+            # The model may have finished thinking just as the user paused /
+            # intervened / stopped. Do NOT execute the now-stale tool calls:
+            # stop ends the run; pause/intervention re-loops so the next turn
+            # re-perceives and re-plans (with the injected note/correction).
+            if control.stop_requested:
+                outcome = "stopped_by_user"
+                break
+            if control.is_paused or control.has_intervention:
+                # Pair every pending tool_call with a cancelled result first so
+                # the message history stays valid (OpenAI requires one tool
+                # response per tool_call) when we skip these now-stale calls.
+                for _c in calls:
+                    messages.append(_tool_message(
+                        _c.get("id", ""),
+                        ToolCallResult(
+                            name=(_c.get("function", {}) or {}).get("name", ""),
+                            ok=False,
+                            text="Cancelled: the user intervened before this ran.",
+                        ),
+                    ))
+                if self._pause_point(messages, control) == "stop":
+                    outcome = "stopped_by_user"
+                    break
+                continue
+
             terminal = False
             pending_images: list[ToolCallResult] = []
-            for call in calls:
+            for idx, call in enumerate(calls):
                 if control.stop_requested:
                     outcome, terminal = "stopped_by_user", True
                     break
+                if control.is_paused:
+                    # Pause arrived mid-batch: cancel every remaining (unexecuted)
+                    # call so the message history stays paired, then stop and
+                    # re-plan next turn -- no further actions fire.
+                    for rc in calls[idx:]:
+                        messages.append(_tool_message(
+                            rc.get("id", ""),
+                            ToolCallResult(
+                                name=(rc.get("function", {}) or {}).get("name", ""),
+                                ok=False,
+                                text="Cancelled: the user intervened.",
+                            ),
+                        ))
+                    break
+                if terminal:
+                    # A terminal call already succeeded this turn -> only the
+                    # silent save_skill may still run; ignore any further action
+                    # tools (the prompt forbids them, enforce it here).
+                    _fn = call.get("function", {}) or {}
+                    if _fn.get("name", "") == "smartphone_save_skill":
+                        _res = self._dispatcher.call(
+                            "smartphone_save_skill",
+                            _parse_arguments(_fn.get("arguments")),
+                        )
+                        messages.append(_tool_message(call.get("id", ""), _res))
+                    continue
                 tool_calls_made += 1
                 fn = call.get("function", {}) or {}
                 name = fn.get("name", "")
@@ -323,6 +395,11 @@ class AgentLoop:
                     )
                     if verdict.verified:
                         messages.append(_tool_message(call.get("id", ""), result))
+                        _msg = args.get("message")
+                        self._events.task_finished(
+                            ok=True,
+                            payload=({"message": _msg} if _msg else None),
+                        )
                         outcome, terminal = "done", True
                     else:
                         verify_rejects += 1
@@ -426,6 +503,25 @@ class AgentLoop:
         choice = _first_choice(resp.get("response", {}))
         content = ((choice or {}).get("message", {}) or {}).get("content", "") or ""
         return _parse_verdict(content)
+
+    def _chat_with_cancel(
+        self, messages: list[dict], control: RunControl,
+        authorization: str | None, model: str | None,
+    ) -> dict | None:
+        """One inference turn that the user can TRULY abort: the response is
+        streamed and read chunk-by-chunk, and the instant pause/stop/
+        intervention is requested the connection is closed -- the inference
+        server then stops generating (no wasted GPU, no orphaned worker).
+        Returns the response dict, or None when cancelled (caller handles
+        pause/stop). On resume the loop re-infers from fresh context
+        (re-perception + any correction injected at the pause point)."""
+        return self._lm.chat_completion_stream(
+            list(messages), self._tool_specs, authorization, model,
+            should_cancel=lambda: (
+                control.stop_requested or control.is_paused
+                or control.has_intervention
+            ),
+        )
 
     def _pause_point(self, messages: list[dict], control: RunControl) -> str:
         """Pause/Stop/Resume-Hook, einmal pro Turn.
@@ -590,6 +686,58 @@ def _prune_old_images(messages: list[dict]) -> None:
             "role": "user",
             "content": "[screenshot from an earlier step removed]",
         }
+
+
+def _estimate_tokens(messages: list[dict]) -> int:
+    """Rough token estimate (~4 chars/token). Image parts count as a flat cost
+    since their base64 length is not what the model bills."""
+    chars = 0
+    for m in messages:
+        content = m.get("content")
+        if isinstance(content, str):
+            chars += len(content)
+        elif isinstance(content, list):
+            for part in content:
+                if isinstance(part, dict):
+                    if part.get("type") == "text":
+                        chars += len(part.get("text", ""))
+                    else:
+                        chars += 6000  # ~1500 tokens for an image part
+        for tc in (m.get("tool_calls") or []):
+            chars += len(json.dumps(tc))
+    return chars // 4
+
+
+_COMPACT_MARKER = "[Note: earlier steps were trimmed"
+
+
+def _compact_messages(messages: list[dict], keep_turns: int) -> list[dict]:
+    """Turn-aware context compaction. Keeps the head (system prompt + prior
+    context + the original task -- everything before the first assistant turn)
+    plus the last ``keep_turns`` assistant-led turns; drops the middle and
+    inserts one short note. Cutting only at assistant boundaries keeps every
+    tool_call paired with its tool result (OpenAI requirement)."""
+    first_asst = next(
+        (i for i, m in enumerate(messages) if m.get("role") == "assistant"), None
+    )
+    if first_asst is None:
+        return messages
+    head = [
+        m for m in messages[:first_asst]
+        if not (isinstance(m.get("content"), str)
+                and m["content"].startswith(_COMPACT_MARKER))
+    ]
+    body = messages[first_asst:]
+    asst_idxs = [i for i, m in enumerate(body) if m.get("role") == "assistant"]
+    if len(asst_idxs) <= keep_turns:
+        return messages
+    cut = asst_idxs[-keep_turns]
+    note = {
+        "role": "user",
+        "content": _COMPACT_MARKER + " to fit the context window. Re-check the "
+        "current screen with a screenshot or element list before acting.]",
+    }
+    return head + [note] + body[cut:]
 
 
 def _image_message(result: ToolCallResult) -> dict:

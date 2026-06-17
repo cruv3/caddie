@@ -27,7 +27,7 @@ def register_app_tools(mcp: FastMCP, context: ServerContext) -> None:
             package_name: Package id, e.g. "com.android.chrome".
             why: Brief German user-facing reason, max 80 chars, shown live on
                 the device overlay so the user can follow your plan. Example:
-                "Öffne Browser für die Suche".
+                "Opening browser for the search".
         """
         with publish_tool_call(
             "smartphone_open_app", bus=context.events, package_name=package_name, why=why

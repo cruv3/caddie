@@ -31,6 +31,12 @@ class AdbClient:
                 command,
                 capture_output=True,
                 text=True,
+                # adb/uiautomator output is UTF-8; without this Python decodes
+                # with the Windows locale (cp1252) and crashes on bytes like
+                # 0x9d (e.g. special chars in a UI dump). errors="replace"
+                # keeps a bad byte from killing the whole tool call.
+                encoding="utf-8",
+                errors="replace",
                 timeout=timeout_seconds or self.timeout_seconds,
             )
         except FileNotFoundError as exc:
