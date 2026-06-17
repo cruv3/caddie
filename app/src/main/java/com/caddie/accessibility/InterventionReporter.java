@@ -129,6 +129,33 @@ public final class InterventionReporter {
         post("stop");
     }
 
+    /** Antwort des Nutzers auf eine smartphone_ask_user-Frage an den Host. */
+    public synchronized void sendAnswer(String text) {
+        Log.i(TAG, "user answer -> " + text);
+        postAnswer(text);
+    }
+
+    private void postAnswer(String text) {
+        handler.post(() -> {
+            String body;
+            try {
+                body = new JSONObject().put("action", "answer").put("text", text).toString();
+            } catch (Exception exception) {
+                Log.w(TAG, "answer payload build failed: " + exception.getMessage());
+                return;
+            }
+            Request request = new Request.Builder()
+                    .url(LmStudioConfig.CONTROL_ENDPOINT)
+                    .post(RequestBody.create(body, JSON))
+                    .build();
+            try (Response response = client.newCall(request).execute()) {
+                Log.i(TAG, "POST /control answer -> " + response.code());
+            } catch (Exception exception) {
+                Log.w(TAG, "POST /control answer failed: " + exception.getMessage());
+            }
+        });
+    }
+
     /** Periodischer Check: nach genug Touch-Ruhe -> Agent fortsetzen. */
     private synchronized void checkResume() {
         if (!paused) {

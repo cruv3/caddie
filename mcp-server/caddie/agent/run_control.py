@@ -39,6 +39,9 @@ class RunControl:
         # diesem Event, bis confirm/decline kommt. Gesetzt = aufgeloest.
         self._confirm_event = threading.Event()
         self._confirm_approved: bool = False
+        # smartphone_ask_user: the loop blocks here until the user answers.
+        self._answer_event = threading.Event()
+        self._pending_answer: str | None = None
 
     # ---- Signal-Seite (HTTP /control, Touch-Erkennung) ----
 
@@ -86,6 +89,7 @@ class RunControl:
             self._state = RunState.STOPPED
             self._resume_event.set()
             self._confirm_event.set()
+            self._answer_event.set()
 
     def resolve_confirmation(self, approved: bool) -> None:
         """Antwort auf eine Swipe-to-Confirm-Abfrage (confirm/decline)."""
@@ -106,6 +110,23 @@ class RunControl:
             return False
         with self._lock:
             return self._confirm_approved
+
+    def provide_answer(self, text: str) -> None:
+        """User's answer to a smartphone_ask_user question (signal side)."""
+        with self._lock:
+            self._pending_answer = text
+        self._answer_event.set()
+
+    def await_answer(self, timeout: float) -> str | None:
+        """Block the loop until the user answers. None on timeout / stop."""
+        self._answer_event.clear()
+        with self._lock:
+            self._pending_answer = None
+        got = self._answer_event.wait(timeout)
+        if not got or self.stop_requested:
+            return None
+        with self._lock:
+            return self._pending_answer
 
     # ---- Loop-Seite ----
 

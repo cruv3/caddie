@@ -85,6 +85,12 @@ class EventBus:
     def confirmation_resolved(self, approved: bool) -> None:
         self.publish(ToolEvent(type="confirmation_resolved", ok=approved))
 
+    def question_asked(self, question: str) -> None:
+        self.publish(ToolEvent(type="question_asked", payload={"question": question}))
+
+    def question_resolved(self) -> None:
+        self.publish(ToolEvent(type="question_resolved"))
+
     def verification_result(self, verified: bool, reason: str) -> None:
         self.publish(ToolEvent(
             type="verification_result", ok=verified,
@@ -135,6 +141,12 @@ class RemoteEventBus:
 
     def confirmation_resolved(self, approved: bool) -> None:
         self.publish(ToolEvent(type="confirmation_resolved", ok=approved))
+
+    def question_asked(self, question: str) -> None:
+        self.publish(ToolEvent(type="question_asked", payload={"question": question}))
+
+    def question_resolved(self) -> None:
+        self.publish(ToolEvent(type="question_resolved"))
 
     def verification_result(self, verified: bool, reason: str) -> None:
         self.publish(ToolEvent(

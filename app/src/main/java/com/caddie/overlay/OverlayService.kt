@@ -200,6 +200,8 @@ class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegist
             && event !is ThoughtEvent.TaskFinished
             && event !is ThoughtEvent.ConfirmationRequired
             && event !is ThoughtEvent.ConfirmationResolved
+            && event !is ThoughtEvent.QuestionAsked
+            && event !is ThoughtEvent.QuestionResolved
         ) {
             return
         }
@@ -277,6 +279,28 @@ class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegist
             is ThoughtEvent.ConfirmationResolved -> {
                 setState { it.copy(confirmationText = null) }
                 setOverlayTouchable(false)
+            }
+            is ThoughtEvent.QuestionAsked -> {
+                // Agent asked a question -> show it PERSISTENTLY (no auto-dismiss)
+                // until answered or timed out, flip to listening, and auto-capture
+                // the spoken answer (no "Hey Jarvis" needed).
+                dismissTopMessageRunnable?.let { mainHandler.removeCallbacks(it) }
+                dismissTopMessageRunnable = null
+                setState {
+                    it.copy(
+                        topMessage = event.question,
+                        topMessageIsUser = false,
+                        state = RunState.Listening,
+                        currentStepLabel = "listening…",
+                    )
+                }
+                com.caddie.wakeword.WakeWordService.listenForAnswer(this)
+            }
+            is ThoughtEvent.QuestionResolved -> {
+                // Answer received or timed out -> drop the question bubble.
+                setState {
+                    it.copy(topMessage = null, state = RunState.Thinking, currentStepLabel = "…")
+                }
             }
         }
     }

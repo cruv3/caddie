@@ -12,6 +12,8 @@ sealed class ThoughtEvent {
     data class ConfirmationRequired(val tool: String, val description: String) : ThoughtEvent()
     object ConfirmationResolved : ThoughtEvent()
     object SessionReady : ThoughtEvent()
+    data class QuestionAsked(val question: String) : ThoughtEvent()
+    object QuestionResolved : ThoughtEvent()
 
     companion object {
         fun parse(line: String): ThoughtEvent? {
@@ -41,6 +43,11 @@ sealed class ThoughtEvent {
                     )
                     "confirmation_resolved" -> ConfirmationResolved
                     "session_ready" -> SessionReady
+                    "question_asked" -> QuestionAsked(
+                        json.optJSONObject("payload")?.optString("question", "").orEmpty()
+                            .ifBlank { "I need a decision." }
+                    )
+                    "question_resolved" -> QuestionResolved
                     else -> null
                 }
             } catch (_: Throwable) {

@@ -51,3 +51,18 @@ def register_lifecycle_tools(mcp: FastMCP, context: ServerContext) -> None:
             payload = {"message": reason} if reason else None
             context.events.task_finished(ok=False, payload=payload)
             return "ok"
+
+    @mcp.tool()
+    def smartphone_ask_user(question: str) -> str:
+        """Ask the user ONE short clarifying question when you are genuinely
+        blocked or the task is ambiguous (e.g. which of several items to pick).
+        The run pauses, the user is prompted, and their spoken answer is fed
+        back to you as the tool result. Use sparingly -- prefer acting over
+        asking; never use it for things you can reasonably decide yourself.
+
+        Args:
+            question: One short question in the user's language.
+        """
+        # Handled specially by the agent loop (shows the question, waits for the
+        # spoken answer, injects it). This body is only a fallback.
+        return "asked"

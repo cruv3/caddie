@@ -45,7 +45,28 @@ class WakeWordService : Service() {
         startListening()
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int = START_STICKY
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent?.action == ACTION_LISTEN_ANSWER) captureAnswer()
+        return START_STICKY
+    }
+
+    /** Capture the spoken answer to an agent question and POST it to /control. */
+    private fun captureAnswer() {
+        if (!wakeHandlingActive.compareAndSet(false, true)) return
+        OverlayService.notifyListening(this)
+        speech.start(
+            onResult = { transcript ->
+                Log.i(TAG, "answer: $transcript")
+                InterventionReporter.get().sendAnswer(transcript)
+                onSpeechDone()
+            },
+            onError = { err ->
+                Log.w(TAG, "answer capture error: ${err.message}")
+                InterventionReporter.get().sendAnswer("")
+                onSpeechDone()
+            },
+        )
+    }
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -202,6 +223,14 @@ class WakeWordService : Service() {
         private const val TAG = "WakeWordService"
         private const val CHANNEL_ID = "wakeword_channel"
         private const val NOTIF_ID = 4242
+        const val ACTION_LISTEN_ANSWER = "com.caddie.wakeword.LISTEN_ANSWER"
+
+        /** Tell the service to capture the user's spoken answer to a question. */
+        fun listenForAnswer(context: Context) {
+            context.startService(Intent(context, WakeWordService::class.java).apply {
+                action = ACTION_LISTEN_ANSWER
+            })
+        }
         private val STOP_WORDS = listOf(
             "stop", "stopp", "stoppen", "stop it", "halt", "anhalten", "abbrechen", "cancel",
         )

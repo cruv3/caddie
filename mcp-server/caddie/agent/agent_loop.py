@@ -39,6 +39,10 @@ MAX_TURNS = 40
 # the model context (env LLM_STUDIO_CONTEXT_LENGTH), leaving room for the reply
 # + reasoning tokens. Turn-aware so tool_call/result pairs stay intact.
 COMPACT_FRACTION = 0.6
+# smartphone_ask_user: how long to wait for the user's spoken answer, and how
+# many questions a single run may ask before it must decide on its own.
+QUESTION_TIMEOUT_S = 25.0
+MAX_QUESTIONS = 3
 # Completeness verifier (after VLAA-GUI 2026): before smartphone_done is
 # accepted, a SEPARATE model call checks the fresh screenshot against the task.
 # A "done" may be rejected this many times before the run ends as failed
@@ -159,6 +163,8 @@ class AgentLoop:
             control.resolve_confirmation(False)
         elif action == "stop":
             control.request_stop()
+        elif action == "answer":
+            control.provide_answer(text or "")
         else:
             return {"ok": False, "error": f"unknown action: {action}"}
         return {"ok": True, "action": action, "state": control.state.value}
@@ -189,6 +195,7 @@ class AgentLoop:
         self._active_control = control
         tool_calls_made = 0
         verify_rejects = 0
+        asks_made = 0
         # Loop-breaker + Stage-1-gate state (per run).
         action_sigs: list[str] = []   # signatures of state-changing tool calls
         calls_since_obs = 0           # actions since the last screen observation
@@ -332,6 +339,32 @@ class AgentLoop:
                 fn = call.get("function", {}) or {}
                 name = fn.get("name", "")
                 args = _parse_arguments(fn.get("arguments"))
+
+                # smartphone_ask_user: pause + wait for the spoken answer
+                if name == "smartphone_ask_user":
+                    question = str(args.get("question", "")).strip() or "I need a decision from you."
+                    if asks_made >= MAX_QUESTIONS:
+                        messages.append(_tool_message(call.get("id", ""), ToolCallResult(
+                            name=name, ok=False,
+                            text="Question limit reached for this run -- decide yourself and proceed.")))
+                        continue
+                    asks_made += 1
+                    self._events.question_asked(question)
+                    answer = control.await_answer(QUESTION_TIMEOUT_S)
+                    self._events.question_resolved()
+                    if control.stop_requested:
+                        outcome, terminal = "stopped_by_user", True
+                        messages.append(_tool_message(call.get("id", ""), ToolCallResult(
+                            name=name, ok=False, text="Run stopped by user.")))
+                        break
+                    answer_text = (
+                        f'The user answered: "{answer}". Continue accordingly.'
+                        if answer else
+                        "No answer from the user. Proceed with your best judgment."
+                    )
+                    messages.append(_tool_message(call.get("id", ""), ToolCallResult(
+                        name=name, ok=True, text=answer_text)))
+                    continue
 
                 # ── Swipe-to-Confirm: kritische Aktion? ──────────────────
                 verdict = risk.classify(name, args, self._last_elements)

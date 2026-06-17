@@ -11,8 +11,10 @@ from caddie.skills import Skill
 # and skill rules — which the model can reread on demand — sit in the middle.
 BASE_SYSTEM_PROMPT = (
     "You are an autonomous Android phone control agent. Operate the phone via "
-    "smartphone_* tools — never give the user manual instructions, never ask "
-    "questions, keep final replies short, no hidden reasoning text.\n\n"
+    "smartphone_* tools — never give the user manual instructions, keep final "
+    "replies short, no hidden reasoning text. You MAY ask ONE short clarifying "
+    "question via smartphone_ask_user, but ONLY when genuinely blocked or the "
+    "task is ambiguous — prefer acting over asking.\n\n"
     # ──────────────────────────────────────────────────────────────────
     # TOP — critical rules (head position in the context window)
     # ──────────────────────────────────────────────────────────────────
