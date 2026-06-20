@@ -22,13 +22,17 @@ class _SupportsUiHash(Protocol):
     def ui_hash(self) -> str: ...
 
 
+# Lowered after the ui_hash switch to dumpsys (~0.1s/poll vs ~2.3s): the gate
+# now polls cheaply, so generous ceilings just add idle wait. open_app stays
+# largest (app cold-start). In-app taps that don't change window state hit the
+# timeout fast (cheap polls) and the model re-perceives next turn.
 SETTLE_TIMEOUTS_MS: dict[str, int] = {
-    "tap": 2500,
-    "swipe": 2500,
-    "key": 2500,
-    "text": 3500,
-    "open_app": 8000,
-    "set_orientation": 4000,
+    "tap": 1500,
+    "swipe": 1500,
+    "key": 1500,
+    "text": 2000,
+    "open_app": 4000,
+    "set_orientation": 2500,
 }
 
 _DEFAULT_STABLE_MS = 350

@@ -43,6 +43,14 @@ COMPACT_FRACTION = 0.6
 # many questions a single run may ask before it must decide on its own.
 QUESTION_TIMEOUT_S = 25.0
 MAX_QUESTIONS = 3
+# Reasoning models occasionally return an empty turn (only reasoning_content,
+# no content/tool_calls). Don't treat that as task completion -- nudge and retry.
+MAX_EMPTY_TURNS = 3
+_EMPTY_TURN_NUDGE = (
+    "Your last response was empty (no action and no answer). Do NOT stop. "
+    "Either call the next smartphone_* tool to make progress, or call "
+    "smartphone_done / smartphone_failed if the task is truly finished."
+)
 # Completeness verifier (after VLAA-GUI 2026): before smartphone_done is
 # accepted, a SEPARATE model call checks the fresh screenshot against the task.
 # A "done" may be rejected this many times before the run ends as failed
@@ -118,6 +126,10 @@ class AgentLoop:
         # Steuer-Objekt des gerade laufenden Runs (None = kein Run aktiv).
         # /control greift hierueber ein.
         self._active_control: RunControl | None = None
+        # Voice/wake interaction in progress (phone posts /control intervene):
+        # suppresses the getevent watcher's touch auto-resume so the agent does
+        # not resume while the user is dictating a correction or saying "stop".
+        self._voice_hold = False
         # Kompakter Merker des zuletzt beendeten Runs — Grundlage fuer eine
         # Korrektur NACH "fertig" (Folge-Task mit Kontext, siehe recent_run).
         self._last_run: dict | None = None
@@ -144,16 +156,20 @@ class AgentLoop:
         if control is None:
             return {"ok": False, "error": "no active run"}
         action = (action or "").lower().strip()
+        print(f"[control] {action} (paused={control.is_paused}, voice_hold={self._voice_hold})", flush=True)
         if action == "pause":
             control.request_pause()
             self._events.task_paused()
         elif action == "intervene":
+            self._voice_hold = True
             control.request_pause(intervention=True)
             self._events.task_paused()
         elif action == "resume":
+            self._voice_hold = False
             control.request_resume()
             self._events.task_resumed()
         elif action == "correct":
+            self._voice_hold = False
             control.set_correction(text or "")
             control.request_resume()
             self._events.task_resumed()
@@ -162,12 +178,33 @@ class AgentLoop:
         elif action == "decline":
             control.resolve_confirmation(False)
         elif action == "stop":
+            self._voice_hold = False
             control.request_stop()
         elif action == "answer":
             control.provide_answer(text or "")
         else:
             return {"ok": False, "error": f"unknown action: {action}"}
         return {"ok": True, "action": action, "state": control.state.value}
+
+    def pause_for_touch(self) -> bool:
+        """Called by the getevent watcher on a real human touch. Pauses the
+        active run in-process (no HTTP hop). Returns True if it paused."""
+        control = self._active_control
+        if control is None or control.stop_requested or control.is_paused:
+            return False
+        control.request_pause(intervention=True)
+        self._events.task_paused()
+        return True
+
+    def resume_after_touch(self) -> None:
+        """Called by the getevent watcher after the touch goes quiet."""
+        control = self._active_control
+        if control is None or control.stop_requested or not control.is_paused:
+            return
+        if self._voice_hold:
+            return  # user is dictating (correction/stop) -> don't auto-resume
+        control.request_resume()
+        self._events.task_resumed()
 
     def run(
         self,
@@ -196,6 +233,7 @@ class AgentLoop:
         tool_calls_made = 0
         verify_rejects = 0
         asks_made = 0
+        empty_turns = 0
         done_message = None
         fail_reason = None
         # Loop-breaker + Stage-1-gate state (per run).
@@ -207,6 +245,10 @@ class AgentLoop:
         final_text = ""
         error: str | None = None
         vision_unsupported = False
+
+        # Latenz-Breakdown (Speed-Analyse): kumulierte Sekunden pro Phase.
+        _timing = {"inference": 0.0, "screenshot": 0.0, "tools": 0.0, "verify": 0.0}
+        _run_t0 = time.monotonic()
 
         for turn in range(MAX_TURNS):
             turns = turn + 1
@@ -250,7 +292,11 @@ class AgentLoop:
                 compacted = _compact_messages(messages, _keep)
                 if len(compacted) < len(messages):
                     messages[:] = compacted
+            _t = time.monotonic()
             resp = self._chat_with_cancel(messages, control, authorization, model)
+            _dt = time.monotonic() - _t
+            _timing["inference"] += _dt
+            print(f"[timing] turn {turns}: inference {_dt:.2f}s", flush=True)
             if resp is None:
                 # Cancelled mid-inference by pause/stop/intervention. Don't run
                 # stale calls; stop ends the run, pause/intervention re-plans.
@@ -273,11 +319,34 @@ class AgentLoop:
             calls = message.get("tool_calls") or []
             messages.append(_assistant_message(message))
 
+            _call_names = [(c.get("function", {}) or {}).get("name", "?") for c in calls]
+            _content_len = len(message.get("content") or "")
+            _fr = choice.get("finish_reason")
+            print(f"[traj] turn {turns}: calls={_call_names or 'NONE'} "
+                  f"content_len={_content_len} finish={_fr}", flush=True)
+
             if not calls:
-                # Modell hat ohne Tool-Call geantwortet -> Session-Ende.
                 final_text = message.get("content") or ""
+                # Reasoning models (qwen3.6) sometimes emit ONLY reasoning_content
+                # and stop -> empty content AND no tool_calls. That is a degenerate
+                # turn, NOT task completion: nudge the model to act instead of
+                # ending the run with an empty result. Give up only after a few
+                # empty turns in a row.
+                if not final_text.strip():
+                    empty_turns += 1
+                    print(f"[traj] EMPTY turn {turns} ({empty_turns}/{MAX_EMPTY_TURNS}) "
+                          f"-> nudging to continue", flush=True)
+                    if empty_turns >= MAX_EMPTY_TURNS:
+                        outcome = "stalled"
+                        break
+                    messages.append({"role": "user", "content": _EMPTY_TURN_NUDGE})
+                    continue
+                # Genuine final text reply -> session end.
+                print(f"[traj] STOP turn {turns}: no tool_calls. "
+                      f"final_text={final_text[:160]!r}", flush=True)
                 outcome = "stopped"
                 break
+            empty_turns = 0
 
             # ── MID-TURN PAUSE/STOP CHECKPOINT ────────────────────────────
             # The model may have finished thinking just as the user paused /
@@ -390,7 +459,10 @@ class AgentLoop:
                         messages.append(_tool_message(call.get("id", ""), declined))
                         continue
 
+                _t = time.monotonic()
                 result = self._dispatcher.call(name, args)
+                _timing["screenshot" if name == "smartphone_take_screenshot"
+                        else "tools"] += time.monotonic() - _t
                 if name == "smartphone_list_elements":
                     self._last_elements = _extract_elements(result)
 
@@ -428,9 +500,11 @@ class AgentLoop:
                             outcome, terminal = "verify_failed", True
                         continue
                     # Stage 2 — model judge against task + criterion + screenshot.
+                    _t = time.monotonic()
                     verdict = self._verify_completion(
                         task, criterion, authorization, model
                     )
+                    _timing["verify"] += time.monotonic() - _t
                     self._events.verification_result(
                         verdict.verified, verdict.reason
                     )
@@ -478,6 +552,19 @@ class AgentLoop:
                 break
 
         self._active_control = None
+        # ── LATENZ-BREAKDOWN (Speed-Analyse) ──────────────────────────────
+        _total = time.monotonic() - _run_t0
+        _acct = sum(_timing.values())
+        print(
+            f"[timing] RUN outcome={outcome} turns={turns} total={_total:.1f}s | "
+            f"inference={_timing['inference']:.1f}s "
+            f"screenshot={_timing['screenshot']:.1f}s "
+            f"tools={_timing['tools']:.1f}s "
+            f"verify={_timing['verify']:.1f}s "
+            f"other={_total - _acct:.1f}s "
+            f"(inference={100 * _timing['inference'] / _total:.0f}% of total)",
+            flush=True,
+        )
         # Single owner of the terminal event: emit exactly one task_finished per
         # run (http_api only emits as a crash-safety net, see finished_emitted).
         _clean = outcome in ("done", "stopped", "stopped_by_user")

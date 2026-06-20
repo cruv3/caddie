@@ -41,10 +41,28 @@ class ScreenCommands(AppCommands):
         }
 
     def ui_hash(self) -> str:
-        """Hash the current UIAutomator XML dump. Used by the settle gate
-        to detect when the UI has changed and stabilised after an action."""
-        remote_path = "/sdcard/window_dump.xml"
-        self.shell("uiautomator", "dump", remote_path, timeout_seconds=15)
-        xml_text = self.checked(["exec-out", "cat", remote_path], timeout_seconds=15) or ""
-        return hashlib.sha1(xml_text.encode("utf-8", errors="replace")).hexdigest()
+        """Fast UI-state hash for the settle gate.
+
+        Default uses ``dumpsys window windows`` (~0.1s, stable when the screen
+        is static) instead of the old ``uiautomator dump`` (~2.3s) — measured
+        ~25x faster on device, and settle's repeated polling made the dump the
+        dominant per-action latency (~85% of warm run time).
+
+        ``dumpsys window`` captures window/focus/IME/transition state, so it
+        detects app launches, dialogs, keyboard and screen transitions. It does
+        NOT see pure in-app content changes (a tap that only updates content in
+        the same window); for those the gate simply times out fast and the model
+        re-perceives via a fresh screenshot next turn.
+
+        Set ``LLM_SMARTPHONE_UIHASH=uiautomator`` to restore the old precise
+        (slow) hash — useful for a Thesis speed/accuracy comparison.
+        """
+        import os
+        if os.environ.get("LLM_SMARTPHONE_UIHASH", "dumpsys").strip().lower() == "uiautomator":
+            remote_path = "/sdcard/window_dump.xml"
+            self.shell("uiautomator", "dump", remote_path, timeout_seconds=15)
+            xml_text = self.checked(["exec-out", "cat", remote_path], timeout_seconds=15) or ""
+            return hashlib.sha1(xml_text.encode("utf-8", errors="replace")).hexdigest()
+        text = self.checked(["shell", "dumpsys", "window", "windows"], timeout_seconds=10) or ""
+        return hashlib.sha1(text.encode("utf-8", errors="replace")).hexdigest()
 
