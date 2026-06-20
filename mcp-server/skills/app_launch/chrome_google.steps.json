@@ -1,0 +1,6 @@
+[
+  {
+    "action": "open_app",
+    "package": "com.android.chrome"
+  }
+]

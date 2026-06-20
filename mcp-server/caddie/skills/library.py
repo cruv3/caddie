@@ -83,7 +83,12 @@ class SkillLibrary:
         matched: list[Skill] = []
         for skill in self._skills:
             for trigger in skill.triggers:
-                if trigger.casefold() in normalized:
+                # Word-boundary match, not plain substring: otherwise the
+                # "aktiviere dunkles design" (dark-mode-ON) trigger matches
+                # INSIDE "deaktiviere dunkles design" (dark-mode-OFF) and both
+                # skills fire. \b prevents matching a trigger mid-word.
+                pattern = r"\b" + re.escape(trigger.casefold()) + r"\b"
+                if re.search(pattern, normalized):
                     matched.append(skill)
                     break
         return matched

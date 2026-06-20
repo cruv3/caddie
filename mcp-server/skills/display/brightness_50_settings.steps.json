@@ -4,13 +4,8 @@
     "package": "com.android.settings"
   },
   {
-    "action": "scroll",
-    "direction": "down",
-    "amount": 0.6
-  },
-  {
     "action": "tap",
-    "index": 18,
+    "index": 60,
     "label": "Display & Touchbedienung",
     "text": "Display & Touchbedienung",
     "desc": "",
@@ -19,29 +14,34 @@
     "clickable": false,
     "bounds": {
       "left": 221,
-      "top": 367,
+      "top": 1946,
       "right": 752,
-      "bottom": 43,
+      "bottom": 2002,
       "center_x": 486,
-      "center_y": 205
+      "center_y": 1974
     }
   },
   {
     "action": "tap",
-    "index": 38,
-    "label": "Dunkles Design",
+    "index": 13,
+    "label": "",
     "text": "",
-    "desc": "Dunkles Design",
-    "resource_id": "android:id/switch_widget",
-    "cls": "android.widget.Switch",
+    "desc": "",
+    "resource_id": "",
+    "cls": "android.widget.LinearLayout",
     "clickable": true,
     "bounds": {
-      "left": 859,
-      "top": 869,
-      "right": 996,
-      "bottom": 1053,
-      "center_x": 927,
-      "center_y": 961
+      "left": 0,
+      "top": 427,
+      "right": 1080,
+      "bottom": 617,
+      "center_x": 540,
+      "center_y": 522
     }
+  },
+  {
+    "action": "tap_xy",
+    "x": 540,
+    "y": 262
   }
 ]
