@@ -41,6 +41,27 @@ def register_screen_tools(mcp: FastMCP, context: ServerContext) -> None:
             ]
 
     @mcp.tool()
+    def smartphone_screenshot_marked(max_elements: int = 60, why: str = ""):
+        """Take a screenshot with numbered boxes drawn on every tappable element
+        (Set-of-Marks). Each box's number is the element's index — act on it with
+        smartphone_tap_element(index). Prefer this when you need to SEE the layout
+        and tap precisely; it combines perceive + ground in one step.
+
+        Args:
+            max_elements: cap on how many elements to mark (default 60).
+            why: Brief German reason shown live on the device overlay (max 80 chars).
+        """
+        from pathlib import Path
+        from caddie.android.som import render_marks
+        with publish_tool_call("smartphone_screenshot_marked", bus=context.events, why=why):
+            bounded_max = max(1, min(max_elements, 120))
+            elements = context.backend.list_elements(max_elements=bounded_max).get("elements", [])
+            shot = context.backend.take_screenshot()
+            png_bytes = shot if isinstance(shot, (bytes, bytearray)) else Path(shot).read_bytes()
+            marked, legend = render_marks(bytes(png_bytes), elements)
+            return [Image(data=marked, format="png"), legend]
+
+    @mcp.tool()
     def smartphone_list_elements(max_elements: int = 80, why: str = "") -> dict[str, Any]:
         """List visible UI elements from Android UiAutomator with text, bounds and clickability.
 
