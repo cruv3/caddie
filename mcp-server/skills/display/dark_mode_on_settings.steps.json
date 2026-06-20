@@ -1,0 +1,5 @@
+[
+  {"action": "open_app", "package": "com.android.settings"},
+  {"action": "tap", "label": "Display & Touchbedienung"},
+  {"action": "tap", "label": "Dunkles Design"}
+]

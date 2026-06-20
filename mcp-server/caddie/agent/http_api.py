@@ -215,6 +215,7 @@ def _handler_factory(
                     model=model_override,
                     prior=prior,
                     criterion=criterion,
+                    skill=(matched[0] if matched else None),
                 )
             finally:
                 _finished_payload: dict = {"active_skills": [s.id for s in matched]}
@@ -292,6 +293,7 @@ def _handler_factory(
                             system_prompt=system_prompt,
                             authorization=authorization,
                             criterion=criterion,
+                            skill=(matched[0] if matched else None),
                         )
                     except Exception as exc:
                         lmstudio_result = {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
