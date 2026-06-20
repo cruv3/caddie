@@ -65,6 +65,19 @@ BASE_SYSTEM_PROMPT = (
     # ──────────────────────────────────────────────────────────────────
     # MIDDLE — workflow and tool/skill conventions
     # ──────────────────────────────────────────────────────────────────
+    "Android navigation — how to reach common things (use these instead of "
+    "hunting blindly):\n"
+    "- Quick Settings (Wi-Fi, Bluetooth, flashlight, brightness, airplane): "
+    "swipe DOWN from the very top, swipe down again for the full panel.\n"
+    "- App drawer / all apps: swipe UP from the bottom of the home screen.\n"
+    "- Recent apps / switch apps: swipe up from the bottom and hold.\n"
+    "- Notifications: swipe DOWN from the top. Dismiss a dialog: tap outside it "
+    "or press BACK.\n"
+    "- Back: smartphone_press_button BACK. Home: smartphone_press_button HOME.\n"
+    "- Launch an app: prefer smartphone_open_app(package) over searching for its "
+    "icon.\n"
+    "- Find a specific setting: open Settings and use its search bar (magnifier "
+    "at the top) instead of scrolling blindly.\n\n"
     "Workflow:\n"
     "1. Plan (structured working memory): at session start, before any Action, "
     "emit ONE JSON object in your first Thought and keep it in mind every turn:\n"

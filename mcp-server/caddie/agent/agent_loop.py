@@ -90,26 +90,6 @@ _LOOP_TIER2_NOTE = (
     "Go back to the home screen (or reopen the relevant app from scratch) and "
     "re-plan from a known state before acting again."
 )
-# Phone-affordances cheat-sheet. Injected ONLY when the agent is stuck (loop /
-# empty turn), never in the always-on system prompt — so it costs nothing on
-# normal turns but reminds the model what Android actually allows when it has
-# wandered into a dead end.
-_PHONE_AFFORDANCES = (
-    "ANDROID NAVIGATION REMINDER — ways to reach things:\n"
-    "- Quick Settings (Wi-Fi, Bluetooth, flashlight, brightness): swipe DOWN "
-    "from the very top of the screen (twice for the full panel).\n"
-    "- App drawer / all apps: swipe UP from the bottom of the home screen.\n"
-    "- Recent apps / switch app: swipe up from the bottom and hold, or use the "
-    "recents gesture.\n"
-    "- Go back: smartphone_press_button BACK. Go home: press_button HOME.\n"
-    "- Open an app directly by package: smartphone_open_app (faster than hunting "
-    "for its icon).\n"
-    "- Find a setting: open Settings and use its search bar (magnifier at top) "
-    "instead of scrolling blindly.\n"
-    "- Notifications: swipe DOWN from the top. Dismiss a dialog: tap outside it "
-    "or press BACK.\n"
-    "- To see what is tappable right now, call smartphone_list_elements."
-)
 # Strict judge prompt: demands direct visual evidence, rejects when in doubt.
 _VERIFIER_SYSTEM = (
     "You are a strict completion verifier for a smartphone agent. You are given "
@@ -290,8 +270,7 @@ class AgentLoop:
                 break
             if repeat >= LOOP_TIER2_AT and LOOP_TIER2_AT not in loop_warned:
                 loop_warned.add(LOOP_TIER2_AT)
-                messages.append({"role": "user",
-                                 "content": _LOOP_TIER2_NOTE + "\n\n" + _PHONE_AFFORDANCES})
+                messages.append({"role": "user", "content": _LOOP_TIER2_NOTE})
             elif repeat >= LOOP_TIER1_AT and LOOP_TIER1_AT not in loop_warned:
                 loop_warned.add(LOOP_TIER1_AT)
                 messages.append({"role": "user", "content": _LOOP_TIER1_NOTE})
@@ -360,8 +339,7 @@ class AgentLoop:
                     if empty_turns >= MAX_EMPTY_TURNS:
                         outcome = "stalled"
                         break
-                    messages.append({"role": "user",
-                                     "content": _EMPTY_TURN_NUDGE + "\n\n" + _PHONE_AFFORDANCES})
+                    messages.append({"role": "user", "content": _EMPTY_TURN_NUDGE})
                     continue
                 # Genuine final text reply -> session end.
                 print(f"[traj] STOP turn {turns}: no tool_calls. "
