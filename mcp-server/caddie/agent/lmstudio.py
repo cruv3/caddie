@@ -58,7 +58,10 @@ class LmStudioClient:
         # reasoning="off" wird nur von Modellen mit Thinking-Mode akzeptiert (Qwen3.6, …)
         # Andere Modelle (qwen3-vl-8b, gemma, pixtral) liefern 400 wenn der Parameter gesetzt ist.
         if "qwen3.6" in effective_model.lower() and os.environ.get("LLM_STUDIO_REASONING", "off").lower() != "on":
-            body["reasoning"] = "off"
+            body["reasoning"] = "off"  # LM Studio
+            # llama.cpp/Qwen3: the only knob that actually disables thinking
+            # (reasoning:off is silently ignored there — verified on device).
+            body["chat_template_kwargs"] = {"enable_thinking": False}
         request = Request(
             self.settings.endpoint,
             data=json.dumps(body).encode("utf-8"),
@@ -105,7 +108,10 @@ class LmStudioClient:
             body["tools"] = tools
         # reasoning="off" nur fuer Modelle mit Thinking-Mode (Qwen3.6, …).
         if "qwen3.6" in effective_model.lower() and os.environ.get("LLM_STUDIO_REASONING", "off").lower() != "on":
-            body["reasoning"] = "off"
+            body["reasoning"] = "off"  # LM Studio
+            # llama.cpp/Qwen3: the only knob that actually disables thinking
+            # (reasoning:off is silently ignored there — verified on device).
+            body["chat_template_kwargs"] = {"enable_thinking": False}
         request = Request(
             self._chat_completions_url(),
             data=json.dumps(body).encode("utf-8"),
@@ -156,7 +162,10 @@ class LmStudioClient:
             body["tools"] = tools
         if ("qwen3.6" in effective_model.lower()
                 and os.environ.get("LLM_STUDIO_REASONING", "off").lower() != "on"):
-            body["reasoning"] = "off"
+            body["reasoning"] = "off"  # LM Studio
+            # llama.cpp/Qwen3: the only knob that actually disables thinking
+            # (reasoning:off is silently ignored there — verified on device).
+            body["chat_template_kwargs"] = {"enable_thinking": False}
         request = Request(
             self._chat_completions_url(),
             data=json.dumps(body, ensure_ascii=False).encode("utf-8"),
