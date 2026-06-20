@@ -505,6 +505,8 @@ class AgentLoop:
                         task, criterion, authorization, model
                     )
                     _timing["verify"] += time.monotonic() - _t
+                    print(f"[verify] verified={verdict.verified} "
+                          f"reason={verdict.reason[:200]!r}", flush=True)
                     self._events.verification_result(
                         verdict.verified, verdict.reason
                     )
@@ -521,10 +523,13 @@ class AgentLoop:
                                 text=(
                                     "VERIFICATION FAILED: "
                                     + verdict.reason
-                                    + " The task is NOT yet complete according to "
-                                    "the screenshot. Keep going and only call "
-                                    "smartphone_done once the screen clearly shows "
-                                    "the result."
+                                    + " Do NOT blindly repeat your last action "
+                                    "(that can undo it, e.g. flipping a toggle "
+                                    "back). FIRST take a fresh screenshot to see "
+                                    "the CURRENT state, then decide: if it already "
+                                    "shows the intended result, call smartphone_done "
+                                    "with a clear message; otherwise take the one "
+                                    "missing step."
                                 ),
                             ),
                         ))
