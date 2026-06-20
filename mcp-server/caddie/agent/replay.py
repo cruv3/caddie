@@ -132,6 +132,24 @@ def _find_by_label(elements: list[dict], label: str) -> dict | None:
     return _find_element({"label": label}, elements)
 
 
+def _semantic_on_screen(step: dict, elements: list[dict]) -> bool:
+    """True only if the step's MEANINGFUL content (visible text or content-desc)
+    is present on screen. Used to gate resilient-start: a purely structural match
+    (generic resource-id + class + clickable, e.g. android:id/switch_widget) is
+    NOT enough to claim "already here" — those generic ids exist on many screens
+    and a false skip taps garbage. Requires the semantic label to actually match."""
+    text = (step.get("text") or "").casefold()
+    desc = (step.get("desc") or "").casefold()
+    if not text and not desc:
+        return False
+    for el in elements:
+        if text and (el.get("text") or "").casefold() == text:
+            return True
+        if desc and (el.get("content_description") or "").casefold() == desc:
+            return True
+    return False
+
+
 def _resilient_start(steps, backend, log) -> int:
     """Resilient forward-replay: don't blindly restart from step 0. Find the
     FURTHEST step whose tap-target is already on screen and start there, so an
@@ -145,7 +163,7 @@ def _resilient_start(steps, backend, log) -> int:
     for j in range(len(steps) - 1, -1, -1):
         if steps[j].get("action") != "tap":
             continue  # only on-screen tap targets are detectable
-        if _find_element(steps[j], els) is not None:
+        if _semantic_on_screen(steps[j], els):
             if j > 0:
                 log(f"resilient start: step {j + 1}/{len(steps)} target already "
                     f"on screen -> skipping {j} navigation step(s)")
