@@ -37,13 +37,22 @@ def record_step(name: str, args: dict, last_elements: list[dict]) -> dict | None
         return {"action": "open_url", "url": args.get("url", "")}
     if name == "smartphone_tap_element":
         idx = args.get("index")
-        label = ""
-        for el in last_elements or []:
-            if el.get("index") == idx:
-                label = (el.get("text") or el.get("content_description")
-                         or el.get("resource_id") or "")
-                break
-        return {"action": "tap", "label": label, "index": idx}
+        el = next((e for e in (last_elements or []) if e.get("index") == idx), None)
+        if el is None:
+            return {"action": "tap", "label": "", "index": idx}
+        # Rich element identity so replay can re-find the SAME element (not just
+        # any text match): resource-id + class + clickable + bounds, not only text.
+        return {
+            "action": "tap", "index": idx,
+            "label": (el.get("text") or el.get("content_description")
+                      or el.get("resource_id") or ""),
+            "text": el.get("text", ""),
+            "desc": el.get("content_description", ""),
+            "resource_id": el.get("resource_id", ""),
+            "cls": el.get("class", ""),
+            "clickable": bool(el.get("clickable")),
+            "bounds": el.get("bounds"),
+        }
     if name == "smartphone_tap_coordinates":
         return {"action": "tap_xy", "x": args.get("x"), "y": args.get("y")}
     if name == "smartphone_long_press_coordinates":
@@ -69,28 +78,58 @@ class ReplayResult:
     reason: str = ""
 
 
+def _score(step: dict, el: dict) -> int:
+    """How well a current element matches the recorded tap descriptor."""
+    s = 0
+    rid = step.get("resource_id") or ""
+    if rid and el.get("resource_id") == rid:
+        s += 3
+    cls = step.get("cls") or ""
+    if cls and el.get("class") == cls:
+        s += 2
+    txt = (step.get("text") or "").casefold()
+    if txt and (el.get("text") or "").casefold() == txt:
+        s += 3
+    desc = (step.get("desc") or "").casefold()
+    if desc and (el.get("content_description") or "").casefold() == desc:
+        s += 2
+    # substring fallback (also covers legacy steps that only stored "label")
+    lbl = (step.get("label") or "").casefold()
+    if lbl:
+        hay = " ".join(str(el.get(k, "")) for k in
+                       ("text", "content_description", "resource_id")).casefold()
+        if lbl in hay:
+            s += 1
+    if step.get("clickable") and el.get("clickable"):
+        s += 1
+    return s
+
+
+def _find_element(step: dict, elements: list[dict]) -> dict | None:
+    """Re-find the recorded element by scoring resource-id + class + text + desc
+    + clickable. Ties broken by clickable, then bounds proximity to the recorded
+    position (handles e.g. multiple identical 'switch_widget' toggles)."""
+    scored = [(_score(step, el), el) for el in elements]
+    scored = [(s, el) for s, el in scored if s > 0]
+    if not scored:
+        return None
+    best = max(s for s, _ in scored)
+    cands = [el for s, el in scored if s == best]
+    if len(cands) == 1:
+        return cands[0]
+    pool = [el for el in cands if el.get("clickable")] or cands
+    rb = step.get("bounds") or {}
+    if rb.get("center_x") is not None:
+        rx, ry = rb["center_x"], rb["center_y"]
+        pool.sort(key=lambda el: (
+            abs((el.get("bounds") or {}).get("center_x", 0) - rx)
+            + abs((el.get("bounds") or {}).get("center_y", 0) - ry)))
+    return pool[0]
+
+
 def _find_by_label(elements: list[dict], label: str) -> dict | None:
-    if not label:
-        return None
-    want = label.casefold()
-    # Collect candidates: exact text match first, else substring across
-    # text/desc/resource_id.
-    cands = [el for el in elements if (el.get("text") or "").casefold() == want]
-    if not cands:
-        cands = [
-            el for el in elements
-            if want in " ".join(str(el.get(k, "")) for k in
-                                ("text", "content_description", "resource_id")).casefold()
-        ]
-    if not cands:
-        return None
-    # Prefer a CLICKABLE candidate — a label like "Dunkles Design" matches both
-    # the static text and the tappable row/toggle; tapping the text does nothing,
-    # tapping the clickable element actually triggers it.
-    for el in cands:
-        if el.get("clickable"):
-            return el
-    return cands[0]
+    """Legacy label-only matcher (kept for compatibility)."""
+    return _find_element({"label": label}, elements)
 
 
 def _resilient_start(steps, backend, log) -> int:
@@ -106,7 +145,7 @@ def _resilient_start(steps, backend, log) -> int:
     for j in range(len(steps) - 1, -1, -1):
         if steps[j].get("action") != "tap":
             continue  # only on-screen tap targets are detectable
-        if _find_by_label(els, steps[j].get("label", "")) is not None:
+        if _find_element(steps[j], els) is not None:
             if j > 0:
                 log(f"resilient start: step {j + 1}/{len(steps)} target already "
                     f"on screen -> skipping {j} navigation step(s)")
@@ -132,11 +171,10 @@ def replay(steps, backend, log=lambda _m: None) -> ReplayResult:
             elif action == "open_url":
                 backend.open_url(step.get("url", ""))
             elif action == "tap":
-                label = step.get("label", "")
                 els = backend.list_elements().get("elements", [])
-                match = _find_by_label(els, label)
+                match = _find_element(step, els)
                 if match is None:
-                    return ReplayResult(False, i, f"label not found: {label!r}")
+                    return ReplayResult(False, i, f"element not found: {step.get('label')!r}")
                 backend.tap_element(match["index"])
             elif action == "tap_xy":
                 backend.tap(step.get("x"), step.get("y"))
