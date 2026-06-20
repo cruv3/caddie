@@ -21,6 +21,89 @@ def register_input_tools(mcp: FastMCP, context: ServerContext) -> None:
             return result
 
     @mcp.tool()
+    def smartphone_tap_element(index: int, why: str = "") -> str:
+        """Tap a UI element by its number from the latest smartphone_list_elements
+        result (Set-of-Marks). PREFER this over smartphone_tap_coordinates: it
+        uses the element's exact bounds, so it never misses.
+
+        Args:
+            index: 1-based element number shown by smartphone_list_elements.
+            why: Brief German reason shown live on the device overlay (max 80 chars).
+        """
+        with publish_tool_call("smartphone_tap_element", bus=context.events, index=index, why=why):
+            baseline = baseline_hash(context.backend)
+            result = context.backend.tap_element(index)
+            settle_after(context.backend, baseline, "tap")
+            return result
+
+    @mcp.tool()
+    def smartphone_scroll(direction: str, amount: float = 0.6, why: str = "") -> str:
+        """Scroll the current view without guessing coordinates.
+
+        Args:
+            direction: 'down' (reveal content below), 'up', 'left', or 'right'.
+            amount: fraction of the screen to travel (0.1-0.9, default 0.6).
+            why: Brief German reason shown live on the device overlay (max 80 chars).
+        """
+        with publish_tool_call("smartphone_scroll", bus=context.events, direction=direction, why=why):
+            baseline = baseline_hash(context.backend)
+            result = context.backend.scroll(direction, amount)
+            settle_after(context.backend, baseline, "swipe")
+            return result
+
+    @mcp.tool()
+    def smartphone_open_quick_settings(why: str = "") -> str:
+        """Open the Quick Settings panel (Wi-Fi, Bluetooth, flashlight, brightness, airplane mode).
+
+        Args:
+            why: Brief German reason shown live on the device overlay (max 80 chars).
+        """
+        with publish_tool_call("smartphone_open_quick_settings", bus=context.events, why=why):
+            baseline = baseline_hash(context.backend)
+            result = context.backend.open_quick_settings()
+            settle_after(context.backend, baseline, "open_app")
+            return result
+
+    @mcp.tool()
+    def smartphone_open_notifications(why: str = "") -> str:
+        """Open the notification shade.
+
+        Args:
+            why: Brief German reason shown live on the device overlay (max 80 chars).
+        """
+        with publish_tool_call("smartphone_open_notifications", bus=context.events, why=why):
+            baseline = baseline_hash(context.backend)
+            result = context.backend.open_notifications()
+            settle_after(context.backend, baseline, "open_app")
+            return result
+
+    @mcp.tool()
+    def smartphone_collapse(why: str = "") -> str:
+        """Collapse the notification shade / quick settings panel.
+
+        Args:
+            why: Brief German reason shown live on the device overlay (max 80 chars).
+        """
+        with publish_tool_call("smartphone_collapse", bus=context.events, why=why):
+            baseline = baseline_hash(context.backend)
+            result = context.backend.collapse_panels()
+            settle_after(context.backend, baseline, "tap")
+            return result
+
+    @mcp.tool()
+    def smartphone_open_app_drawer(why: str = "") -> str:
+        """Open the all-apps drawer (to find an app whose package you don't know).
+
+        Args:
+            why: Brief German reason shown live on the device overlay (max 80 chars).
+        """
+        with publish_tool_call("smartphone_open_app_drawer", bus=context.events, why=why):
+            baseline = baseline_hash(context.backend)
+            result = context.backend.open_app_drawer()
+            settle_after(context.backend, baseline, "open_app")
+            return result
+
+    @mcp.tool()
     def smartphone_tap_coordinates(x: int, y: int, why: str = "") -> str:
         """Tap exact screen coordinates in pixels.
 

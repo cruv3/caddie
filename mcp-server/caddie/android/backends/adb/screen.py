@@ -35,10 +35,32 @@ class ScreenCommands(AppCommands):
         remote_path = "/sdcard/window_dump.xml"
         self.shell("uiautomator", "dump", remote_path, timeout_seconds=30)
         xml_text = self.checked(["exec-out", "cat", remote_path], timeout_seconds=30) or ""
+        _els = parse_uiautomator_xml(xml_text, max_elements=max_elements)
+        self._last_elements = _els  # cache for tap_element (Set-of-Marks)
         return {
-            "elements": parse_uiautomator_xml(xml_text, max_elements=max_elements),
+            "elements": _els,
             "raw_xml_chars": len(xml_text),
         }
+
+    def tap_element(self, index: int) -> str:
+        """Set-of-Marks tap: tap the element with the given 1-based index from
+        the most recent smartphone_list_elements result, using its exact bounds
+        center. Removes coordinate guessing -> precise, reliable taps."""
+        els = getattr(self, "_last_elements", None) or []
+        match = next((e for e in els if e.get("index") == index), None)
+        if match is None:
+            raise AdbError(
+                f"No element #{index} cached — call smartphone_list_elements first "
+                f"({len(els)} elements currently known)."
+            )
+        bounds = match.get("bounds")
+        if not bounds:
+            raise AdbError(f"Element #{index} has no bounds to tap.")
+        cx, cy = bounds["center_x"], bounds["center_y"]
+        self.tap(cx, cy)
+        label = (match.get("text") or match.get("content_description")
+                 or match.get("resource_id") or "?")
+        return f"Tapped element #{index} ({label!r}) at ({cx}, {cy})"
 
     def ui_hash(self) -> str:
         """Fast UI-state hash for the settle gate.

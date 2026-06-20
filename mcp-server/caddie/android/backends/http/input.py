@@ -38,3 +38,36 @@ class InputCommands(DeviceCommands):
     def type_text(self, text: str, submit: bool = False) -> str:
         result = self.request_json("POST", "/type_text", {"text": text, "submit": submit})
         return f"Typed text: {result.get('ok', False)}"
+
+    # ── High-level, coordinate-free navigation macros ──────────────────────
+    def scroll(self, direction: str, amount: float = 0.6) -> str:
+        size = self.screen_size()
+        w, h = size["width"], size["height"]
+        cx, cy = w // 2, h // 2
+        span = int(min(w, h) * max(0.1, min(amount, 0.9)) / 2)
+        moves = {
+            "down": (cx, cy + span, cx, cy - span),
+            "up": (cx, cy - span, cx, cy + span),
+            "left": (cx + span, cy, cx - span, cy),
+            "right": (cx - span, cy, cx + span, cy),
+        }
+        d = direction.strip().lower()
+        if d not in moves:
+            raise ValueError(f"Unknown scroll direction: {direction!r}")
+        x1, y1, x2, y2 = moves[d]
+        self.swipe(x1, y1, x2, y2, 300)
+        return f"Scrolled {d}"
+
+    # Panel macros need AccessibilityService global actions on the device; not
+    # wired through the HTTP bridge yet. Use the ADB backend for these.
+    def open_quick_settings(self) -> str:
+        return "open_quick_settings is not implemented in the Android HTTP backend yet."
+
+    def open_notifications(self) -> str:
+        return "open_notifications is not implemented in the Android HTTP backend yet."
+
+    def collapse_panels(self) -> str:
+        return "collapse is not implemented in the Android HTTP backend yet."
+
+    def open_app_drawer(self) -> str:
+        return "open_app_drawer is not implemented in the Android HTTP backend yet."

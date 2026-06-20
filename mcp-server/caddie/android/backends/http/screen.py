@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any
 
 from caddie.android.backends.http.apps import AppCommands
+from caddie.android.backends.http.client import HttpBridgeError
 
 
 VISIBLE_BOTTOM_LIMIT_PADDING = 8
@@ -17,12 +18,32 @@ class ScreenCommands(AppCommands):
         screen = self.request_json("GET", "/screen")
         nodes = screen.get("nodes", [])
         elements = compact_nodes(nodes, max_elements=max_elements)
+        self._last_elements = elements  # cache for tap_element (Set-of-Marks)
         return {
             "elements": elements,
             "raw_node_count": len(nodes),
             "returned_count": len(elements),
             "source": "android-http-accessibility",
         }
+
+    def tap_element(self, index: int) -> str:
+        """Set-of-Marks tap: tap element #index from the latest list_elements
+        result using its exact bounds center."""
+        els = getattr(self, "_last_elements", None) or []
+        match = next((e for e in els if e.get("index") == index), None)
+        if match is None:
+            raise HttpBridgeError(
+                f"No element #{index} cached — call smartphone_list_elements first "
+                f"({len(els)} elements currently known)."
+            )
+        bounds = match.get("bounds")
+        if not bounds:
+            raise HttpBridgeError(f"Element #{index} has no bounds to tap.")
+        cx, cy = bounds["center_x"], bounds["center_y"]
+        self.tap(cx, cy)
+        label = (match.get("text") or match.get("content_description")
+                 or match.get("resource_id") or "?")
+        return f"Tapped element #{index} ({label!r}) at ({cx}, {cy})"
 
     def ui_hash(self) -> str:
         """Hash the on-device accessibility node tree. Used by the settle
