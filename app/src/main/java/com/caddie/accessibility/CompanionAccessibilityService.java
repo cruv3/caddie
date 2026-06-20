@@ -145,7 +145,13 @@ public class CompanionAccessibilityService extends AccessibilityService {
                 + " (" + AccessibilityEvent.eventTypeToString(type) + ")"
                 + " runActive=" + runActive + " agentActive=" + agentActive
                 + " isTap=" + isTap + " isScroll=" + isScroll);
-        if (runActive && (isTap || (isScroll && !agentActive))) {
+        // Human-takeover detection moved to the PC-side getevent watcher (ADB
+        // backend): it reads /dev/input directly -> faster (kernel real-time,
+        // in-process pause, no HTTP hop) and catches gestures a11y misses
+        // (e.g. web scrolls = only WINDOW_CONTENT_CHANGED). Flip this back to
+        // true to use the old a11y path (e.g. with the HTTP-bridge backend).
+        final boolean touchPauseViaA11y = false;
+        if (touchPauseViaA11y && runActive && (isTap || (isScroll && !agentActive))) {
             InterventionReporter.get().onHumanInteraction();
             com.caddie.overlay.OverlayService.Companion.notifyPaused(this);
         }

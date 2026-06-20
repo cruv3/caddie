@@ -35,6 +35,7 @@ class AgentHttpServer:
         self._agent_loop = AgentLoop(context, self._lmstudio)
         self._server: ThreadingHTTPServer | None = None
         self._thread: threading.Thread | None = None
+        self._watcher = None
 
     def start(self) -> None:
         if self._server is not None:
@@ -45,6 +46,22 @@ class AgentHttpServer:
         self._server = _ExclusiveThreadingHTTPServer((host, port), handler)
         self._thread = threading.Thread(target=self._server.serve_forever, daemon=True)
         self._thread.start()
+        self._maybe_start_touch_watcher()
+
+    def _maybe_start_touch_watcher(self) -> None:
+        # getevent-based human-takeover detection works only over the adb shell
+        # channel, and only makes sense with the ADB backend (whose injected
+        # taps are invisible at /dev/input, so any getevent line = human).
+        if self._context.backend is not self._context.adb:
+            return
+        from caddie.android.getevent_watch import GeteventWatcher
+        self._watcher = GeteventWatcher(
+            on_touch=self._agent_loop.pause_for_touch,
+            on_quiet=self._agent_loop.resume_after_touch,
+            quiet_s=1.5,
+            log=lambda m: print(m, flush=True),
+        )
+        self._watcher.start()
 
 
 def _handler_factory(
