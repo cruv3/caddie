@@ -125,6 +125,6 @@ Bestätigt: `replay.py`, `agent_loop.py`, `library.py` wurden in Phase 0 nicht v
 
 1. **Kleines Korpus (7 Skills):** Das Eval ist indikativ, kein neutraler Benchmark. Mit echtem Skill-Inventar (50–100+ Skills) können sich Precision und Abstention-Verhalten stark verändern.
 2. **Author-Bias der Paraphrasen:** Paraphrasen und Crosslang-Queries wurden vom selben Autor wie die Skills formuliert — semantische Nähe ist tendenziell überschätzt. Externer Annotator würde härtere Queries liefern.
-3. **Einzelner Embedder getestet:** Nur `all-MiniLM-L6-v2` evaluiert. Andere Embedder (z.B. `paraphrase-multilingual-MiniLM`, größere Modelle) könnten DE-Recall verbessern.
+3. **Einzelner Embedder getestet:** Nur `paraphrase-multilingual-MiniLM-L12-v2` evaluiert (der Code-Default, der diese Ergebnisse erzeugt hat). Andere Embedder (z.B. größere multilinguale Modelle, BGE-M3) könnten DE-Recall weiter verbessern.
 4. **Cold-Start 8 s:** Nicht im Gate, aber relevant für Produktionseinsatz — Warm-Start / Pre-loading nötig.
 5. **trigger_exact top1 = 0.00 für semantic:** Semantik verfehlt exakte Trigger-Queries (0.00 vs. 0.20 bei Trigger) — beim Umstieg auf semantisches Retrieval müsste Trigger-Exact separat behandelt oder Threshold gesenkt werden.
