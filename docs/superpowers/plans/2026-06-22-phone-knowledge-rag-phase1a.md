@@ -20,6 +20,32 @@
 
 ---
 
+## Offene Entscheidungen (für Codex-Review mitlaufen lassen)
+
+Diese drei Punkte (von Andreas aufgeworfen) sind bewusst noch offen und sollen im
+Codex-Review mitbewertet werden, bevor sie in 1b/1c zementiert werden:
+
+1. **Retrieval-Trigger — „woher weiß der LLM, was er aus der RAG braucht?"**
+   Der LLM entscheidet es NICHT selbst. Das System retrievt **automatisch** per Embedding-
+   Ähnlichkeit auf **Task + aktuellem UI-Zustand** und injiziert top-k ungefragt (kein
+   Extra-Turn → schnell). **Empfehlung: automatisch + state-gated** (re-retrieval bei
+   Screen-Wechsel). Tool-basiertes `search_knowledge(query)` (LLM fragt selbst) kostet
+   Round-Trips → erst später additiv für harte Fälle. (Spec §10.2.)
+   → Die Treffer-Qualität hängt komplett an den `intent`-Labels der Einträge.
+
+2. **RAG-Befüllung — „wir müssen sehr viele Tasks bauen."**
+   NICHT von Hand. Der **Explorer (Phase 1c)** synthetisiert per LLM **pro UI-Zustand**
+   automatisch `intent`-Beschreibungen + simulierte Tasks (AutoDroid-Verfahren) → aus einer
+   App-Exploration entstehen hunderte Einträge. **Zusätzlich** kuratiertes High-Value-Wissen
+   von Hand (OEM-Eigenheiten, Recovery-Tipps — die Novelty-Lücke).
+
+3. **Explorer-Scope (Phase 1c) — Settings-Pilot zuerst, dann App für App ausweiten.**
+   NICHT „alles auf einmal". Erst Explorer+UTG+State-Äquivalenz+Safety **einmal auf Settings**
+   validieren (System-kontrolliert, kein Login, Caddies Kern-Tasks). Danach systematisch je
+   weitere App als eigener, abgesicherter Lauf (Ziel: breite Abdeckung). Begründung: hier
+   beißen die Risiken (destruktive Aktionen, Auth-Gates, WebViews, State-Explosion) — die
+   auf Settings beherrschbar, bei Fremd-Apps sofort akut.
+
 ## Ausführungs-Reihenfolge & Codex-Gate
 
 - **Tasks 1–2 = RISIKOFREI** (kein Live-Pfad, isolierte neue Module/Eval) → **jetzt ausführbar**.

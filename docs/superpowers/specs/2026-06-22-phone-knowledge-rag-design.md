@@ -337,6 +337,15 @@ direkte Prior Art — potentieller eigener Beitrag.
 1. Embedder-Wahl (Latenz vs. Qualität) + wo gehostet (arbiter? separat? CPU?).
 2. Retrieval-Trigger & Injektions-Format konkret: always-on top-k vs. UI-state-gated (AutoDroid)
    vs. instruction-keyed Pfade (KG-RAG) — was maximiert Erfolg ohne Prompt-Bloat?
+   **Entscheidungs-Richtung (2026-06-22):** automatisch + state-gated (System retrievt auf
+   Task + UI-Zustand, injiziert ungefragt; kein Extra-Turn). Tool-basiertes
+   `search_knowledge` (LLM fragt selbst) nur später additiv. Treffer-Qualität hängt an den
+   `intent`-Labels → Explorer-Task-Synthese ist zentral. (Details: Phase-1a-Plan, „Offene
+   Entscheidungen".)
+
+   **Explorer-Scope (2026-06-22):** Phase 1c startet NUR mit Settings (Maschine validieren:
+   UTG + State-Äquivalenz + Safety), danach systematisch App für App ausweiten — nicht
+   „alles auf einmal" (Risiko: destruktive Aktionen, Auth-Gates, WebViews, State-Explosion).
 3. Vektor-Store: simple NumPy-Cosine (klein) vs. FAISS/Chroma (skaliert).
 4. Similarity-Schwellen (Gating; Replay-Fast-Path-Auslösung) empirisch kalibrieren
    (→ Phase 0/1, vgl. §4.5).
