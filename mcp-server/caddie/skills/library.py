@@ -34,6 +34,9 @@ class Skill:
     triggers: tuple[str, ...]
     body: str
     path: Path
+    # Structured, replayable steps (cheap-assert replay). Empty = guidance-only
+    # skill. Auto-recorded from a successful run into "<stem>.steps.json".
+    steps: tuple[dict, ...] = ()
 
 
 class SkillLibrary:
@@ -80,7 +83,12 @@ class SkillLibrary:
         matched: list[Skill] = []
         for skill in self._skills:
             for trigger in skill.triggers:
-                if trigger.casefold() in normalized:
+                # Word-boundary match, not plain substring: otherwise the
+                # "aktiviere dunkles design" (dark-mode-ON) trigger matches
+                # INSIDE "deaktiviere dunkles design" (dark-mode-OFF) and both
+                # skills fire. \b prevents matching a trigger mid-word.
+                pattern = r"\b" + re.escape(trigger.casefold()) + r"\b"
+                if re.search(pattern, normalized):
                     matched.append(skill)
                     break
         return matched
@@ -108,6 +116,18 @@ def _load_skill(path: Path) -> Skill:
             skill_id,
         )
 
+    # Load replayable steps if a sibling "<stem>.steps.json" exists.
+    steps: tuple[dict, ...] = ()
+    steps_path = path.with_name(path.stem + ".steps.json")
+    if steps_path.exists():
+        try:
+            import json
+            data = json.loads(steps_path.read_text(encoding="utf-8"))
+            if isinstance(data, list):
+                steps = tuple(s for s in data if isinstance(s, dict))
+        except Exception as exc:  # pragma: no cover - defensive
+            logger.warning("Skill %s: bad steps file %s: %s", skill_id, steps_path, exc)
+
     return Skill(
         id=skill_id,
         title=title,
@@ -115,6 +135,7 @@ def _load_skill(path: Path) -> Skill:
         triggers=tuple(triggers),
         body=body.strip(),
         path=path,
+        steps=steps,
     )
 
 
