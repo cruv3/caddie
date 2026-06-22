@@ -78,6 +78,66 @@ class ReplayResult:
     reason: str = ""
 
 
+def describe_step(step: dict) -> str:
+    """Human-readable one-liner for a recorded step (for the fallback note)."""
+    a = step.get("action")
+    if a == "open_app":
+        return f"App öffnen ({step.get('package', '')})"
+    if a == "open_url":
+        return f"URL öffnen ({step.get('url', '')})"
+    if a == "tap":
+        label = step.get("label") or step.get("text") or step.get("desc") or "?"
+        return f"auf '{label}' tippen"
+    if a == "tap_xy":
+        return f"auf Position ({step.get('x')},{step.get('y')}) tippen"
+    if a == "long_press_xy":
+        return f"lange auf ({step.get('x')},{step.get('y')}) drücken"
+    if a == "scroll":
+        return f"nach {step.get('direction', 'unten')} scrollen"
+    if a == "type":
+        return f"Text eingeben: '{step.get('text', '')}'"
+    if a == "press":
+        return f"Taste drücken: {step.get('button', '')}"
+    return a or "?"
+
+
+def fallback_note(steps, rr: "ReplayResult", verify_reason: str | None = None) -> str:
+    """Breadcrumb handed to the LLM when replay aborts or its result fails to
+    verify. Lists the steps already executed (don't repeat them), marks where it
+    stopped and why, and tells the model to continue from the current screen."""
+    done = rr.steps_done
+    lines: list[str] = []
+    if rr.ok and verify_reason is not None:
+        # All steps ran, but the end state did not verify.
+        lines.append("[Skill-Replay] Ein passender Skill wurde automatisch "
+                     "abgespielt — alle bekannten Schritte liefen durch, aber die "
+                     "Erfolgsprüfung schlug fehl. Ausgeführte Schritte:")
+        for i, s in enumerate(steps):
+            lines.append(f"  [ERLEDIGT] Schritt {i + 1}: {describe_step(s)}")
+        lines.append(f"Prüfung ergab: {verify_reason}")
+        lines.append("Sieh dir den AKTUELLEN Bildschirm an und korrigiere gezielt "
+                     "nur, was noch fehlt. Wiederhole nichts unnötig und mache "
+                     "bereits korrekte Zustände NICHT rückgängig.")
+    else:
+        # Replay aborted at step `done` (0-based) — that step's target was not
+        # resolvable on screen.
+        lines.append("[Skill-Replay] Ein passender Skill wurde automatisch "
+                     "abgespielt und dann abgebrochen. Stand der Schritte:")
+        for i, s in enumerate(steps):
+            if i < done:
+                lines.append(f"  [ERLEDIGT] Schritt {i + 1}: {describe_step(s)} — bereits ausgeführt")
+            elif i == done:
+                lines.append(f"  [FEHLGESCHLAGEN] Schritt {i + 1}: {describe_step(s)} "
+                             f"({rr.reason})")
+            else:
+                lines.append(f"  [OFFEN] Schritt {i + 1}: {describe_step(s)}")
+        lines.append("Die mit [ERLEDIGT] markierten Schritte sind bereits "
+                     "ausgeführt — wiederhole sie NICHT. Der AKTUELLE Bildschirm "
+                     "zeigt den Zustand nach den erledigten Schritten. Setze die "
+                     "Aufgabe ab dem fehlgeschlagenen Schritt fort.")
+    return "\n".join(lines)
+
+
 def _score(step: dict, el: dict) -> int:
     """How well a current element matches the recorded tap descriptor."""
     s = 0

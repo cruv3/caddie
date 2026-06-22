@@ -250,6 +250,7 @@ class AgentLoop:
                                 log=lambda m: print(f"[replay] {m}", flush=True))
             print(f"[replay] done ok={rr.ok} steps={rr.steps_done}/{len(skill.steps)} "
                   f"reason={rr.reason!r}", flush=True)
+            _verify_reason = None
             if rr.ok and not control.stop_requested:
                 verdict = self._verify_completion(task, criterion, authorization, model)
                 print(f"[replay] verify verified={verdict.verified} "
@@ -264,7 +265,13 @@ class AgentLoop:
                             "outcome": "done_replay", "tool_calls": rr.steps_done,
                             "turns": 0, "final_text": "", "error": None,
                             "vision_unsupported": False}
+                _verify_reason = verdict.reason
             print("[replay] fallback -> LLM loop", flush=True)
+            # Hand the LLM a breadcrumb: which steps already ran, where/why replay
+            # stopped, and to continue from the current screen (don't redo or undo).
+            _note = _replay.fallback_note(skill.steps, rr, _verify_reason)
+            messages.append({"role": "user", "content": _note})
+            print(f"[replay] fallback note injected:\n{_note}", flush=True)
 
         tool_calls_made = 0
         recorded_steps: list[dict] = []   # captured for skill replay (on success)
