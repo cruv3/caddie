@@ -9,9 +9,11 @@ items:
   - {query: "set screen brightness to fifty percent", expected_id: "display.brightness_50_settings", kind: crosslang, lang: en, split: calibration}
   - {query: "stell einen timer auf fünf minuten", expected_id: "deskclock.timer_5min_start", kind: paraphrase, lang: de, split: calibration}
   - {query: "mach bluetooth an bitte", expected_id: "connectivity.bluetooth_on_settings_search", kind: paraphrase, lang: de, split: calibration}
+  - {query: "turn on bluetooth", expected_id: "connectivity.bluetooth_on_settings_search", kind: crosslang, lang: en, split: calibration}
   - {query: "öffne den chrome browser", expected_id: "app_launch.chrome_google", kind: paraphrase, lang: de, split: calibration}
   - {query: "finde eine pizzeria in der nähe", expected_id: "search.pizza_restaurant_google", kind: paraphrase, lang: de, split: calibration}
   - {query: "schalte den dunkelmodus aus", expected_id: "display.dark_mode_off_settings", kind: inverse, lang: de, split: calibration}
+  - {query: "turn off dark mode", expected_id: "display.dark_mode_off_settings", kind: crosslang, lang: en, split: calibration}
   # harte In-Domain-Negative (klingen nach Geräte-Task, aber kein Skill deckt sie ab)
   - {query: "stelle die helligkeit auf 100 prozent", expected_id: "none", kind: negative, lang: de, split: calibration}
   - {query: "stelle einen timer auf 10 minuten", expected_id: "none", kind: negative, lang: de, split: calibration}
@@ -27,9 +29,10 @@ items:
   - {query: "aktiviere bluetooth", expected_id: "connectivity.bluetooth_on_settings_search", kind: paraphrase, lang: de, split: test}
   - {query: "open the chrome app", expected_id: "app_launch.chrome_google", kind: crosslang, lang: en, split: test}
   - {query: "wo gibt es hier pizza", expected_id: "search.pizza_restaurant_google", kind: paraphrase, lang: de, split: test}
+  - {query: "find a pizza place nearby", expected_id: "search.pizza_restaurant_google", kind: crosslang, lang: en, split: test}
   - {query: "deaktiviere das dunkle design", expected_id: "display.dark_mode_off_settings", kind: inverse, lang: de, split: test}
   # harte In-Domain-Negative
   - {query: "stelle die helligkeit auf 20 prozent", expected_id: "none", kind: negative, lang: de, split: test}
   - {query: "stelle einen wecker für 7 uhr", expected_id: "none", kind: negative, lang: de, split: test}
   - {query: "verbinde meine kopfhörer", expected_id: "none", kind: negative, lang: de, split: test}
-  - {query: "what is the capital of france", expected_id: "none", kind: negative, lang: en, split: test}
+  - {query: "turn on the flashlight", expected_id: "none", kind: negative, lang: en, split: test}
