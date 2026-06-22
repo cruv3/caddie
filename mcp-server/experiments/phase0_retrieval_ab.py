@@ -33,9 +33,8 @@ def metrics_from_ranked(items, ranked: list[list[str]], k: int) -> dict:
 
     top1 = sum(1 for it, r in pos if r[:1] == [it["expected_id"]])
     recall = sum(1 for it, r in pos if it["expected_id"] in r[:k])
-    # precision@k = relevante (max 1) / zurückgegebene; gemittelt über positives
+    # precision@k = relevante (max 1) / zurückgegebene; gemittelt über alle positives (empty r → 0)
     prec = sum((1 if it["expected_id"] in r[:k] else 0) / len(r[:k]) for it, r in pos if r)
-    prec_den = sum(1 for it, r in pos if r)  # nur wo etwas zurückkam
     # MRR
     def _rr(it, r):
         for rank, cid in enumerate(r[:k], start=1):
@@ -53,7 +52,7 @@ def metrics_from_ranked(items, ranked: list[list[str]], k: int) -> dict:
         "n_pos": len(pos), "n_neg": len(neg), "n_inv": len(inv),
         "top1_accuracy": _rate(top1, len(pos)),
         "recall_at_k": _rate(recall, len(pos)),
-        "precision_at_k": _rate(prec, prec_den),
+        "precision_at_k": _rate(prec, len(pos)),
         "mrr": _rate(mrr, len(pos)),
         "abstention_accuracy": _rate(abst, len(neg)),
         "false_injection_rate": _rate(false_inj, len(neg)),
