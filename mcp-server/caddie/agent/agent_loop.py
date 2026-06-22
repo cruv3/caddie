@@ -27,6 +27,7 @@ import time
 from typing import Any
 
 from caddie.agent import risk
+from caddie.agent import replay as _replay
 from caddie.agent.lmstudio import LmStudioClient
 from caddie.agent.run_control import RunControl, RunState
 from caddie.agent.tool_bridge import ToolCallResult, ToolDispatcher
@@ -56,6 +57,11 @@ _EMPTY_TURN_NUDGE = (
 # A "done" may be rejected this many times before the run ends as failed
 # (prevents an infinite done -> reject -> done loop).
 MAX_VERIFY_REJECTS = 2
+
+# Cheap-assert skill replay: when a matched skill has recorded steps, replay them
+# without an LLM call per step, then verify (always). On abort/failed verify the
+# normal LLM loop takes over. Off via LLM_SMARTPHONE_SKILL_REPLAY=0.
+_REPLAY_ENABLED = os.environ.get("LLM_SMARTPHONE_SKILL_REPLAY", "1") != "0"
 
 # Tools that only OBSERVE the screen (no state change). Used by the Stage-1
 # completion gate and the loop breaker to tell "looking" from "acting".
@@ -119,6 +125,8 @@ class AgentLoop:
         self._dispatcher = ToolDispatcher(context)
         self._lm = lmstudio
         self._events = context.events
+        self._backend = context.backend
+        self._context = context
         self._tool_specs = self._dispatcher.openai_tool_specs()
         # Zuletzt gesehene list_elements-Ausgabe — Basis fuer die Risiko-
         # Pruefung von Taps (Element unter den Tap-Koordinaten).
@@ -214,6 +222,7 @@ class AgentLoop:
         model: str | None = None,
         prior: dict | None = None,
         criterion: str | None = None,
+        skill=None,
     ) -> dict[str, Any]:
         """Faehrt die Session bis done/failed/Abbruch und liefert das Resultat.
 
@@ -230,7 +239,42 @@ class AgentLoop:
         messages.append({"role": "user", "content": task})
         control = RunControl()
         self._active_control = control
+
+        # ── SKILL REPLAY FAST PATH (cheap-assert) ────────────────────────
+        # A matched skill with recorded steps -> replay without a per-step LLM
+        # call, then verify (always). On abort or failed verification, fall
+        # through to the normal LLM loop from the current screen.
+        if (_REPLAY_ENABLED and skill is not None and getattr(skill, "steps", None)
+                and not control.stop_requested):
+            rr = _replay.replay(skill.steps, self._backend,
+                                log=lambda m: print(f"[replay] {m}", flush=True))
+            print(f"[replay] done ok={rr.ok} steps={rr.steps_done}/{len(skill.steps)} "
+                  f"reason={rr.reason!r}", flush=True)
+            _verify_reason = None
+            if rr.ok and not control.stop_requested:
+                verdict = self._verify_completion(task, criterion, authorization, model)
+                print(f"[replay] verify verified={verdict.verified} "
+                      f"reason={verdict.reason[:160]!r}", flush=True)
+                if verdict.verified:
+                    self._events.verification_result(True, verdict.reason)
+                    self._events.task_finished(ok=True, payload={"outcome": "done_replay"})
+                    self._active_control = None
+                    self._last_run = {"task": task, "outcome": "done_replay",
+                                      "final_text": "", "finished_at": time.monotonic()}
+                    return {"ok": True, "finished_emitted": True,
+                            "outcome": "done_replay", "tool_calls": rr.steps_done,
+                            "turns": 0, "final_text": "", "error": None,
+                            "vision_unsupported": False}
+                _verify_reason = verdict.reason
+            print("[replay] fallback -> LLM loop", flush=True)
+            # Hand the LLM a breadcrumb: which steps already ran, where/why replay
+            # stopped, and to continue from the current screen (don't redo or undo).
+            _note = _replay.fallback_note(skill.steps, rr, _verify_reason)
+            messages.append({"role": "user", "content": _note})
+            print(f"[replay] fallback note injected:\n{_note}", flush=True)
+
         tool_calls_made = 0
+        recorded_steps: list[dict] = []   # captured for skill replay (on success)
         verify_rejects = 0
         asks_made = 0
         empty_turns = 0
@@ -466,6 +510,16 @@ class AgentLoop:
                 if name == "smartphone_list_elements":
                     self._last_elements = _extract_elements(result)
 
+                # Record this action as a replayable step (semantic label for
+                # taps) — written to the skill on a verified done.
+                if getattr(result, "ok", True):
+                    _step = _replay.record_step(name, args, self._last_elements)
+                    # Skip a tap identical to the one just recorded: the model
+                    # often re-taps a toggle (wandering); replaying it twice would
+                    # flip it back. Consecutive-identical dedup only.
+                    if _step is not None and _step != (recorded_steps[-1] if recorded_steps else None):
+                        recorded_steps.append(_step)
+
                 # Track observe-vs-act for the completion gate + loop breaker.
                 if name in _OBSERVATION_TOOLS:
                     calls_since_obs = 0
@@ -514,6 +568,38 @@ class AgentLoop:
                         messages.append(_tool_message(call.get("id", ""), result))
                         done_message = args.get("message")
                         outcome, terminal = "done", True
+                        # Persist the recorded trajectory as the skill's replay
+                        # steps — but DON'T let a short fallback run clobber a
+                        # more complete recording (overwrite protection): only
+                        # write when the new run has >= as many steps as the
+                        # stored one (a complete open->navigate->act sequence is
+                        # more self-contained than a context-dependent remnant).
+                        if skill is not None and recorded_steps:
+                            try:
+                                import json as _json
+                                _sp = skill.path.with_name(skill.path.stem + ".steps.json")
+                                _existing = 0
+                                if _sp.exists():
+                                    try:
+                                        _existing = len(_json.loads(_sp.read_text(encoding="utf-8")))
+                                    except Exception:
+                                        _existing = 0
+                                if len(recorded_steps) >= _existing:
+                                    _sp.write_text(
+                                        _json.dumps(recorded_steps, ensure_ascii=False, indent=2),
+                                        encoding="utf-8")
+                                    print(f"[replay] recorded {len(recorded_steps)} steps "
+                                          f"-> {_sp.name} (was {_existing})", flush=True)
+                                    # Hot-reload skills so the new steps are usable
+                                    # on the NEXT task without a server restart.
+                                    from caddie.skills import SkillLibrary
+                                    self._context.skills = SkillLibrary.load(
+                                        self._context.project_dir / "skills")
+                                else:
+                                    print(f"[replay] kept existing {_existing} steps "
+                                          f"(new run only {len(recorded_steps)})", flush=True)
+                            except Exception as _exc:
+                                print(f"[replay] step record failed: {_exc}", flush=True)
                     else:
                         verify_rejects += 1
                         messages.append(_tool_message(

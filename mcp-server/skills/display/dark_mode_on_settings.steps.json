@@ -1,0 +1,42 @@
+[
+  {
+    "action": "open_app",
+    "package": "com.android.settings"
+  },
+  {
+    "action": "tap",
+    "index": 60,
+    "label": "Display & Touchbedienung",
+    "text": "Display & Touchbedienung",
+    "desc": "",
+    "resource_id": "android:id/title",
+    "cls": "android.widget.TextView",
+    "clickable": false,
+    "bounds": {
+      "left": 221,
+      "top": 1946,
+      "right": 752,
+      "bottom": 2002,
+      "center_x": 486,
+      "center_y": 1974
+    }
+  },
+  {
+    "action": "tap",
+    "index": 45,
+    "label": "Dunkles Design",
+    "text": "",
+    "desc": "Dunkles Design",
+    "resource_id": "com.android.settings:id/switchWidget",
+    "cls": "android.widget.Switch",
+    "clickable": true,
+    "bounds": {
+      "left": 859,
+      "top": 2019,
+      "right": 996,
+      "bottom": 2125,
+      "center_x": 927,
+      "center_y": 2072
+    }
+  }
+]

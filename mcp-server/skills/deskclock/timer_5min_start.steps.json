@@ -1,0 +1,61 @@
+[
+  {
+    "action": "open_app",
+    "package": "com.google.android.deskclock"
+  },
+  {
+    "action": "collapse"
+  },
+  {
+    "action": "press",
+    "button": "HOME"
+  },
+  {
+    "action": "open_app_drawer"
+  },
+  {
+    "action": "tap",
+    "index": 9,
+    "label": "Web- und App-Inhalte durchsuchen",
+    "text": "Web- und App-Inhalte durchsuchen",
+    "desc": "",
+    "resource_id": "com.google.android.apps.nexuslauncher:id/input",
+    "cls": "android.widget.EditText",
+    "clickable": true,
+    "bounds": {
+      "left": 194,
+      "top": 240,
+      "right": 791,
+      "bottom": 385,
+      "center_x": 492,
+      "center_y": 312
+    }
+  },
+  {
+    "action": "type",
+    "text": "Clock",
+    "submit": false
+  },
+  {
+    "action": "open_app",
+    "package": "com.google.android.deskclock"
+  },
+  {
+    "action": "tap",
+    "index": 16,
+    "label": "Starten",
+    "text": "",
+    "desc": "Starten",
+    "resource_id": "com.google.android.deskclock:id/play_pause",
+    "cls": "android.widget.Button",
+    "clickable": true,
+    "bounds": {
+      "left": 551,
+      "top": 1492,
+      "right": 908,
+      "bottom": 1730,
+      "center_x": 729,
+      "center_y": 1611
+    }
+  }
+]
