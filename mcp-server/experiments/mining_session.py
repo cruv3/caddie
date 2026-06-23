@@ -68,8 +68,45 @@ def adb(*args, t=25):
         return ""
 
 
+AVD = os.environ.get("MINING_AVD", "")  # set -> relaunch this emulator AVD on crash
+EMU = os.environ.get("ANDROID_EMULATOR",
+                     r"C:/Users/Andreas/AppData/Local/Android/Sdk/emulator/emulator.exe")
+
+
 def device_online() -> bool:
     return "device" in adb("get-state", t=10)
+
+
+def _apply_awake():
+    adb("shell", "settings", "put", "system", "screen_off_timeout", "1800000")
+    adb("shell", "svc", "power", "stayon", "true")
+
+
+def ensure_device() -> bool:
+    """Make sure the device is online. If it dropped and MINING_AVD is set
+    (emulator), relaunch the emulator. Returns True if online."""
+    if device_online():
+        return True
+    if AVD:
+        print(f"[mining] device offline -> relaunching emulator {AVD}", flush=True)
+        # Kill any stale/hung emulator first so we don't spawn a duplicate.
+        subprocess.run(["powershell", "-NoProfile", "-Command",
+                        "Get-Process emulator,qemu-system-x86_64 -ErrorAction SilentlyContinue "
+                        "| Stop-Process -Force"], capture_output=True)
+        time.sleep(3)
+        try:
+            logf = open(RESULTS / "mining_emu.log", "a", encoding="utf-8")
+            subprocess.Popen([EMU, "-avd", AVD, "-no-snapshot", "-no-audio",
+                              "-no-boot-anim", "-gpu", "swiftshader_indirect"],
+                             stdout=logf, stderr=subprocess.STDOUT)
+        except Exception as exc:
+            print(f"[mining] emulator relaunch failed: {exc}", flush=True)
+    adb("wait-for-device", t=180)
+    for _ in range(60):
+        if adb("shell", "getprop", "sys.boot_completed", t=10).strip() == "1":
+            time.sleep(3); _apply_awake(); return True
+        time.sleep(3)
+    return device_online()
 
 
 def keep_awake_loop():
@@ -109,9 +146,7 @@ def start_server():
 
 
 def run_task(task: dict) -> dict:
-    if not device_online():
-        adb("wait-for-device", t=120)
-        time.sleep(3)
+    ensure_device()
     adb("shell", "input", "keyevent", "KEYCODE_WAKEUP")
     if task.get("reset_pkg"):
         adb("shell", "am", "force-stop", task["reset_pkg"])
@@ -153,6 +188,7 @@ def main():
     try:
         while time.monotonic() < deadline and not STOP_FILE.exists():
             rnd += 1
+            ensure_device()
             proc = start_server()
             if proc is None:
                 print(f"[mining] round {rnd}: server failed to start; retrying in 30s", flush=True)
