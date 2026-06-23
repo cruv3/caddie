@@ -355,7 +355,7 @@ class TestBuildSystemPromptHints:
                          provenance={"path": ["open settings", "tap wifi"]})
         out = build_system_prompt(matched, hints=[hint])
 
-        assert "Geraete-Wissen" in out
+        assert "Device knowledge" in out
         assert "enable wifi quickly" in out
 
     def test_hints_block_contains_path_labels(self):
@@ -416,7 +416,7 @@ class TestBuildSystemPromptHints:
         out = build_system_prompt(matched, hints=[hint])
 
         assert "<skill" in out   # skill block rendered
-        assert "Geraete-Wissen" in out  # hints block also present
+        assert "Device knowledge" in out  # hints block also present
 
     def test_no_skill_body_duplication(self):
         """The skill body appears exactly once (not duplicated into hints)."""
@@ -436,4 +436,4 @@ class TestBuildSystemPromptHints:
         hint = _explored("e1", intent_text="wifi check")
         out = build_system_prompt([], criterion="Screen shows Wi-Fi ON", hints=[hint])
         assert "Screen shows Wi-Fi ON" in out
-        assert "Geraete-Wissen" in out
+        assert "Device knowledge" in out

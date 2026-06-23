@@ -262,25 +262,25 @@ def build_mcp_instructions() -> str:
 
 
 def _render_hint_block(hints: "list[MemoryEntry]") -> str:
-    """Render the compact Geraete-Wissen section for explored-entry hints.
+    """Render the compact device-knowledge section for explored-entry hints.
 
-    For each hint we emit:
-      * its intent_text (what the agent was doing)
-      * a readable path string built from provenance["path"] action labels,
-        or "(no path)" when provenance is absent or the path list is empty.
-
-    The full skill body is intentionally NOT included — these are hints only.
-    ASCII section title as required by contract.
+    For each hint we emit its intent_text plus a readable navigation path built
+    from provenance["path"] action labels (each path item is an action dict
+    {"kind","label","index"}). The full skill body is intentionally NOT included
+    — these are hints, not skills. English (Caddie is English-first), ASCII.
     """
-    lines: list[str] = ["## Geraete-Wissen (Hinweise)"]
+    lines: list[str] = ["## Device knowledge (hints from prior exploration)"]
     for hint in hints:
         prov = hint.provenance or {}
-        path_labels = prov.get("path") or []
-        if path_labels:
-            path_str = " -> ".join(str(label) for label in path_labels)
-        else:
-            path_str = "(no path)"
-        lines.append(f"- {hint.intent_text} [{path_str}]")
+        steps = prov.get("path") or []
+        labels = []
+        for a in steps:
+            if isinstance(a, dict):
+                labels.append(str(a.get("label") or a.get("kind") or "?"))
+            else:
+                labels.append(str(a))
+        path_str = " -> ".join(labels) if labels else "(no path)"
+        lines.append(f"- {hint.intent_text} [path: {path_str}]")
     return "\n".join(lines)
 
 
