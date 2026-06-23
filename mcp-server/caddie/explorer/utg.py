@@ -109,7 +109,7 @@ class UTG:
         """
         if not self._elements:
             return True
-        if len(self._elements) > self._budgets.max_states:
+        if len(self._elements) >= self._budgets.max_states:
             return True
         return all(len(self.frontier(sig)) == 0 for sig in self._elements)
 

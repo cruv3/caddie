@@ -16,6 +16,7 @@ These are listed FIRST and are the highest-priority patterns.
 
 from __future__ import annotations
 
+import re
 import unicodedata
 
 __all__ = [
@@ -63,14 +64,21 @@ def is_in_scope(focus_package: str | None, expected: str = "com.android.settings
 # Used to normalise BOTH element labels AND patterns before substring match.
 # ---------------------------------------------------------------------------
 
-_HYPHEN_VARIANTS = "‐‑‒–"  # hyphen, nb-hyphen, figure dash, en-dash
+_HYPHEN_VARIANTS = "‐‑‒–—"  # hyphen, nb-hyphen, figure dash, en-dash, em-dash
+_SOFT_HYPHEN = "­"      # soft hyphen -> remove entirely
+_ZW_CHARS = "​‌‍"  # zero-width space, ZWNJ, ZWJ -> remove
 
 
 def _norm(s: str) -> str:
-    """Normalise s: NFKC, hyphen-variant -> ASCII '-', casefold."""
+    """Normalise s: NFKC, remove soft-hyphen + zero-width chars,
+    hyphen-variants -> ASCII '-', collapse whitespace, casefold."""
     s = unicodedata.normalize("NFKC", s)
+    s = s.replace(_SOFT_HYPHEN, "")
+    for ch in _ZW_CHARS:
+        s = s.replace(ch, "")
     for ch in _HYPHEN_VARIANTS:
         s = s.replace(ch, "-")
+    s = re.sub(r"\s+", " ", s).strip()
     return s.casefold()
 
 
@@ -217,6 +225,12 @@ def _get_labels(element: dict) -> list[str]:
 # Pre-normalise forbidden patterns once at import time for efficiency.
 _FORBIDDEN_PATTERNS_NORM: tuple[str, ...] = tuple(_norm(p) for p in FORBIDDEN_PATTERNS)
 
+# Widget class substrings that identify checkable widgets (toggles).
+# A Switch/CheckBox/ToggleButton with no human-readable text or content_description
+# must be treated as unsafe -- we cannot know its function and it could be
+# a Wi-Fi, airplane-mode, or ADB toggle that would drop the crawl session.
+_CHECKABLE_WIDGET_CLASSES: tuple[str, ...] = ("switch", "checkbox", "togglebutton")
+
 
 def is_safe_action(element: dict) -> bool:
     """
@@ -224,6 +238,8 @@ def is_safe_action(element: dict) -> bool:
 
     Fail-closed: returns False when:
     - the element has no readable label (empty / missing text, desc, id)
+    - the element is a checkable widget (Switch/CheckBox/ToggleButton) with no
+      human-readable text or content_description (resource_id alone is not enough)
     - any label contains a FORBIDDEN_PATTERN substring (after unicode norm)
     """
     labels = _get_labels(element)
@@ -231,6 +247,19 @@ def is_safe_action(element: dict) -> bool:
     # Fail-closed: no usable text -> do not tap
     if not labels:
         return False
+
+    # Unlabeled toggle guard: a Switch/CheckBox/ToggleButton whose only
+    # identifying field is a resource_id must be blocked.  resource_id is
+    # implementation-internal and not a human-readable description of the
+    # toggle's effect.  We require at least one of text or content_description.
+    cls = (element.get("class") or "").lower()
+    if any(w in cls for w in _CHECKABLE_WIDGET_CLASSES):
+        has_real_label = bool(
+            (element.get("text") or "").strip()
+            or (element.get("content_description") or "").strip()
+        )
+        if not has_real_label:
+            return False
 
     # Check every label against every forbidden pattern (both normalised)
     for label in labels:

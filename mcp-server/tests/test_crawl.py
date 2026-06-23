@@ -185,6 +185,35 @@ class TestSafetyGate:
         # llm was called at most once (frontier became empty after blocking)
         assert len(frontier_seen) <= 1
 
+    def test_tap_index_not_in_frontier_never_tapped(self):
+        """llm_select_fn returns a tap on index NOT in frontier -> tap_element never called."""
+        # Screen has one safe element at index 0. llm returns tap on index 99 (not in frontier).
+        screen = [_safe_el("Settings", 0)]
+        backend = _FakeBackend(screens=[screen] * 30)
+        restore_calls: list[int] = []
+
+        def _restore():
+            restore_calls.append(1)
+
+        def _llm(frontier):
+            # Always pick index 99, which is NOT in frontier
+            return {"kind": "tap", "label": "Ghost", "index": 99}
+
+        budgets = Budgets(max_states=3, max_depth=3,
+                          per_state_visit_budget=5,
+                          max_actions=5, max_no_change=5)
+
+        entries, reason = crawl(
+            backend=backend,
+            snapshot_restore_fn=_restore,
+            budgets=budgets,
+            llm_select_fn=_llm,
+            app="com.android.settings",
+        )
+        assert backend.tap_calls == [], (
+            f"tap_element was called with {backend.tap_calls}; must never be called for off-frontier index"
+        )
+
 
 # ---------------------------------------------------------------------------
 # 2. Off-scope: package != com.android.settings
@@ -450,6 +479,44 @@ class TestHappyPath:
         )
         assert reason in {"exhausted", "budget", "no_change"}
 
+    def test_empty_frontier_terminates_bounded(self):
+        """Root is exhausted; loop must terminate within bounded steps, not loop forever."""
+        # Single screen with one safe element (index 0). After one tap it returns the
+        # same screen -- marks index 0 visited, frontier becomes empty.
+        # Then the driver restores; checks is_exhausted() -> True (all states exhausted).
+        # Verify: crawl returns without hanging.
+        import threading
+
+        screen = [_safe_el("Only option", 0)]
+        backend = _FakeBackend(screens=[screen] * 50)
+        restore_calls: list[int] = []
+
+        def _restore():
+            restore_calls.append(1)
+
+        budgets = Budgets(max_states=5, max_depth=3,
+                          per_state_visit_budget=1,
+                          max_actions=10, max_no_change=10)
+
+        result: list = []
+
+        def _run():
+            entries, reason = crawl(
+                backend=backend,
+                snapshot_restore_fn=_restore,
+                budgets=budgets,
+                llm_select_fn=_always_pick_first,
+                app="com.android.settings",
+            )
+            result.append(reason)
+
+        t = threading.Thread(target=_run, daemon=True)
+        t.start()
+        t.join(timeout=5.0)
+        assert not t.is_alive(), "crawl() did not terminate within 5 seconds -- infinite loop!"
+        assert result, "crawl() should have returned a stop_reason"
+        assert result[0] in ("exhausted", "budget", "no_change"), f"unexpected stop_reason: {result[0]}"
+
     def test_entries_have_correct_app_field(self):
         """MemoryEntry.app must match the *app* argument to crawl()."""
         screen = [_safe_el("Accessibility", 0)]
@@ -502,6 +569,66 @@ class TestBudget:
 
         assert reason == "budget"
         assert len(backend.tap_calls) <= budgets.max_actions
+
+    def test_max_states_is_hard_bound(self):
+        """A run with max_states=3 must stop with 'budget' before exceeding 3 states."""
+        # 5 distinct screens, each with one new safe element -> would create 5+ states
+        screens = [
+            [_safe_el(f"Item{i}", i)] for i in range(5)
+        ]
+        backend = _FakeBackend(screens=screens * 4)
+        restore_calls: list[int] = []
+
+        def _restore():
+            restore_calls.append(1)
+
+        budgets = Budgets(max_states=3, max_depth=10,
+                          per_state_visit_budget=5,
+                          max_actions=50, max_no_change=10)
+
+        entries, reason = crawl(
+            backend=backend,
+            snapshot_restore_fn=_restore,
+            budgets=budgets,
+            llm_select_fn=_always_pick_first,
+            app="com.android.settings",
+        )
+        # The crawl must stop with 'budget' when states hit the max_states limit
+        assert reason == "budget", f"Expected 'budget', got '{reason}'"
+
+    def test_max_depth_is_respected(self):
+        """A run with max_depth=1 must not execute more than 1 tap per branch."""
+        # Each screen has a single safe element that leads to a new unique screen.
+        # With max_depth=1, after 1 tap per branch the depth guard fires, marks the
+        # element visited, the frontier is empty, restore resets path_from_root=[].
+        # With max_states=2 we can visit at most 2 distinct states, so the crawl
+        # must stop (budget) before executing more than 2 taps total.
+        screens = [
+            [_safe_el(f"Level{i}", i)] for i in range(10)
+        ]
+        backend = _FakeBackend(screens=screens * 4)
+        restore_calls: list[int] = []
+
+        def _restore():
+            restore_calls.append(1)
+
+        budgets = Budgets(max_states=2, max_depth=1,
+                          per_state_visit_budget=5,
+                          max_actions=50, max_no_change=10)
+
+        entries, reason = crawl(
+            backend=backend,
+            snapshot_restore_fn=_restore,
+            budgets=budgets,
+            llm_select_fn=_always_pick_first,
+            app="com.android.settings",
+        )
+        # With max_depth=1 and max_states=2 the crawl must stop after at most 2 taps
+        # (one per distinct state before the state budget fires)
+        assert reason == "budget", f"Expected 'budget' from max_states, got '{reason}'"
+        assert len(backend.tap_calls) <= 2, (
+            f"Expected at most 2 taps (max_depth=1 + max_states=2), got {len(backend.tap_calls)}"
+        )
 
 
 # ---------------------------------------------------------------------------

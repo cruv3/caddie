@@ -14,7 +14,13 @@ from caddie.memory.entry import MemoryEntry
 
 
 def save_entries(entries: list[MemoryEntry], path: Path) -> None:
-    """Serialise *entries* to *path* as a UTF-8 JSON array (all fields)."""
+    """Serialise *entries* to *path* as a UTF-8 JSON array (all fields).
+
+    Deduplication is applied at write time on (app, state_sig, intent_text);
+    the first occurrence of each key wins and later duplicates are dropped.
+    This mirrors the dedup logic in load_entries() so the on-disk file is
+    always already in canonical form.
+    """
     def _serialise(e: MemoryEntry) -> dict:
         return {
             "id": e.id,
@@ -33,9 +39,18 @@ def save_entries(entries: list[MemoryEntry], path: Path) -> None:
             "schema_version": e.schema_version,
         }
 
+    # Dedup on (app, state_sig, intent_text) -- first occurrence wins
+    seen: set[tuple[str, str, str]] = set()
+    deduped: list[MemoryEntry] = []
+    for e in entries:
+        key = (e.app, e.state_sig, e.intent_text)
+        if key not in seen:
+            seen.add(key)
+            deduped.append(e)
+
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
-        json.dumps([_serialise(e) for e in entries], ensure_ascii=False, indent=2),
+        json.dumps([_serialise(e) for e in deduped], ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
 

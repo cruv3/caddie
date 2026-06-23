@@ -438,3 +438,71 @@ class TestIsAllowedAction:
     def test_allowed_crawl_actions_frozenset(self):
         # Contract: ALLOWED_CRAWL_ACTIONS is a frozenset
         assert isinstance(ALLOWED_CRAWL_ACTIONS, frozenset)
+
+
+# ---------------------------------------------------------------------------
+# Unlabeled toggles: Switch/CheckBox/ToggleButton with no text/desc -> blocked
+# ---------------------------------------------------------------------------
+
+class TestUnlabeledToggles:
+    """Unlabeled Switch/CheckBox/ToggleButton must be blocked (fail-closed)."""
+
+    def test_unlabeled_switch_blocked(self):
+        el = _el(
+            cls="android.widget.Switch",
+            resource_id="android:id/switch_widget",
+        )
+        assert not is_safe_action(el), "Unlabeled Switch must be blocked"
+
+    def test_unlabeled_checkbox_blocked(self):
+        el = _el(
+            cls="android.widget.CheckBox",
+            resource_id="com.example:id/my_checkbox",
+        )
+        assert not is_safe_action(el), "Unlabeled CheckBox must be blocked"
+
+    def test_unlabeled_togglebutton_blocked(self):
+        el = _el(
+            cls="android.widget.ToggleButton",
+            resource_id="com.example:id/toggle",
+        )
+        assert not is_safe_action(el), "Unlabeled ToggleButton must be blocked"
+
+    def test_labeled_switch_allowed(self):
+        el = _el(
+            text="Dunkles Design",
+            cls="android.widget.Switch",
+            resource_id="com.android.settings:id/dark_mode_switch",
+        )
+        assert is_safe_action(el), "Labeled Switch must be allowed"
+
+    def test_switch_with_content_description_allowed(self):
+        el = _el(
+            content_description="Dark mode",
+            cls="android.widget.Switch",
+            resource_id="com.android.settings:id/switch_widget",
+        )
+        assert is_safe_action(el), "Switch with content_description must be allowed"
+
+
+# ---------------------------------------------------------------------------
+# Unicode norm: soft hyphen, em-dash, zero-width space
+# ---------------------------------------------------------------------------
+
+class TestUnicodeNormExtra:
+    """Extended unicode normalization checks added by blocker review."""
+
+    def test_soft_hyphen_wifi_blocked(self):
+        # "Wi­Fi" (soft-hyphen injected) should still be caught as "wifi"
+        el = _el(text="Wi­Fi")
+        assert not is_safe_action(el), "Soft-hyphen-injected Wi-Fi must be blocked"
+
+    def test_em_dash_wifi_blocked(self):
+        # "Wi—Fi" (em-dash) -> normalises to "wi-fi" -> blocked
+        el = _el(text="Wi—Fi")
+        assert not is_safe_action(el), "Em-dash Wi-Fi must be blocked"
+
+    def test_zwsp_stripped(self):
+        # Zero-width space should be removed during normalization
+        el = _el(text="Blue​tooth")
+        assert not is_safe_action(el), "Zero-width space in Bluetooth must be blocked"

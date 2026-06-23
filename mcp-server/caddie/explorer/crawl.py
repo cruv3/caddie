@@ -27,6 +27,11 @@ from caddie.explorer.utg import Budgets, UTG
 from caddie.memory.entry import MemoryEntry
 
 
+# Maximum consecutive empty-frontier restores without making progress.
+# If this bound is exceeded the crawl has stalled and we bail with "exhausted".
+_MAX_STALL_RESTORES: int = 2
+
+
 class CrawlBackend(Protocol):
     """Injectable backend that hides real-device/ADB concerns from the driver."""
 
@@ -92,6 +97,7 @@ def crawl(
     entries: list[MemoryEntry] = []
     actions_taken = 0
     no_change_count = 0
+    stall_count = 0  # consecutive empty-frontier restores without action
     path_from_root: list[dict] = []
 
     while True:
@@ -99,6 +105,8 @@ def crawl(
         # 1. Budget gate (check before perceive to avoid wasted work)
         # ------------------------------------------------------------------
         if actions_taken >= budgets.max_actions:
+            return entries, "budget"
+        if utg.state_count() >= budgets.max_states:
             return entries, "budget"
 
         # ------------------------------------------------------------------
@@ -139,9 +147,14 @@ def crawl(
         # ------------------------------------------------------------------
         frontier = utg.frontier(sig)
         if not frontier:
-            # No actions left in this state -- try restoring to a fresh branch
+            # No actions left in this state -- try restoring to a fresh branch.
             snapshot_restore_fn()
-            if utg.is_exhausted():
+            stall_count += 1
+            # Terminate if truly exhausted OR if we've stalled too many times
+            # without making progress (guards against infinite restore loops when
+            # is_exhausted() can't see a cycle because another state still appears
+            # to have a non-empty frontier but is unreachable from root).
+            if utg.is_exhausted() or stall_count > _MAX_STALL_RESTORES:
                 return entries, "exhausted"
             # Reset path since we snapped back to root
             path_from_root = []
@@ -158,13 +171,35 @@ def crawl(
         action_idx = action.get("index")
         action_kind = action.get("kind", "")
 
-        # Find the target element (matched by index)
+        # Depth hard stop: do not expand beyond max_depth on the current branch.
+        if len(path_from_root) >= budgets.max_depth:
+            if action_idx is not None:
+                utg.mark_visited(sig, int(action_idx))
+            continue
+
+        # For tap actions: target MUST come from the safe frontier (fail-closed).
+        # Searching all elements would allow a tap to bypass the frontier safety
+        # filter (e.g. an index that was never in the frontier, or belongs to an
+        # unsafe element that was filtered out).
         target_element: Optional[dict] = None
-        if action_idx is not None:
-            for el in elements:
+        if action_kind == "tap" and action_idx is not None:
+            for el in frontier:
                 if el.get("index") == action_idx:
                     target_element = el
                     break
+            # If the requested index is not a member of the safe frontier, the
+            # LLM/selector is returning unusable choices for this state.  Mark
+            # every frontier element visited so the state becomes exhausted and
+            # the driver moves on (stall_count will terminate if needed).
+            if target_element is None:
+                for el in frontier:
+                    idx = el.get("index")
+                    if idx is not None:
+                        utg.mark_visited(sig, int(idx))
+                stall_count += 1
+                if stall_count > _MAX_STALL_RESTORES:
+                    return entries, "exhausted"
+                continue
 
         # Evaluate safety conditions
         safe = True
@@ -197,6 +232,7 @@ def crawl(
             backend.press_button("BACK")
 
         actions_taken += 1
+        stall_count = 0  # reset stall counter on progress
         path_from_root = path_from_root + [action]
 
         # ------------------------------------------------------------------
