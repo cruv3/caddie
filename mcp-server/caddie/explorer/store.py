@@ -37,6 +37,7 @@ def save_entries(entries: list[MemoryEntry], path: Path) -> None:
             "confidence": e.confidence,
             "fingerprint": e.fingerprint,
             "schema_version": e.schema_version,
+            "intent_aliases": list(e.intent_aliases),
         }
 
     # Dedup on (app, state_sig, intent_text) -- first occurrence wins
@@ -84,6 +85,7 @@ def load_entries(path: Path) -> list[MemoryEntry]:
                 confidence=d.get("confidence", 1.0),
                 fingerprint=d.get("fingerprint"),
                 schema_version=d.get("schema_version", 1),
+                intent_aliases=tuple(d.get("intent_aliases", [])),
             )
         )
     return out

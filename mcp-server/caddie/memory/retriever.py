@@ -13,7 +13,9 @@ class SemanticRetriever:
         self._embedder = embedder
         self._threshold = threshold
         if self._entries:
-            self._index = embedder.encode([e.intent_text for e in self._entries])
+            # retrieval_text() = intent_text (+ aliases, e.g. a German paraphrase)
+            # so cross-lingual queries match; skills have no aliases -> unchanged.
+            self._index = embedder.encode([e.retrieval_text() for e in self._entries])
         else:
             self._index = np.zeros((0, 1), dtype="float32")
 

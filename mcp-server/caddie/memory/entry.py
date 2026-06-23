@@ -22,6 +22,17 @@ class MemoryEntry:
     confidence: float = 1.0             # skills keep 1.0; explored entries pass 0.3
     fingerprint: dict | None = None     # shape: {"os","build","locale"}
     schema_version: int = 1
+    # Extra retrieval aliases (e.g. a German paraphrase of an English intent) so
+    # cross-lingual user queries still match. The canonical intent_text stays
+    # English (English-first); aliases only widen RETRIEVAL, never the hint shown.
+    intent_aliases: tuple[str, ...] = ()
+
+    def retrieval_text(self) -> str:
+        """Text used for embedding/retrieval: intent plus any aliases. Skills have
+        no aliases, so this equals intent_text (back-compat)."""
+        if self.intent_aliases:
+            return self.intent_text + " | " + " | ".join(self.intent_aliases)
+        return self.intent_text
 
     @classmethod
     def from_skill(cls, skill: Skill, app: str = "") -> "MemoryEntry":

@@ -29,7 +29,10 @@
     },
     "confidence": 0.3,
     "fingerprint": null,
-    "schema_version": 1
+    "schema_version": 1,
+    "intent_aliases": [
+      "Zeige die letzten Suchergebnisse und öffne die Einstellungen."
+    ]
   },
   {
     "id": "explored.e8e1fee3ccc305829cc3b037",
@@ -66,7 +69,10 @@
     },
     "confidence": 0.3,
     "fingerprint": null,
-    "schema_version": 1
+    "schema_version": 1,
+    "intent_aliases": [
+      "Google-Dienste anzeigen und verwalten"
+    ]
   },
   {
     "id": "explored.e67237da74e4383c914b8d60",
@@ -113,7 +119,10 @@
     },
     "confidence": 0.3,
     "fingerprint": null,
-    "schema_version": 1
+    "schema_version": 1,
+    "intent_aliases": [
+      "Verwalte Google-Dienste und Einstellungen"
+    ]
   },
   {
     "id": "explored.d32f6a67b874ae15e5954f03",
@@ -165,7 +174,10 @@
     },
     "confidence": 0.3,
     "fingerprint": null,
-    "schema_version": 1
+    "schema_version": 1,
+    "intent_aliases": [
+      "Installierte Apps anzeigen und Standard-Apps verwalten"
+    ]
   },
   {
     "id": "explored.f3ada1e3069a9a42e37e8224",
@@ -197,7 +209,10 @@
     },
     "confidence": 0.3,
     "fingerprint": null,
-    "schema_version": 1
+    "schema_version": 1,
+    "intent_aliases": [
+      "Installierte Apps anzeigen und Standard-Apps konfigurieren"
+    ]
   },
   {
     "id": "explored.ef25a93ee1e9eb4f6ff036a5",
@@ -229,7 +244,10 @@
     },
     "confidence": 0.3,
     "fingerprint": null,
-    "schema_version": 1
+    "schema_version": 1,
+    "intent_aliases": [
+      "Tippe, um die Einstellungen zu öffnen"
+    ]
   },
   {
     "id": "explored.665d80b64130452129d2816f",
@@ -266,7 +284,10 @@
     },
     "confidence": 0.3,
     "fingerprint": null,
-    "schema_version": 1
+    "schema_version": 1,
+    "intent_aliases": [
+      "Zeige Suchverlauf und Bluetooth- sowie Displayoptionen."
+    ]
   },
   {
     "id": "explored.f502ca0b7556167d570c80ed",
@@ -308,7 +329,10 @@
     },
     "confidence": 0.3,
     "fingerprint": null,
-    "schema_version": 1
+    "schema_version": 1,
+    "intent_aliases": [
+      "Öffne Bluetooth-, Display- und Sperrbildschirm-Einstellungen."
+    ]
   },
   {
     "id": "explored.7c88326bbf0fe86dfb8782d3",
@@ -355,7 +379,10 @@
     },
     "confidence": 0.3,
     "fingerprint": null,
-    "schema_version": 1
+    "schema_version": 1,
+    "intent_aliases": [
+      "Zeige Display- und Sperrbildschirmeinstellungen an."
+    ]
   },
   {
     "id": "explored.8b7ff239698e3c7eabf89d0b",
@@ -407,7 +434,10 @@
     },
     "confidence": 0.3,
     "fingerprint": null,
-    "schema_version": 1
+    "schema_version": 1,
+    "intent_aliases": [
+      "Zeige und verwalte die Benachrichtigungsverlauf"
+    ]
   },
   {
     "id": "explored.41f566d7093faba74bdca106",
@@ -439,7 +469,10 @@
     },
     "confidence": 0.3,
     "fingerprint": null,
-    "schema_version": 1
+    "schema_version": 1,
+    "intent_aliases": [
+      "Benachrichtigungen für einzelne Apps verwalten"
+    ]
   },
   {
     "id": "explored.4d5798a61e81e21a83540824",
@@ -471,7 +504,10 @@
     },
     "confidence": 0.3,
     "fingerprint": null,
-    "schema_version": 1
+    "schema_version": 1,
+    "intent_aliases": [
+      "Benachrichtigungen einzelner Apps verwalten"
+    ]
   },
   {
     "id": "explored.a1bc0756c00e649cc94c6f1e",
@@ -503,7 +539,10 @@
     },
     "confidence": 0.3,
     "fingerprint": null,
-    "schema_version": 1
+    "schema_version": 1,
+    "intent_aliases": [
+      "Zeige aktuelle und unterdrückte Benachrichtigungen"
+    ]
   },
   {
     "id": "explored.5cf3fdf8e57e3f71383a69ff",
@@ -535,7 +574,10 @@
     },
     "confidence": 0.3,
     "fingerprint": null,
-    "schema_version": 1
+    "schema_version": 1,
+    "intent_aliases": [
+      "Zeige empfohlene Google-Dienste"
+    ]
   },
   {
     "id": "explored.17ce3819a5c693f999285b4b",
@@ -572,7 +614,10 @@
     },
     "confidence": 0.3,
     "fingerprint": null,
-    "schema_version": 1
+    "schema_version": 1,
+    "intent_aliases": [
+      "Melde dich bei deinem Google-Konto an"
+    ]
   },
   {
     "id": "explored.cec46f27f585d3e182005d1d",
@@ -619,7 +664,10 @@
     },
     "confidence": 0.3,
     "fingerprint": null,
-    "schema_version": 1
+    "schema_version": 1,
+    "intent_aliases": [
+      "Netzwerk- und Internet-Einstellungen verwalten"
+    ]
   },
   {
     "id": "explored.21a414ea3f4854594aef1c1f",
@@ -671,7 +719,10 @@
     },
     "confidence": 0.3,
     "fingerprint": null,
-    "schema_version": 1
+    "schema_version": 1,
+    "intent_aliases": [
+      "Netzwerkeinstellungen und Datenverbrauch verwalten"
+    ]
   },
   {
     "id": "explored.7dbffde52e6e1cc5cbaf1cfd",
@@ -703,7 +754,10 @@
     },
     "confidence": 0.3,
     "fingerprint": null,
-    "schema_version": 1
+    "schema_version": 1,
+    "intent_aliases": [
+      "Suche nach bestimmten Einstellungen"
+    ]
   },
   {
     "id": "explored.6a8858f24962e993bc85d2a2",
@@ -735,7 +789,10 @@
     },
     "confidence": 0.3,
     "fingerprint": null,
-    "schema_version": 1
+    "schema_version": 1,
+    "intent_aliases": [
+      "Suche nach Einstellungen"
+    ]
   },
   {
     "id": "explored.fa7915295445943663232c28",
@@ -772,7 +829,10 @@
     },
     "confidence": 0.3,
     "fingerprint": null,
-    "schema_version": 1
+    "schema_version": 1,
+    "intent_aliases": [
+      "Zeige Suchergebnisse für Einstellungen"
+    ]
   },
   {
     "id": "explored.9ca679ca42be80d57d720925",
@@ -814,7 +874,10 @@
     },
     "confidence": 0.3,
     "fingerprint": null,
-    "schema_version": 1
+    "schema_version": 1,
+    "intent_aliases": [
+      "Zeige die letzten Suchergebnisse und navigiere in die Einstellungen."
+    ]
   },
   {
     "id": "explored.92e52d32810115dd410a115b",
@@ -866,7 +929,10 @@
     },
     "confidence": 0.3,
     "fingerprint": null,
-    "schema_version": 1
+    "schema_version": 1,
+    "intent_aliases": [
+      "Zeige die letzten Suchergebnisse"
+    ]
   },
   {
     "id": "explored.bb54e14ddf46d52cd65ad70e",
@@ -923,7 +989,10 @@
     },
     "confidence": 0.3,
     "fingerprint": null,
-    "schema_version": 1
+    "schema_version": 1,
+    "intent_aliases": [
+      "Pass auf Displaygröße und Textskalierung auf"
+    ]
   },
   {
     "id": "explored.088bb3ce442d081fb9f64a31",
@@ -990,6 +1059,9 @@
     },
     "confidence": 0.3,
     "fingerprint": null,
-    "schema_version": 1
+    "schema_version": 1,
+    "intent_aliases": [
+      "Zeige die letzten Einstellungen und gehe zu den Anzeigeeinstellungen."
+    ]
   }
 ]
