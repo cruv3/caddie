@@ -25,19 +25,27 @@ ADB = os.environ.get("ANDROID_ADB",
                      r"C:/Users/Andreas/AppData/Local/Android/Sdk/platform-tools/adb.exe")
 SERIAL = os.environ.get("PHASE1C_SERIAL", "emulator-5554")
 API = "http://127.0.0.1:8787/task"
-N_REPS = int(os.environ.get("PHASE1C_EVAL_REPS", "2"))
+N_REPS = int(os.environ.get("PHASE1C_EVAL_REPS", "3"))
 STORE = str(ROOT / "experiments" / "results" / "phase1c_explored.json")
 
-# Held-out, English, knowledge-covered tasks (paraphrased, not the crawl intents).
+# Held-out, English, knowledge-covered tasks. Chosen to be DEEPER sub-settings
+# where the agent has headroom (display_size showed 1/2 unaided in round 1), not
+# top-level navigation it already does fine. Paraphrased, not the crawl intents.
+# Per-task reset: revert persistent display/font drift (the agent's own task
+# completions change these, and force-stop does NOT undo them -> confound), then
+# force-stop Settings for a clean start.
+_PRE = [
+    ["settings", "put", "system", "font_scale", "1.0"],
+    ["wm", "density", "reset"],
+    ["am", "force-stop", "com.android.settings"],
+]
 TASKS = [
-    {"name": "display_size", "query": "make the on-screen text and display larger",
-     "pre": [["am", "force-stop", "com.android.settings"]]},
-    {"name": "app_notifications", "query": "stop a specific app from sending notifications",
-     "pre": [["am", "force-stop", "com.android.settings"]]},
-    {"name": "default_browser", "query": "set the default browser app",
-     "pre": [["am", "force-stop", "com.android.settings"]]},
-    {"name": "network_settings", "query": "open network and internet settings",
-     "pre": [["am", "force-stop", "com.android.settings"]]},
+    {"name": "display_size", "query": "make the on-screen text and display larger", "pre": _PRE},
+    {"name": "font_size", "query": "increase only the font size, not the whole display", "pre": _PRE},
+    {"name": "app_notif_off", "query": "turn off notifications for a single specific app", "pre": _PRE},
+    {"name": "notif_history", "query": "show the notification history of recent notifications", "pre": _PRE},
+    {"name": "home_layout", "query": "preview changes to the home screen layout", "pre": _PRE},
+    {"name": "default_browser", "query": "set the default browser app", "pre": _PRE},
 ]
 
 BASE_ENV = {
