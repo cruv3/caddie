@@ -608,10 +608,21 @@ class AgentLoop:
                                         except Exception as _idx_exc:
                                             print(f"[replay] index rebuild failed: {_idx_exc}",
                                                   flush=True)
-                                            # Keep old index rather than leaving inconsistent state
-                                            _new_index = self._context.memory_index
-                                    # Assign both atomically (Python GIL makes
-                                    # individual attribute writes atomic enough here)
+                                            # On failure publish None — new-lib + old-index
+                                            # would be a generation mismatch. None is safe:
+                                            # readers fall back to trigger matching.
+                                            _new_index = None
+                                    # Publish in an order that keeps every intermediate
+                                    # state consistent for concurrent readers (no lock
+                                    # needed because each attribute write is atomic under
+                                    # the GIL):
+                                    #   1. memory_index = None  -> readers see old-lib + no-index
+                                    #      (safe: trigger fallback used for both)
+                                    #   2. skills = _new_lib    -> readers see new-lib + no-index
+                                    #      (safe: trigger fallback still used)
+                                    #   3. memory_index = _new_index -> fully consistent new state
+                                    # The only state that must NEVER appear is new-lib + old-index.
+                                    self._context.memory_index = None
                                     self._context.skills = _new_lib
                                     self._context.memory_index = _new_index
                                 else:

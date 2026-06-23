@@ -199,7 +199,7 @@ def _handler_factory(
                 return
 
             matched = context.skills.match(task)          # TRIGGER — for replay/recording, UNCHANGED
-            prompt_skills = select_prompt_skills(context, task)  # SEMANTIC (if flag on) — prompt only
+            prompt_skills = select_prompt_skills(context, task, trigger_matched=matched)  # SEMANTIC (if flag on) — prompt only; reuses trigger result when flag off
             criterion = payload.get("criterion")
             system_prompt = build_system_prompt(prompt_skills, criterion)
             # Folge-Auftrag kurz nach "fertig" (z.B. "nimm ein anderes
@@ -270,7 +270,7 @@ def _handler_factory(
                 return
 
             matched = context.skills.match(task)          # TRIGGER — for replay/recording, UNCHANGED
-            prompt_skills = select_prompt_skills(context, task)  # SEMANTIC (if flag on) — prompt only
+            prompt_skills = select_prompt_skills(context, task, trigger_matched=matched)  # SEMANTIC (if flag on) — prompt only; reuses trigger result when flag off
             criterion = payload.get("criterion")
             system_prompt = build_system_prompt(prompt_skills, criterion)
             authorization = self.headers.get("Authorization")
