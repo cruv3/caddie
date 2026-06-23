@@ -33,7 +33,7 @@ from caddie.android.adb import AdbBridge          # noqa: E402
 from caddie.agent.lmstudio import LmStudioClient   # noqa: E402
 from caddie.explorer.crawl import crawl            # noqa: E402
 from caddie.explorer.utg import Budgets            # noqa: E402
-from caddie.explorer.store import save_entries     # noqa: E402
+from caddie.explorer.store import save_entries, load_entries  # noqa: E402
 
 _LM = LmStudioClient()
 
@@ -66,16 +66,15 @@ def _adb(*args, t=60) -> str:
         return ""
 
 
-def snapshot_save(name: str) -> None:
-    print(f"[crawl] saving snapshot {name} ...", flush=True)
-    print("  " + _adb("emu", "avd", "snapshot", "save", name).strip(), flush=True)
-
-
-def snapshot_restore() -> None:
-    print(f"[crawl] restoring snapshot {SNAPSHOT} (baseline reset) ...", flush=True)
-    _adb("emu", "avd", "snapshot", "load", SNAPSHOT)
-    _adb("wait-for-device")
-    time.sleep(2)  # settle; next perceive re-dumps the UI (cache invalidation)
+def reset_to_settings_home() -> None:
+    """Baseline reset = relaunch Settings home. We do NOT need emulator snapshots:
+    the safety gate blocks all toggles/checkable widgets, so the crawl only taps
+    NAVIGATION items (open sub-pages) which mutate no persistent state. Relaunching
+    is reliable (snapshot-load made the emulator unresponsive: wait-for-device timed
+    out) and also recovers from any off-scope drift back into com.android.settings."""
+    print("[crawl] reset -> relaunch Settings home", flush=True)
+    _adb("shell", "am", "start", "-a", "android.settings.SETTINGS", t=20)
+    time.sleep(1.5)  # settle; next perceive re-dumps the UI
 
 
 class LiveBackend:
@@ -128,21 +127,37 @@ def label_aware_select(frontier: list[dict]) -> dict:
 
 def main() -> None:
     print(f"[crawl] device={SERIAL}", flush=True)
-    # Baseline: open Settings, settle, snapshot it.
+    # Baseline: open Settings, settle. (No snapshot needed — see reset_to_settings_home.)
     _adb("shell", "am", "start", "-a", "android.settings.SETTINGS")
     time.sleep(3)
-    snapshot_save(SNAPSHOT)
 
     backend = LiveBackend()
     print(f"[crawl] start package={backend.current_package()}", flush=True)
-    budgets = Budgets(max_states=20, max_depth=5, max_actions=60)
+    budgets = Budgets(
+        max_states=int(os.environ.get("CRAWL_MAX_STATES", "40")),
+        max_depth=int(os.environ.get("CRAWL_MAX_DEPTH", "8")),
+        max_actions=int(os.environ.get("CRAWL_MAX_ACTIONS", "150")),
+    )
+    print(f"[crawl] budgets max_states={budgets.max_states} "
+          f"max_depth={budgets.max_depth} max_actions={budgets.max_actions}", flush=True)
 
-    entries, reason = crawl(backend, snapshot_restore, budgets, label_aware_select,
+    entries, reason = crawl(backend, reset_to_settings_home, budgets, label_aware_select,
                             synth_llm_fn=real_llm_fn)
 
     out = ROOT / "experiments" / "results" / "phase1c_explored.json"
     out.parent.mkdir(parents=True, exist_ok=True)
-    save_entries(entries, out)
+    # MERGE with any existing knowledge so runs ACCUMULATE and a short/failed run
+    # never wipes a richer base (store.save_entries dedups by app+state+intent).
+    prior = []
+    if out.exists():
+        try:
+            prior = load_entries(out)
+        except Exception:
+            prior = []
+    merged = list(prior) + list(entries)
+    save_entries(merged, out)
+    print(f"[crawl] merged {len(entries)} new into {len(prior)} prior "
+          f"-> {len(merged)} (deduped on load)", flush=True)
     # ASCII summary
     print(f"\n[crawl] DONE stop_reason={reason} entries={len(entries)}", flush=True)
     seen = []
