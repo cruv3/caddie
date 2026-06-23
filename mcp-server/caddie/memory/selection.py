@@ -1,12 +1,16 @@
-"""Semantic skill selection helper — Phase 1a.
+"""Semantic skill selection helper — Phase 1a / 1c.
 
 Provides:
   _semantic_on()           — strict flag check (only exactly "1" is on)
   select_prompt_skills()   — choose prompt skills: semantic (flag on + index) or trigger
+  select_prompt_hints()    — choose explored-entry hints for the prompt (Phase 1c / Task 5)
 
 IMPORTANT: select_prompt_skills is used ONLY for build_system_prompt.
 The `skill=` arg passed to agent_loop.run must ALWAYS remain context.skills.match()
 (the trigger top-match). Semantic-driven replay is Phase 1b.
+
+select_prompt_hints() is default-NEUTRAL: returns [] unless BOTH the semantic
+flag is on AND context.memory_index is not None.  http_api wiring is deferred.
 """
 from __future__ import annotations
 
@@ -15,6 +19,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from caddie.context import ServerContext
+    from caddie.memory.entry import MemoryEntry
     from caddie.skills.library import Skill
 
 
@@ -52,3 +57,22 @@ def select_prompt_skills(
     if trigger_matched is not None:
         return trigger_matched
     return context.skills.match(task)
+
+
+def select_prompt_hints(
+    context: "ServerContext",
+    task: str,
+    k: int = 2,
+) -> "list[MemoryEntry]":
+    """Return explored MemoryEntry objects to surface as prompt hints.
+
+    Default-NEUTRAL contract:
+      - Returns [] when the semantic flag is off.
+      - Returns [] when context.memory_index is None.
+      - Otherwise delegates to memory_index.match_hints(task, k).
+
+    http_api call-site wiring is deferred (Phase 1c post-Codex live step).
+    """
+    if not _semantic_on() or context.memory_index is None:
+        return []
+    return context.memory_index.match_hints(task, k)

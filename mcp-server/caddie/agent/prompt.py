@@ -1,6 +1,11 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from caddie.skills import Skill
+
+if TYPE_CHECKING:
+    from caddie.memory.entry import MemoryEntry
 
 
 # Prompt structure follows the "lost-in-the-middle" finding (Liu et al. TACL
@@ -217,17 +222,33 @@ def build_success_criterion_block(criterion: str) -> str:
     )
 
 
-def build_system_prompt(matched: list[Skill], criterion: str | None = None) -> str:
+def build_system_prompt(
+    matched: list[Skill],
+    criterion: str | None = None,
+    hints: "list[MemoryEntry] | None" = None,
+) -> str:
+    """Build the agent system prompt.
+
+    Default-neutral extension (Phase 1c / Task 5):
+      - When *hints* is None or empty the output is BYTE-IDENTICAL to the
+        pre-Task-5 path — no new section is appended.
+      - When *hints* is non-empty a compact "## Geraete-Wissen (Hinweise)"
+        block is appended listing each hint's intent_text and a readable
+        path derived from provenance["path"] action labels.  The explored
+        entry body is NOT included — this is intentional (hints, not skills).
+    """
     sections: list[str] = [BASE_SYSTEM_PROMPT]
 
     if criterion:
         sections.append(build_success_criterion_block(criterion))
 
-    if not matched:
-        return "\n\n".join(sections)
+    if matched:
+        sections.append(SKILL_USAGE_INSTRUCTIONS)
+        sections.append(_render_skill_blocks(matched))
 
-    sections.append(SKILL_USAGE_INSTRUCTIONS)
-    sections.append(_render_skill_blocks(matched))
+    if hints:
+        sections.append(_render_hint_block(hints))
+
     return "\n\n".join(sections)
 
 
@@ -238,6 +259,29 @@ def build_mcp_instructions() -> str:
     those tools when relevant.
     """
     return "\n\n".join([BASE_SYSTEM_PROMPT, SKILL_TOOLS_HINT])
+
+
+def _render_hint_block(hints: "list[MemoryEntry]") -> str:
+    """Render the compact Geraete-Wissen section for explored-entry hints.
+
+    For each hint we emit:
+      * its intent_text (what the agent was doing)
+      * a readable path string built from provenance["path"] action labels,
+        or "(no path)" when provenance is absent or the path list is empty.
+
+    The full skill body is intentionally NOT included — these are hints only.
+    ASCII section title as required by contract.
+    """
+    lines: list[str] = ["## Geraete-Wissen (Hinweise)"]
+    for hint in hints:
+        prov = hint.provenance or {}
+        path_labels = prov.get("path") or []
+        if path_labels:
+            path_str = " -> ".join(str(label) for label in path_labels)
+        else:
+            path_str = "(no path)"
+        lines.append(f"- {hint.intent_text} [{path_str}]")
+    return "\n".join(lines)
 
 
 def _render_skill_blocks(skills: list[Skill]) -> str:
