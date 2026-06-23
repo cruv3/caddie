@@ -19,6 +19,8 @@ class Budgets:
     max_states: int = 15
     max_depth: int = 6
     per_state_visit_budget: int = 20
+    max_actions: int = 200
+    max_no_change: int = 3
 
 
 class UTG:
