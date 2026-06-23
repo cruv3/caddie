@@ -738,6 +738,23 @@ class AgentLoop:
             "final_text": final_text,
             "finished_at": time.monotonic(),
         }
+        # Auto-mine a SUCCESSFUL (non-replay) run into a demonstration hint so the
+        # next attempt gets the exact path instead of re-discovering it. Flag-gated
+        # (LLM_SMARTPHONE_MINE_DEMOS) and writes to the explored store, so it feeds
+        # the existing hint mechanism. Hint only -- never auto-replayed.
+        if (outcome == "done" and recorded_steps
+                and os.environ.get("LLM_SMARTPHONE_MINE_DEMOS", "0") == "1"):
+            try:
+                from pathlib import Path as _Path
+                from caddie.agent.mining import build_demonstration, append_demonstration
+                _store = os.environ.get("LLM_SMARTPHONE_EXPLORED_STORE", "")
+                _demo = build_demonstration(task, recorded_steps)
+                if _demo is not None and _store:
+                    append_demonstration(_demo, _Path(_store))
+                    print(f"[mining] saved demonstration for {task!r} "
+                          f"({len(_demo.provenance['path'])} steps)", flush=True)
+            except Exception as exc:
+                print(f"[mining] skip ({exc})", flush=True)
         return {
             "ok": outcome in ("done", "stopped", "stopped_by_user"),
             "finished_emitted": True,
