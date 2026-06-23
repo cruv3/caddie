@@ -119,12 +119,20 @@ class LiveBackend:
         self._b.press_button(button)
 
 
+_SKIP_LABEL_SUBSTR = ("search", "suche", "navigate up", "back")
+
+
 def label_aware_select(frontier: list[dict]) -> dict:
-    """Prefer a frontier element that HAS a human label (text/desc) — those
-    lead to meaningful, retrievable knowledge; fall back to the first element."""
-    labeled = [e for e in frontier
-               if (e.get("text") or e.get("content_description"))]
-    el = labeled[0] if labeled else frontier[0]
+    """Prefer a frontier element that HAS a human label (text/desc) AND is a real
+    settings category — skip the search bar and nav-chrome, which produce noisy,
+    low-value 'search results' knowledge that pollutes retrieval."""
+    def _label(e):
+        return (e.get("text") or e.get("content_description") or "").lower()
+
+    labeled = [e for e in frontier if _label(e)]
+    useful = [e for e in labeled
+              if not any(s in _label(e) for s in _SKIP_LABEL_SUBSTR)]
+    el = useful[0] if useful else (labeled[0] if labeled else frontier[0])
     action = {"kind": "tap",
               "label": el.get("text") or el.get("content_description") or "",
               "index": el.get("index")}
