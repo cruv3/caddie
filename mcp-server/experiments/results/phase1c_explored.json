@@ -1,0 +1,212 @@
+[
+  {
+    "id": "explored.6f10915e28a3728b5d3b9689",
+    "app": "com.android.settings",
+    "intent_text": "Explored transition via tap to d4ef5f6829c9d1a0",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "d4ef5f6829c9d1a0",
+    "provenance": {
+      "app": "com.android.settings",
+      "source_sig": "f09c457c2d27958e",
+      "action": {
+        "kind": "tap",
+        "label": "",
+        "index": 1
+      },
+      "dest_sig": "d4ef5f6829c9d1a0",
+      "path": [
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 1
+        }
+      ]
+    },
+    "confidence": 0.3,
+    "fingerprint": null,
+    "schema_version": 1
+  },
+  {
+    "id": "explored.08d71c39f2f29b7e47cce579",
+    "app": "com.android.settings",
+    "intent_text": "Explored transition via tap to bcbc554d1eddb54b",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "bcbc554d1eddb54b",
+    "provenance": {
+      "app": "com.android.settings",
+      "source_sig": "d4ef5f6829c9d1a0",
+      "action": {
+        "kind": "tap",
+        "label": "",
+        "index": 1
+      },
+      "dest_sig": "bcbc554d1eddb54b",
+      "path": [
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 1
+        },
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 1
+        }
+      ]
+    },
+    "confidence": 0.3,
+    "fingerprint": null,
+    "schema_version": 1
+  },
+  {
+    "id": "explored.2280b9b7d5506e6df0347540",
+    "app": "com.android.settings",
+    "intent_text": "Explored transition via tap to 3bb43b547dbfef79",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "3bb43b547dbfef79",
+    "provenance": {
+      "app": "com.android.settings",
+      "source_sig": "f09c457c2d27958e",
+      "action": {
+        "kind": "tap",
+        "label": "",
+        "index": 2
+      },
+      "dest_sig": "3bb43b547dbfef79",
+      "path": [
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 1
+        },
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 1
+        },
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 2
+        }
+      ]
+    },
+    "confidence": 0.3,
+    "fingerprint": null,
+    "schema_version": 1
+  },
+  {
+    "id": "explored.bca39daf9a9df204a22db970",
+    "app": "com.android.settings",
+    "intent_text": "Explored transition via tap to 737454cc423016df",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "737454cc423016df",
+    "provenance": {
+      "app": "com.android.settings",
+      "source_sig": "d4ef5f6829c9d1a0",
+      "action": {
+        "kind": "tap",
+        "label": "",
+        "index": 2
+      },
+      "dest_sig": "737454cc423016df",
+      "path": [
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 1
+        },
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 1
+        },
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 2
+        },
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 2
+        }
+      ]
+    },
+    "confidence": 0.3,
+    "fingerprint": null,
+    "schema_version": 1
+  },
+  {
+    "id": "explored.6c5adc9b84c6e732e52213d3",
+    "app": "com.android.settings",
+    "intent_text": "Explored transition via tap to e84fa0e7fe99d16b",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "e84fa0e7fe99d16b",
+    "provenance": {
+      "app": "com.android.settings",
+      "source_sig": "f09c457c2d27958e",
+      "action": {
+        "kind": "tap",
+        "label": "",
+        "index": 3
+      },
+      "dest_sig": "e84fa0e7fe99d16b",
+      "path": [
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 1
+        },
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 1
+        },
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 2
+        },
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 2
+        },
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 3
+        }
+      ]
+    },
+    "confidence": 0.3,
+    "fingerprint": null,
+    "schema_version": 1
+  }
+]
