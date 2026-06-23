@@ -96,6 +96,16 @@ _LOOP_TIER2_NOTE = (
     "Go back to the home screen (or reopen the relevant app from scratch) and "
     "re-plan from a known state before acting again."
 )
+# State-based no-progress nudge: the screen has not advanced for several turns
+# even though actions were taken. Tells the agent to stop flailing and re-plan.
+_STUCK_NOTE = (
+    "NO PROGRESS: the screen has not advanced for several turns despite your "
+    "actions — you are flailing (varied taps/gestures that go nowhere). STOP. "
+    "Re-read the current screen with smartphone_list_elements, identify the ONE "
+    "correct next element by its label, and take a single deliberate step. If the "
+    "target is not reachable from here, go back to the app's main screen and "
+    "navigate deliberately. Do not guess coordinates."
+)
 # Strict judge prompt: demands direct visual evidence, rejects when in doubt.
 _VERIFIER_SYSTEM = (
     "You are a strict completion verifier for a smartphone agent. You are given "
@@ -282,6 +292,8 @@ class AgentLoop:
         fail_reason = None
         # Loop-breaker + Stage-1-gate state (per run).
         action_sigs: list[str] = []   # signatures of state-changing tool calls
+        state_sigs: list[str] = []    # screen-state (ui_hash) per turn — for no-progress
+        stuck_nudged = False          # state-based no-progress nudge already sent?
         calls_since_obs = 0           # actions since the last screen observation
         loop_warned: set[int] = set()  # which loop-breaker tiers already fired
         turns = 0
@@ -318,6 +330,24 @@ class AgentLoop:
             elif repeat >= LOOP_TIER1_AT and LOOP_TIER1_AT not in loop_warned:
                 loop_warned.add(LOOP_TIER1_AT)
                 messages.append({"role": "user", "content": _LOOP_TIER1_NOTE})
+
+            # ── STATE-BASED NO-PROGRESS BREAKER ───────────────────────────
+            # Catches the real fail_loop mode the action breaker above MISSES:
+            # the agent emits VARIED actions (different gestures/coords) that go
+            # nowhere, so no identical run forms and it burns MAX_TOOL_CALLS.
+            # Track the screen signature per turn; if recent turns cycle among a
+            # couple of screens, nudge to re-plan once, then give up early.
+            try:
+                state_sigs.append(self._backend.ui_hash())
+            except Exception:
+                pass
+            if _no_progress(state_sigs):
+                if not stuck_nudged:
+                    stuck_nudged = True
+                    messages.append({"role": "user", "content": _STUCK_NOTE})
+                else:
+                    outcome = "loop_broken"
+                    break
 
             # Keep only the most recent screenshot in context — otherwise
             # vision tokens grow quadratically (every old screen is re-encoded
@@ -888,6 +918,19 @@ def _trailing_repeat(sigs: list[str]) -> int:
         else:
             break
     return count
+
+
+def _no_progress(state_sigs: list[str], window: int = 8, max_distinct: int = 2) -> bool:
+    """Detect a stuck agent by SCREEN STATE, not action identity. True when the
+    most recent ``window`` screen-state signatures contain <= ``max_distinct``
+    distinct states — the agent is cycling among a few screens (or frozen on one)
+    despite emitting varied actions. This catches the fail_loop mode that
+    _trailing_repeat misses (varied gestures/coordinates -> no identical run, so
+    the action loop-breaker never fires; the agent burns MAX_TOOL_CALLS). Needs a
+    full window before it can conclude anything."""
+    if len(state_sigs) < window:
+        return False
+    return len(set(state_sigs[-window:])) <= max_distinct
 
 
 def _completion_gate(calls_since_obs: int) -> tuple[bool, str]:
