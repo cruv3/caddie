@@ -27,6 +27,89 @@
 - **B8 Abort-Bedingungen (IMPORTANT):** Task 7-Runner: Aborts für off-package-Fokus, unerwartete Dialoge/Keyboard, UI-Dump-Fehler, repeated-no-change, Budget.
 - **B9/B10 Eval-Methodik (CRITICAL/IMPORTANT):** Task 8 — **Discovery- vs. gesperrtes Held-out-Set**; inkrementeller Vergleich (semantisches System mit explored-Wissen AUS vs. AN); genug unabhängige Tasks; Fehler/Timeouts getrennt von echten Misses gezählt.
 
+## Interface-Verträge (v2.1 — konkret, vor dem Bau festgelegt)
+
+Verbindliche Signaturen/Typen, damit Implementer + Test-Doubles nicht divergieren.
+
+**Safety (Task 1b)** — `caddie/explorer/safety.py`:
+```
+ALLOWED_CRAWL_ACTIONS: frozenset[str] = {"tap", "scroll_down", "scroll_up", "back"}
+def _norm(s: str) -> str            # NFKC + Hyphen U+2010/2011/2012->"-" + casefold
+def is_allowed_action(kind: str) -> bool          # kind in ALLOWED_CRAWL_ACTIONS
+def is_in_scope(focus_package: str, expected: str = "com.android.settings") -> bool
+def is_safe_action(element: dict) -> bool         # bestehend; _norm vor Matching; fail-closed
+def is_safe_text_target(element: dict) -> bool    # bestehend; unlabeled EditText -> False (fail-closed)
+```
+
+**MemoryEntry explored-Felder (Task 2)** — `caddie/memory/entry.py` (rückwärtskompatibel, Defaults):
+```
+state_sig: str = ""
+provenance: dict | None = None      # {"app","source_sig","action","dest_sig","path":[action,...]}
+confidence: float = 1.0             # from_skill: 1.0; explored-Default in synth: 0.3
+fingerprint: dict | None = None     # {"os","build","locale"}
+schema_version: int = 1
+# action-Form (überall gleich): {"kind": str, "label": str|"", "index": int|None}
+```
+
+**Hint-Abstraktion / B5 (Task 5)** — explored fließt NICHT durch den Skill-Pfad:
+```
+# caddie/memory/index.py
+MemoryIndex.match(task, k=3) -> list[Skill]              # UNVERÄNDERT (nur kind in {authored,recorded})
+MemoryIndex.match_hints(task, k=2) -> list[MemoryEntry]  # NEU: nur kind=="explored", roh
+# caddie/memory/selection.py
+select_prompt_hints(context, task, k=2) -> list[MemoryEntry]   # [] wenn semantic off / kein index
+# caddie/agent/prompt.py
+build_system_prompt(matched: list[Skill], criterion=None,
+                    hints: list[MemoryEntry] | None = None) -> str   # hints default None = byte-identisch
+#   hints!=None -> ein kompakter Block "## Geräte-Wissen (Hinweise)" mit pro Eintrag:
+#   intent_text + lesbarer Pfad (kein voller skill.body). Skill-Rendering unverändert.
+# http_api beide Sites: hints=select_prompt_hints(context, task); build_system_prompt(prompt_skills, criterion, hints=hints)
+#   skill=-Arg bleibt trigger-gebunden; explored NIE replay-autorisiert.
+```
+
+**Signatur (Task 3)** — `caddie/explorer/signature.py`:
+```
+def state_signature(elements: list[dict], mode: str = "normalized") -> str   # mode in {"exact","normalized","hybrid"}
+def fragmentation_merge_metrics(labeled_trees: list[tuple[str, list[dict]]], mode) -> dict  # {"fragmentation":float,"false_merge":float}
+```
+
+**UTG + Synthese (Task 4)** — `caddie/explorer/utg.py`, `synthesize.py`:
+```
+class UTG: add_state(sig, elements); add_edge(from_sig, action: dict, to_sig); frontier(sig) -> list[dict]; is_exhausted() -> bool
+#   frontier filtert via is_safe_action + is_in_scope; Budgets: max_states:int, max_depth:int, per_state_visit_budget:int
+def synthesize_entries(source_sig: str, action: dict, dest_sig: str,
+                       path_from_root: list[dict], dest_elements: list[dict],
+                       app: str, llm_fn=None) -> list[MemoryEntry]   # kind="explored", confidence=0.3
+#   llm_fn(prompt: str) -> str  (injizierbar; Default ruft den lokalen LLM-Client)
+```
+
+**Persistenz (Task 5)** — `caddie/explorer/store.py`:
+```
+def save_entries(entries: list[MemoryEntry], path: Path) -> None    # JSON, utf-8
+def load_entries(path: Path) -> list[MemoryEntry]
+#   JSON-Eintrag: alle MemoryEntry-Felder; dedup-Key = (app, state_sig, intent_text)
+```
+
+**Crawler-Driver (Task 6)** — `caddie/explorer/crawl.py`:
+```
+class Budgets: max_states:int=15; max_depth:int=6; max_actions:int=200; max_no_change:int=3
+class CrawlBackend(Protocol):   # was der Driver braucht (vom echten ADB-Backend erfüllt)
+    def list_elements(self) -> dict           # {"elements":[...]}
+    def current_package(self) -> str
+    def tap_element(self, index:int) -> None
+    def scroll(self, direction:str, amount:float) -> None
+    def press_button(self, button:str) -> None
+def crawl(backend: CrawlBackend, snapshot_restore_fn, budgets: Budgets,
+          llm_select_fn, app: str = "com.android.settings") -> tuple[list[MemoryEntry], str]
+#   returns (entries, stop_reason); stop_reason in {"exhausted","budget","off_scope_abort","ui_dump_fail","no_change"}
+#   pro Schritt: perceive -> signature -> safe in-scope frontier -> llm_select_fn(state)->action
+#               -> assert_safe+is_in_scope+is_allowed_action -> execute -> new state -> edge+synth
+#   snapshot_restore_fn() zum Baseline-Reset zwischen Zweigen (NIE Werksreset)
+#   llm_select_fn(elements: list[dict]) -> dict(action)   (injizierbar; Fake im Test)
+```
+
+**Deferred zu Task 7 (live):** konkreter Emulator-Snapshot-Befehl (`adb emu avd snapshot save/load` o.ä.), `wait-for-device`/`boot_completed`/UI-Stabilität nach Restore, Element-Cache-Invalidierung (`screen.py._last_elements`), Image/Locale-Pinning, 35B-Latenz-Tuning.
+
 ## Reihenfolge & Gates
 - **Tasks 1b–6 = OFFLINE/risikofrei** (Safety-Fix, Schema, Signatur-Kalibrierung, Synthese, Index-Hints, Driver-Logik — alle TDD, kein Live-Crawl). Emulator wird in Task 3 nur READ-ONLY für Tree-Erfassung genutzt.
 - **Task 7 ⛔ GATED:** Live-Crawl auf dem Emulator — erst nach Codex-Review von Task 1b (Safety) + Task 6 (Driver).
