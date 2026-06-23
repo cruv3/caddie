@@ -346,6 +346,9 @@ class AgentLoop:
             except Exception:
                 pass
             if _no_progress(state_sigs):
+                # Validated on-device: the nudge fires on real stuck patterns and
+                # can recover the agent (observed: stuck@10 -> nudge -> done@18).
+                print(f"[traj] no-progress nudge at turn {turns}", flush=True)
                 messages.append({"role": "user", "content": _STUCK_NOTE})
                 state_sigs.clear()
 
