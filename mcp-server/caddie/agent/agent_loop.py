@@ -592,9 +592,28 @@ class AgentLoop:
                                           f"-> {_sp.name} (was {_existing})", flush=True)
                                     # Hot-reload skills so the new steps are usable
                                     # on the NEXT task without a server restart.
+                                    # Atomic: build both new library and (if active)
+                                    # new index before assigning either, so we never
+                                    # leave the context with a new lib + stale index.
                                     from caddie.skills import SkillLibrary
-                                    self._context.skills = SkillLibrary.load(
+                                    from caddie.memory.selection import _semantic_on
+                                    _new_lib = SkillLibrary.load(
                                         self._context.project_dir / "skills")
+                                    _new_index = None
+                                    if _semantic_on() and self._context.memory_index is not None:
+                                        try:
+                                            from caddie.memory import Embedder, MemoryIndex
+                                            _new_index = MemoryIndex.build(
+                                                _new_lib, Embedder(), threshold=0.55)
+                                        except Exception as _idx_exc:
+                                            print(f"[replay] index rebuild failed: {_idx_exc}",
+                                                  flush=True)
+                                            # Keep old index rather than leaving inconsistent state
+                                            _new_index = self._context.memory_index
+                                    # Assign both atomically (Python GIL makes
+                                    # individual attribute writes atomic enough here)
+                                    self._context.skills = _new_lib
+                                    self._context.memory_index = _new_index
                                 else:
                                     print(f"[replay] kept existing {_existing} steps "
                                           f"(new run only {len(recorded_steps)})", flush=True)
