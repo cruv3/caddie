@@ -1,12 +1,15 @@
 """
-Tests for caddie.explorer.safety (Phase 1c Task 1).
+Tests for caddie.explorer.safety (Phase 1c Task 1 + 1b hardening).
 TDD: written BEFORE implementation -- all tests must first be RED.
 """
 import pytest
 from caddie.explorer.safety import (
+    ALLOWED_CRAWL_ACTIONS,
     FORBIDDEN_PATTERNS,
     UnsafeActionError,
     assert_safe,
+    is_allowed_action,
+    is_in_scope,
     is_safe_action,
     is_safe_text_target,
 )
@@ -319,3 +322,119 @@ class TestSafeTextTarget:
         # Non-input elements: is_safe_text_target does not block them
         el = _el(cls="android.widget.TextView", content_description="Passwort")
         assert is_safe_text_target(el) is True
+
+    def test_unlabeled_edittext_fail_closed(self):
+        # EditText with NO label must return False (fail-closed)
+        el = {"class": "android.widget.EditText"}
+        assert is_safe_text_target(el) is False
+
+    def test_unlabeled_edittext_empty_strings_fail_closed(self):
+        # EditText with empty-string fields also fail-closed
+        el = {"class": "android.widget.EditText", "text": "", "content_description": ""}
+        assert is_safe_text_target(el) is False
+
+
+# ---------------------------------------------------------------------------
+# Unicode normalisation (Phase 1c Task 1b)
+# ---------------------------------------------------------------------------
+
+class TestUnicodeNorm:
+    def test_wifi_nonbreaking_hyphen_blocked(self):
+        # U+2011 NON-BREAKING HYPHEN -- device may send "Wi‑Fi"
+        assert is_safe_action(_el(text="Wi‑Fi")) is False
+
+    def test_geraet_zuruecksetzen_umlaut_blocked(self):
+        # Real umlauts must still be caught (e.g. "Gerat zurucksetzen" variant)
+        assert is_safe_action(_el(text="Gerät zurücksetzen")) is False
+
+    def test_wireless_debugging_blocked(self):
+        assert is_safe_action(_el(text="Wireless debugging")) is False
+
+    def test_drahtloses_debugging_blocked(self):
+        assert is_safe_action(_el(text="Drahtloses Debugging")) is False
+
+    def test_developer_mode_blocked(self):
+        assert is_safe_action(_el(text="Developer mode")) is False
+
+    def test_entwicklermodus_blocked(self):
+        assert is_safe_action(_el(text="Entwicklermodus")) is False
+
+    def test_mobile_network_blocked(self):
+        assert is_safe_action(_el(text="Mobile network")) is False
+
+    def test_mobilfunknetz_blocked(self):
+        assert is_safe_action(_el(text="Mobilfunknetz")) is False
+
+    def test_factory_data_reset_blocked(self):
+        assert is_safe_action(_el(text="Factory data reset")) is False
+
+    def test_standort_blocked(self):
+        assert is_safe_action(_el(text="Standort")) is False
+
+    def test_location_blocked(self):
+        assert is_safe_action(_el(text="Location")) is False
+
+
+# ---------------------------------------------------------------------------
+# is_in_scope (Phase 1c Task 1b)
+# ---------------------------------------------------------------------------
+
+class TestIsInScope:
+    def test_settings_package_in_scope(self):
+        from caddie.explorer.safety import is_in_scope
+        assert is_in_scope("com.android.settings") is True
+
+    def test_chrome_package_out_of_scope(self):
+        from caddie.explorer.safety import is_in_scope
+        assert is_in_scope("com.android.chrome") is False
+
+    def test_empty_string_fail_closed(self):
+        from caddie.explorer.safety import is_in_scope
+        assert is_in_scope("") is False
+
+    def test_none_fail_closed(self):
+        from caddie.explorer.safety import is_in_scope
+        assert is_in_scope(None) is False
+
+    def test_custom_expected_package(self):
+        from caddie.explorer.safety import is_in_scope
+        assert is_in_scope("com.example.app", expected="com.example.app") is True
+
+    def test_prefix_match_not_enough(self):
+        # "com.android.settings.extra" must NOT match -- exact only
+        from caddie.explorer.safety import is_in_scope
+        assert is_in_scope("com.android.settings.extra") is False
+
+
+# ---------------------------------------------------------------------------
+# is_allowed_action (Phase 1c Task 1b)
+# ---------------------------------------------------------------------------
+
+class TestIsAllowedAction:
+    def test_tap_allowed(self):
+        assert is_allowed_action("tap") is True
+
+    def test_scroll_down_allowed(self):
+        assert is_allowed_action("scroll_down") is True
+
+    def test_scroll_up_allowed(self):
+        assert is_allowed_action("scroll_up") is True
+
+    def test_back_allowed(self):
+        assert is_allowed_action("back") is True
+
+    def test_long_press_not_allowed(self):
+        assert is_allowed_action("long_press") is False
+
+    def test_tap_xy_not_allowed(self):
+        assert is_allowed_action("tap_xy") is False
+
+    def test_swipe_not_allowed(self):
+        assert is_allowed_action("swipe") is False
+
+    def test_empty_string_not_allowed(self):
+        assert is_allowed_action("") is False
+
+    def test_allowed_crawl_actions_frozenset(self):
+        # Contract: ALLOWED_CRAWL_ACTIONS is a frozenset
+        assert isinstance(ALLOWED_CRAWL_ACTIONS, frozenset)

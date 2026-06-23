@@ -16,13 +16,62 @@ These are listed FIRST and are the highest-priority patterns.
 
 from __future__ import annotations
 
+import unicodedata
+
 __all__ = [
+    "ALLOWED_CRAWL_ACTIONS",
     "FORBIDDEN_PATTERNS",
     "UnsafeActionError",
+    "is_allowed_action",
+    "is_in_scope",
     "is_safe_action",
     "is_safe_text_target",
     "assert_safe",
 ]
+
+# ---------------------------------------------------------------------------
+# Allowed action vocabulary
+# Only these action kinds may be issued during a crawl session.
+# ---------------------------------------------------------------------------
+
+ALLOWED_CRAWL_ACTIONS: frozenset[str] = frozenset({"tap", "scroll_down", "scroll_up", "back"})
+
+
+def is_allowed_action(kind: str) -> bool:
+    """Return True iff kind is in ALLOWED_CRAWL_ACTIONS."""
+    return kind in ALLOWED_CRAWL_ACTIONS
+
+
+# ---------------------------------------------------------------------------
+# Package scope gate
+# The crawler must stay within the expected focus package (exact match).
+# ---------------------------------------------------------------------------
+
+def is_in_scope(focus_package: str | None, expected: str = "com.android.settings") -> bool:
+    """Return True iff focus_package exactly matches expected.
+
+    Fail-closed: None or empty string returns False.
+    """
+    if not focus_package:
+        return False
+    return focus_package == expected
+
+
+# ---------------------------------------------------------------------------
+# Unicode normalisation helper
+# Apply NFKC, replace common hyphen variants with ASCII '-', then casefold.
+# Used to normalise BOTH element labels AND patterns before substring match.
+# ---------------------------------------------------------------------------
+
+_HYPHEN_VARIANTS = "‐‑‒–"  # hyphen, nb-hyphen, figure dash, en-dash
+
+
+def _norm(s: str) -> str:
+    """Normalise s: NFKC, hyphen-variant -> ASCII '-', casefold."""
+    s = unicodedata.normalize("NFKC", s)
+    for ch in _HYPHEN_VARIANTS:
+        s = s.replace(ch, "-")
+    return s.casefold()
 
 
 class UnsafeActionError(Exception):
@@ -53,10 +102,12 @@ FORBIDDEN_PATTERNS: tuple[str, ...] = (
     "wi-fi",
     "wifi",
 
-    # Mobile data / cellular
+    # Mobile data / cellular / network
     "mobile daten",
     "mobilfunk",
+    "mobilfunknetz",        # DE: extended form seen on some ROMs
     "mobile data",
+    "mobile network",       # EN: Settings label on stock Android
     "cellular",
 
     # Hotspot / tethering -- can reconfigure the network interface
@@ -75,9 +126,16 @@ FORBIDDEN_PATTERNS: tuple[str, ...] = (
     "usb debugging",
     "adb",
 
-    # Developer options -- contains USB-debugging and other ADB controls
+    # Wireless debugging -- ADB-over-Wi-Fi pairing; blocks/changes ADB access
+    "wireless debugging",
+    "drahtloses debugging",
+
+    # Developer options / mode -- contains USB-debugging and other ADB controls
     "developer options",
+    "developer mode",       # EN variant shown on some ROMs
     "entwickleroptionen",
+    "entwicklermodus",      # DE variant
+    "developermodus",       # DE/EN hybrid ROM variant
 
     # Network reset -- wipes all Wi-Fi / BT / mobile settings at once
     "reset network",
@@ -91,9 +149,11 @@ FORBIDDEN_PATTERNS: tuple[str, ...] = (
 
     "werksreset",
     "factory reset",
-    "zuruecksetzen",            # "Auf Werkseinstellungen zuruecksetzen"
+    "factory data reset",       # EN full label on stock Android
+    "zuruecksetzen",            # "Auf Werkseinstellungen zuruecksetzen" (ASCII)
+    "zurücksetzen",             # "Gerät zurücksetzen" with real umlaut
     "auf werkseinstellungen",
-    "alle daten loeschen",      # ASCII-safe variant of "alle Daten löschen"
+    "alle daten loeschen",      # ASCII-safe variant of "alle Daten loeschen"
     # Also catch the original umlaut form in case the device sends UTF-8
     "alle daten löschen",
     "erase",
@@ -133,6 +193,10 @@ FORBIDDEN_PATTERNS: tuple[str, ...] = (
     "mein gerät finden",  # "Mein Geraet finden" with umlaut
     "mein geraet finden",      # ASCII transliteration fallback
 
+    # Location / GPS -- privacy-sensitive; could share position data
+    "standort",                 # DE: Standort (location/GPS)
+    "location",                 # EN: Location settings
+
     # Payment / OEM unlock
     "google pay",
     "wallet",
@@ -141,13 +205,17 @@ FORBIDDEN_PATTERNS: tuple[str, ...] = (
 
 
 def _get_labels(element: dict) -> list[str]:
-    """Return non-empty text fields from an element dict (lower-cased)."""
+    """Return non-empty text fields from an element dict, unicode-normalised."""
     labels: list[str] = []
     for key in ("text", "content_description", "resource_id"):
         val = element.get(key)
         if isinstance(val, str) and val.strip():
-            labels.append(val.lower())
+            labels.append(_norm(val))
     return labels
+
+
+# Pre-normalise forbidden patterns once at import time for efficiency.
+_FORBIDDEN_PATTERNS_NORM: tuple[str, ...] = tuple(_norm(p) for p in FORBIDDEN_PATTERNS)
 
 
 def is_safe_action(element: dict) -> bool:
@@ -156,7 +224,7 @@ def is_safe_action(element: dict) -> bool:
 
     Fail-closed: returns False when:
     - the element has no readable label (empty / missing text, desc, id)
-    - any label contains a FORBIDDEN_PATTERN substring
+    - any label contains a FORBIDDEN_PATTERN substring (after unicode norm)
     """
     labels = _get_labels(element)
 
@@ -164,17 +232,18 @@ def is_safe_action(element: dict) -> bool:
     if not labels:
         return False
 
-    # Check every label against every forbidden pattern
+    # Check every label against every forbidden pattern (both normalised)
     for label in labels:
-        for pattern in FORBIDDEN_PATTERNS:
+        for pattern in _FORBIDDEN_PATTERNS_NORM:
             if pattern in label:
                 return False
 
     return True
 
 
-# Patterns that indicate a text field is a password / account / search input
-_SENSITIVE_INPUT_PATTERNS: tuple[str, ...] = (
+# Patterns that indicate a text field is a password / account / search input.
+# Pre-normalised at import time via _norm.
+_SENSITIVE_INPUT_PATTERNS_RAW: tuple[str, ...] = (
     "passwort",
     "password",
     "konto",
@@ -184,6 +253,9 @@ _SENSITIVE_INPUT_PATTERNS: tuple[str, ...] = (
     "search_src_text",  # common Settings search resource_id fragment
     "pin",
 )
+_SENSITIVE_INPUT_PATTERNS: tuple[str, ...] = tuple(
+    _norm(p) for p in _SENSITIVE_INPUT_PATTERNS_RAW
+)
 
 
 def is_safe_text_target(element: dict) -> bool:
@@ -191,16 +263,21 @@ def is_safe_text_target(element: dict) -> bool:
     Return True only if it is safe to type text into this element.
 
     Conservative: only EditText nodes are considered typeable.
-    Within EditText, blocks nodes whose label/resource_id suggests
-    password, account, or search input.
+    Within EditText:
+    - Fail-closed: no usable label -> False (unlabeled field, unknown purpose)
+    - Blocks nodes whose label/resource_id suggests password, account, or search
     """
     cls = element.get("class", "") or ""
     if "EditText" not in cls:
         # Not a text field at all -- no typing concern
         return True
 
-    # It IS an EditText -- check for sensitive-field indicators
+    # It IS an EditText -- require at least one usable label (fail-closed)
     labels = _get_labels(element)
+    if not labels:
+        return False
+
+    # Check for sensitive-field indicators (both sides normalised)
     for label in labels:
         for pattern in _SENSITIVE_INPUT_PATTERNS:
             if pattern in label:
