@@ -1,0 +1,30 @@
+# Phase 1a E2E: Trigger-Prompt vs. Semantik-Prompt auf dem Gerät.
+# subset: "para" = Paraphrase/Crosslang (hier zeigt sich der Unterschied — Trigger verfehlt);
+#         "exact" = exakter Trigger (Kontrolle, beide Modi treffen);
+#         "neg"   = kein Skill (kein-Schaden-Test).
+# pre_state: adb-shell-Befehle, die VOR dem Run den Gegen-/Startzustand erzwingen.
+tasks:
+  - name: dark_on_para
+    query: "mach den nachtmodus an"
+    subset: para
+    pre_state: ["cmd uimode night no", "am force-stop com.android.settings"]
+  - name: brightness_crosslang
+    query: "set the screen brightness to fifty percent"
+    subset: para
+    pre_state: ["settings put system screen_brightness 25", "am force-stop com.android.settings"]
+  - name: bluetooth_para
+    query: "aktiviere bluetooth"
+    subset: para
+    pre_state: ["svc bluetooth disable", "am force-stop com.android.settings"]
+  - name: timer_para
+    query: "stell einen timer auf fünf minuten"
+    subset: para
+    pre_state: ["am force-stop com.google.android.deskclock"]
+  - name: chrome_exact
+    query: "öffne chrome"
+    subset: exact
+    pre_state: ["am force-stop com.android.chrome"]
+  - name: brightness_negative
+    query: "stelle die helligkeit auf 20 prozent"
+    subset: neg
+    pre_state: ["settings put system screen_brightness 200", "am force-stop com.android.settings"]
