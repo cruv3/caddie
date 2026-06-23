@@ -1,0 +1,28 @@
+[
+  {
+    "id": "demo_bf7966dd2c0a",
+    "app": "",
+    "intent_text": "change the screen lock timeout to 30 seconds",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "com.android.settings:id/search_action_bar",
+        "Zurück",
+        "Display & Touchbedienung",
+        "Display automatisch ausschalten",
+        "Nach 30 Sekunden"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  }
+]
