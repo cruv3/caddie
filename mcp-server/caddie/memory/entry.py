@@ -16,6 +16,12 @@ class MemoryEntry:
     complete_trajectory: bool
     steps: tuple[dict, ...]
     source_path: str
+    # Explored-knowledge fields (Phase 1c), all with defaults for backward-compat
+    state_sig: str = ""
+    provenance: dict | None = None      # shape: {"app","source_sig","action","dest_sig","path":[action,...]}
+    confidence: float = 1.0             # skills keep 1.0; explored entries pass 0.3
+    fingerprint: dict | None = None     # shape: {"os","build","locale"}
+    schema_version: int = 1
 
     @classmethod
     def from_skill(cls, skill: Skill, app: str = "") -> "MemoryEntry":
