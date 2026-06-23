@@ -24,11 +24,34 @@ SERIAL = os.environ.get("PHASE1C_SERIAL", "emulator-5554")
 # adb honours ANDROID_SERIAL (the client adds no -s flag); pin it to the emulator.
 os.environ["ANDROID_SERIAL"] = SERIAL
 os.environ["ANDROID_ADB"] = ADB
+# LLM for intent synthesis (local qwen3.6 via arbiter); thinking OFF = fast labels.
+os.environ.setdefault("LLM_STUDIO_ENDPOINT", "http://100.92.159.57:8800/api/v1/chat")
+os.environ.setdefault("LLM_STUDIO_MODEL", "qwen3.6")
+os.environ.setdefault("LLM_STUDIO_REASONING", "off")
 
 from caddie.android.adb import AdbBridge          # noqa: E402
+from caddie.agent.lmstudio import LmStudioClient   # noqa: E402
 from caddie.explorer.crawl import crawl            # noqa: E402
 from caddie.explorer.utg import Budgets            # noqa: E402
 from caddie.explorer.store import save_entries     # noqa: E402
+
+_LM = LmStudioClient()
+
+
+def real_llm_fn(prompt: str) -> str:
+    """Synthesis llm_fn: ask the local model for ONE short intent label."""
+    msgs = [{"role": "user", "content": prompt +
+             "\n\nAntworte mit EINER kurzen Intent-Beschreibung (Imperativ, <=8 Woerter), "
+             "kein Vorwort, keine Anfuehrungszeichen."}]
+    resp = _LM.chat_completion(msgs)
+    try:
+        # validated shape: {"ok":True,"status":200,"response":{"choices":[{"message":{"content":...}}]}}
+        payload = resp.get("response", resp) if isinstance(resp, dict) else resp
+        txt = payload["choices"][0]["message"]["content"].strip()
+        return (txt.splitlines()[0].strip().strip('"').strip() or "unbekannte Aktion")[:120]
+    except Exception as exc:
+        print(f"[crawl] llm_fn fallback ({exc}): {str(resp)[:120]}", flush=True)
+        return "unbekannte Settings-Aktion"
 
 SNAPSHOT = "crawlbase"
 
@@ -62,7 +85,17 @@ class LiveBackend:
         self._b = AdbBridge()
 
     def list_elements(self) -> dict:
-        return self._b.list_elements()
+        # uiautomator dump fails transiently (animations/WebView); retry once.
+        for attempt in range(2):
+            try:
+                res = self._b.list_elements()
+                if res.get("elements"):
+                    return res
+            except Exception as exc:
+                if attempt == 1:
+                    print(f"[crawl] list_elements failed twice: {exc}", flush=True)
+            time.sleep(1.0)
+        return {"elements": []}
 
     def current_package(self) -> str:
         out = _adb("shell", "dumpsys", "window")
@@ -79,15 +112,17 @@ class LiveBackend:
         self._b.press_button(button)
 
 
-def heuristic_select(frontier: list[dict]) -> dict:
-    """Dry-run selector: tap the FIRST safe frontier element (driver already
-    filtered the frontier to safe, in-scope, labelled elements)."""
-    el = frontier[0]
+def label_aware_select(frontier: list[dict]) -> dict:
+    """Prefer a frontier element that HAS a human label (text/desc) — those
+    lead to meaningful, retrievable knowledge; fall back to the first element."""
+    labeled = [e for e in frontier
+               if (e.get("text") or e.get("content_description"))]
+    el = labeled[0] if labeled else frontier[0]
     action = {"kind": "tap",
               "label": el.get("text") or el.get("content_description") or "",
               "index": el.get("index")}
     print(f"[crawl] select tap #{action['index']} {action['label']!r} "
-          f"(of {len(frontier)} frontier)", flush=True)
+          f"({len(labeled)} labeled / {len(frontier)} frontier)", flush=True)
     return action
 
 
@@ -100,9 +135,10 @@ def main() -> None:
 
     backend = LiveBackend()
     print(f"[crawl] start package={backend.current_package()}", flush=True)
-    budgets = Budgets(max_states=12, max_depth=5, max_actions=40)
+    budgets = Budgets(max_states=20, max_depth=5, max_actions=60)
 
-    entries, reason = crawl(backend, snapshot_restore, budgets, heuristic_select)
+    entries, reason = crawl(backend, snapshot_restore, budgets, label_aware_select,
+                            synth_llm_fn=real_llm_fn)
 
     out = ROOT / "experiments" / "results" / "phase1c_explored.json"
     out.parent.mkdir(parents=True, exist_ok=True)

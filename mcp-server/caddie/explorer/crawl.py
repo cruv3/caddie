@@ -66,6 +66,7 @@ def crawl(
     budgets: Budgets,
     llm_select_fn: Callable[[list[dict]], dict],
     app: str = "com.android.settings",
+    synth_llm_fn: Callable[[str], str] | None = None,
 ) -> tuple[list[MemoryEntry], str]:
     """Drive the UTG crawler.
 
@@ -261,7 +262,7 @@ def crawl(
             path_from_root,
             dest_elements,
             app,
-            llm_fn=None,
+            llm_fn=synth_llm_fn,
         )
         entries.extend(new_entries)
 
