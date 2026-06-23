@@ -97,7 +97,14 @@ class LiveBackend:
         return {"elements": []}
 
     def current_package(self) -> str:
+        # Use the focused APP window (mFocusedApp), not mCurrentFocus: the latter
+        # catches transient overlays like the IME/keyboard (tapping a search field
+        # opens Gboard -> mCurrentFocus=<gboard pkg>), which would be misread as
+        # leaving the app. mFocusedApp reflects the foreground activity's package.
         out = _adb("shell", "dumpsys", "window")
+        m = re.search(r"mFocusedApp=\S*\s+([\w.]+)/", out)
+        if m:
+            return m.group(1)
         m = re.search(r"mCurrentFocus=Window\{[^}]*\s+([\w.]+)/", out)
         return m.group(1) if m else ""
 

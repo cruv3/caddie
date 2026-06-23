@@ -672,5 +672,37 @@
     "confidence": 0.3,
     "fingerprint": null,
     "schema_version": 1
+  },
+  {
+    "id": "explored.7dbffde52e6e1cc5cbaf1cfd",
+    "app": "com.android.settings",
+    "intent_text": "Search for specific settings options",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "f09c457c2d27958e",
+    "provenance": {
+      "app": "com.android.settings",
+      "source_sig": "f09c457c2d27958e",
+      "action": {
+        "kind": "tap",
+        "label": "Search Settings",
+        "index": 7
+      },
+      "dest_sig": "f09c457c2d27958e",
+      "path": [
+        {
+          "kind": "tap",
+          "label": "Search Settings",
+          "index": 7
+        }
+      ]
+    },
+    "confidence": 0.3,
+    "fingerprint": null,
+    "schema_version": 1
   }
 ]
