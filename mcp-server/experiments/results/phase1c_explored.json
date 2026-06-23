@@ -704,5 +704,292 @@
     "confidence": 0.3,
     "fingerprint": null,
     "schema_version": 1
+  },
+  {
+    "id": "explored.6a8858f24962e993bc85d2a2",
+    "app": "com.android.settings",
+    "intent_text": "Search for settings options",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "e84fa0e7fe99d16b",
+    "provenance": {
+      "app": "com.android.settings",
+      "source_sig": "edaf53eaf1b6fa30",
+      "action": {
+        "kind": "tap",
+        "label": "Search Settings",
+        "index": 7
+      },
+      "dest_sig": "e84fa0e7fe99d16b",
+      "path": [
+        {
+          "kind": "tap",
+          "label": "Search Settings",
+          "index": 7
+        }
+      ]
+    },
+    "confidence": 0.3,
+    "fingerprint": null,
+    "schema_version": 1
+  },
+  {
+    "id": "explored.fa7915295445943663232c28",
+    "app": "com.android.settings",
+    "intent_text": "View search results for settings options",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "f09c457c2d27958e",
+    "provenance": {
+      "app": "com.android.settings",
+      "source_sig": "e84fa0e7fe99d16b",
+      "action": {
+        "kind": "tap",
+        "label": "Back",
+        "index": 10
+      },
+      "dest_sig": "f09c457c2d27958e",
+      "path": [
+        {
+          "kind": "tap",
+          "label": "Search Settings",
+          "index": 7
+        },
+        {
+          "kind": "tap",
+          "label": "Back",
+          "index": 10
+        }
+      ]
+    },
+    "confidence": 0.3,
+    "fingerprint": null,
+    "schema_version": 1
+  },
+  {
+    "id": "explored.9ca679ca42be80d57d720925",
+    "app": "com.android.settings",
+    "intent_text": "View recent search results and navigate settings.",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "e84fa0e7fe99d16b",
+    "provenance": {
+      "app": "com.android.settings",
+      "source_sig": "f09c457c2d27958e",
+      "action": {
+        "kind": "tap",
+        "label": "Search Settings",
+        "index": 7
+      },
+      "dest_sig": "e84fa0e7fe99d16b",
+      "path": [
+        {
+          "kind": "tap",
+          "label": "Search Settings",
+          "index": 7
+        },
+        {
+          "kind": "tap",
+          "label": "Back",
+          "index": 10
+        },
+        {
+          "kind": "tap",
+          "label": "Search Settings",
+          "index": 7
+        }
+      ]
+    },
+    "confidence": 0.3,
+    "fingerprint": null,
+    "schema_version": 1
+  },
+  {
+    "id": "explored.92e52d32810115dd410a115b",
+    "app": "com.android.settings",
+    "intent_text": "View recent search results",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "e84fa0e7fe99d16b",
+    "provenance": {
+      "app": "com.android.settings",
+      "source_sig": "e84fa0e7fe99d16b",
+      "action": {
+        "kind": "tap",
+        "label": "RECENT SEARCH RESULTS",
+        "index": 17
+      },
+      "dest_sig": "e84fa0e7fe99d16b",
+      "path": [
+        {
+          "kind": "tap",
+          "label": "Search Settings",
+          "index": 7
+        },
+        {
+          "kind": "tap",
+          "label": "Back",
+          "index": 10
+        },
+        {
+          "kind": "tap",
+          "label": "Search Settings",
+          "index": 7
+        },
+        {
+          "kind": "tap",
+          "label": "Search settings",
+          "index": 11
+        },
+        {
+          "kind": "tap",
+          "label": "RECENT SEARCH RESULTS",
+          "index": 17
+        }
+      ]
+    },
+    "confidence": 0.3,
+    "fingerprint": null,
+    "schema_version": 1
+  },
+  {
+    "id": "explored.bb54e14ddf46d52cd65ad70e",
+    "app": "com.android.settings",
+    "intent_text": "Adjust display size and text scaling",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "e72e5bf1f7b30bdf",
+    "provenance": {
+      "app": "com.android.settings",
+      "source_sig": "e84fa0e7fe99d16b",
+      "action": {
+        "kind": "tap",
+        "label": "Display size",
+        "index": 24
+      },
+      "dest_sig": "e72e5bf1f7b30bdf",
+      "path": [
+        {
+          "kind": "tap",
+          "label": "Search Settings",
+          "index": 7
+        },
+        {
+          "kind": "tap",
+          "label": "Back",
+          "index": 10
+        },
+        {
+          "kind": "tap",
+          "label": "Search Settings",
+          "index": 7
+        },
+        {
+          "kind": "tap",
+          "label": "Search settings",
+          "index": 11
+        },
+        {
+          "kind": "tap",
+          "label": "RECENT SEARCH RESULTS",
+          "index": 17
+        },
+        {
+          "kind": "tap",
+          "label": "Display size",
+          "index": 24
+        }
+      ]
+    },
+    "confidence": 0.3,
+    "fingerprint": null,
+    "schema_version": 1
+  },
+  {
+    "id": "explored.088bb3ce442d081fb9f64a31",
+    "app": "com.android.settings",
+    "intent_text": "View recent settings searches and navigate to display options.",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "e84fa0e7fe99d16b",
+    "provenance": {
+      "app": "com.android.settings",
+      "source_sig": "e72e5bf1f7b30bdf",
+      "action": {
+        "kind": "tap",
+        "label": "Navigate up",
+        "index": 6
+      },
+      "dest_sig": "e84fa0e7fe99d16b",
+      "path": [
+        {
+          "kind": "tap",
+          "label": "Search Settings",
+          "index": 7
+        },
+        {
+          "kind": "tap",
+          "label": "Back",
+          "index": 10
+        },
+        {
+          "kind": "tap",
+          "label": "Search Settings",
+          "index": 7
+        },
+        {
+          "kind": "tap",
+          "label": "Search settings",
+          "index": 11
+        },
+        {
+          "kind": "tap",
+          "label": "RECENT SEARCH RESULTS",
+          "index": 17
+        },
+        {
+          "kind": "tap",
+          "label": "Display size",
+          "index": 24
+        },
+        {
+          "kind": "tap",
+          "label": "Display size and text",
+          "index": 4
+        },
+        {
+          "kind": "tap",
+          "label": "Navigate up",
+          "index": 6
+        }
+      ]
+    },
+    "confidence": 0.3,
+    "fingerprint": null,
+    "schema_version": 1
   }
 ]
