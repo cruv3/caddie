@@ -43,9 +43,14 @@ Semantic latency (test): p50 8.1 ms · p95 12.0 ms · max 19.0 ms
 - **→ PASS** (0.70 ≥ 0.35 ✓)
 
 ### 2. Paraphrase + Crosslang separat: deutlich > trigger
-- paraphrase top1 = 0.75 (trigger: 0.20); crosslang top1 = 0.75 (trigger: 0.20)
-- Trigger kann Paraphrasen und Crosslang gar nicht auflösen (top1=0.20 entspricht nur exakten Treffern im trigger-Set)
-- **→ PASS** (beide 0.75 vs. 0.20 — Differenz +0.55)
+> KORREKTUR (Codex-Review 2026-06-22): hier wird gegen die **per-kind**-Trigger-Baseline
+> verglichen, nicht gegen den Trigger-Gesamtwert 0.20. Exakte Trigger-per-kind (test-Split):
+> paraphrase **0.25**, crosslang **0.00**, trigger_exact **1.00**.
+- paraphrase top1: semantic 0.75 vs **trigger 0.25** → +0.50
+- crosslang top1: semantic 0.75 vs **trigger 0.00** → +0.75 (Trigger kann EN/Paraphrasen nicht)
+- **→ PASS** (semantic deutlich besser auf beiden)
+- ⚠️ Gegenrichtung offengelegt: **trigger_exact** semantic 0.00 vs trigger 1.00 → Semantik ist
+  KEIN genereller Ersatz für exakte Trigger (siehe Limitation 5).
 
 ### 3. Keine Negativ-Regression: abstention_accuracy semantic ≥ trigger; false_injection_rate nicht schlechter
 - trigger abstention = 1.00; semantic abstention = 1.00; false-inj beide 0.00
@@ -70,10 +75,11 @@ Semantic latency (test): p50 8.1 ms · p95 12.0 ms · max 19.0 ms
 - **→ PASS** (alle drei harten Budgets eingehalten)
 
 ### 7. Pro-Sprache: kein DE- oder EN-Recall-Einbruch < Baseline
-- DE top1 = 0.667; EN top1 = 0.75
-- Trigger-Baseline top1 = 0.20 (beide Sprachen gleich)
-- Beide Sprachen klar über Baseline; kein Einbruch einer Sprache
-- **→ PASS** (DE 0.667 >> 0.20, EN 0.75 >> 0.20)
+> KORREKTUR (Codex-Review 2026-06-22): per-lang-Trigger-Baseline, nicht Gesamtwert.
+> Exakte Trigger-per-lang (test-Split): **DE 0.33, EN 0.00**.
+- DE top1: semantic 0.667 vs **trigger 0.33** → +0.34
+- EN top1: semantic 0.75 vs **trigger 0.00** → +0.75 (Trigger hat nur DE-Trigger-Phrasen)
+- **→ PASS** (beide Sprachen klar über ihrer jeweiligen Baseline)
 
 ---
 

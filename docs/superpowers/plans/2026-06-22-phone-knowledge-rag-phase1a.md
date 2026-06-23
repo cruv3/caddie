@@ -254,41 +254,79 @@ git -c user.name="Andreas" -c user.email="me@cruve.dev" commit -m "experiments: 
 
 ---
 
-### Task 3 ⛔ GATED (Live-Pfad): Flag-gegatete Integration in ServerContext + http_api
+### Task 3 ⛔ GATED (Live-Pfad): Semantische Auswahl NUR fürs Prompt — Replay bleibt trigger-gebunden
 
-> **NICHT ausführen, bevor Codex Phase-0-Final + diesen Plan reviewt hat.**
+> **NICHT ausführen, bevor Codex den überarbeiteten Plan freigibt.**
+
+> **CRITICAL (Codex-Befund):** `matched` aus `context.skills.match(task)` speist in `http_api`
+> BEIDES: `build_system_prompt(matched)` **und** `skill=matched[0]` → und `skill=` löst in
+> `agent_loop` den **Replay-Fast-Path** aus UND **schreibt Trajektorien zurück** in genau
+> diesen Skill (`agent_loop.py:~247` Replay, `~577` Recording). Würde man hier den
+> *semantischen* Top-Treffer einsetzen, würde er **unsicher replayed + überschrieben** —
+> Verletzung der Phase-1a/1b-Grenze (§4.5). **Phase 1a ändert deshalb NUR das Prompt, NIEMALS
+> den `skill=`-Arg.** Semantik-getriebenes Replay ist Phase 1b (mit §4.5-Kontrakt).
 
 **Files:**
-- Modify: `caddie/context.py` (Index optional bauen, wenn Flag gesetzt)
-- Modify: `caddie/agent/http_api.py:200, :270` (Match-Auswahl)
-- Modify: `caddie/agent/agent_loop.py:~596` (Index bei Hot-Reload neu bauen)
+- Modify: `caddie/context.py` (optionalen `memory_index` bauen, nur wenn Flag an)
+- Modify: `caddie/agent/http_api.py` (beide Call-Sites: Prompt-Skills getrennt vom Replay-Skill)
+- Modify: `caddie/agent/agent_loop.py:~596` (Hot-Reload: Index atomar mitrebuilden)
 - Test: `tests/test_semantic_match_flag.py`
 
 **Interfaces:**
-- Produces: ServerContext-Attribut `memory_index: MemoryIndex | None` (None wenn Flag aus). Eine Hilfsfunktion `select_skills(context, task) -> list[Skill]` die abhängig vom Flag `context.memory_index.match(task)` oder `context.skills.match(task)` zurückgibt.
+- `ServerContext.memory_index: MemoryIndex | None` (None wenn Flag aus).
+- `select_prompt_skills(context, task) -> list[Skill]` — Flag an **und** Index vorhanden →
+  `context.memory_index.match(task)`, sonst `context.skills.match(task)`. **Wird NUR für
+  `build_system_prompt` genutzt.**
+- Der Replay-/Recording-Skill bleibt **immer** `context.skills.match(task)` (Trigger) — der
+  `skill=`-Arg an `agent_loop.run` ändert sich NICHT.
 
-- [ ] **Step 1: Failing test — Flag aus = Trigger-Verhalten, Flag an = semantisch**
+- [ ] **Step 1: Failing tests**
+  - `select_prompt_skills`: Flag `"0"`/unset → identisch zu `context.skills.match`; Flag `"1"`
+    + Index → nutzt Index. (Fake-Index injizieren, kein Modell.)
+  - **Trennungs-Test:** ein Stub, der beide http_api-Übergaben prüft — bei Flag an liefert
+    `select_prompt_skills` die semantischen Skills fürs Prompt, der `skill=`-Arg bleibt der
+    **Trigger**-Top-Treffer (NICHT der semantische). Dies ist der Regressions-Schutz gegen
+    den CRITICAL.
 
-`tests/test_semantic_match_flag.py`: konstruiere einen Mini-Context-Stub mit beiden Pfaden; verifiziere `select_skills` ruft Trigger bei Flag `"0"` und Index bei `"1"`. (Kein echtes Modell — Fake-Embedder/Index injizieren.)
+- [ ] **Step 2: RED bestätigen.**
 
-- [ ] **Step 2–4:** RED bestätigen → `select_skills` + ServerContext-Flag-Logik implementieren (Index nur bauen wenn `LLM_SMARTPHONE_SEMANTIC_MATCH != "0"`; Embedder lazy) → http_api beide Call-Sites auf `select_skills(context, task)` umstellen → agent_loop Hot-Reload baut `context.memory_index` mit neu, falls aktiv → GREEN.
+- [ ] **Step 3: Implementieren**
+  - **Striktes Flag:** `_semantic_on() -> bool` = `os.environ.get("LLM_SMARTPHONE_SEMANTIC_MATCH","0") == "1"` (nur exakt `"1"` aktiviert — kein `!= "0"`, das bei Tippfehlern anginge).
+  - `ServerContext`: wenn `_semantic_on()`, baue `self.memory_index = MemoryIndex.build(self.skills, Embedder(), threshold=0.55)` (Embedder lazy/einmalig); sonst `None`.
+  - `http_api` (beide Sites):
+    ```python
+    matched = context.skills.match(task)                 # TRIGGER — für Replay/Recording, UNVERÄNDERT
+    prompt_skills = select_prompt_skills(context, task)    # SEMANTIC (falls Flag an) — nur fürs Prompt
+    system_prompt = build_system_prompt(prompt_skills, criterion)
+    ...
+    agent_loop.run(..., skill=(matched[0] if matched else None))   # bleibt TRIGGER
+    ```
+  - **Atomarer Hot-Reload** (`agent_loop.py:~596`): neue Library bauen, dann (falls aktiv) neuen Index bauen, und **erst nach erfolgreichem Bau** beide konsistent zuweisen (kein Zustand mit neuer Lib + altem Index).
 
-- [ ] **Step 5: Default-Verhalten-Regression** — mit Flag aus: bestehende Tests + ein Smoke-Task müssen sich unverändert verhalten; `git diff` zeigt: ohne Flag kein neuer Codepfad aktiv.
+- [ ] **Step 4: GREEN** (`.venv/Scripts/python.exe -m pytest tests/ -v`).
 
-- [ ] **Step 6: Commit** (`agent: flag-gated semantic skill selection (LLM_SMARTPHONE_SEMANTIC_MATCH)`).
+- [ ] **Step 5: Default-Regression** — Flag aus: volle Suite unverändert grün; ein Smoke-Task verhält sich wie heute. Bestätige: der `skill=`-Pfad (Replay/Recording) ist in KEINEM Modus semantisch.
+
+- [ ] **Step 6: Commit** (`agent: semantic skill selection for prompt only, replay stays trigger-bound (phase 1a)`).
 
 ---
 
-### Task 4 ⛔ GATED (Gerät): End-to-end Trigger- vs. semantic-Auswahl
+### Task 4 ⛔ GATED (Gerät): End-to-end Trigger- vs. semantic-Prompt-Auswahl
 
-> **NICHT ausführen, bevor Codex-Review + Task 3 fertig.**
+> **NICHT ausführen, bevor Task 3 fertig + reviewt.**
 
 **Files:**
-- Create: `experiments/phase1a_e2e.py`
+- Create: `experiments/phase1a_e2e.py`, `experiments/phase1a_e2e_tasks.yaml`
 
-**Interfaces:** fährt dieselben realen Tasks zweimal (Flag aus/an) gegen den Agenten + das Gerät, misst **echte Task-Erfolgsquote** (verifiziert), Turns, Latenz. Nutzt die bestehende Harness-/Eval-Infrastruktur (`experiments/`), Geräte-Wachhaltung wie in Phase-0-Benches.
+**Interfaces:** fährt eine **feste** Task-Liste je **Modus** (Flag aus = Trigger-Prompt, an = Semantik-Prompt), misst **verifizierte** Erfolgsquote + Effizienz. Nutzt die bestehende Harness (`experiments/`) + Geräte-Wachhaltung wie in den Phase-0-Benches.
 
-- [ ] **Step 1–3:** Task-Liste definieren (Mischung aus Skill-Treffern + Paraphrasen + Negativen) → beide Modi fahren → Erfolgsquote/Turns/Latenz vergleichen → `experiments/results/phase1a_e2e.md`.
+**Methodik (fest, vorab — Codex-Härtung):**
+- **Festes Task-Set** (`phase1a_e2e_tasks.yaml`): pro Task `query`, `success_criterion`, `pre_state` (adb-Reset-Befehle für deterministischen Startzustand). Mischung: Skill-Treffer, Paraphrasen, Crosslang, **harte Negative** (kein Skill → Agent soll ohne Skill-Hint sauber arbeiten/abbrechen).
+- **Deterministischer Reset** vor JEDEM Run (pre_state + Home), **N≥3 Wiederholungen** pro (Task×Modus), **randomisierte Reihenfolge** gegen Drift.
+- **Metriken:** verifizierte Task-Erfolgsquote (Screenshot-Verifier wie bisher), Turns, **Time-to-First-Action**, **injizierte Prompt-Tokens** (Hint-Größe), End-to-End-Latenz.
+- **Numerische Gates (vorab):** Semantik-Modus Erfolgsquote ≥ Trigger-Modus (kein Rückschritt) UND ≥ +X pp auf der Paraphrasen/Crosslang-Teilmenge; **keine** Erfolgs-Regression auf exakten Trigger-Queries; Prompt-Token-Overhead ≤ T; TTFA-Overhead ≤ Δ. (X, T, Δ vor dem Lauf festschreiben.)
+
+- [ ] **Step 1–4:** Task-Set schreiben → beide Modi je N× mit Reset fahren → Metriken aggregieren → `experiments/results/phase1a_e2e.md` mit PASS/FAIL je Gate.
 
 ---
 
