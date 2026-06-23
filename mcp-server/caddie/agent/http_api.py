@@ -18,7 +18,7 @@ from caddie.config import (
     ENV_AGENT_PORT,
 )
 from caddie.context import ServerContext
-from caddie.memory.selection import select_prompt_skills
+from caddie.memory.selection import select_prompt_skills, select_prompt_hints
 
 
 class _ExclusiveThreadingHTTPServer(ThreadingHTTPServer):
@@ -201,7 +201,8 @@ def _handler_factory(
             matched = context.skills.match(task)          # TRIGGER — for replay/recording, UNCHANGED
             prompt_skills = select_prompt_skills(context, task, trigger_matched=matched)  # SEMANTIC (if flag on) — prompt only; reuses trigger result when flag off
             criterion = payload.get("criterion")
-            system_prompt = build_system_prompt(prompt_skills, criterion)
+            hints = select_prompt_hints(context, task)  # explored knowledge as prompt hints (flag-gated, [] when off)
+            system_prompt = build_system_prompt(prompt_skills, criterion, hints=hints)
             # Folge-Auftrag kurz nach "fertig" (z.B. "nimm ein anderes
             # Restaurant"): den zuletzt beendeten Run als Kontext mitgeben,
             # damit die Korrektur Bezug hat. Nur wenn er frisch genug ist.
@@ -272,7 +273,8 @@ def _handler_factory(
             matched = context.skills.match(task)          # TRIGGER — for replay/recording, UNCHANGED
             prompt_skills = select_prompt_skills(context, task, trigger_matched=matched)  # SEMANTIC (if flag on) — prompt only; reuses trigger result when flag off
             criterion = payload.get("criterion")
-            system_prompt = build_system_prompt(prompt_skills, criterion)
+            hints = select_prompt_hints(context, task)  # explored knowledge as prompt hints (flag-gated, [] when off)
+            system_prompt = build_system_prompt(prompt_skills, criterion, hints=hints)
             authorization = self.headers.get("Authorization")
             active_skill_ids = [skill.id for skill in matched]
 

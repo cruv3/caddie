@@ -47,8 +47,23 @@ class ServerContext:
             self.memory_index = None
             return
         try:
+            import os
             from caddie.memory import Embedder, MemoryIndex
-            self.memory_index = MemoryIndex.build(self.skills, Embedder(), threshold=0.55)
+            # Explored knowledge (Phase 1c) is loaded into the index ONLY when
+            # LLM_SMARTPHONE_EXPLORED_HINTS=1 and a store path is given. Keeping it
+            # behind its own flag lets the eval toggle the knowledge contribution
+            # while holding semantic skill-matching constant (incremental A/B).
+            explored = None
+            if os.environ.get("LLM_SMARTPHONE_EXPLORED_HINTS", "0") == "1":
+                store = os.environ.get("LLM_SMARTPHONE_EXPLORED_STORE", "")
+                if store:
+                    from pathlib import Path
+                    from caddie.explorer.store import load_entries
+                    p = Path(store)
+                    if p.exists():
+                        explored = load_entries(p)
+            self.memory_index = MemoryIndex.build(
+                self.skills, Embedder(), threshold=0.42, explored=explored)
         except Exception as exc:
             import logging
             logging.getLogger(__name__).warning(
