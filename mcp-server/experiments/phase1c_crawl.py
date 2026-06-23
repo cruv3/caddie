@@ -149,8 +149,9 @@ def main() -> None:
     print(f"[crawl] budgets max_states={budgets.max_states} "
           f"max_depth={budgets.max_depth} max_actions={budgets.max_actions}", flush=True)
 
+    from caddie.explorer.safety import SETTINGS_SCOPE
     entries, reason = crawl(backend, reset_to_settings_home, budgets, label_aware_select,
-                            synth_llm_fn=real_llm_fn)
+                            synth_llm_fn=real_llm_fn, scope_packages=SETTINGS_SCOPE)
 
     out = ROOT / "experiments" / "results" / "phase1c_explored.json"
     out.parent.mkdir(parents=True, exist_ok=True)

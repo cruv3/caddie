@@ -45,17 +45,32 @@ def is_allowed_action(kind: str) -> bool:
 
 # ---------------------------------------------------------------------------
 # Package scope gate
-# The crawler must stay within the expected focus package (exact match).
+# The crawler must stay within the expected scope. Some apps legitimately span
+# more than one package (e.g. Android Settings + its on-device search provider
+# com.google.android.settings.intelligence), so `expected` may be a single
+# package OR a collection of in-scope packages.
 # ---------------------------------------------------------------------------
 
-def is_in_scope(focus_package: str | None, expected: str = "com.android.settings") -> bool:
-    """Return True iff focus_package exactly matches expected.
+# The Settings "app" spans the settings UI plus the search/homepage provider.
+SETTINGS_SCOPE = frozenset({
+    "com.android.settings",
+    "com.google.android.settings.intelligence",
+})
 
-    Fail-closed: None or empty string returns False.
+
+def is_in_scope(focus_package: str | None,
+                expected: "str | frozenset[str] | set[str] | tuple[str, ...]"
+                = "com.android.settings") -> bool:
+    """Return True iff focus_package is within the expected scope.
+
+    `expected` is either a single package string (exact match) or a collection
+    of allowed packages (membership). Fail-closed: None/empty -> False.
     """
     if not focus_package:
         return False
-    return focus_package == expected
+    if isinstance(expected, str):
+        return focus_package == expected
+    return focus_package in expected
 
 
 # ---------------------------------------------------------------------------

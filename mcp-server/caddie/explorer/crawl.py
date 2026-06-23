@@ -67,6 +67,7 @@ def crawl(
     llm_select_fn: Callable[[list[dict]], dict],
     app: str = "com.android.settings",
     synth_llm_fn: Callable[[str], str] | None = None,
+    scope_packages: "frozenset[str] | set[str] | tuple[str, ...] | None" = None,
 ) -> tuple[list[MemoryEntry], str]:
     """Drive the UTG crawler.
 
@@ -95,6 +96,9 @@ def crawl(
         no_change}
     """
     utg = UTG(budgets)
+    # In-scope packages for the off-scope gate. Defaults to just `app` (exact,
+    # back-compat); callers pass a wider set for apps that span packages.
+    scope = scope_packages if scope_packages is not None else {app}
     entries: list[MemoryEntry] = []
     actions_taken = 0
     no_change_count = 0
@@ -125,7 +129,7 @@ def crawl(
         # ------------------------------------------------------------------
         # 3. Scope check
         # ------------------------------------------------------------------
-        off_scope = not is_in_scope(backend.current_package(), expected=app)
+        off_scope = not is_in_scope(backend.current_package(), expected=scope)
         if off_scope:
             snapshot_restore_fn()
             # Re-perceive after recovery
@@ -133,7 +137,7 @@ def crawl(
                 dump2 = backend.list_elements()
             except Exception:
                 return entries, "ui_dump_fail"
-            if not is_in_scope(backend.current_package(), expected=app):
+            if not is_in_scope(backend.current_package(), expected=scope):
                 return entries, "off_scope_abort"
             elements = dump2.get("elements", []) if isinstance(dump2, dict) else []
 
@@ -211,7 +215,7 @@ def crawl(
                 assert_safe(target_element)
             except UnsafeActionError:
                 safe = False
-        if safe and not is_in_scope(backend.current_package(), expected=app):
+        if safe and not is_in_scope(backend.current_package(), expected=scope):
             safe = False
 
         if not safe:
