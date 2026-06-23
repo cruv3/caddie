@@ -292,8 +292,7 @@ class AgentLoop:
         fail_reason = None
         # Loop-breaker + Stage-1-gate state (per run).
         action_sigs: list[str] = []   # signatures of state-changing tool calls
-        state_sigs: list[str] = []    # screen-state (ui_hash) per turn — for no-progress
-        stuck_nudged = False          # state-based no-progress nudge already sent?
+        state_sigs: list[str] = []    # content screen-sig per turn — for no-progress nudge
         calls_since_obs = 0           # actions since the last screen observation
         loop_warned: set[int] = set()  # which loop-breaker tiers already fired
         turns = 0
@@ -331,23 +330,24 @@ class AgentLoop:
                 loop_warned.add(LOOP_TIER1_AT)
                 messages.append({"role": "user", "content": _LOOP_TIER1_NOTE})
 
-            # ── STATE-BASED NO-PROGRESS BREAKER ───────────────────────────
+            # ── STATE-BASED NO-PROGRESS NUDGE ─────────────────────────────
             # Catches the real fail_loop mode the action breaker above MISSES:
             # the agent emits VARIED actions (different gestures/coords) that go
             # nowhere, so no identical run forms and it burns MAX_TOOL_CALLS.
-            # Track the screen signature per turn; if recent turns cycle among a
-            # couple of screens, nudge to re-plan once, then give up early.
+            # Track a CONTENT-sensitive screen signature; if recent turns cycle
+            # among <=2 screens, nudge to re-plan. NUDGE-ONLY (no early give-up):
+            # a re-plan hint helps recovery with zero false-failure risk, and the
+            # signal (content hash) is imperfect, so we never fail a run on it —
+            # MAX_TOOL_CALLS stays the only hard stop. Clearing the window after a
+            # nudge rate-limits re-nudging (needs another full stuck window).
             try:
-                state_sigs.append(self._backend.ui_hash())
+                els = getattr(self, "_last_elements", None)
+                state_sigs.append(_elements_sig(els) if els else self._backend.ui_hash())
             except Exception:
                 pass
             if _no_progress(state_sigs):
-                if not stuck_nudged:
-                    stuck_nudged = True
-                    messages.append({"role": "user", "content": _STUCK_NOTE})
-                else:
-                    outcome = "loop_broken"
-                    break
+                messages.append({"role": "user", "content": _STUCK_NOTE})
+                state_sigs.clear()
 
             # Keep only the most recent screenshot in context — otherwise
             # vision tokens grow quadratically (every old screen is re-encoded
@@ -918,6 +918,21 @@ def _trailing_repeat(sigs: list[str]) -> int:
         else:
             break
     return count
+
+
+def _elements_sig(elements: list[dict] | None) -> str:
+    """Content-sensitive screen signature from the agent's observed elements.
+    Unlike dumpsys ui_hash (window/focus only), this changes when on-screen
+    CONTENT changes (e.g. a timer field 0:00 -> 5:00, a slider value, a new list)
+    — so genuine in-app progress is NOT mistaken for being stuck."""
+    if not elements:
+        return ""
+    parts = []
+    for e in elements[:40]:
+        rid = e.get("resource_id") or ""
+        txt = e.get("text") or e.get("content_description") or ""
+        parts.append(f"{rid}:{txt}")
+    return "|".join(parts)
 
 
 def _no_progress(state_sigs: list[str], window: int = 8, max_distinct: int = 2) -> bool:

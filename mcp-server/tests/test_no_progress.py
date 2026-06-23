@@ -3,7 +3,25 @@ IDENTICAL repeated actions (_trailing_repeat), but the real failure mode is
 VARIED actions that make no progress -> the agent cycles among a few screens and
 burns the whole MAX_TOOL_CALLS budget. _no_progress detects that via screen-state
 signatures (not action identity)."""
-from caddie.agent.agent_loop import _no_progress
+from caddie.agent.agent_loop import _no_progress, _elements_sig
+
+
+def test_elements_sig_empty_is_blank():
+    assert _elements_sig(None) == ""
+    assert _elements_sig([]) == ""
+
+
+def test_elements_sig_changes_on_content_change():
+    # In-app content change (timer field) must yield a DIFFERENT signature, so
+    # genuine in-screen progress is not mistaken for being stuck.
+    before = [{"resource_id": "timer", "text": "0:00"}]
+    after = [{"resource_id": "timer", "text": "5:00"}]
+    assert _elements_sig(before) != _elements_sig(after)
+
+
+def test_elements_sig_stable_when_unchanged():
+    els = [{"resource_id": "a", "text": "Display"}, {"resource_id": "b", "text": "Sound"}]
+    assert _elements_sig(els) == _elements_sig(list(els))
 
 
 def test_not_enough_data_returns_false():
