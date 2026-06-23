@@ -102,7 +102,8 @@ class LiveBackend:
         # opens Gboard -> mCurrentFocus=<gboard pkg>), which would be misread as
         # leaving the app. mFocusedApp reflects the foreground activity's package.
         out = _adb("shell", "dumpsys", "window")
-        m = re.search(r"mFocusedApp=\S*\s+([\w.]+)/", out)
+        # mFocusedApp=ActivityRecord{<hash> u0 <package>/<activity> ...}
+        m = re.search(r"mFocusedApp=\S+\s+u\d+\s+([\w.]+)/", out)
         if m:
             return m.group(1)
         m = re.search(r"mCurrentFocus=Window\{[^}]*\s+([\w.]+)/", out)
