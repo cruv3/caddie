@@ -1,134 +1,96 @@
-# Phone-Knowledge RAG — Phase 1c (Settings-Explorer, echtes Gerät) Implementation Plan
+# Phone-Knowledge RAG — Phase 1c (Settings-Explorer, EMULATOR) Implementation Plan — v2
 
 > **For agentic workers:** REQUIRED SUB-SKILL: superpowers:subagent-driven-development. Checkbox steps.
+> **v2 (2026-06-22):** Nach Codex-Review komplett überarbeitet. Crawl-Ziel = **Emulator** (Snapshot-Reset),
+> echtes Gerät nur als spätere Übertragungs-Validierung. Codex-Design-Findings eingearbeitet (siehe §Codex).
 
-**Goal:** Die Settings-App auf dem **echten Gerät** systematisch + SICHER explorieren, daraus automatisch viele `kind=explored`-Wissens-Einträge (UI-Zustände → Intents → Aktionspfade) erzeugen, in die App Memory schreiben, und mit **härteren** Tasks (die der Agent ohne Anleitung verfehlt) zeigen, ob das vergrößerte Wissen den RAG-Wert end-to-end belegt.
+**Goal:** Die Settings-App auf einem **Emulator** systematisch explorieren (Snapshot-Reset zwischen Zweigen), daraus transitions-fundierte `kind=explored`-Wissens-Einträge erzeugen, in die App Memory schreiben, als Prompt-Hints verfügbar machen, und mit einem **sauber getrennten** Eval-Set zeigen, ob das gewachsene Wissen den RAG-Wert end-to-end belegt. Danach optional: Validierung, ob das Wissen aufs echte OEM-Handy überträgt.
 
-**Architecture:** Ein Explorer fährt einen UI Transition Graph (UTG): Zustände per State-Signatur dedupliziert, Frontier unbesuchter **sicherer** Elemente, BFS mit Budgets + Zyklen-Schutz. Eine **Safety-Schicht** gate-t JEDE Aktion (Allowlist + Forbidden-Set; nichts Destruktives, nichts das adb killt). Das LLM synthetisiert pro Zustand Intent-Labels. Ergebnis → persistierte App-Memory-Einträge, die der bestehende `MemoryIndex` lädt.
+**Architecture:** Explorer fährt einen UI Transition Graph (UTG) auf dem Emulator: Zustände per empirisch gewählter State-Signatur dedupliziert; **Snapshot-Restore** stellt zwischen Explorations-Zweigen einen sauberen Baseline-Zustand her (löst das State-Drift-Problem). Eine schlanke Safety-/Scope-Schicht hält den Crawl in `com.android.settings` und am Leben (kein adb-Kill). LLM-Synthese erzeugt **transitions-fundierte** Einträge (Quelle→Aktion→Ziel + Pfad). Persistenz → erweiterte `MemoryEntry` → `MemoryIndex` liefert explored-Einträge als **Hints** (nie replay-autorisiert).
 
-**Tech Stack:** Python 3.14, Paket `caddie`; vorhanden: `caddie/memory` (`MemoryEntry`, `Embedder`, `SemanticRetriever`, `MemoryIndex`), ADB-Backend (`list_elements`, `tap`, `ui_hash`, `press_button`), pytest.
+**Tech Stack:** Python 3.14, `caddie`; vorhanden: `caddie/memory`, `caddie/explorer/safety.py` (Task 1, wird in v2 angepasst), ADB-Backend, `start-emulator.bat`, pytest.
 
 ## Global Constraints
+- Pfade relativ zu `mcp-server/`. Commits `Andreas <me@cruve.dev>`, **kein** `Co-Authored-By: Claude`-Trailer. **ASCII** in allen prints/logs (cp1252). Reports `encoding="utf-8"`.
+- Replay/Skill-Live-Pfad unverändert (`replay.py`, `agent_loop.py`, `skills/library.py`).
+- **Emulator-Sicherheit (entschärft):** Snapshot-Restore macht jede Settings-Änderung rückgängig → destruktive/Wipe-Risiken irrelevant. Verbleibende Pflicht: (a) Crawl bleibt in `com.android.settings` (Package-Gate), (b) **nichts, das die emulator-adb-Verbindung kappt** (Flugmodus/WLAN/„wireless debugging") — sonst stoppt der Crawl. Die bestehende Denylist bleibt als günstige zusätzliche Schicht.
+- Branch: `feat/model-phone-tuning`. Quellen: Spec §4.2/§4.2a/§10; dieser Plan v2; Codex-Review 2026-06-22.
 
-- Pfade relativ zu `mcp-server/`. Paket `caddie`, Tests unter `tests/`.
-- **Commits:** `Andreas <me@cruve.dev>`, **kein** `Co-Authored-By: Claude`-Trailer.
-- **Replay/Skill-Live-Pfad nicht verändern** (`caddie/agent/replay.py`, `agent_loop.py`, `skills/library.py`).
-- **ASCII in allen `print`/Logs** (cp1252-Konsole crasht bei ✓/Δ/…). Reports schreiben mit `encoding="utf-8"`.
-- **Echtes Gerät — SAFETY ist nicht verhandelbar.** Die Safety-Schicht (Task 1) muss VOR dem realen Crawl von Codex reviewt sein. Der Explorer darf NIE:
-  Werksreset/„Zurücksetzen"/„Löschen"/Erase, Konten/Account hinzufügen/entfernen, Sicherheit (Sperrbildschirm, PIN/Passwort, Fingerabdruck/Face, „Find My"), SIM/Netzwerk-Reset, **Flugmodus/WLAN/Mobile Daten/Hotspot/Bluetooth/VPN/USB-Debugging** (würde adb killen), App-Deinstallation, Zahlungen, Notfall-SOS, Standort-Master-Toggle, Entwickleroptionen-Gefahrenschalter (OEM-Unlock). Eingaben (`type_text`) in Passwort-/Konto-/Suchfelder verboten.
-- Branch: `feat/model-phone-tuning`. Quellen: Spec §4.2, §4.2a, §10; Phase-1a-Plan „Offene Entscheidungen" (Settings-first, auto+state-gated).
+## Codex-Findings → Auflösung in v2
+- **B7 State-Reset (CRITICAL):** GELÖST durch Emulator-Snapshot-Restore zwischen Zweigen.
+- **A1–A6 Safety (CRITICAL/IMPORTANT):** Schweregrad ↓ (Emulator-Snapshot). Trotzdem in Task 1b gefixt: **Package/Activity-Gate** (stay-in-settings), **Unicode-Normalisierung** (NFKC + Hyphen-Norm), „wireless debugging"/„developer mode"/„mobile network"/„factory data reset"/location ergänzt, **Aktions-Vokabular** (nur Tap auf sichere, beschriftete Elemente + definiertes Scroll; kein long-press/coord-tap/swipe-on-slider/text-submit beim Crawl), Text-Eingabe fail-closed.
+- **B1 MemoryEntry-Schema (CRITICAL):** Task 2 erweitert `entry.py` um explored-Felder.
+- **B2 Synthese transitions-fundiert (CRITICAL):** Task 4 bekommt Quelle→Aktion→Ziel+Pfad.
+- **B5 MemoryIndex-Hints (CRITICAL):** Task 5 — explored-Einträge als Hints (nicht via `SkillLibrary.get` verworfen).
+- **B3 Coverage / B4 State-Signatur (IMPORTANT):** Task 3 — Signatur EMPIRISCH an erfassten Emulator-Trees kalibrieren (exakt vs. normalisiert vs. hybrid: Fragmentierung vs. Fehl-Merge), Scroll/Dialoge als Frontier-Aktionen.
+- **B6 Driver-Review-Gate (CRITICAL):** Crawler-Driver lebt in einem reviewbaren Modul (Task 6 baut die Logik; der live-Runner Task 7 nutzt sie) → Codex kann den Driver VOR dem Lauf sehen.
+- **B8 Abort-Bedingungen (IMPORTANT):** Task 7-Runner: Aborts für off-package-Fokus, unerwartete Dialoge/Keyboard, UI-Dump-Fehler, repeated-no-change, Budget.
+- **B9/B10 Eval-Methodik (CRITICAL/IMPORTANT):** Task 8 — **Discovery- vs. gesperrtes Held-out-Set**; inkrementeller Vergleich (semantisches System mit explored-Wissen AUS vs. AN); genug unabhängige Tasks; Fehler/Timeouts getrennt von echten Misses gezählt.
 
-## Entscheidungen (festgelegt)
-- **Crawl-Ziel:** echtes Gerät (UI-treu; Safety-kritisch).
-- **Pilot-App:** `com.android.settings` (nur diese in 1c).
-- **Treiber:** LLM-geleitete Element-Auswahl im Rahmen des UTG (Coverage-Garantie via Frontier) + LLM-Task-Synthese.
-
-## Ausführungs-Reihenfolge & Codex-Gate
-- **Tasks 1–4 = OFFLINE/risikofrei** (Safety-Logik, UTG-Datenstruktur, Synthese-Mapping, Persistenz/Index-Load — alle TDD mit Fixtures, kein Gerät). Jetzt ausführbar.
-- **Task 5 ⛔ GATED:** realer Settings-Crawl auf dem Gerät — **NICHT** vor Codex-Review der Safety-Schicht (Task 1) + des Crawler-Drivers (Task 2).
-- **Task 6 ⛔ GATED:** härtere E2E-Eval mit dem gewachsenen Wissen.
-
----
-
-## File Structure
-- Create `caddie/explorer/__init__.py`
-- Create `caddie/explorer/safety.py` — Allowlist/Forbidden-Gate (`is_safe_action`, `is_safe_text`).
-- Create `caddie/explorer/utg.py` — `StateSignature`, `UTG` (Knoten/Kanten, Frontier, Budgets).
-- Create `caddie/explorer/synthesize.py` — Mapping „Zustand+Elemente → MemoryEntry(kind=explored)" (LLM-Call gekapselt + injizierbar für Tests).
-- Create `caddie/explorer/store.py` — Persistenz der explored-Einträge (JSON) + Loader, den `MemoryIndex` nutzen kann.
-- Create `caddie/explorer/crawl.py` — **(Driver; live)** BFS-Schleife, nutzt Safety+UTG+Synthese+Store.
-- Tests: `tests/test_explorer_safety.py`, `tests/test_utg.py`, `tests/test_synthesize.py`, `tests/test_explorer_store.py`.
-- Create `experiments/phase1c_crawl.py` — **(GATED)** realer Crawl-Runner (Server/Backend, Budgets, Logging).
-- Create `experiments/phase1c_eval_tasks.yaml` + `experiments/phase1c_e2e.py` — **(GATED)** härtere Eval.
+## Reihenfolge & Gates
+- **Tasks 1b–6 = OFFLINE/risikofrei** (Safety-Fix, Schema, Signatur-Kalibrierung, Synthese, Index-Hints, Driver-Logik — alle TDD, kein Live-Crawl). Emulator wird in Task 3 nur READ-ONLY für Tree-Erfassung genutzt.
+- **Task 7 ⛔ GATED:** Live-Crawl auf dem Emulator — erst nach Codex-Review von Task 1b (Safety) + Task 6 (Driver).
+- **Task 8 ⛔ GATED:** Eval. **Task 9 (optional):** Übertragungs-Test echtes Handy.
 
 ---
 
-### Task 1: Safety-Schicht (OFFLINE, kritisch)
+### Task 1b: Safety/Scope-Gate härten (OFFLINE)
+**Files:** Modify `caddie/explorer/safety.py`; Test erweitern `tests/test_explorer_safety.py`.
+- `is_in_scope(element_or_focus, expected_package="com.android.settings") -> bool` (Package-Gate).
+- Unicode-Normalisierung (NFKC + Hyphen-Varianten U+2010/2011/2012 → "-") vor dem Matching.
+- Ergänze Patterns: "wireless debugging"/"drahtloses debugging", "developer mode", "mobile network"/"mobilfunknetz", "factory data reset", "standort"/"location".
+- `ALLOWED_CRAWL_ACTIONS = {"tap","scroll_down","scroll_up","back"}` + `is_allowed_action(kind)`.
+- TDD: jede neue Variante blockiert; in-scope/out-of-scope; unicode-Hyphen-Wi-Fi blockiert; nur erlaubte Aktionstypen.
+- Commit: `explorer: harden safety (package gate, unicode norm, action vocabulary, missing radios)`.
 
-**Files:** Create `caddie/explorer/__init__.py`, `caddie/explorer/safety.py`; Test `tests/test_explorer_safety.py`.
+### Task 2: MemoryEntry um explored-Schema erweitern (OFFLINE)
+**Files:** Modify `caddie/memory/entry.py`; Test erweitern.
+- Neue optionale Felder (rückwärtskompatibel, Defaults): `state_sig: str=""`, `provenance: dict|None=None` (app/source_state/action/dest_state/path), `confidence: float=...`, `fingerprint: dict|None=None` (os/build/locale), `schema_version: int=1`. Skills/Phase-0-Pfad unverändert (Defaults greifen).
+- TDD: bestehende `from_skill` unverändert grün; ein explored-Entry trägt provenance/state_sig/confidence.
+- Commit: `memory: extend MemoryEntry with explored provenance/state/confidence (back-compat)`.
 
-**Interfaces:**
-- `FORBIDDEN_PATTERNS: tuple[str, ...]` — case-insensitive Substrings/Regex (DE+EN) für alle verbotenen Bereiche (siehe Global Constraints).
-- `is_safe_action(element: dict) -> bool` — False, wenn `text`/`content_description`/`resource_id` ein Forbidden-Pattern trifft. Default bei Unsicherheit: **False** (fail-closed).
-- `is_safe_text_target(element: dict) -> bool` — darf in dieses Feld `type_text`? (False bei Passwort/Konto/Suchfeldern).
-- `assert_safe(element)` — raise `UnsafeActionError` wenn nicht.
+### Task 3: State-Signatur empirisch kalibrieren (Emulator READ-ONLY)
+**Files:** Create `caddie/explorer/signature.py` (+ Kandidaten exact/normalized/hybrid); `experiments/phase1c_signature_probe.py`; Test mit erfassten Tree-Fixtures.
+- Emulator starten, ~10–15 Settings-Screens per `list_elements` **nur lesen** (kein Tap-Crawl), Trees als Fixtures speichern.
+- 3 Signatur-Kandidaten an denselben Trees messen: Fragmentierung (gleicher Screen, anderer volatiler Text → gleiche Sig?) vs. Fehl-Merge (andere Aktionen → andere Sig?). Gewinner wählen + dokumentieren.
+- Commit: `explorer: empirical state-signature (calibrated on emulator settings trees)`.
 
-- [ ] **Step 1: Failing tests** — u.a.: „Flugmodus"/„Airplane mode", „WLAN/Wi‑Fi", „Bluetooth", „USB-Debugging", „Werksreset/Factory reset", „Konto/Account", „Fingerabdruck/Fingerprint", „SIM", „VPN", „Hotspot", „Entwickleroptionen/Developer", „Deinstallieren/Uninstall" → `is_safe_action == False`; harmlose wie „Dunkles Design", „Schriftgröße", „Benachrichtigungston" → True; leeres/unklares Element (kein text/desc/rid) → False (fail-closed). Passwortfeld (`class` enthält `EditText` + desc „Passwort"/„password") → `is_safe_text_target == False`.
-- [ ] **Step 2: RED.**
-- [ ] **Step 3: Implementieren** (fail-closed; DE+EN-Patterns; Doku jedes Patterns mit Grund — v.a. die adb-killenden).
-- [ ] **Step 4: GREEN** (`pytest tests/test_explorer_safety.py -v`).
-- [ ] **Step 5: Commit** (`explorer: fail-closed safety gate (forbidden destructive/connectivity actions)`).
+### Task 4: UTG + transitions-fundierte Synthese (OFFLINE)
+**Files:** Create `caddie/explorer/utg.py`, `caddie/explorer/synthesize.py`; Tests.
+- UTG: Knoten=Signatur, Kanten=(Aktion→Ziel-Signatur), Frontier=unbesuchte **sichere, in-scope** Aktionen inkl. Scroll; Budgets/Zyklen.
+- `synthesize_entries(source_sig, action, dest_sig, path_from_root, dest_elements, llm_fn=None) -> list[MemoryEntry]` — transitions-fundiert; `intent_text` = was diese Transition erreicht; `provenance` gefüllt; `kind="explored"`, niedrige confidence, `complete_trajectory=False`.
+- TDD mit Fixtures + Fake-llm_fn.
+- Commit: `explorer: UTG + transition-grounded intent synthesis`.
 
----
+### Task 5: Persistenz + explored-Hints im MemoryIndex (OFFLINE)
+**Files:** Create `caddie/explorer/store.py`; Modify `caddie/memory/index.py` + selection; Tests.
+- save/load (JSON, dedup). `MemoryIndex` muss explored-Einträge zurückgeben können, OHNE sie über `SkillLibrary.get` zu verwerfen: Retrieval liefert Einträge; `select_prompt_skills`/Prompt-Bau akzeptiert „Hint"-Einträge (Skill ODER explored) → als kompakte Hinweise injiziert. Replay/`skill=`-Pfad bleibt unberührt (explored nie autorisiert).
+- TDD: gemischter Index (Skills+explored) liefert explored-Hint für passende Query; Replay-Pfad ignoriert explored.
+- Commit: `memory: serve explored entries as prompt hints (not replay-authorized)`.
 
-### Task 2: UTG-Datenstruktur + State-Signatur (OFFLINE)
+### Task 6: Crawler-Driver-Logik (OFFLINE, reviewbar — fixt B6)
+**Files:** Create `caddie/explorer/crawl.py` (reine Entscheidungs-/Schleifenlogik, Backend injizierbar); Tests mit Fake-Backend.
+- `crawl(backend, snapshot_fn, budgets) -> list[MemoryEntry]`: BFS; pro Schritt Wahrnehmen→Signatur→sichere Frontier→LLM wählt Aktion→`assert_safe`+`is_in_scope`+`is_allowed_action`→ausführen→neuen Zustand→Kante+Synthese; **Snapshot-Restore** statt Werksreset zum Baseline-Reset; Aborts (B8).
+- TDD: Fake-Backend liefert skriptete Screens → verifiziere Frontier-Abdeckung, dass Forbidden nie ausgeführt wird, dass off-scope sofort abbricht, dass Snapshot-Restore aufgerufen wird.
+- Commit: `explorer: crawl driver logic (injectable backend, snapshot reset, aborts)`.
 
-**Files:** Create `caddie/explorer/utg.py`; Test `tests/test_utg.py`.
+### Task 7 ⛔ GATED: Live-Crawl auf Emulator
+> NICHT vor Codex-Review von Task 1b + Task 6.
+**Files:** Create `experiments/phase1c_crawl.py` (Runner: Emulator+Snapshot-Setup, Server/Backend, Budgets, ASCII-Log).
+- Kleiner Trockenlauf (max_states≈15) → manuelle Sichtung JEDER vorgeschlagenen Aktion (nicht nur Screens) → dann größer. Snapshot vor Start; Restore zwischen Zweigen.
 
-**Interfaces:**
-- `state_signature(elements: list[dict]) -> str` — normalisierte Struktur-Signatur (resource_ids + classes + stabile Texte; volatile Inhalte wie Uhrzeiten/Prozent/Zähler herausnormalisiert). (§4.2a: erste Variante = normalisierte A11y-Signatur; final empirisch in Task 5.)
-- `class UTG`: `add_state(sig, elements)`, `mark_visited(sig, element_key)`, `frontier(sig) -> list[dict]` (unbesuchte **sichere** Elemente, via Task-1-Gate gefiltert), `add_edge(from_sig, action, to_sig)`, Budgets (`max_states`, `max_depth`, `per_state_visit_budget`), `is_exhausted()`.
+### Task 8 ⛔ GATED: Eval (saubere Methodik — fixt B9/B10)
+**Files:** `experiments/phase1c_eval_tasks.yaml` (Discovery- + GESPERRTES Held-out-Set), `experiments/phase1c_e2e.py`.
+- Inkrementell: identisches semantisches System, explored-Wissen **AUS vs. AN** (isoliert den Wissens-Beitrag, nicht trigger-vs-semantic). Genug unabhängige harte Tasks; N≥5; Fehler/Timeouts getrennt von echten Misses; ASCII-Report; vorab fixierte Gates.
 
-- [ ] **Step 1: Failing tests** — gleiche Elemente (nur volatiler Text differiert) → gleiche Signatur; andere Struktur → andere Signatur; Frontier filtert Forbidden-Elemente (Task-1-Gate) raus; Budget/Exhaustion-Logik. (Fixtures, kein Gerät.)
-- [ ] **Step 2–4:** RED → implementieren → GREEN.
-- [ ] **Step 5: Commit** (`explorer: UTG + normalized state signature + safe frontier`).
-
----
-
-### Task 3: LLM-Task-Synthese (OFFLINE, LLM injizierbar)
-
-**Files:** Create `caddie/explorer/synthesize.py`; Test `tests/test_synthesize.py`.
-
-**Interfaces:**
-- `synthesize_entries(state_sig, screen_label, elements, llm_fn=None) -> list[MemoryEntry]` — pro sinnvollem (sicherem) Element ein Eintrag `kind="explored"` mit `intent_text` (LLM-synthetisiert: „Was würde ein Nutzer hier tun?"), `app`, Provenienz (state_sig), niedrige `confidence`. `llm_fn` injizierbar (Tests ohne echtes Modell). KEIN `complete_trajectory`, KEINE Replay-Autorisierung (nur Hints).
-
-- [ ] **Step 1: Failing test** (Fake-`llm_fn` gibt deterministische Labels; prüfe: Einträge nur für sichere Elemente, `kind=explored`, niedrige confidence, intent_text gesetzt, app korrekt).
-- [ ] **Step 2–4:** RED → implementieren → GREEN.
-- [ ] **Step 5: Commit** (`explorer: LLM intent synthesis -> explored MemoryEntries`).
-
----
-
-### Task 4: Persistenz + MemoryIndex-Load (OFFLINE)
-
-**Files:** Create `caddie/explorer/store.py`; Test `tests/test_explorer_store.py`.
-
-**Interfaces:**
-- `save_entries(entries, path)` / `load_entries(path) -> list[MemoryEntry]` (JSON, utf-8, stabile IDs, Dedup per (app,state_sig,intent)).
-- `MemoryIndex.build` muss explored-Einträge **zusätzlich** zu den Skill-Einträgen aufnehmen können — entweder über einen erweiterten `build`-Pfad oder eine `MemoryIndex.build_from(entries)`-Variante. (Achtung: NUR Retrieval/Prompt-Hints — explored-Einträge sind nie replay-autorisiert; `complete_trajectory=False`.)
-
-- [ ] **Step 1: Failing tests** — round-trip save/load; Dedup; ein `MemoryIndex` aus Skills+explored matcht eine explored-Intent-Query. (Fake-Embedder.)
-- [ ] **Step 2–4:** RED → implementieren → GREEN.
-- [ ] **Step 5: Commit** (`explorer: persist explored entries + load into MemoryIndex`).
-
----
-
-### Task 5 ⛔ GATED (echtes Gerät): Realer Settings-Crawl
-
-> **NICHT ausführen, bevor Codex Task 1 (Safety) + Task 2 (Driver) reviewt hat.**
-
-**Files:** Create `caddie/explorer/crawl.py`, `experiments/phase1c_crawl.py`.
-
-**Design:** BFS über die Settings-UTG: aktuellen Zustand wahrnehmen (`list_elements`), Signatur bilden, sichere Frontier holen; LLM wählt nächstes sinnvolles unbesuchtes Element; **vor jedem Tap `assert_safe`**; tappen, neuen Zustand aufnehmen, Kante eintragen, Synthese; **deterministischer Reset** = nur `BACK`/zurück zur Settings-Startseite (NIE Werksreset) zwischen Zweigen; Budgets (max_states/Tiefe/Zeit). Nur `com.android.settings` — verlässt der Fokus die App, sofort zurück. Alles ASCII-geloggt.
-
-**Pre-Crawl-Sicherung (im Runner):** vor dem Lauf adb-Verbindungsart prüfen; verbotene Bereiche zusätzlich hart per Paket/Activity-Allowlist begrenzen; Abbruch, wenn Fokus eine Nicht-Settings-App/Dialog mit Forbidden-Keywords erreicht.
-
-- [ ] Schritte werden nach dem Codex-Review der Safety zu vollem TDD/Runner-Code ausgeschrieben. Erst Trockenlauf mit kleinem Budget (z.B. max_states=15) + manuelle Sichtung der besuchten Zustände, dann größer.
-
----
-
-### Task 6 ⛔ GATED: Härtere E2E-Eval mit gewachsenem Wissen
-
-> **NICHT ausführen, bevor Task 5 Wissen erzeugt hat.**
-
-**Files:** Create `experiments/phase1c_eval_tasks.yaml`, `experiments/phase1c_e2e.py`.
-
-**Design:** Eval-Set mit **harten** Tasks = Einstellungen tief in Menüs / obskur, die der Agent **ohne** Hint verfehlt (vorab verifizieren, dass Trigger-/Baseline-Agent sie reißt), die das explorierte Wissen aber abdeckt. Wiederverwendung der Phase-1a-E2E-Harness (Server pro Modus, deterministischer Reset, **N≥5**, ASCII-Report). Gate: semantisch-mit-explored-Wissen schlägt Baseline deutlich auf der harten Teilmenge (vorab Schwelle fixieren) — kein Speed-Bruch.
+### Task 9 (optional) ⛔ GATED: Übertragungs-Test echtes Handy
+- Stichprobe: greifen die emulator-erzeugten Hints auf der echten OEM-Settings-UI? Misst die AOSP→OEM-Lücke (Novelty-Datenpunkt).
 
 ---
 
 ## Self-Review
-- Safety zuerst, fail-closed, DE+EN, adb-killende Aktionen explizit verboten → Task 1 (+ Codex-Gate vor Task 5). ✓
-- Coverage-Garantie via UTG-Frontier; State-Äquivalenz §4.2a → Task 2. ✓
-- Auto-Befüllung via LLM-Synthese (kein Hand-Authoring) → Task 3; explored nie replay-autorisiert → Task 3/4. ✓
-- Härtere Eval (Agent verfehlt unaided) adressiert den Phase-1a-Befund „kleiner Headroom" → Task 6. ✓
-- Risikofrei (1–4) vs. GATED-Gerät (5–6) klar getrennt; ASCII-Logs (cp1252-Lehre). ✓
+- B7 (Reset) durch Emulator gelöst; Safety entschärft aber Package/Action/Unicode-Lücken (A2–A6) in Task 1b gefixt. ✓
+- Alle CRITICAL-Design-Findings (B1 Schema, B2 Synthese, B5 Index-Hints, B6 Driver-Review) als eigene OFFLINE-Tasks vor dem Live-Crawl. ✓
+- B4 Signatur empirisch vor UTG-Persistenz; B9/B10 saubere Eval. ✓
+- explored nie replay-autorisiert; Live-Pfad unberührt; ASCII-Logs. ✓
+- Risikofrei (1b–6) vs. GATED (7–9) klar getrennt; Live-Crawl erst nach Codex-Review der Safety+Driver. ✓
