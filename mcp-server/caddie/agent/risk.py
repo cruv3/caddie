@@ -20,7 +20,17 @@ from typing import Any
 RISKY_TOOLS: dict[str, str] = {
     "smartphone_uninstall_app": "App deinstallieren",
     "smartphone_install_app": "App installieren",
+    "smartphone_terminate_app": "App beenden (Force-Stop)",
 }
+
+# open_url schemes that DO something consequential (start a call / SMS). Plain
+# http(s) browsing is NOT gated (would block all web navigation).
+_RISKY_URL_SCHEMES: tuple[str, ...] = ("tel:", "sms:", "smsto:")
+
+# Tools that submit/confirm an input. Only gated when the current screen shows a
+# risky action (pay/send/checkout) — so a plain search submit is NOT gated.
+_SUBMIT_TOOLS: frozenset[str] = frozenset(
+    {"smartphone_type_text", "smartphone_press_button"})
 
 # Koordinaten-Tap-Tools, deren Ziel-Element ueber (x, y) geprueft wird.
 TAP_TOOLS = {
@@ -82,7 +92,39 @@ def classify(
         if label:
             return RiskVerdict(True, f'Tippt auf "{label}"')
 
+    # --- open_url mit konsequenter URI (Anruf / SMS) ---
+    if name == "smartphone_open_url":
+        url = str(args.get("url") or "").strip().lower()
+        if any(url.startswith(s) for s in _RISKY_URL_SCHEMES):
+            return RiskVerdict(True, f'Oeffnet "{url[:50]}"')
+
+    # --- Eingabe absenden / bestaetigen auf einer kritischen Seite ---
+    if name in _SUBMIT_TOOLS and _is_submit_action(name, args) and elements:
+        if _screen_has_risk(elements):
+            return RiskVerdict(True, "Bestaetigt Eingabe auf einer kritischen Seite")
+
     return RiskVerdict(False)
+
+
+def _is_submit_action(name: str, args: dict[str, Any]) -> bool:
+    if name == "smartphone_type_text":
+        return bool(args.get("submit"))
+    if name == "smartphone_press_button":
+        btn = str(args.get("button") or "").upper().replace("KEYCODE_", "")
+        return btn == "ENTER"
+    return False
+
+
+def _screen_has_risk(elements: list[dict]) -> bool:
+    """True if any visible element carries a risk keyword (pay/send/checkout...)."""
+    for el in elements:
+        label = (
+            el.get("text") or el.get("content_description")
+            or el.get("label") or el.get("description") or ""
+        ).strip()
+        if label and _matches_keyword(label):
+            return True
+    return False
 
 
 def _risky_label_at(x: Any, y: Any, elements: list[dict]) -> str | None:

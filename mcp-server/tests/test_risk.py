@@ -45,6 +45,37 @@ def test_safe_tool_not_risky():
     assert classify("smartphone_list_elements", {}, _ELEMENTS).risky is False
 
 
+def test_terminate_app_is_risky():
+    assert classify("smartphone_terminate_app", {"package_name": "com.x"}, None).risky is True
+
+
+def test_open_url_call_or_sms_is_risky():
+    assert classify("smartphone_open_url", {"url": "tel:+49123"}, None).risky is True
+    assert classify("smartphone_open_url", {"url": "smsto:+49123"}, None).risky is True
+
+
+def test_open_url_web_is_not_risky():
+    assert classify("smartphone_open_url", {"url": "https://wikipedia.org"}, None).risky is False
+    assert classify("smartphone_open_url", {"url": "youtube.com"}, None).risky is False
+
+
+_PAY_SCREEN = [{"index": 1, "text": "Jetzt bezahlen", "bounds": {"left": 0, "top": 0, "right": 9, "bottom": 9}}]
+_SEARCH_SCREEN = [{"index": 1, "text": "Suchergebnisse", "bounds": {"left": 0, "top": 0, "right": 9, "bottom": 9}}]
+
+
+def test_submit_on_pay_screen_is_risky():
+    assert classify("smartphone_type_text", {"text": "x", "submit": True}, _PAY_SCREEN).risky is True
+    assert classify("smartphone_press_button", {"button": "ENTER"}, _PAY_SCREEN).risky is True
+
+
+def test_submit_on_search_screen_not_risky():
+    assert classify("smartphone_type_text", {"text": "x", "submit": True}, _SEARCH_SCREEN).risky is False
+    assert classify("smartphone_press_button", {"button": "ENTER"}, _SEARCH_SCREEN).risky is False
+    # non-submit type / non-enter button -> never gated
+    assert classify("smartphone_type_text", {"text": "x"}, _PAY_SCREEN).risky is False
+    assert classify("smartphone_press_button", {"button": "BACK"}, _PAY_SCREEN).risky is False
+
+
 def test_benign_clear_field_not_risky():
     # Clear-input / clear-search buttons contain 'lösch'/'clear' but are harmless.
     for lbl in ("Text löschen", "Clear text", "Eingabe löschen", "Clear search",
