@@ -35,3 +35,9 @@ class AppCommands(InputCommands):
         # bridge has no am-start endpoint, so fast-mode deep-links are unsupported
         # here (the research setup uses the ADB backend).
         return f"open_settings not supported on the HTTP backend ({action})"
+
+    def set_setting(self, namespace: str, key: str, value: str) -> str:
+        return f"set_setting not supported on the HTTP backend ({namespace}.{key})"
+
+    def set_dark_mode(self, on: bool) -> str:
+        return f"set_dark_mode not supported on the HTTP backend ({on})"

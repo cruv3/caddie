@@ -57,3 +57,13 @@ class AppCommands(InputCommands):
         self.shell("am", "start", "-a", action, timeout_seconds=30)
         return f"Opened settings screen: {action}"
 
+    def set_setting(self, namespace: str, key: str, value: str) -> str:
+        """settings put — caller (tool) must validate ns/key/value via the
+        fast_actions whitelist (never arbitrary secure/global security keys)."""
+        self.shell("settings", "put", namespace, key, value, timeout_seconds=15)
+        return f"Set {namespace}.{key} = {value}"
+
+    def set_dark_mode(self, on: bool) -> str:
+        self.shell("cmd", "uimode", "night", "yes" if on else "no", timeout_seconds=15)
+        return f"Dark mode {'on' if on else 'off'}"
+

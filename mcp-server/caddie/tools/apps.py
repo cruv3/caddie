@@ -123,3 +123,56 @@ def register_app_tools(mcp: FastMCP, context: ServerContext) -> None:
             result = context.backend.open_settings(action)
             settle_after(context.backend, baseline, "open_app")
             return result
+
+    @mcp.tool()
+    def smartphone_set_setting(key: str, value: str, why: str = "") -> str:
+        """Set a system setting to an EXACT value (fast path) instead of dragging
+        a slider. Supported keys: brightness ('30%'/'max'/'min'), screen timeout
+        ('30 seconds'/'2 minutes'), font size ('small'/'default'/'large'/'largest'),
+        auto rotate ('on'/'off'). If unsupported, returns a note to use the UI.
+
+        Args:
+            key: which setting (see list above).
+            value: the target value (percent / duration / size / on-off).
+            why: Brief German reason shown live on the device overlay (max 80 chars).
+        """
+        from caddie.agent.fast_actions import resolve_setting
+        r = resolve_setting(key, value)
+        if r is None:
+            return (f"No safe direct setter for {key!r}={value!r}. "
+                    "Change it via the UI instead.")
+        ns, akey, val = r
+        with publish_tool_call("smartphone_set_setting", bus=context.events,
+                               key=key, value=value, why=why):
+            baseline = baseline_hash(context.backend)
+            result = context.backend.set_setting(ns, akey, val)
+            settle_after(context.backend, baseline, "open_app")
+            return result
+
+    @mcp.tool()
+    def smartphone_toggle(service: str, on: bool = True, why: str = "") -> str:
+        """Toggle a service on/off (fast path). Supported: dark mode, battery
+        saver, do not disturb. Connectivity (wifi/bluetooth/mobile data/airplane)
+        is NOT supported here — use the UI for those. If unsupported, returns a
+        note to use the UI.
+
+        Args:
+            service: dark mode | battery saver | do not disturb.
+            on: True to enable, False to disable.
+            why: Brief German reason shown live on the device overlay (max 80 chars).
+        """
+        from caddie.agent.fast_actions import resolve_toggle
+        r = resolve_toggle(service, on)
+        if r is None:
+            return (f"No safe direct toggle for {service!r}. "
+                    "Change it via the UI instead.")
+        with publish_tool_call("smartphone_toggle", bus=context.events,
+                               service=service, on=on, why=why):
+            baseline = baseline_hash(context.backend)
+            if r[0] == "uimode":
+                result = context.backend.set_dark_mode(r[1])
+            else:
+                _, ns, akey, val = r
+                result = context.backend.set_setting(ns, akey, val)
+            settle_after(context.backend, baseline, "open_app")
+            return result
