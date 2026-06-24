@@ -73,3 +73,7 @@ preference flips with task risk.
 ## Out of scope (now)
 Full arbitrary ADB shell to the LLM; on-device deployment (ADB needs PC/elevated perms);
 the user-study execution.
+
+
+---
+**Status 2026-06-24:** 1a (open_settings deep-link, whitelisted, tested) + 1b (mode flag -> fast prompt + tool gate; replay-off flag) DONE, 304 tests, Codex-reviewed. NEXT: increment 2 (set_setting display/sound/rotation + toggle), then wire mode into an eval harness for the fast-vs-observable speed comparison (+ later user study). On-device verify of open_settings pending (phone was PIN-locked).
