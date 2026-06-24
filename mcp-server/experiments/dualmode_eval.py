@@ -73,7 +73,7 @@ def start_server(mode: str):
     subprocess.Popen([str(ROOT / ".venv/Scripts/python.exe"), "server.py", "--only=tools"],
                      cwd=str(ROOT), env=env, stdin=subprocess.PIPE,
                      stdout=log, stderr=subprocess.STDOUT)
-    for _ in range(60):
+    for _ in range(120):   # cold first-arm start (embedder + index + getevent) is slow
         s = socket.socket(); s.settimeout(0.5)
         try:
             s.connect(("127.0.0.1", 8787)); s.close(); time.sleep(2); return True
