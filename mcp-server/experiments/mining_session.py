@@ -41,7 +41,11 @@ RESULTS = ROOT / "experiments" / "results"
 DEMOS = RESULTS / "mining_demos.json"
 PROGRESS = RESULTS / "mining_progress.jsonl"
 STOP_FILE = RESULTS / "STOP_MINING"
-BATTERY = json.loads((ROOT / "experiments" / "mining_battery.json").read_text(encoding="utf-8"))["tasks"]
+_BATTERY_FILE = os.environ.get("MINING_BATTERY", "mining_battery.json")
+_DEVICE_TAG = os.environ.get("MINING_DEVICE", "")  # 'emulator' | 'real' | '' (all)
+_ALL_TASKS = json.loads((ROOT / "experiments" / _BATTERY_FILE).read_text(encoding="utf-8"))["tasks"]
+BATTERY = ([t for t in _ALL_TASKS if t.get("device", "both") in (_DEVICE_TAG, "both")]
+           if _DEVICE_TAG else _ALL_TASKS)
 HOURS = float(os.environ.get("MINING_HOURS", "24"))
 TASK_TIMEOUT = int(os.environ.get("MINING_TASK_TIMEOUT", "260"))
 DEADLINE = None  # set in main (Date.now() unavailable at import in some envs)
