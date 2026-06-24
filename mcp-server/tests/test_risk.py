@@ -47,14 +47,16 @@ def test_safe_tool_not_risky():
 
 def test_benign_clear_field_not_risky():
     # Clear-input / clear-search buttons contain 'lösch'/'clear' but are harmless.
-    for lbl in ("Text löschen", "Clear text", "Eingabe löschen", "Clear search"):
+    for lbl in ("Text löschen", "Clear text", "Eingabe löschen", "Clear search",
+                "Suchbegriff löschen", "Suchanfrage löschen", "Formatierung entfernen"):
         els = [{"index": 1, "text": lbl, "bounds": {"left": 0, "top": 0, "right": 10, "bottom": 10}}]
         assert classify("smartphone_tap_element", {"index": 1}, els).risky is False, lbl
 
 
 def test_real_delete_still_risky():
-    els = [{"index": 1, "text": "Konto löschen", "bounds": {"left": 0, "top": 0, "right": 10, "bottom": 10}}]
-    assert classify("smartphone_tap_element", {"index": 1}, els).risky is True
+    for lbl in ("Konto löschen", "Nachricht löschen", "Datei löschen", "App deinstallieren"):
+        els = [{"index": 1, "text": lbl, "bounds": {"left": 0, "top": 0, "right": 10, "bottom": 10}}]
+        assert classify("smartphone_tap_element", {"index": 1}, els).risky is True, lbl
 
 
 def test_step_is_risky_detects_risky_recorded_step():
