@@ -1,0 +1,17 @@
+{
+  "_comment": "Focused REAL-phone battery for the self-improvement run (German Pixel). Read/nav + benign tasks only — NO display-mutating (brightness/font/display-size) so we don't change the user's real settings, and NO send/pay/delete. Mix of tasks that succeed cold (mine -> replay) and ones that fail cold (should improve as demos/replay accumulate over rounds).",
+  "tasks": [
+    {"name": "gtv_kids_movie", "query": "find a movie suitable for a 6 year old and open its detail page", "reset_pkg": "com.google.android.videos"},
+    {"name": "gmail_latest", "query": "open and read the latest email", "reset_pkg": "com.google.android.gm"},
+    {"name": "photos_latest", "query": "open the most recent photo", "reset_pkg": "com.google.android.apps.photos"},
+    {"name": "calendar_week", "query": "show what is on my calendar this week", "reset_pkg": "com.google.android.calendar"},
+    {"name": "weather_weekend", "query": "check the weather for this weekend", "reset_pkg": "com.google.android.apps.weather"},
+    {"name": "keep_note", "query": "create a note that says buy milk", "reset_pkg": "com.google.android.keep"},
+    {"name": "translate_french", "query": "translate hello to french", "reset_pkg": "com.google.android.apps.translate"},
+    {"name": "maps_pharmacy", "query": "find a pharmacy nearby in maps and open the nearest one", "reset_pkg": "com.google.android.apps.maps"},
+    {"name": "youtube_yoga", "query": "find a 10 minute yoga video on youtube and play it", "reset_pkg": "com.google.android.youtube"},
+    {"name": "chrome_wikipedia", "query": "open chrome and go to wikipedia.org", "reset_pkg": "com.android.chrome"},
+    {"name": "bluetooth_settings", "query": "open the bluetooth settings", "reset_pkg": "com.android.settings"},
+    {"name": "notif_history", "query": "show the notification history", "reset_pkg": "com.android.settings"}
+  ]
+}
