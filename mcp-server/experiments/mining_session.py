@@ -166,6 +166,14 @@ def run_task(task: dict) -> dict:
         outcome, turns = lm.get("outcome"), lm.get("turns")
     except Exception as exc:
         outcome, turns = f"ERR:{type(exc).__name__}", 0
+    if os.environ.get("MINING_SHOTS") == "1":
+        try:
+            shotdir = RESULTS / "sv_mine"; shotdir.mkdir(exist_ok=True)
+            with open(shotdir / f"{task['name']}.png", "wb") as f:
+                subprocess.run([ADB, "-s", SERIAL, "exec-out", "screencap", "-p"],
+                               stdout=f, timeout=20)
+        except Exception:
+            pass
     return {"task": task["name"], "outcome": outcome, "turns": turns or 0,
             "secs": round(time.monotonic() - t0, 1),
             "ok": outcome in ("done", "done_replay")}

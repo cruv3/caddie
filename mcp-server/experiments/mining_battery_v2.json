@@ -31,14 +31,14 @@
     {"name": "youtube_trending", "device": "both", "query": "open trending on youtube and play the first video", "reset_pkg": "com.google.android.youtube"},
     {"name": "youtube_search_topic", "device": "both", "query": "search youtube for how to tie a tie and open the first video", "reset_pkg": "com.google.android.youtube"},
 
-    {"name": "calendar_this_week", "device": "both", "query": "show what is on my calendar this week", "reset_pkg": "com.google.android.calendar"},
-    {"name": "calendar_add_event", "device": "both", "query": "add a calendar event called dentist tomorrow at 10am", "reset_pkg": "com.google.android.calendar"},
-    {"name": "calendar_month_view", "device": "both", "query": "switch the calendar to month view", "reset_pkg": "com.google.android.calendar"},
+    {"name": "calendar_this_week", "device": "real", "query": "show what is on my calendar this week", "reset_pkg": "com.google.android.calendar"},
+    {"name": "calendar_add_event", "device": "real", "query": "add a calendar event called dentist tomorrow at 10am", "reset_pkg": "com.google.android.calendar"},
+    {"name": "calendar_month_view", "device": "real", "query": "switch the calendar to month view", "reset_pkg": "com.google.android.calendar"},
 
-    {"name": "playstore_search", "device": "both", "query": "search the play store for telegram", "reset_pkg": "com.android.vending"},
-    {"name": "playstore_updates", "device": "both", "query": "check for app updates in the play store", "reset_pkg": "com.android.vending"},
+    {"name": "playstore_search", "device": "real", "query": "search the play store for telegram", "reset_pkg": "com.android.vending"},
+    {"name": "playstore_updates", "device": "real", "query": "check for app updates in the play store", "reset_pkg": "com.android.vending"},
 
-    {"name": "settings_brightness_30", "device": "both", "query": "set the screen brightness to 30 percent", "reset_pkg": "com.android.settings"},
+    {"name": "settings_brightness_max", "device": "both", "query": "set the screen brightness to maximum", "reset_pkg": "com.android.settings"},
     {"name": "settings_timeout_1min", "device": "both", "query": "set the screen timeout to 1 minute", "reset_pkg": "com.android.settings"},
     {"name": "settings_font_largest", "device": "both", "query": "set the font size to the largest", "reset_pkg": "com.android.settings"},
     {"name": "settings_nightlight", "device": "both", "query": "turn on night light", "reset_pkg": "com.android.settings"},
