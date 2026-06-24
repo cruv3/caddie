@@ -22,12 +22,16 @@ RISKY_TOOLS: dict[str, str] = {
     "smartphone_install_app": "App installieren",
 }
 
-# Tap-Tools, deren Ziel-Element geprueft wird.
+# Koordinaten-Tap-Tools, deren Ziel-Element ueber (x, y) geprueft wird.
 TAP_TOOLS = {
     "smartphone_tap_coordinates",
     "smartphone_double_tap_coordinates",
     "smartphone_long_press_coordinates",
 }
+
+# Index-Tap-Tools (Set-of-Marks): Ziel-Element wird ueber seinen Index geprueft.
+# Das ist der PRIMAERE Tap-Weg des Agenten — frueher ungeprueft (Luecke).
+TAP_ELEMENT_TOOLS = {"smartphone_tap_element"}
 
 # Substrings (kleingeschrieben), die auf eine destruktive / kostenpflichtige
 # Aktion hindeuten. Bewusst spezifisch gehalten — kurze Woerter wie "pay"
@@ -66,9 +70,15 @@ def classify(
             desc = f"{desc}: {_pretty_target(target)}"
         return RiskVerdict(True, desc)
 
-    # --- Tap-Ebene ---
+    # --- Tap-Ebene: Koordinaten ---
     if name in TAP_TOOLS and elements:
         label = _risky_label_at(args.get("x"), args.get("y"), elements)
+        if label:
+            return RiskVerdict(True, f'Tippt auf "{label}"')
+
+    # --- Tap-Ebene: Element-Index (Set-of-Marks) ---
+    if name in TAP_ELEMENT_TOOLS and elements:
+        label = _risky_label_at_index(args.get("index"), elements)
         if label:
             return RiskVerdict(True, f'Tippt auf "{label}"')
 
@@ -92,6 +102,25 @@ def _risky_label_at(x: Any, y: Any, elements: list[dict]) -> str | None:
         if label and _matches_keyword(label):
             return label
     return None
+
+
+def _risky_label_at_index(index: Any, elements: list[dict]) -> str | None:
+    """Findet das Element mit ``index`` (wie der Backend-Tap es aufloest) und
+    gibt sein Label zurueck, falls es ein Risiko-Wort traegt."""
+    if index is None:
+        return None
+    try:
+        idx = int(index)
+    except (TypeError, ValueError):
+        return None
+    el = next((e for e in elements if e.get("index") == idx), None)
+    if el is None:
+        return None
+    label = (
+        el.get("text") or el.get("content_description")
+        or el.get("label") or el.get("description") or ""
+    ).strip()
+    return label if (label and _matches_keyword(label)) else None
 
 
 def _pretty_target(target: str) -> str:
