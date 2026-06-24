@@ -29,3 +29,9 @@ class AppCommands(InputCommands):
     def open_url(self, url: str) -> str:
         result = self.request_json("POST", "/open_url", {"url": url})
         return f"Opened URL {url}: {result.get('ok', False)}"
+
+    def open_settings(self, action: str) -> str:
+        # Deep-link via the device's VIEW handler is ADB-only; the on-device HTTP
+        # bridge has no am-start endpoint, so fast-mode deep-links are unsupported
+        # here (the research setup uses the ADB backend).
+        return f"open_settings not supported on the HTTP backend ({action})"

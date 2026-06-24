@@ -51,3 +51,9 @@ class AppCommands(InputCommands):
         self.shell("am", "start", "-a", "android.intent.action.VIEW", "-d", url, timeout_seconds=30)
         return f"Opened URL: {url}"
 
+    def open_settings(self, action: str) -> str:
+        """Deep-link to a settings screen via an android.settings.* action. The
+        caller (tool) must have validated `action` against the whitelist."""
+        self.shell("am", "start", "-a", action, timeout_seconds=30)
+        return f"Opened settings screen: {action}"
+

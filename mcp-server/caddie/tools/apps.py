@@ -99,3 +99,27 @@ def register_app_tools(mcp: FastMCP, context: ServerContext) -> None:
             result = context.backend.open_url(url)
             settle_after(context.backend, baseline, "open_app")
             return result
+
+    @mcp.tool()
+    def smartphone_open_settings(page: str, why: str = "") -> str:
+        """Jump directly to an Android settings screen (fast path) instead of
+        searching for it. Supported pages: display, sound, notifications, apps,
+        battery, storage, date, time, language, accessibility, wallpaper, home,
+        settings. If the page is not available via a safe deep-link, returns a
+        note to navigate via the UI instead (do that, don't retry this).
+
+        Args:
+            page: settings page name (see list above).
+            why: Brief German reason shown live on the device overlay (max 80 chars).
+        """
+        from caddie.agent.deeplinks import resolve_settings_page
+        action = resolve_settings_page(page)
+        if action is None:
+            return (f"No safe direct deep-link for settings page {page!r}. "
+                    "Navigate to it via the UI instead.")
+        with publish_tool_call("smartphone_open_settings", bus=context.events,
+                               page=page, why=why):
+            baseline = baseline_hash(context.backend)
+            result = context.backend.open_settings(action)
+            settle_after(context.backend, baseline, "open_app")
+            return result
