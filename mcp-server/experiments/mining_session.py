@@ -152,6 +152,10 @@ def start_server():
 def run_task(task: dict) -> dict:
     ensure_device()
     adb("shell", "input", "keyevent", "KEYCODE_WAKEUP")
+    # Revert persistent display/font drift so a task like 'set font largest' does
+    # not leave the UI giant for every later task (drift confounds the demos).
+    adb("shell", "settings", "put", "system", "font_scale", "1.0")
+    adb("shell", "wm", "density", "reset")
     if task.get("reset_pkg"):
         adb("shell", "am", "force-stop", task["reset_pkg"])
     adb("shell", "input", "keyevent", "KEYCODE_HOME")

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 from dataclasses import dataclass
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlparse
@@ -118,22 +119,32 @@ class LmStudioClient:
             headers=_headers(authorization),
             method="POST",
         )
-        try:
-            with urlopen(
-                request, timeout=int(os.environ.get("LLM_STUDIO_TIMEOUT", "180"))
-            ) as response:
-                payload = response.read().decode("utf-8")
-                return _validate_chat_response(payload, response.status)
-        except HTTPError as error:
-            payload = error.read().decode("utf-8", errors="replace")
-            return {
-                "ok": False,
-                "status": error.code,
-                "error": payload,
-                "vision_unsupported": _looks_like_vision_error(payload),
-            }
-        except URLError as error:
-            return {"ok": False, "status": 0, "error": str(error.reason)}
+        # Retry on connection-level blips talking to the shared GPU endpoint
+        # (ConnectionAbortedError WinError 10053, timeouts) — uncaught before, they
+        # dropped ~40% of mining tasks at turn 0. A real HTTP error RESPONSE is
+        # returned as-is (not retried).
+        attempts = max(1, int(os.environ.get("LLM_STUDIO_RETRIES", "3")))
+        for attempt in range(attempts):
+            try:
+                with urlopen(
+                    request, timeout=int(os.environ.get("LLM_STUDIO_TIMEOUT", "180"))
+                ) as response:
+                    payload = response.read().decode("utf-8")
+                    return _validate_chat_response(payload, response.status)
+            except HTTPError as error:
+                payload = error.read().decode("utf-8", errors="replace")
+                return {
+                    "ok": False,
+                    "status": error.code,
+                    "error": payload,
+                    "vision_unsupported": _looks_like_vision_error(payload),
+                }
+            except (URLError, OSError) as error:
+                if attempt < attempts - 1:
+                    time.sleep(1.0 * (attempt + 1))
+                    continue
+                reason = getattr(error, "reason", error)
+                return {"ok": False, "status": 0, "error": str(reason)}
 
     def chat_completion_stream(
         self,
