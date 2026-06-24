@@ -28,6 +28,7 @@ import socket
 import subprocess
 import threading
 import time
+import urllib.error
 import urllib.request
 from pathlib import Path
 
@@ -168,6 +169,16 @@ def run_task(task: dict) -> dict:
             d = json.load(r)
         lm = d.get("lmstudio", {}) if isinstance(d, dict) else {}
         outcome, turns = lm.get("outcome"), lm.get("turns")
+    except urllib.error.HTTPError as e:
+        # A fail_loop/verify_failed etc. returns ok=False -> HTTP 502, but the
+        # body still carries the real outcome. Read it so we don't mislabel real
+        # agent failures as "ERR:HTTPError".
+        try:
+            d = json.loads(e.read().decode("utf-8", "replace"))
+            lm = d.get("lmstudio", {}) if isinstance(d, dict) else {}
+            outcome, turns = lm.get("outcome", f"HTTP{e.code}"), lm.get("turns", 0)
+        except Exception:
+            outcome, turns = f"HTTP{e.code}", 0
     except Exception as exc:
         outcome, turns = f"ERR:{type(exc).__name__}", 0
     if os.environ.get("MINING_SHOTS") == "1":
