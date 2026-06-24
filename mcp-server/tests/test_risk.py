@@ -43,3 +43,12 @@ def test_tap_element_unknown_index_not_risky():
 
 def test_safe_tool_not_risky():
     assert classify("smartphone_list_elements", {}, _ELEMENTS).risky is False
+
+
+def test_step_is_risky_detects_risky_recorded_step():
+    from caddie.agent.risk import step_is_risky
+    assert step_is_risky({"action": "tap", "label": "Senden"}) is True
+    assert step_is_risky({"action": "tap", "text": "Jetzt kaufen"}) is True
+    assert step_is_risky({"action": "tap", "label": "Display & Touch"}) is False
+    assert step_is_risky({"action": "open_app"}) is False
+    assert step_is_risky("not a dict") is False

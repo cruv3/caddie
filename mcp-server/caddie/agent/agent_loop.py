@@ -254,8 +254,14 @@ class AgentLoop:
         # A matched skill with recorded steps -> replay without a per-step LLM
         # call, then verify (always). On abort or failed verification, fall
         # through to the normal LLM loop from the current screen.
+        # Don't fast-path a skill whose recorded steps include a risky action
+        # (pay/send/delete/...) — replay bypasses the per-call confirmation gate,
+        # so let the LLM loop run it, where risk.classify will require confirm.
+        _replay_safe = not any(risk.step_is_risky(s) for s in (getattr(skill, "steps", None) or []))
+        if not _replay_safe:
+            print("[replay] skip fast-path: skill has a risky step -> LLM loop (gated)", flush=True)
         if (_REPLAY_ENABLED and skill is not None and getattr(skill, "steps", None)
-                and not control.stop_requested):
+                and _replay_safe and not control.stop_requested):
             rr = _replay.replay(skill.steps, self._backend,
                                 log=lambda m: print(f"[replay] {m}", flush=True))
             print(f"[replay] done ok={rr.ok} steps={rr.steps_done}/{len(skill.steps)} "
@@ -521,7 +527,12 @@ class AgentLoop:
                     continue
 
                 # ── Swipe-to-Confirm: kritische Aktion? ──────────────────
-                verdict = risk.classify(name, args, self._last_elements)
+                # Use the BACKEND's element cache (the same source tap_element
+                # resolves against) so the check isn't stale after a
+                # screenshot_marked observation that didn't go through
+                # smartphone_list_elements. Fall back to the loop's copy.
+                _risk_els = getattr(self._backend, "_last_elements", None) or self._last_elements
+                verdict = risk.classify(name, args, _risk_els)
                 if verdict.risky:
                     self._events.confirmation_required(verdict.description, name)
                     approved = control.await_confirmation(CONFIRM_TIMEOUT_S)

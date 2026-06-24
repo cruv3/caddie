@@ -148,3 +148,14 @@ def _contains(bounds: dict, x: int, y: int) -> bool:
 def _matches_keyword(label: str) -> bool:
     low = label.lower()
     return any(kw in low for kw in RISK_KEYWORDS)
+
+
+def step_is_risky(step: dict) -> bool:
+    """True if a recorded replay step targets a risky-labeled element. Used to
+    keep the replay fast-path from auto-executing consequential actions (which
+    would bypass the per-call confirmation gate)."""
+    if not isinstance(step, dict):
+        return False
+    label = (step.get("label") or step.get("text")
+             or step.get("desc") or step.get("description") or "").strip()
+    return bool(label and _matches_keyword(label))
