@@ -1,0 +1,242 @@
+[
+  {
+    "id": "demo_e266a34c70d1",
+    "app": "",
+    "intent_text": "find a movie suitable for a 6 year old and open its detail page",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Google TV",
+        "com.google.android.apps.nexuslauncher:id/apps_view",
+        "Suche",
+        "Familie",
+        "android:id/content"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_41d7ee2bf8ad",
+    "app": "",
+    "intent_text": "create a note that says buy milk",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Notiz erstellen",
+        "Text"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_a3a2f5b37de4",
+    "app": "",
+    "intent_text": "check the weather for this weekend",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Google",
+        "Suchen…"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_66db2770d070",
+    "app": "",
+    "intent_text": "open the most recent photo",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "com.google.android.gm:id/og_apd_internal_image_view"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_d6521315c7e9",
+    "app": "",
+    "intent_text": "show what is on my calendar this week",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Zu heute springen",
+        "Juni",
+        "Leiste Kalenderliste und -einstellungen einblenden",
+        "Wochenansicht"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_a8b8ada2905f",
+    "app": "",
+    "intent_text": "open and read the latest email",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "com.google.android.videos:id/action_bar_root"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_63871964a67c",
+    "app": "",
+    "intent_text": "find a pharmacy nearby in maps and open the nearest one",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Hier suchen",
+        "android:id/content",
+        "Hier suchen"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_7b322d46285b",
+    "app": "",
+    "intent_text": "find a 10 minute yoga video on youtube and play it",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Suchen",
+        "In YouTube suchen",
+        "10 Minute Yoga Full Body Stretch for Stiff Bodies - 10 Minuten, 17 Sekunden - Zu Kanal „Yoga With Bird“ - Yoga With Bird - 9,5 Millionen Aufrufe - vor 5 Jahren - Video wiedergeben",
+        "com.google.android.youtube:id/action_bar_root",
+        "Abbrechen"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_7e796584c3ea",
+    "app": "",
+    "intent_text": "show the notification history",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Nach oben navigieren",
+        "Benachrichtigungen",
+        "Benachrichtigungs­verlauf"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_aa65aacad859",
+    "app": "",
+    "intent_text": "open chrome and go to wikipedia.org",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "translate.google.com/?sl=ru&tl=en&op=translate",
+        "translate.google.com/?sl=ru&tl=en&op=translate",
+        "com.google.android.apps.nexuslauncher:id/task_view_single",
+        "translate.google.com/?sl=ru&tl=en&op=translate"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  }
+]
