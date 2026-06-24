@@ -77,3 +77,5 @@ the user-study execution.
 
 ---
 **Status 2026-06-24:** 1a (open_settings deep-link, whitelisted, tested) + 1b (mode flag -> fast prompt + tool gate; replay-off flag) DONE, 304 tests, Codex-reviewed. NEXT: increment 2 (set_setting display/sound/rotation + toggle), then wire mode into an eval harness for the fast-vs-observable speed comparison (+ later user study). On-device verify of open_settings pending (phone was PIN-locked).
+
+**Status 2026-06-24 (final):** Dual-mode A COMPLETE. 1a open_settings (adopted, -71%/-67%) + 1b mode flag/prompt/gate/replay-off + inc2 set_setting/toggle + FAST-INTENT RESOLVER. Resolver validated live: "set brightness to 30%" -> done_fast, 0 turns, 0s, brightness EXACTLY 76 (vs observable ~75% wrong in 6 turns, vs fast-LLM slider FAIL). 316 tests. Remaining: user study (subjective half); deterministic resolver could extend to more parametric tasks.
