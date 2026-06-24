@@ -226,10 +226,25 @@ def build_success_criterion_block(criterion: str) -> str:
     )
 
 
+FAST_MODE_INSTRUCTIONS = (
+    "## Fast mode\n"
+    "You are in FAST mode: prefer direct shortcuts over pixel-by-pixel UI when a "
+    "deterministic path exists.\n"
+    "- For settings/system screens, call smartphone_open_settings(page) to jump "
+    "straight there instead of opening Settings and searching.\n"
+    "- Launch apps/links directly with smartphone_open_app / smartphone_open_url.\n"
+    "- Act decisively; avoid redundant smartphone_list_elements/screenshots.\n"
+    "- After a direct action, briefly state WHAT you changed and WHY (the user did "
+    "not watch the individual steps).\n"
+    "Consequential actions (pay/send/delete) still require confirmation as usual."
+)
+
+
 def build_system_prompt(
     matched: list[Skill],
     criterion: str | None = None,
     hints: "list[MemoryEntry] | None" = None,
+    mode: str = "observable",
 ) -> str:
     """Build the agent system prompt.
 
@@ -242,6 +257,9 @@ def build_system_prompt(
         entry body is NOT included — this is intentional (hints, not skills).
     """
     sections: list[str] = [BASE_SYSTEM_PROMPT]
+
+    if mode == "fast":
+        sections.append(FAST_MODE_INSTRUCTIONS)
 
     if criterion:
         sections.append(build_success_criterion_block(criterion))

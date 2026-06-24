@@ -526,6 +526,17 @@ class AgentLoop:
                         name=name, ok=True, text=answer_text)))
                     continue
 
+                # ── Mode gate: fast-only tools ───────────────────────────
+                # The deep-link shortcut exists only in FAST mode, so OBSERVABLE
+                # mode is pure UI (clean fast-vs-observable study comparison).
+                if (name == "smartphone_open_settings"
+                        and os.environ.get("LLM_SMARTPHONE_MODE", "observable") != "fast"):
+                    messages.append(_tool_message(call.get("id", ""), ToolCallResult(
+                        name=name, ok=True,
+                        text=("smartphone_open_settings is disabled in observable "
+                              "mode. Navigate to the setting via the visible UI."))))
+                    continue
+
                 # ── Swipe-to-Confirm: kritische Aktion? ──────────────────
                 # Use the BACKEND's element cache (the same source tap_element
                 # resolves against) so the check isn't stale after a
