@@ -34,8 +34,8 @@ from caddie.agent.tool_bridge import ToolCallResult, ToolDispatcher
 from caddie.context import ServerContext
 
 # Sicherheitsnetze gegen stuck Modelle (vgl. experiments/run_trials.py).
-MAX_TOOL_CALLS = 25
-MAX_TURNS = 40
+MAX_TOOL_CALLS = int(os.environ.get("LLM_SMARTPHONE_MAX_TOOL_CALLS", "25"))
+MAX_TURNS = int(os.environ.get("LLM_SMARTPHONE_MAX_TURNS", "40"))
 # Compact the conversation when the estimated prompt exceeds this fraction of
 # the model context (env LLM_STUDIO_CONTEXT_LENGTH), leaving room for the reply
 # + reasoning tokens. Turn-aware so tool_call/result pairs stay intact.
