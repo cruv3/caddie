@@ -224,6 +224,34 @@ class AgentLoop:
         control.request_resume()
         self._events.task_resumed()
 
+    def _exec_fast_intent(self, intent: tuple) -> tuple[bool, str]:
+        """Execute a matched fast-intent (set_setting/toggle) directly via the
+        backend, reusing the whitelisted resolvers. Returns (ok, description)."""
+        from caddie.agent.fast_actions import resolve_setting, resolve_toggle
+        try:
+            if intent[0] == "setting":
+                _, key, value = intent
+                r = resolve_setting(key, value)
+                if not r:
+                    return False, ""
+                ns, akey, val = r
+                self._backend.set_setting(ns, akey, val)
+                return True, f"Set {key} to {value}"
+            if intent[0] == "toggle":
+                _, service, on = intent
+                r = resolve_toggle(service, on)
+                if not r:
+                    return False, ""
+                if r[0] == "uimode":
+                    self._backend.set_dark_mode(r[1])
+                else:
+                    _, ns, akey, val = r
+                    self._backend.set_setting(ns, akey, val)
+                return True, f"Turned {service} {on}"
+        except Exception as exc:
+            print(f"[fast-intent] exec failed: {exc}", flush=True)
+        return False, ""
+
     def run(
         self,
         task: str,
@@ -249,6 +277,28 @@ class AgentLoop:
         messages.append({"role": "user", "content": task})
         control = RunControl()
         self._active_control = control
+
+        # ── FAST-INTENT RESOLVER (fast mode only) ────────────────────────
+        # Deterministically map a parametric settings/toggle task straight to a
+        # whitelisted ADB action, bypassing the LLM's tool-choice (which under-
+        # adopts set_setting/toggle vs entrenched UI habits like the brightness
+        # slider). Only fires on a clear match; else falls through to the loop.
+        if (os.environ.get("LLM_SMARTPHONE_MODE", "observable") == "fast"
+                and not control.stop_requested):
+            from caddie.agent.fast_actions import match_fast_intent
+            _intent = match_fast_intent(task)
+            if _intent:
+                _ok, _desc = self._exec_fast_intent(_intent)
+                if _ok:
+                    print(f"[fast-intent] {_desc} (0 turns)", flush=True)
+                    self._events.task_finished(ok=True, payload={"outcome": "done_fast",
+                                                                 "message": _desc})
+                    self._active_control = None
+                    self._last_run = {"task": task, "outcome": "done_fast",
+                                      "final_text": _desc, "finished_at": time.monotonic()}
+                    return {"ok": True, "finished_emitted": True, "outcome": "done_fast",
+                            "tool_calls": 1, "turns": 0, "final_text": _desc,
+                            "error": None, "vision_unsupported": False}
 
         # ── SKILL REPLAY FAST PATH (cheap-assert) ────────────────────────
         # A matched skill with recorded steps -> replay without a per-step LLM

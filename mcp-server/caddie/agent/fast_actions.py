@@ -114,3 +114,67 @@ def resolve_toggle(service: str, on) -> tuple | None:
              "bitte nicht stören", "ruhemodus"):
         return ("setting", "global", "zen_mode", val)
     return None
+
+
+# ---------------------------------------------------------------------------
+# Fast-intent resolver: map a parametric NL task directly to a fast action,
+# bypassing the LLM's tool-choice (which under-adopts set_setting/toggle).
+# Returns None on no clear match -> the normal LLM loop handles it.
+# ---------------------------------------------------------------------------
+
+def _task_onoff(t: str) -> str | None:
+    if re.search(r"\b(turn off|switch off|disable|deaktivier\w*|ausschalt\w*|aus)\b", t):
+        return "0"
+    if re.search(r"\b(turn on|switch on|enable|activate|aktivier\w*|einschalt\w*|"
+                 r"on|an|ein)\b", t):
+        return "1"
+    return None
+
+
+def match_fast_intent(task: str) -> tuple | None:
+    """Recognise a parametric settings/toggle task and return a normalised action:
+      ("setting", key, value)  — for set_setting
+      ("toggle", service, "on"/"off")  — for toggle
+    or None. Conservative: only fires on clear matches."""
+    if not task:
+        return None
+    t = " " + task.strip().lower() + " "
+
+    # --- numeric value-settings ---
+    m = re.search(r"(?:brightness|helligkeit)\D{0,20}?(\d{1,3})\s*(?:%|percent|prozent)?", t)
+    if m:
+        return ("setting", "brightness", f"{m.group(1)}%")
+    if re.search(r"(?:brightness|helligkeit)\b", t) and re.search(r"\b(max|maximum|höchste|voll)\b", t):
+        return ("setting", "brightness", "max")
+    if re.search(r"(?:brightness|helligkeit)\b", t) and re.search(r"\b(min|minimum|niedrigste)\b", t):
+        return ("setting", "brightness", "min")
+
+    m = re.search(r"(?:screen|display|bildschirm).{0,20}?(?:timeout|time out|off|aus|ausschalt\w*|sleep|standby)"
+                  r".{0,20}?(\d{1,3})\s*(seconds?|secs?|s|sekunden?|sek|minutes?|mins?|m|minuten?)\b", t)
+    if not m:
+        m = re.search(r"(?:timeout|sleep|standby).{0,20}?(\d{1,3})\s*(seconds?|secs?|s|sekunden?|sek|minutes?|mins?|m|minuten?)\b", t)
+    if m:
+        return ("setting", "screen_timeout", f"{m.group(1)} {m.group(2)}")
+
+    if re.search(r"\bfont\b|schriftgr", t):
+        for word, val in (("largest", "largest"), ("größte", "largest"), ("grösste", "largest"),
+                          ("large", "large"), ("groß", "large"), ("gross", "large"),
+                          ("small", "small"), ("klein", "small"),
+                          ("default", "default"), ("normal", "default"), ("standard", "default")):
+            if word in t:
+                return ("setting", "font_size", val)
+
+    if re.search(r"\bauto.?rotate\b|automatisch\w* dreh|bildschirm dreh|rotation", t):
+        oo = _task_onoff(t)
+        if oo is not None:
+            return ("setting", "auto_rotate", "on" if oo == "1" else "off")
+
+    # --- toggles ---
+    for svc, pat in (("dark mode", r"dark mode|dark theme|dunkles design|dunkelmodus|nachtmodus"),
+                     ("battery saver", r"battery saver|energiesparmodus|akkusparmodus|stromsparmodus"),
+                     ("do not disturb", r"do not disturb|\bdnd\b|nicht stören|ruhemodus")):
+        if re.search(pat, t):
+            oo = _task_onoff(t)
+            if oo is not None:
+                return ("toggle", svc, "on" if oo == "1" else "off")
+    return None

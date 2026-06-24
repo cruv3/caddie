@@ -39,3 +39,35 @@ def test_toggle_rejects_adb_killers_and_unknown():
     for s in ("wifi", "bluetooth", "mobile data", "airplane mode", "hotspot", "vpn", "nope"):
         assert resolve_toggle(s, "on") is None, s
     assert resolve_toggle("dark mode", "maybe") is None  # bad on/off value
+
+
+from caddie.agent.fast_actions import match_fast_intent
+
+
+def test_match_brightness():
+    assert match_fast_intent("set the screen brightness to 30 percent") == ("setting", "brightness", "30%")
+    assert match_fast_intent("stelle die helligkeit auf 30 prozent") == ("setting", "brightness", "30%")
+    assert match_fast_intent("set brightness to maximum") == ("setting", "brightness", "max")
+
+
+def test_match_screen_timeout():
+    assert match_fast_intent("set the screen timeout to 30 seconds") == ("setting", "screen_timeout", "30 seconds")
+    assert match_fast_intent("display ausschalten nach 2 minuten") == ("setting", "screen_timeout", "2 minuten")
+
+
+def test_match_font_and_rotate():
+    assert match_fast_intent("set the font size to largest") == ("setting", "font_size", "largest")
+    assert match_fast_intent("turn off auto rotate") == ("setting", "auto_rotate", "off")
+
+
+def test_match_toggles():
+    assert match_fast_intent("turn on dark mode") == ("toggle", "dark mode", "on")
+    assert match_fast_intent("schalte dunkles design aus") == ("toggle", "dark mode", "off")
+    assert match_fast_intent("enable battery saver") == ("toggle", "battery saver", "on")
+    assert match_fast_intent("turn on do not disturb") == ("toggle", "do not disturb", "on")
+
+
+def test_match_returns_none_for_nonparametric():
+    for t in ("open the display settings", "find a pizza place", "send an email to bob",
+              "what is on my calendar", "open chrome", ""):
+        assert match_fast_intent(t) is None, t
