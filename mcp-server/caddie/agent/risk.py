@@ -145,8 +145,21 @@ def _contains(bounds: dict, x: int, y: int) -> bool:
         return False
 
 
+# Benign "clear the input/search field" (and formatting) buttons contain a risk
+# substring (lösch/clear/entfern) but are harmless. Exempt them so the gate does
+# not over-fire on every type/search task (the index-tap path hits them often).
+_BENIGN_LABELS: tuple[str, ...] = (
+    "clear text", "text löschen", "text loeschen", "eingabe löschen",
+    "eingabe loeschen", "suche löschen", "suchen löschen", "suchanfrage löschen",
+    "clear search", "clear query", "clear input", "feld leeren", "leeren",
+    "remove formatting", "formatierung entfernen",
+)
+
+
 def _matches_keyword(label: str) -> bool:
     low = label.lower()
+    if any(b in low for b in _BENIGN_LABELS):
+        return False
     return any(kw in low for kw in RISK_KEYWORDS)
 
 

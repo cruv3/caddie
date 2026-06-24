@@ -45,6 +45,18 @@ def test_safe_tool_not_risky():
     assert classify("smartphone_list_elements", {}, _ELEMENTS).risky is False
 
 
+def test_benign_clear_field_not_risky():
+    # Clear-input / clear-search buttons contain 'lösch'/'clear' but are harmless.
+    for lbl in ("Text löschen", "Clear text", "Eingabe löschen", "Clear search"):
+        els = [{"index": 1, "text": lbl, "bounds": {"left": 0, "top": 0, "right": 10, "bottom": 10}}]
+        assert classify("smartphone_tap_element", {"index": 1}, els).risky is False, lbl
+
+
+def test_real_delete_still_risky():
+    els = [{"index": 1, "text": "Konto löschen", "bounds": {"left": 0, "top": 0, "right": 10, "bottom": 10}}]
+    assert classify("smartphone_tap_element", {"index": 1}, els).risky is True
+
+
 def test_step_is_risky_detects_risky_recorded_step():
     from caddie.agent.risk import step_is_risky
     assert step_is_risky({"action": "tap", "label": "Senden"}) is True

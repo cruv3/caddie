@@ -534,6 +534,7 @@ class AgentLoop:
                 _risk_els = getattr(self._backend, "_last_elements", None) or self._last_elements
                 verdict = risk.classify(name, args, _risk_els)
                 if verdict.risky:
+                    print(f"[risk] confirm required: {verdict.description} (tool={name})", flush=True)
                     self._events.confirmation_required(verdict.description, name)
                     approved = control.await_confirmation(CONFIRM_TIMEOUT_S)
                     self._events.confirmation_resolved(approved)
