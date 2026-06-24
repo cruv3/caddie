@@ -9,6 +9,12 @@ def test_known_pages_resolve():
     assert resolve_settings_page("notifications") == "android.settings.NOTIFICATION_SETTINGS"
 
 
+def test_battery_saver_distinct_from_battery():
+    assert resolve_settings_page("battery saver") == "android.settings.BATTERY_SAVER_SETTINGS"
+    assert resolve_settings_page("battery saver settings") == "android.settings.BATTERY_SAVER_SETTINGS"
+    assert resolve_settings_page("battery") == "android.intent.action.POWER_USAGE_SUMMARY"
+
+
 def test_tolerates_suffix_and_case():
     assert resolve_settings_page("Display settings") == "android.settings.DISPLAY_SETTINGS"
     assert resolve_settings_page("  STORAGE screen ") == "android.settings.INTERNAL_STORAGE_SETTINGS"

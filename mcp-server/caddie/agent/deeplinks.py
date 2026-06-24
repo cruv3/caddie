@@ -19,6 +19,7 @@ SETTINGS_PAGES: dict[str, str] = {
     "notifications": "android.settings.NOTIFICATION_SETTINGS",
     "apps": "android.settings.APPLICATION_SETTINGS",
     "battery": "android.intent.action.POWER_USAGE_SUMMARY",
+    "battery saver": "android.settings.BATTERY_SAVER_SETTINGS",
     "storage": "android.settings.INTERNAL_STORAGE_SETTINGS",
     "date": "android.settings.DATE_SETTINGS",
     "time": "android.settings.DATE_SETTINGS",
