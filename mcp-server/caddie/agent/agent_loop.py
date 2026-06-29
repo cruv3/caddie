@@ -157,12 +157,19 @@ class AgentLoop:
     def _init_run_slot(self) -> None:
         import threading
         self._run_slot = threading.Lock()
+        self._slot_owner = None
 
     def try_acquire_slot(self) -> bool:
-        return self._run_slot.acquire(blocking=False)
+        import threading
+        if self._run_slot.acquire(blocking=False):
+            self._slot_owner = threading.get_ident()
+            return True
+        return False
 
     def release_slot(self) -> None:
-        if self._run_slot.locked():
+        import threading
+        if self._slot_owner == threading.get_ident() and self._run_slot.locked():
+            self._slot_owner = None
             self._run_slot.release()
 
     def recent_run(self, max_age_s: float = FOLLOW_UP_MAX_AGE_S) -> dict | None:
@@ -580,6 +587,7 @@ class AgentLoop:
                     fn = call.get("function", {}) or {}
                     name = fn.get("name", "")
                     args = _parse_arguments(fn.get("arguments"))
+                    auto_approve_why = None
 
                     # smartphone_ask_user: pause + wait for the spoken answer
                     if name == "smartphone_ask_user":
@@ -637,9 +645,7 @@ class AgentLoop:
                             if pre_authorized.available():
                                 pre_authorized.consume()
                                 print(f"[risk] auto-approved (scheduled): {verdict.description}", flush=True)
-                                self._events.confirmation_resolved(True)
-                                why_log.append({"tool": name,
-                                                "why": f"auto-approved (scheduled): {verdict.description}"})
+                                auto_approve_why = f"auto-approved (scheduled): {verdict.description}"
                             else:
                                 print("[risk] unapproved consequential action -> hard abort", flush=True)
                                 outcome, terminal = "unapproved_action", True
@@ -683,7 +689,7 @@ class AgentLoop:
                         if _step is not None and _step != (recorded_steps[-1] if recorded_steps else None):
                             recorded_steps.append(_step)
                     if getattr(result, "ok", True) and name not in _OBSERVATION_TOOLS:
-                        why_log.append({"tool": name, "why": str(args.get("why", ""))})
+                        why_log.append({"tool": name, "why": auto_approve_why or str(args.get("why", ""))})
 
                     # Track observe-vs-act for the completion gate + loop breaker.
                     if name in _OBSERVATION_TOOLS:
