@@ -92,3 +92,13 @@ def test_pin_path_not_run_when_env_unset(monkeypatch):
     assert r["unlocked"] is False
     # ENTER keyevent should NOT have been sent
     assert ("input", "keyevent", "66") not in s.shell_calls
+
+
+# FIX 3 — non-numeric PIN must not leak the value into the reason string
+def test_pin_non_numeric_does_not_leak(monkeypatch):
+    monkeypatch.setenv("CADDIE_DEVICE_PIN", "12ab")
+    s = FakeScreen([True, True, True, True, True])
+    r = s.wake_and_unlock()
+    assert r["unlocked"] is False
+    assert "a" not in r["reason"] and "b" not in r["reason"]
+    assert r["reason"] == "pin not numeric"

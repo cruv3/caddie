@@ -28,10 +28,13 @@ class Scheduler:
 
     def start(self) -> None:
         # recover crashed runs + handle anything missed while we were down
-        for t in self._store.recover_running():
-            self._events.scheduled_task_report(t.id, "failed",
-                                               "server restarted mid-run", [])
-        self.handle_missed()
+        try:
+            for t in self._store.recover_running():
+                self._events.scheduled_task_report(t.id, t.status,
+                                                   "server restarted mid-run", [])
+            self.handle_missed()
+        except Exception as exc:
+            print(f"[scheduler] startup error: {ascii(exc)}", flush=True)
         self._thread = threading.Thread(target=self._loop_forever, daemon=True)
         self._thread.start()
 
@@ -75,6 +78,10 @@ class Scheduler:
         if not self._loop.try_acquire_slot():
             return  # busy -> next tick
         try:
+            live = next((t for t in self._store.list() if t.id == task.id), None)
+            if live is None or live.status != "scheduled":
+                return  # cancelled/changed between due() and now
+            task = live
             task.status = "running"
             self._store.update(task)
             unlock = self._backend.wake_and_unlock()
@@ -90,6 +97,7 @@ class Scheduler:
                 system_prompt=build_system_prompt([]),
                 pre_authorized=pre,
                 slot_already_held=True,   # the scheduler reserved the slot above
+                unattended=True,
             )
             self._finish(task, result.get("outcome", "failed"),
                          result.get("final_text") or result.get("outcome", ""),

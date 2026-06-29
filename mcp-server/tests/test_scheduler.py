@@ -103,3 +103,15 @@ def test_fire_exception_marks_failed_not_stuck_running(tmp_path):
     assert t.status == "failed"                           # not stuck on "running"
     assert sched._events.reports and sched._events.reports[-1][0] == t.id
     assert loop.try_acquire_slot() is True                # slot was released by finally
+
+
+# FIX 4 — cancel-then-fire race: cancelled task must NOT run
+def test_cancelled_between_due_and_fire_does_not_run(tmp_path):
+    now = datetime(2026, 6, 29, 14, 0, tzinfo=TZ)
+    store, sched = _sched(tmp_path, now)
+    t = store.add("x", now, None, None)
+    snapshot = store.due(now)[0]      # detached snapshot
+    store.cancel(t.id)                # cancel after due()
+    sched.fire(snapshot)
+    assert sched._loop.runs == []     # must NOT run
+    assert store.list()[0].status == "cancelled"

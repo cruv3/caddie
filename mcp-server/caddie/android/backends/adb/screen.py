@@ -100,6 +100,8 @@ class ScreenCommands(AppCommands):
         # Optional PIN path: if env var is set and device still locked, try PIN entry
         pin = os.environ.get("CADDIE_DEVICE_PIN")
         if pin:
+            if not pin.isdigit():
+                return {"unlocked": False, "reason": "pin not numeric"}
             try:
                 # Send digit keyevents: KEYCODE_0=7, so digit d -> keyevent 7 + int(d)
                 for digit in pin:
@@ -110,8 +112,8 @@ class ScreenCommands(AppCommands):
                 # Re-check lock status
                 if not self._is_locked():
                     return {"unlocked": True, "reason": "pin-unlocked"}
-            except Exception as exc:
-                return {"unlocked": False, "reason": f"pin entry failed: {_ascii(exc)}"}
+            except Exception:
+                return {"unlocked": False, "reason": "pin entry failed"}
 
         return {"unlocked": False, "reason": "device still locked (PIN/pattern?)"}
 

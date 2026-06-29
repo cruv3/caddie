@@ -126,6 +126,8 @@ class ScheduleStore:
             if t.status != "scheduled":
                 continue
             nf = datetime.fromisoformat(t.next_fire)
+            if nf.tzinfo is None:
+                continue
             if lo <= nf <= hi:
                 out.append(t)
         return out
@@ -136,6 +138,8 @@ class ScheduleStore:
             if t.status != "scheduled":
                 continue
             nf = datetime.fromisoformat(t.next_fire)
+            if nf.tzinfo is None:
+                continue
             if now > nf + timedelta(seconds=grace_seconds):
                 out.append(t)
         return out
@@ -161,10 +165,14 @@ class ScheduleStore:
             recovered = []
             for t in tasks:
                 if t.status == "running":
-                    t.status = "failed"
                     t.last_run = {"outcome": "interrupted",
-                                  "message": "server restarted mid-run",
-                                  "steps": []}
+                                  "message": "server restarted mid-run", "steps": []}
+                    if t.recurrence:
+                        nf = datetime.fromisoformat(t.next_fire)
+                        t.next_fire = advance(t.recurrence, datetime.now(nf.tzinfo)).isoformat()
+                        t.status = "scheduled"
+                    else:
+                        t.status = "failed"
                     recovered.append(t)
             if recovered:
                 self._write(tasks)

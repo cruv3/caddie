@@ -78,3 +78,49 @@ def test_corrupt_entry_skipped(tmp_path):
                  '"recurrence":null,"pre_auth":null,"status":"scheduled","last_run":null},'
                  '{"garbage":true}]', encoding="utf-8")
     assert len(ScheduleStore(p).list()) == 1
+
+
+# FIX 1 — recover_running: recurring task must be rescheduled, not failed
+def test_recover_running_recurring_reschedules(tmp_path):
+    s = _store(tmp_path)
+    t = s.add("x", NOW, {"kind": "daily", "time": "08:00"}, None)
+    t.status = "running"
+    s.update(t)
+    rec = ScheduleStore(tmp_path / "sched.json").recover_running()
+    assert len(rec) == 1 and rec[0].status == "scheduled"
+    assert datetime.fromisoformat(rec[0].next_fire) > NOW
+
+
+# FIX 6 — due() / overdue() must skip naive next_fire entries silently
+def test_due_skips_naive_next_fire(tmp_path):
+    import json as _json
+    path = tmp_path / "sched.json"
+    naive_entry = {
+        "id": "sch_0000",
+        "task": "naive task",
+        "created_at": NOW.isoformat(),
+        "next_fire": "2026-06-29T14:00:00",   # no tzinfo
+        "recurrence": None,
+        "pre_auth": None,
+        "status": "scheduled",
+        "last_run": None,
+    }
+    path.write_text(_json.dumps([naive_entry]), encoding="utf-8")
+    assert ScheduleStore(path).due(NOW) == []
+
+
+def test_overdue_skips_naive_next_fire(tmp_path):
+    import json as _json
+    path = tmp_path / "sched.json"
+    naive_entry = {
+        "id": "sch_0000",
+        "task": "naive task",
+        "created_at": NOW.isoformat(),
+        "next_fire": "2026-01-01T00:00:00",   # definitely overdue but naive
+        "recurrence": None,
+        "pre_auth": None,
+        "status": "scheduled",
+        "last_run": None,
+    }
+    path.write_text(_json.dumps([naive_entry]), encoding="utf-8")
+    assert ScheduleStore(path).overdue(NOW) == []

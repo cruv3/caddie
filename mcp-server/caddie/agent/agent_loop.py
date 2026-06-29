@@ -291,6 +291,7 @@ class AgentLoop:
         skill=None,
         pre_authorized: "PreAuth | None" = None,
         slot_already_held: bool = False,
+        unattended: bool = False,
     ) -> dict[str, Any]:
         """Faehrt die Session bis done/failed/Abbruch und liefert das Resultat.
 
@@ -641,24 +642,23 @@ class AgentLoop:
                     _risk_els = getattr(self._backend, "_last_elements", None) or self._last_elements
                     verdict = risk.classify(name, args, _risk_els)
                     if verdict.risky:
-                        if pre_authorized is not None:
-                            if pre_authorized.available():
-                                pre_authorized.consume()
-                                print(f"[risk] auto-approved (scheduled): {verdict.description}", flush=True)
-                                auto_approve_why = f"auto-approved (scheduled): {verdict.description}"
-                            else:
-                                print("[risk] unapproved consequential action -> hard abort", flush=True)
-                                outcome, terminal = "unapproved_action", True
-                                fail_reason = f"unapproved consequential action: {verdict.description}"
-                                messages.append(_tool_message(call.get("id", ""), ToolCallResult(
-                                    name=name, ok=False,
-                                    text="Scheduled run: unapproved consequential action - aborting.")))
-                                for rc in calls[idx + 1:]:
-                                    messages.append(_tool_message(
-                                        rc.get("id", ""),
-                                        ToolCallResult(name=(rc.get("function", {}) or {}).get("name", ""),
-                                                       ok=False, text="Cancelled: run aborted.")))
-                                break
+                        if pre_authorized is not None and pre_authorized.available():
+                            pre_authorized.consume()
+                            auto_approve_why = f"auto-approved (scheduled): {verdict.description}"
+                            print(f"[risk] auto-approved (scheduled): {ascii(verdict.description)}", flush=True)
+                        elif unattended:
+                            print("[risk] unapproved consequential action (unattended) -> hard abort", flush=True)
+                            outcome, terminal = "unapproved_action", True
+                            fail_reason = f"unapproved consequential action: {verdict.description}"
+                            messages.append(_tool_message(call.get("id", ""), ToolCallResult(
+                                name=name, ok=False,
+                                text="Scheduled run: unapproved consequential action - aborting.")))
+                            for rc in calls[idx + 1:]:
+                                messages.append(_tool_message(
+                                    rc.get("id", ""),
+                                    ToolCallResult(name=(rc.get("function", {}) or {}).get("name", ""),
+                                                   ok=False, text="Cancelled: run aborted.")))
+                            break
                         else:
                             print(f"[risk] confirm required: {verdict.description} (tool={name})", flush=True)
                             self._events.confirmation_required(verdict.description, name)
