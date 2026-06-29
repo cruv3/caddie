@@ -24,6 +24,9 @@ import time
 from datetime import datetime
 from pathlib import Path
 
+# Make `caddie` importable without needing PYTHONPATH set (mcp-server is parents[1]).
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
 
 def _load_token() -> None:
     if os.environ.get("LLM_STUDIO_TOKEN"):
