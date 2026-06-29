@@ -4,10 +4,20 @@ AgentLoop, guarded by the run-slot, with up-front pre-authorization and an
 after-the-fact report. Missed (server-off) tasks are skipped, not caught up."""
 from __future__ import annotations
 
+import os
 import threading
 from datetime import datetime
 
 from caddie.agent.pre_auth import PreAuth
+
+
+def _scheduled_authorization() -> str | None:
+    """LLM auth for an UNATTENDED run. The interactive path gets the
+    Authorization header from the phone request; a scheduled run has none, so it
+    reads LLM_STUDIO_TOKEN from the environment and formats it like the app does
+    ("Bearer <token>"). Unset -> None (local LM Studio needs no auth)."""
+    token = (os.environ.get("LLM_STUDIO_TOKEN") or "").strip()
+    return f"Bearer {token}" if token else None
 
 TICK_SECONDS = 15
 
@@ -98,6 +108,7 @@ class Scheduler:
                 pre_authorized=pre,
                 slot_already_held=True,   # the scheduler reserved the slot above
                 unattended=True,
+                authorization=_scheduled_authorization(),
             )
             self._finish(task, result.get("outcome", "failed"),
                          result.get("final_text") or result.get("outcome", ""),

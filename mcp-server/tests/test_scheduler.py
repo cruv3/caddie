@@ -115,3 +115,23 @@ def test_cancelled_between_due_and_fire_does_not_run(tmp_path):
     sched.fire(snapshot)
     assert sched._loop.runs == []     # must NOT run
     assert store.list()[0].status == "cancelled"
+
+
+# Unattended LLM auth: a scheduled run has no incoming request, so the scheduler
+# must supply the LLM credential from LLM_STUDIO_TOKEN (formatted like the app).
+def test_scheduled_run_passes_bearer_auth(tmp_path, monkeypatch):
+    monkeypatch.setenv("LLM_STUDIO_TOKEN", "sk-test-123")
+    now = datetime(2026, 6, 29, 14, 0, tzinfo=TZ)
+    store, sched = _sched(tmp_path, now)
+    store.add("x", now, None, None)
+    sched.tick()
+    assert sched._loop.runs[0]["authorization"] == "Bearer sk-test-123"
+
+
+def test_scheduled_run_no_token_no_auth(tmp_path, monkeypatch):
+    monkeypatch.delenv("LLM_STUDIO_TOKEN", raising=False)
+    now = datetime(2026, 6, 29, 14, 0, tzinfo=TZ)
+    store, sched = _sched(tmp_path, now)
+    store.add("x", now, None, None)
+    sched.tick()
+    assert sched._loop.runs[0]["authorization"] is None
