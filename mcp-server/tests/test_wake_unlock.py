@@ -65,3 +65,25 @@ def test_swipe_exception_returns_locked():
     r = SwipeFails([True, True]).wake_and_unlock()
     assert r["unlocked"] is False
     assert "swipe failed" in r["reason"]
+
+
+def test_pin_entry_when_env_set(monkeypatch):
+    """When CADDIE_DEVICE_PIN is set and swipe fails to unlock, enter PIN digits."""
+    monkeypatch.setenv("CADDIE_DEVICE_PIN", "1234")
+    # locked after swipe, unlocked after PIN
+    s = FakeScreen([True, True, True, True, False])
+    r = s.wake_and_unlock()
+    assert r["unlocked"] is True
+    # digit keyevents 1,2,3,4 then ENTER(66) were sent
+    assert ("input", "keyevent", "66") in s.shell_calls
+
+
+def test_pin_path_not_run_when_env_unset(monkeypatch):
+    """When CADDIE_DEVICE_PIN is not set, PIN path does not run."""
+    monkeypatch.delenv("CADDIE_DEVICE_PIN", raising=False)
+    # locked after swipe, stays locked (no PIN)
+    s = FakeScreen([True, True, True, True])
+    r = s.wake_and_unlock()
+    assert r["unlocked"] is False
+    # ENTER keyevent should NOT have been sent
+    assert ("input", "keyevent", "66") not in s.shell_calls

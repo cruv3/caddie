@@ -1,4 +1,5 @@
 import hashlib
+import os
 import subprocess
 from pathlib import Path
 from typing import Any
@@ -95,6 +96,23 @@ class ScreenCommands(AppCommands):
                 return {"unlocked": False, "reason": f"swipe failed: {_ascii(exc)}"}
             if not self._is_locked():
                 return {"unlocked": True, "reason": "swipe-unlocked"}
+
+        # Optional PIN path: if env var is set and device still locked, try PIN entry
+        pin = os.environ.get("CADDIE_DEVICE_PIN")
+        if pin:
+            try:
+                # Send digit keyevents: KEYCODE_0=7, so digit d -> keyevent 7 + int(d)
+                for digit in pin:
+                    keycode = 7 + int(digit)
+                    self.shell("input", "keyevent", str(keycode))
+                # Send ENTER keyevent 66
+                self.shell("input", "keyevent", "66")
+                # Re-check lock status
+                if not self._is_locked():
+                    return {"unlocked": True, "reason": "pin-unlocked"}
+            except Exception as exc:
+                return {"unlocked": False, "reason": f"pin entry failed: {_ascii(exc)}"}
+
         return {"unlocked": False, "reason": "device still locked (PIN/pattern?)"}
 
     def ui_hash(self) -> str:
