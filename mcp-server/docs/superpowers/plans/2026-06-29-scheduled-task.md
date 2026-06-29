@@ -637,16 +637,31 @@ Add the import near the other agent imports at the top of the file:
 from caddie.agent.pre_auth import PreAuth
 ```
 
-At the very start of `run()` body (before building `messages`), acquire the slot and ensure release. Wrap the existing body: acquire at top, and release in a `finally` around the whole run. Minimal approach — add at the top:
+**Slot ownership (Codex CRITICAL #1):** the scheduler reserves the slot BEFORE calling `run()`, so `run()` must NOT re-acquire when the caller already holds it. Use a `slot_already_held` flag. At the very start of the `run()` body, before building `messages`:
 
 ```python
-        if not self.try_acquire_slot():
-            return {"ok": False, "finished_emitted": False, "outcome": "busy",
-                    "tool_calls": 0, "turns": 0, "final_text": "", "error": None,
-                    "vision_unsupported": False, "steps": []}
+        acquired_here = False
+        if not slot_already_held:
+            if not self.try_acquire_slot():
+                return {"ok": False, "finished_emitted": False, "outcome": "busy",
+                        "tool_calls": 0, "turns": 0, "final_text": "", "error": None,
+                        "vision_unsupported": False, "steps": []}
+            acquired_here = True
 ```
 
-and convert the existing method body into a `try: ... finally: self.release_slot()`. (The fast-intent and replay early-returns are now inside the `try`, so the slot is released on every path.)
+Add `slot_already_held: bool = False` to the `run()` signature (after `pre_authorized`). Convert the rest of the method body into `try: ... finally:` so the slot is released and stale control is cleared on EVERY path (incl. the fast-intent / replay early-returns and any exception — Codex MEDIUM #7):
+
+```python
+        try:
+            ... existing body (fast-intent, replay, loop, return) ...
+        finally:
+            if self._active_control is control:
+                self._active_control = None
+            if acquired_here:
+                self.release_slot()
+```
+
+(The early `return`s inside the body now run inside the `try`, so `finally` always fires. `control` is the `RunControl` created near the top of `run()`.)
 
 Initialize a why-log near `recorded_steps` (~line 350):
 
@@ -676,8 +691,20 @@ Replace the confirmation block (~610-624) so that an unattended pre-authorized r
                                             "why": f"auto-approved (scheduled): {verdict.description}"})
                         else:
                             print("[risk] unapproved consequential action -> hard abort", flush=True)
-                            outcome = "unapproved_action"
+                            # Hard-abort the WHOLE run (not just this batch): set the
+                            # terminal flag like the stopped_by_user path so the outer
+                            # `if terminal: break` exits the run. Pair the message
+                            # history by failing this call (+ any remaining pending calls).
+                            outcome, terminal = "unapproved_action", True
                             fail_reason = f"unapproved consequential action: {verdict.description}"
+                            messages.append(_tool_message(call.get("id", ""), ToolCallResult(
+                                name=name, ok=False,
+                                text="Scheduled run: unapproved consequential action - aborting.")))
+                            for rc in calls[idx + 1:]:
+                                messages.append(_tool_message(
+                                    rc.get("id", ""),
+                                    ToolCallResult(name=(rc.get("function", {}) or {}).get("name", ""),
+                                                   ok=False, text="Cancelled: run aborted.")))
                             break
                     else:
                         print(f"[risk] confirm required: {verdict.description} (tool={name})", flush=True)
@@ -743,6 +770,8 @@ class FakeScreen(ScreenCommands):
             locked = self._states.pop(0) if self._states else False
             return "mShowingLockscreen=true" if locked else "mShowingLockscreen=false"
         return ""
+    def screen_size(self):
+        return {"width": 1080, "height": 2400}
     def swipe(self, *a, **k):
         self.swipes.append((a, k))
         return "ok"
@@ -795,9 +824,11 @@ Expected: FAIL (no `wake_and_unlock`).
             return {"unlocked": False, "reason": f"wake failed: {exc}"}
         if not self._is_locked():
             return {"unlocked": True, "reason": "already unlocked"}
+        size = self.screen_size()
+        w, h = size["width"], size["height"]
         for _ in range(3):
             try:
-                self.swipe(540, 1600, 540, 400, 200)        # swipe up to dismiss
+                self.swipe(w // 2, int(h * 0.80), w // 2, int(h * 0.25), 200)  # swipe up
             except Exception as exc:
                 return {"unlocked": False, "reason": f"swipe failed: {exc}"}
             if not self._is_locked():
@@ -1041,6 +1072,7 @@ class Scheduler:
                 task=task.task,
                 system_prompt=build_system_prompt([]),
                 pre_authorized=pre,
+                slot_already_held=True,   # the scheduler reserved the slot above
             )
             self._finish(task, result.get("outcome", "failed"),
                          result.get("final_text") or result.get("outcome", ""),
@@ -1082,13 +1114,18 @@ git -c user.name="Andreas" -c user.email="me@cruve.dev" commit -m "Scheduled tas
 
 **Files:**
 - Create: `mcp-server/caddie/tools/schedule.py`
-- Modify: `mcp-server/caddie/agent/http_api.py` (`AgentHttpServer.__init__`/`start` — construct + start the Scheduler), and the place tools are registered (where `register_app_tools` is called) to call `register_schedule_tools`
+- Modify: `mcp-server/caddie/context.py` (`ServerContext.__post_init__` — add `self.schedule_store`)
+- Modify: `mcp-server/caddie/tools/__init__.py` (register schedule tools in `register_tools`)
+- Modify: `mcp-server/caddie/agent/risk.py` (classify `smartphone_schedule_task` with a `pre_auth` as risky → up-front confirmation)
+- Modify: `mcp-server/caddie/agent/http_api.py` (`AgentHttpServer.start` — construct + start the Scheduler from `context.schedule_store`)
 - Modify: `mcp-server/caddie/agent/prompt.py` (one instruction paragraph)
-- Test: `mcp-server/tests/test_schedule_tools.py`
+- Test: `mcp-server/tests/test_schedule_tools.py`, add a case to `mcp-server/tests/test_risk.py`
 
 **Interfaces:**
-- Consumes: `ScheduleStore`, `parse_when`, `context.events` (confirmation), `RunControl` confirmation flow.
-- Produces: `register_schedule_tools(mcp, context, store)` registering `smartphone_schedule_task(task, when, recurrence="", pre_auth="", why="")`, `smartphone_list_scheduled(why="")`, `smartphone_cancel_scheduled(task_id, why="")`.
+- Consumes: `context.schedule_store` (ScheduleStore on the context), `parse_when`, the existing AgentLoop risk gate (for up-front confirmation).
+- Produces: `register_schedule_tools(mcp, context)` (registry contract is `(mcp, context)`) registering `smartphone_schedule_task(task, when, recurrence="", pre_auth="", why="")`, `smartphone_list_scheduled(why="")`, `smartphone_cancel_scheduled(task_id, why="")`. The tools read/write `context.schedule_store`.
+
+**Architecture note (Codex CRITICAL #2 / HIGH #4/#5):** In the agent path, tools run IN-PROCESS via `ToolDispatcher.call` against the same `ServerContext` as the owner server (see `tool_bridge.py`), so the scheduler, the schedule tools, and the store all share one process + one `ScheduleStore` instance (the per-process `threading.Lock` is sufficient there). Up-front confirmation is therefore NOT emitted by the tool (which cannot await); instead `risk.classify` flags a `smartphone_schedule_task` carrying a non-empty `pre_auth` as risky, so the existing AgentLoop gate runs `confirmation_required` → `await_confirmation` BEFORE the tool is dispatched — on decline the tool never runs, so nothing is stored (spec: "without confirm, nothing is stored"). KNOWN LIMITATION (documented, deferred): the separate `--only=tools` worker process has its own `ServerContext`/store pointing at the same file; cross-process schedule mutation there is out of scope for v1 (the canonical path is the agent/owner process). A cross-process file lock is future work.
 
 - [ ] **Step 1: Write the failing test (store-level behavior; confirmation mocked)**
 
@@ -1159,25 +1196,23 @@ def _create_scheduled(store, task, when, recurrence, pre_auth, now=None):
             "recurrence": t.recurrence}
 
 
-def register_schedule_tools(mcp, context, store) -> None:
+def register_schedule_tools(mcp, context) -> None:
+    store = context.schedule_store
+
     @mcp.tool()
     def smartphone_schedule_task(task: str, when: str, recurrence: str = "",
                                  pre_auth: str = "", why: str = "") -> dict:
-        """Schedule a phone task for later. `when`: '14:00', 'in 2h', 'tomorrow
-        9am', or a recurrence like 'daily 08:00' / 'weekdays 18:00' / 'weekly Mon
-        09:00'. `pre_auth`: if the task includes ONE consequential action
-        (send/pay/delete), a short description of it (e.g. 'send a WhatsApp to
-        Papa'); the user confirms it once now. `why`: short reason for the overlay."""
+        """Schedule a phone task for later. `when`: '14:00', 'in 2h', or a
+        recurrence like 'daily 08:00' / 'weekdays 18:00' / 'weekly Mon 09:00'.
+        `pre_auth`: if the task includes ONE consequential action (send/pay/
+        delete), a short description of it (e.g. 'send a WhatsApp to Papa') -- the
+        user is asked to confirm it once now (handled by the risk gate BEFORE this
+        runs). `why`: short reason for the overlay."""
         with publish_tool_call("smartphone_schedule_task", bus=context.events,
                                task=task, when=when, why=why):
-            if (pre_auth or "").strip():
-                from caddie.agent.run_control import RunControl  # active run control
-                # Up-front confirmation reuses the live confirm mechanism.
-                context.events.confirmation_required(
-                    f"Geplant: {pre_auth} (Trigger: {when})", "smartphone_schedule_task")
-                # If no active run control exists (created outside a run), persist
-                # directly; the agent that called this tool IS in a run, so the
-                # control awaits the user's swipe.
+            # By the time we get here the up-front confirmation (if pre_auth was
+            # set) has already been approved by the AgentLoop risk gate; a decline
+            # means this tool was never dispatched -> nothing stored.
             return _create_scheduled(store, task, when, recurrence, pre_auth)
 
     @mcp.tool()
@@ -1196,25 +1231,65 @@ def register_schedule_tools(mcp, context, store) -> None:
             return "cancelled" if store.cancel(task_id) else "not found"
 ```
 
-Note on the confirmation flow: the exact awaiting/approval wiring mirrors the risk-gate confirmation (`confirmation_required` -> `control.await_confirmation`). During Task 6 implementation, confirm against the live `RunControl` available in the calling run; if the engineer finds the tool runs outside a `RunControl`, gate creation behind `context`-level confirm. The pure `_create_scheduled` (tested) carries the validation/persistence contract; the confirm is a thin wrapper validated on-device in Task 7.
+- [ ] **Step 3b: Own the store on `ServerContext`**
 
-- [ ] **Step 3b: Wire store + scheduler + tools into the server**
-
-In `http_api.py`, the `AgentHttpServer` holds the `context`. Create one shared `ScheduleStore(context.project_dir / "scheduled_tasks.json")`, pass it to `register_schedule_tools(...)` where the other tools are registered, and construct + `start()` a `Scheduler(store, agent_loop, context.backend, context.events)` inside `AgentHttpServer.start()` (next to `_maybe_start_touch_watcher()`).
+In `caddie/context.py`, at the END of `ServerContext.__post_init__`, add:
 
 ```python
-        # in AgentHttpServer.start(), after the touch watcher:
         from caddie.agent.schedule_store import ScheduleStore
+        self.schedule_store = ScheduleStore(self.project_dir / "scheduled_tasks.json")
+```
+
+and declare the field on the dataclass (next to `events`): `schedule_store: object = field(init=False)`.
+
+- [ ] **Step 3c: Register the tools via the registry contract**
+
+In `caddie/tools/__init__.py` `register_tools(mcp, context)`, add alongside the other `register_*` calls:
+
+```python
+    from caddie.tools.schedule import register_schedule_tools
+    register_schedule_tools(mcp, context)
+```
+
+- [ ] **Step 3d: Up-front confirmation via the risk gate**
+
+In `caddie/agent/risk.py` `classify(name, args, elements)`, near the top, add:
+
+```python
+    if name == "smartphone_schedule_task" and str(args.get("pre_auth", "")).strip():
+        return _Verdict(risky=True, description=(
+            f"Geplanten Task mit konsequenter Aktion freigeben: "
+            f"{str(args.get('pre_auth'))[:60]}"))
+```
+
+(Use risk.py's existing verdict type/return shape -- match the names already used by `classify`.) This makes the existing AgentLoop gate confirm a consequential schedule BEFORE the tool runs; decline -> tool not dispatched -> nothing stored.
+
+Add a case to `tests/test_risk.py`:
+
+```python
+def test_schedule_task_with_preauth_is_risky():
+    v = classify("smartphone_schedule_task", {"pre_auth": "send a message"}, [])
+    assert v.risky is True
+
+def test_schedule_task_without_preauth_is_safe():
+    v = classify("smartphone_schedule_task", {"pre_auth": ""}, [])
+    assert v.risky is False
+```
+
+- [ ] **Step 3e: Start the scheduler from the server**
+
+In `AgentHttpServer.start()`, after the touch watcher, using the context-owned store:
+
+```python
         from caddie.agent.scheduler import Scheduler
-        store = ScheduleStore(self._context.project_dir / "scheduled_tasks.json")
-        self._scheduler = Scheduler(store, self._agent_loop, self._context.backend,
-                                    self._context.events)
+        self._scheduler = Scheduler(self._context.schedule_store, self._agent_loop,
+                                    self._context.backend, self._context.events)
         self._scheduler.start()
 ```
 
-(Use the actual attribute names present in `AgentHttpServer.__init__`; the engineer wires `register_schedule_tools` at the same place `register_app_tools` is called, passing the same `store` instance so tools and scheduler share state.)
+(Use the actual `AgentHttpServer` attribute names for the agent loop / context — confirm them in `AgentHttpServer.__init__` before wiring.)
 
-- [ ] **Step 3c: Prompt instruction**
+- [ ] **Step 3f: Prompt instruction**
 
 In `prompt.py`, add one paragraph to the system prompt body:
 
@@ -1293,5 +1368,14 @@ git -c user.name="Andreas" -c user.email="me@cruve.dev" commit -m "Scheduled tas
 - Report schema {tool, why}: Task 3 (`why_log`) + Task 5 (report event). [covered]
 - No per-task mode in v1: not implemented (correct). [covered]
 
-Open implementation judgment (flagged, not placeholders): the exact confirmation-await wiring in `smartphone_schedule_task` (Task 6, Step 3a/3b) depends on whether the tool executes inside a live `RunControl`; the pure `_create_scheduled` contract is fully tested, and the confirm wrapper is validated on-device in Task 7. The engineer should mirror the risk-gate's `confirmation_required` -> `await_confirmation` pattern exactly.
+**Codex plan-review (2026-06-29) incorporated:**
+- CRITICAL run-slot double-acquire → `slot_already_held` flag; scheduler reserves, `run()` skips re-acquire; `finally` clears `_active_control` + releases (Task 3, Task 5).
+- CRITICAL schedule confirmation can't be awaited by a tool → up-front confirm moved to the AgentLoop risk gate (`risk.classify` flags `schedule_task`+`pre_auth` as risky); decline → tool not dispatched → nothing stored (Task 6, Step 3d).
+- CRITICAL unapproved-action abort only broke the inner loop → now sets `terminal=True` + pairs pending tool messages → outer `if terminal: break` ends the run (Task 3).
+- HIGH registry contract → `register_schedule_tools(mcp, context)`; store owned by `ServerContext` (Task 6, Step 3b/3c).
+- HIGH/LOW cross-process store → documented limitation (agent/owner process is canonical; `--only=tools` worker store mutation out of scope; file lock = future work).
+- MEDIUM hardcoded swipe coords → `screen_size()`-relative (Task 4).
+- MEDIUM stale `_active_control` on exception → cleared in the same `finally` (Task 3).
+
+Remaining implementation judgment (flagged, not placeholders): confirm the real `AgentHttpServer` attribute names for the agent loop/context before wiring the scheduler (Task 6, Step 3e), and match `risk.py`'s existing verdict return shape (Task 6, Step 3d). The pure `_create_scheduled`, `when`, store, scheduler, and risk behaviors are all unit-tested; the on-device dry-run (Task 7, Step 1) is the end-to-end gate.
 ```
