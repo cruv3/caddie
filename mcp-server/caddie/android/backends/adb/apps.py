@@ -125,3 +125,24 @@ class AppCommands(InputCommands):
         self.shell("cmd", "uimode", "night", "yes" if on else "no", timeout_seconds=15)
         return f"Dark mode {'on' if on else 'off'}"
 
+    def set_alarm(self, hour: int, minute: int, message: str = "") -> str:
+        """Create an alarm via the standard AlarmClock intent (no UI picker)."""
+        args = ["am", "start", "-a", "android.intent.action.SET_ALARM",
+                "--ei", "android.intent.extra.alarm.HOUR", str(int(hour)),
+                "--ei", "android.intent.extra.alarm.MINUTES", str(int(minute)),
+                "--ez", "android.intent.extra.alarm.SKIP_UI", "true"]
+        if message:
+            args += ["--es", "android.intent.extra.alarm.MESSAGE", message]
+        self.shell(*args, timeout_seconds=15)
+        return f"Set alarm for {int(hour):02d}:{int(minute):02d}"
+
+    def set_timer(self, seconds: int, message: str = "") -> str:
+        """Start a timer via the standard AlarmClock intent (no UI picker)."""
+        args = ["am", "start", "-a", "android.intent.action.SET_TIMER",
+                "--ei", "android.intent.extra.alarm.LENGTH", str(int(seconds)),
+                "--ez", "android.intent.extra.alarm.SKIP_UI", "true"]
+        if message:
+            args += ["--es", "android.intent.extra.alarm.MESSAGE", message]
+        self.shell(*args, timeout_seconds=15)
+        return f"Set timer for {int(seconds)}s"
+

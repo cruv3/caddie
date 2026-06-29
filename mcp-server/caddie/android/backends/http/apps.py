@@ -41,3 +41,9 @@ class AppCommands(InputCommands):
 
     def set_dark_mode(self, on: bool) -> str:
         return f"set_dark_mode not supported on the HTTP backend ({on})"
+
+    def set_alarm(self, hour: int, minute: int, message: str = "") -> str:
+        return "set_alarm not supported on the HTTP backend"
+
+    def set_timer(self, seconds: int, message: str = "") -> str:
+        return "set_timer not supported on the HTTP backend"

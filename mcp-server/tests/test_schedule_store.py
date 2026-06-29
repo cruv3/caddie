@@ -63,6 +63,16 @@ def test_advance_oneoff_marks_done(tmp_path):
     assert reloaded.last_run["steps"][0]["why"] == "done"
 
 
+def test_advance_oneoff_done_fast_and_replay_count_as_done(tmp_path):
+    # the resolver / skill-replay fast paths report done_fast / done_replay --
+    # both are successful completions, not failures.
+    for outcome in ("done_fast", "done_replay"):
+        s = _store(tmp_path / outcome)
+        t = s.add("x", NOW, None, None)
+        s.advance_or_finish(t, NOW, outcome, "ok", [])
+        assert s.list()[0].status == "done", outcome
+
+
 def test_recover_running_to_failed(tmp_path):
     s = _store(tmp_path)
     t = s.add("x", NOW, None, None)

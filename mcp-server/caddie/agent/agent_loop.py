@@ -295,6 +295,22 @@ class AgentLoop:
             print(f"[fast-intent] exec failed: {exc}", flush=True)
         return False, ""
 
+    def _exec_clock_intent(self, intent: tuple) -> tuple[bool, str]:
+        """Execute a matched clock intent (alarm/timer) via the backend's standard
+        AlarmClock intent (no UI picker). Returns (ok, description)."""
+        try:
+            if intent[0] == "alarm":
+                _, hour, minute = intent
+                self._backend.set_alarm(hour, minute)
+                return True, f"Set alarm for {hour:02d}:{minute:02d}"
+            if intent[0] == "timer":
+                _, seconds = intent
+                self._backend.set_timer(seconds)
+                return True, f"Set timer for {seconds}s"
+        except Exception as exc:
+            print(f"[clock-intent] exec failed: {exc}", flush=True)
+        return False, ""
+
     def _emit_replay_step(self, step: dict, i: int, total: int) -> None:
         """Surface one replayed step on the event bus (live transparency) so the
         user still sees what is happening even though replay runs without a per-
@@ -340,6 +356,28 @@ class AgentLoop:
             messages.append({"role": "user", "content": task})
             control = RunControl()
             self._active_control = control
+
+            # ── CLOCK RESOLVER (alarm/timer, BOTH modes) ─────────────────────
+            # Setting an alarm/timer via the standard AlarmClock intent is
+            # deterministic + benign, so (unlike set_setting/toggle) it runs in
+            # both modes for reliability. Disable with
+            # LLM_SMARTPHONE_CLOCK_RESOLVER=0 for a pure-UI study comparison.
+            if (os.environ.get("LLM_SMARTPHONE_CLOCK_RESOLVER", "1") != "0"
+                    and not control.stop_requested):
+                from caddie.agent.fast_actions import match_clock_intent
+                _ci = match_clock_intent(task)
+                if _ci:
+                    _ok, _desc = self._exec_clock_intent(_ci)
+                    if _ok:
+                        print(f"[clock-intent] {_desc} (0 turns)", flush=True)
+                        self._events.task_finished(ok=True, payload={"outcome": "done_fast",
+                                                                     "message": _desc})
+                        self._active_control = None
+                        self._last_run = {"task": task, "outcome": "done_fast",
+                                          "final_text": _desc, "finished_at": time.monotonic()}
+                        return {"ok": True, "finished_emitted": True, "outcome": "done_fast",
+                                "tool_calls": 1, "turns": 0, "final_text": _desc,
+                                "error": None, "vision_unsupported": False, "steps": []}
 
             # ── FAST-INTENT RESOLVER (fast mode only) ────────────────────────
             # Deterministically map a parametric settings/toggle task straight to a

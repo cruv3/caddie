@@ -178,3 +178,71 @@ def match_fast_intent(task: str) -> tuple | None:
             if oo is not None:
                 return ("toggle", svc, "on" if oo == "1" else "off")
     return None
+
+
+# ---------------------------------------------------------------------------
+# Clock resolver: map a parametric alarm/timer task to the standard AlarmClock
+# intent, bypassing the UI time/number PICKER (which the model fumbles). Requires
+# an explicit alarm/timer keyword so it never misfires on a task that merely
+# mentions a time. Returns ("alarm", hour_24, minute) | ("timer", seconds) | None.
+# ---------------------------------------------------------------------------
+
+_ALARM_KW = re.compile(r"\b(alarm|wecker)\b")
+_TIMER_KW = re.compile(r"\btimer\b")
+
+
+def _parse_alarm_time(t: str):
+    ap = ""
+    m = re.search(r"\b(\d{1,2}):(\d{2})\s*(am|pm)?", t)
+    if m:
+        h, mnt, ap = int(m.group(1)), int(m.group(2)), (m.group(3) or "")
+    else:
+        m = re.search(r"\b(\d{1,2})\s*(am|pm)\b", t)
+        if m:
+            h, mnt, ap = int(m.group(1)), 0, m.group(2)
+        else:
+            m = re.search(r"\b(?:at|for|um|gegen)\s+(\d{1,2})\b", t)
+            if not m:
+                return None
+            h, mnt = int(m.group(1)), 0
+    ap = ap.lower()
+    if ap == "am" and h == 12:
+        h = 0
+    elif ap == "pm" and h != 12:
+        h += 12
+    if not (0 <= h <= 23 and 0 <= mnt <= 59):
+        return None
+    return h, mnt
+
+
+def _parse_timer_seconds(t: str):
+    total = 0
+    found = False
+    for val, unit in re.findall(
+            r"(\d+)\s*(hours?|hrs?|std|minutes?|minuten|mins?|seconds?|sekunden|secs?|[hms])", t):
+        n = int(val)
+        if unit.startswith(("h", "std")):
+            total += n * 3600
+        elif unit.startswith(("m", "min")):
+            total += n * 60
+        else:
+            total += n
+        found = True
+    if not found or not (1 <= total <= 86400):
+        return None
+    return total
+
+
+def match_clock_intent(task: str):
+    if not task:
+        return None
+    t = " " + task.strip().lower() + " "
+    if _TIMER_KW.search(t):
+        secs = _parse_timer_seconds(t)
+        if secs is not None:
+            return ("timer", secs)
+    if _ALARM_KW.search(t):
+        hm = _parse_alarm_time(t)
+        if hm is not None:
+            return ("alarm", hm[0], hm[1])
+    return None

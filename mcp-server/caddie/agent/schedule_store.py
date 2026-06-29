@@ -13,6 +13,9 @@ from pathlib import Path
 from caddie.agent.when import advance
 
 _REQUIRED = {"id", "task", "created_at", "next_fire", "status"}
+# Agent-loop success outcomes (normal done + the deterministic resolver / replay
+# fast paths). A scheduled task is "done" iff the run ended in one of these.
+_SUCCESS_OUTCOMES = frozenset({"done", "done_fast", "done_replay"})
 
 
 @dataclass
@@ -156,7 +159,9 @@ class ScheduleStore:
                 task.next_fire = advance(task.recurrence, now).isoformat()
                 task.status = "scheduled"
             else:
-                task.status = "done" if outcome == "done" else "failed"
+                # the agent loop reports success as done / done_fast (resolver)
+                # / done_replay (skill replay) -- all are successful completions.
+                task.status = "done" if outcome in _SUCCESS_OUTCOMES else "failed"
             self.update(task)
 
     def recover_running(self) -> list[ScheduledTask]:
