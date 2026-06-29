@@ -74,7 +74,8 @@ class ScreenCommands(AppCommands):
         except Exception:
             return False  # cannot tell -> assume not locked, let the agent see
         markers = ("mShowingLockscreen=true", "mDreamingLockscreen=true",
-                   "isStatusBarKeyguard=true", "mInputRestricted=true")
+                   "isStatusBarKeyguard=true", "mInputRestricted=true",
+                   "isKeyguardShowing=true", "mKeyguardShowing=true")
         return any(m in out for m in markers)
 
     def wake_and_unlock(self) -> dict:
