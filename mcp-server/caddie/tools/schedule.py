@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 from datetime import datetime
-
-from fastmcp import FastMCP
+from typing import TYPE_CHECKING
 
 from caddie.agent.event_bus import publish_tool_call
 from caddie.agent.when import parse_when
-from caddie.context import ServerContext
+
+if TYPE_CHECKING:
+    from fastmcp import FastMCP
+    from caddie.context import ServerContext
 
 
 def _create_scheduled(
@@ -29,7 +31,8 @@ def _create_scheduled(
 
     pre_auth_text = str(pre_auth or "").strip() or None
     scheduled = store.add(task_text, next_fire, rec, pre_auth_text)
-    return {"ok": True, "task": scheduled.to_dict()}
+    return {"ok": True, "id": scheduled.id, "next_fire": scheduled.next_fire,
+            "recurrence": scheduled.recurrence}
 
 
 def register_schedule_tools(mcp: FastMCP, context: ServerContext) -> None:
@@ -67,7 +70,7 @@ def register_schedule_tools(mcp: FastMCP, context: ServerContext) -> None:
             )
 
     @mcp.tool()
-    def smartphone_list_scheduled(why: str = "") -> dict:
+    def smartphone_list_scheduled(why: str = "") -> list[dict]:
         """List scheduled tasks.
 
         Args:
@@ -76,13 +79,12 @@ def register_schedule_tools(mcp: FastMCP, context: ServerContext) -> None:
         with publish_tool_call(
             "smartphone_list_scheduled", bus=context.events, why=why
         ):
-            return {
-                "ok": True,
-                "tasks": [task.to_dict() for task in context.schedule_store.list()],
-            }
+            return [{"id": t.id, "task": t.task, "next_fire": t.next_fire,
+                     "recurrence": t.recurrence, "status": t.status}
+                    for t in context.schedule_store.list()]
 
     @mcp.tool()
-    def smartphone_cancel_scheduled(task_id: str, why: str = "") -> dict:
+    def smartphone_cancel_scheduled(task_id: str, why: str = "") -> str:
         """Cancel a scheduled task by id.
 
         Args:
@@ -95,5 +97,4 @@ def register_schedule_tools(mcp: FastMCP, context: ServerContext) -> None:
             task_id=task_id,
             why=why,
         ):
-            cancelled = context.schedule_store.cancel(str(task_id or "").strip())
-            return {"ok": cancelled, "cancelled": cancelled}
+            return "cancelled" if context.schedule_store.cancel(str(task_id or "").strip()) else "not found"

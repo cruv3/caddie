@@ -12,6 +12,9 @@ def test_create_valid_persists(tmp_path):
     store = ScheduleStore(tmp_path / "s.json")
     res = _create_scheduled(store, "send papa", "14:00", "", "send a message", now=NOW)
     assert res["ok"] is True
+    assert res["id"]
+    assert datetime.fromisoformat(res["next_fire"]).hour == 14
+    assert res["recurrence"] is None
     t = store.list()[0]
     assert t.task == "send papa" and t.pre_auth == "send a message"
     assert (datetime.fromisoformat(t.next_fire).hour) == 14
