@@ -47,10 +47,13 @@ def main() -> int:
     os.environ.setdefault("ANDROID_SERIAL", "emulator-5554")
     _load_token()
 
-    from caddie.context import ServerContext
+    # Import caddie.agent BEFORE caddie.context (same order as server.py) to avoid
+    # the latent circular import (agent/__init__ -> http_api -> context).
+    from caddie.agent import AgentHttpServer  # noqa: F401  (primes import order)
     from caddie.agent.agent_loop import AgentLoop
     from caddie.agent.lmstudio import LmStudioClient
     from caddie.agent.scheduler import Scheduler
+    from caddie.context import ServerContext
 
     ctx = ServerContext()
     loop = AgentLoop(ctx, LmStudioClient())
