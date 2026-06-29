@@ -53,6 +53,25 @@ _EMPTY_TURN_NUDGE = (
     "Either call the next smartphone_* tool to make progress, or call "
     "smartphone_done / smartphone_failed if the task is truly finished."
 )
+# Small models sometimes NARRATE the next action as prose ("Action:
+# smartphone_x(...)") instead of emitting a real tool call. That turn has content
+# but no tool_calls and would otherwise end the run on turn 1. Detect it and nudge
+# for a real tool call, bounded; a genuine final answer never matches the pattern.
+MAX_PROSE_ACTION_NUDGES = 2
+_PROSE_ACTION_NUDGE = (
+    "You wrote the next action as TEXT (an 'Action: smartphone_...' line) instead "
+    "of calling the tool. Do NOT describe the action in prose. Emit it now as an "
+    "actual tool call (use the function-call mechanism), or call smartphone_done / "
+    "smartphone_failed if the task is truly finished."
+)
+_PROSE_ACTION_RE = re.compile(r"(?im)^\s*action:\s*smartphone_\w+")
+
+
+def _looks_like_prose_action(text: str) -> bool:
+    """True if the content narrates a tool action as a prose 'Action: smartphone_*'
+    line (small-model ReAct degradation) rather than emitting a real tool call. A
+    genuine final answer does not contain that pattern, so this does not misfire."""
+    return bool(_PROSE_ACTION_RE.search(text or ""))
 # Completeness verifier (after VLAA-GUI 2026): before smartphone_done is
 # accepted, a SEPARATE model call checks the fresh screenshot against the task.
 # A "done" may be rejected this many times before the run ends as failed
@@ -389,6 +408,7 @@ class AgentLoop:
             verify_rejects = 0
             asks_made = 0
             empty_turns = 0
+            prose_nudges = 0
             done_message = None
             fail_reason = None
             # Loop-breaker + Stage-1-gate state (per run).
@@ -518,6 +538,18 @@ class AgentLoop:
                             outcome = "stalled"
                             break
                         messages.append({"role": "user", "content": _EMPTY_TURN_NUDGE})
+                        continue
+                    # Small-model degradation: the model narrated the next action
+                    # as prose ("Action: smartphone_x...") instead of a tool call.
+                    # Nudge for a real tool call and retry (bounded) instead of
+                    # ending the run. A genuine final answer never matches.
+                    if (_looks_like_prose_action(final_text)
+                            and prose_nudges < MAX_PROSE_ACTION_NUDGES):
+                        prose_nudges += 1
+                        print(f"[traj] prose-action turn {turns} "
+                              f"({prose_nudges}/{MAX_PROSE_ACTION_NUDGES}) -> nudge",
+                              flush=True)
+                        messages.append({"role": "user", "content": _PROSE_ACTION_NUDGE})
                         continue
                     # Genuine final text reply -> session end.
                     print(f"[traj] STOP turn {turns}: no tool_calls. "
