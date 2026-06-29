@@ -221,6 +221,29 @@ future refinement.
 - Catch-up of missed tasks beyond the grace window.
 - Server/PC auto-start or wake.
 
+## Known v1 limitations (accepted; documented after dual code review)
+- **DST fixed-offset clock:** the scheduler uses `datetime.now().astimezone()` (a
+  fixed-offset snapshot), not a DST-aware IANA zone. A recurring task whose stored
+  occurrence crosses a DST transition fires ~1h off on that one day, then
+  self-corrects on the next advance. A clean fix needs a local-zone dependency
+  (`tzlocal`); deferred. (Unit tests inject a DST-aware zone, so they exercise the
+  ideal path.)
+- **Cross-process store race:** `ScheduleStore` uses a per-process lock + atomic
+  replace. The canonical path (agent + scheduler) is one process. A separate
+  `--only=tools` worker mutating the same JSON file could race; a cross-process
+  file lock is future work.
+- **Worker-process risk-gate bypass:** the up-front confirmation runs in the
+  in-process agent path via `risk.classify`. A direct `--only=tools` MCP client
+  could create a schedule without the gate. Canonical path is the agent.
+- **Pre-auth is not action-matched:** a set pre-auth auto-approves the ONE
+  consequential action of the run, not "exactly the expected one". Bounded to one
+  action/run + logged; recipient/category matching is future work.
+- **HTTP backend:** `wake_and_unlock` is unsupported on the HTTP bridge backend;
+  scheduling targets the ADB backend.
+- **No retention/prune:** terminal tasks (done/failed/missed/cancelled) accumulate
+  in the store; a prune policy is future work.
+- **`stayon` not restored** after a run; **`stop()`** is best-effort (daemon).
+
 ## Increment plan
 1. `when.py` (tz-aware, DST) + `schedule_store.py` (mutex, atomic replace,
    recovery) + tests — pure logic, no device.
