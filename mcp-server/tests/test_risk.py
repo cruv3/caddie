@@ -97,3 +97,13 @@ def test_step_is_risky_detects_risky_recorded_step():
     assert step_is_risky({"action": "tap", "label": "Display & Touch"}) is False
     assert step_is_risky({"action": "open_app"}) is False
     assert step_is_risky("not a dict") is False
+
+
+def test_schedule_task_with_preauth_is_risky():
+    v = classify("smartphone_schedule_task", {"pre_auth": "send a message"}, [])
+    assert v.risky is True
+
+
+def test_schedule_task_without_preauth_is_safe():
+    v = classify("smartphone_schedule_task", {"pre_auth": ""}, [])
+    assert v.risky is False

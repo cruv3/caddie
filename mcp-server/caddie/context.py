@@ -22,6 +22,7 @@ class ServerContext:
     adb: AdbBridge = field(default_factory=AdbBridge)
     backend: object = field(init=False)
     skills: SkillLibrary = field(init=False)
+    schedule_store: object = field(init=False)
     memory_index: object = field(default=None)  # MemoryIndex | None — set in __post_init__
     read_skill_ids: set[str] = field(default_factory=set)
     events: EventBus = field(default_factory=lambda: EVENT_BUS)
@@ -35,6 +36,8 @@ class ServerContext:
         else:
             self.backend = self.adb
         self._build_memory_index()
+        from caddie.agent.schedule_store import ScheduleStore
+        self.schedule_store = ScheduleStore(self.project_dir / "scheduled_tasks.json")
 
     def _build_memory_index(self) -> None:
         """Build the MemoryIndex when the semantic flag is on; else leave as None.

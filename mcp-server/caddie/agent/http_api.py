@@ -37,6 +37,7 @@ class AgentHttpServer:
         self._server: ThreadingHTTPServer | None = None
         self._thread: threading.Thread | None = None
         self._watcher = None
+        self._scheduler = None
 
     def start(self) -> None:
         if self._server is not None:
@@ -48,6 +49,14 @@ class AgentHttpServer:
         self._thread = threading.Thread(target=self._server.serve_forever, daemon=True)
         self._thread.start()
         self._maybe_start_touch_watcher()
+        from caddie.agent.scheduler import Scheduler
+        self._scheduler = Scheduler(
+            self._context.schedule_store,
+            self._agent_loop,
+            self._context.backend,
+            self._context.events,
+        )
+        self._scheduler.start()
 
     def _maybe_start_touch_watcher(self) -> None:
         # getevent-based human-takeover detection works only over the adb shell

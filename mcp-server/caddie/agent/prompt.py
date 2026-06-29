@@ -171,6 +171,14 @@ BASE_SYSTEM_PROMPT = (
     "  - Body is a clean recipe — only the calls that actually worked, no "
     "failed attempts — and includes sections: Tested Environments, App Context, "
     "Starting Context, Device Variants, Failure Modes.\n\n"
+    "Scheduling:\n"
+    "Use smartphone_schedule_task when the user asks you to do something later "
+    "or repeatedly. Put the future instruction in task, the time expression in "
+    "when, and recurring expressions like daily 08:00 in recurrence when the "
+    "user explicitly asks for repetition. If the scheduled run will send, pay, "
+    "delete, install, uninstall, or otherwise perform a consequential action, "
+    "set pre_auth to the exact action the user already authorized; otherwise "
+    "leave pre_auth empty.\n\n"
     # ──────────────────────────────────────────────────────────────────
     # BOTTOM — restate critical rules just before the user's request lands
     # ──────────────────────────────────────────────────────────────────

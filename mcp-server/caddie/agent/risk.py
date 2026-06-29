@@ -72,6 +72,11 @@ def classify(
 ) -> RiskVerdict:
     """Klassifiziert einen Tool-Call. ``elements`` ist die zuletzt gesehene
     ``list_elements``-Ausgabe (fuer die Tap-Pruefung; darf None sein)."""
+    if name == "smartphone_schedule_task":
+        pre_auth = str(args.get("pre_auth") or "").strip()
+        if pre_auth:
+            return RiskVerdict(True, f"Pre-authorized scheduled action: {pre_auth}")
+
     # --- Tool-Ebene ---
     if name in RISKY_TOOLS:
         target = str(args.get("package_name") or args.get("file_path") or "").strip()
