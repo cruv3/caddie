@@ -34,3 +34,17 @@ def test_does_not_match_normal_prose_mentioning_tools():
 def test_does_not_match_empty_or_none():
     assert _looks_like_prose_action("") is False
     assert _looks_like_prose_action(None) is False
+
+
+def test_does_not_match_action_inside_code_fence():
+    # an illustrative Action line inside a fenced code block in a final answer
+    # must NOT trigger a nudge (fences are stripped before matching)
+    content = ("Done. For reference, the call would be:\n"
+               "```\nAction: smartphone_tap_element(index=3)\n```")
+    assert _looks_like_prose_action(content) is False
+
+
+def test_still_matches_bare_action_outside_fence():
+    content = ("```\nsome unrelated code\n```\n"
+               "Action: smartphone_open_app(package_name=\"com.x\")")
+    assert _looks_like_prose_action(content) is True

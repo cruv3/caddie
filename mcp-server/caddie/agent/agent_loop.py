@@ -69,9 +69,13 @@ _PROSE_ACTION_RE = re.compile(r"(?im)^\s*action:\s*smartphone_\w+")
 
 def _looks_like_prose_action(text: str) -> bool:
     """True if the content narrates a tool action as a prose 'Action: smartphone_*'
-    line (small-model ReAct degradation) rather than emitting a real tool call. A
-    genuine final answer does not contain that pattern, so this does not misfire."""
-    return bool(_PROSE_ACTION_RE.search(text or ""))
+    line (small-model ReAct degradation) rather than emitting a real tool call.
+    Fenced code blocks are stripped first so an illustrative 'Action:' example in a
+    genuine final answer does not trigger a nudge."""
+    if not text:
+        return False
+    without_fences = re.sub(r"```.*?```", "", text, flags=re.S)
+    return bool(_PROSE_ACTION_RE.search(without_fences))
 # Completeness verifier (after VLAA-GUI 2026): before smartphone_done is
 # accepted, a SEPARATE model call checks the fresh screenshot against the task.
 # A "done" may be rejected this many times before the run ends as failed
