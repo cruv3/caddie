@@ -24,7 +24,8 @@ def test_add_and_list_roundtrip(tmp_path):
 def test_due_respects_grace_window(tmp_path):
     s = _store(tmp_path)
     t = s.add("x", NOW, None, None)
-    assert s.due(NOW) == [t] or s.due(NOW)[0].id == t.id
+    result = s.due(NOW)
+    assert len(result) == 1 and result[0].id == t.id
     assert s.due(NOW + timedelta(seconds=299))
     assert s.due(NOW + timedelta(seconds=301)) == []          # past grace
     assert s.due(NOW - timedelta(seconds=10)) == []           # not yet due

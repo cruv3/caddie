@@ -45,7 +45,7 @@ def _new_id(existing: set[str]) -> str:
     # deterministic-enough without Math.random/Date: count-based suffix
     n = len(existing)
     while True:
-        cand = "sch_%04x" % (n & 0xFFFF)
+        cand = "sch_%04x" % n
         if cand not in existing:
             return cand
         n += 1
@@ -72,6 +72,7 @@ class ScheduleStore:
         return out
 
     def _write(self, tasks: list[ScheduledTask]) -> None:
+        self._path.parent.mkdir(parents=True, exist_ok=True)
         tmp = self._path.with_suffix(self._path.suffix + ".tmp")
         tmp.write_text(json.dumps([t.to_dict() for t in tasks], indent=2),
                        encoding="utf-8")
@@ -82,12 +83,14 @@ class ScheduleStore:
             return self._read()
 
     def add(self, task, next_fire, recurrence, pre_auth) -> ScheduledTask:
+        if next_fire.tzinfo is None:
+            raise TypeError("next_fire must be timezone-aware")
         with self._lock:
             tasks = self._read()
-            now_iso = next_fire.tzinfo and datetime.now(next_fire.tzinfo).isoformat()
+            created_at = datetime.now(next_fire.tzinfo).isoformat()
             t = ScheduledTask(
                 id=_new_id({x.id for x in tasks}),
-                task=task, created_at=now_iso or "",
+                task=task, created_at=created_at,
                 next_fire=next_fire.isoformat(),
                 recurrence=recurrence, pre_auth=pre_auth, status="scheduled",
             )
