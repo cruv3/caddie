@@ -43,7 +43,9 @@ class AppCommands(InputCommands):
         return f"set_dark_mode not supported on the HTTP backend ({on})"
 
     def set_alarm(self, hour: int, minute: int, message: str = "") -> str:
-        return "set_alarm not supported on the HTTP backend"
+        # RAISE (not return) so the clock resolver treats it as a failure and
+        # falls back to the LLM/UI path instead of falsely reporting done_fast.
+        raise RuntimeError("set_alarm not supported on the HTTP backend")
 
     def set_timer(self, seconds: int, message: str = "") -> str:
-        return "set_timer not supported on the HTTP backend"
+        raise RuntimeError("set_timer not supported on the HTTP backend")

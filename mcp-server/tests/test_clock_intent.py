@@ -60,6 +60,32 @@ def test_no_keyword_does_not_misfire():
     assert match_clock_intent("") is None
 
 
+def test_alarm_bare_hour_rejects_duration_or_noun():
+    # a bare number that is a duration/quantity/malformed-time must NOT become an alarm
+    assert match_clock_intent("set an alarm for 5 minutes") is None
+    assert match_clock_intent("set an alarm for 5 people") is None
+    assert match_clock_intent("set an alarm for 7:5") is None  # malformed time
+
+
+def test_timer_german_hours():
+    assert match_clock_intent("timer auf 2 stunden") == ("timer", 7200)
+
+
+def test_timer_range_boundaries():
+    assert match_clock_intent("timer for 1440 minutes") == ("timer", 86400)  # 24h valid
+    assert match_clock_intent("timer for 1441 minutes") is None              # over limit
+
+
+def test_http_clock_stubs_raise():
+    import pytest
+    from caddie.android.backends.http.apps import AppCommands as HttpApps
+    h = HttpApps.__new__(HttpApps)
+    with pytest.raises(Exception):
+        h.set_alarm(7, 30)
+    with pytest.raises(Exception):
+        h.set_timer(180)
+
+
 # --- backend intent commands ---------------------------------------------
 
 class FakeClock(AppCommands):

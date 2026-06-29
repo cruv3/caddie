@@ -201,7 +201,12 @@ def _parse_alarm_time(t: str):
         if m:
             h, mnt, ap = int(m.group(1)), 0, m.group(2)
         else:
-            m = re.search(r"\b(?:at|for|um|gegen)\s+(\d{1,2})\b", t)
+            # bare hour after at/for/um, but NOT when a duration unit, a noun, a
+            # ':' (malformed time) or another digit follows -> avoids turning
+            # "alarm for 5 minutes" / "for 5 people" / "for 7:5" into 05:00 / 07:00.
+            m = re.search(
+                r"\b(?:at|for|um|gegen)\s+(\d{1,2})"
+                r"(?!\s*(?::|\d|min|minut|sec|sek|stund|hours?|people|person))", t)
             if not m:
                 return None
             h, mnt = int(m.group(1)), 0
@@ -218,12 +223,15 @@ def _parse_alarm_time(t: str):
 def _parse_timer_seconds(t: str):
     total = 0
     found = False
+    # longer unit words BEFORE the single-letter [hms]; trailing \b so a lone
+    # 's' does not match the 's' of 'stunden' (-> would be read as seconds).
     for val, unit in re.findall(
-            r"(\d+)\s*(hours?|hrs?|std|minutes?|minuten|mins?|seconds?|sekunden|secs?|[hms])", t):
+            r"(\d+)\s*(hours?|hrs?|stunden?|std|minutes?|minuten|mins?|"
+            r"seconds?|sekunden|secs?|[hms])\b", t):
         n = int(val)
-        if unit.startswith(("h", "std")):
+        if unit in ("h", "hr", "hrs", "hour", "hours", "std", "stunde", "stunden"):
             total += n * 3600
-        elif unit.startswith(("m", "min")):
+        elif unit in ("m", "min", "mins", "minute", "minutes", "minuten"):
             total += n * 60
         else:
             total += n
