@@ -53,6 +53,9 @@ class ScreenCommands(AppCommands):
         payload = json.dumps(screen, sort_keys=True, default=str).encode("utf-8")
         return hashlib.sha1(payload).hexdigest()
 
+    def wake_and_unlock(self) -> dict:
+        return {"unlocked": False, "reason": "not supported on HTTP backend"}
+
 
 def compact_nodes(nodes: list[dict[str, Any]], *, max_elements: int) -> list[dict[str, Any]]:
     screen_bottom = max(

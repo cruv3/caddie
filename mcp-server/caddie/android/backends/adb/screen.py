@@ -62,6 +62,36 @@ class ScreenCommands(AppCommands):
                  or match.get("resource_id") or "?")
         return f"Tapped element #{index} ({label!r}) at ({cx}, {cy})"
 
+    def _is_locked(self) -> bool:
+        try:
+            out = self.shell("dumpsys", "window", timeout_seconds=10)
+        except Exception:
+            return False  # cannot tell -> assume not locked, let the agent see
+        markers = ("mShowingLockscreen=true", "mDreamingLockscreen=true",
+                   "isStatusBarKeyguard=true", "mInputRestricted=true")
+        return any(m in out for m in markers)
+
+    def wake_and_unlock(self) -> dict:
+        """Wake the screen and dismiss a swipe lock. Returns {unlocked, reason}.
+        Does NOT enter a PIN (v1 swipe-only); a secured device reports locked."""
+        try:
+            self.shell("input", "keyevent", "224")          # KEYCODE_WAKEUP
+            self.shell("svc", "power", "stayon", "true")
+        except Exception as exc:
+            return {"unlocked": False, "reason": f"wake failed: {exc}"}
+        if not self._is_locked():
+            return {"unlocked": True, "reason": "already unlocked"}
+        size = self.screen_size()
+        w, h = size["width"], size["height"]
+        for _ in range(3):
+            try:
+                self.swipe(w // 2, int(h * 0.80), w // 2, int(h * 0.25), 200)  # swipe up
+            except Exception as exc:
+                return {"unlocked": False, "reason": f"swipe failed: {exc}"}
+            if not self._is_locked():
+                return {"unlocked": True, "reason": "swipe-unlocked"}
+        return {"unlocked": False, "reason": "device still locked (PIN/pattern?)"}
+
     def ui_hash(self) -> str:
         """Fast UI-state hash for the settle gate.
 
