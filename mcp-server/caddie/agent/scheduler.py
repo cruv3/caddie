@@ -5,7 +5,6 @@ after-the-fact report. Missed (server-off) tasks are skipped, not caught up."""
 from __future__ import annotations
 
 import threading
-import time
 from datetime import datetime
 
 from caddie.agent.pre_auth import PreAuth
@@ -38,13 +37,15 @@ class Scheduler:
 
     def stop(self) -> None:
         self._stop.set()
+        if self._thread is not None:
+            self._thread.join(timeout=2)
 
     def _loop_forever(self) -> None:
         while not self._stop.is_set():
             try:
                 self.tick()
             except Exception as exc:  # never let the thread die
-                print(f"[scheduler] tick error: {exc}", flush=True)
+                print(f"[scheduler] tick error: {ascii(exc)}", flush=True)
             self._stop.wait(TICK_SECONDS)
 
     def tick(self) -> None:
@@ -93,6 +94,8 @@ class Scheduler:
             self._finish(task, result.get("outcome", "failed"),
                          result.get("final_text") or result.get("outcome", ""),
                          result.get("steps", []))
+        except Exception as exc:
+            self._finish(task, "failed", f"scheduler run error: {ascii(exc)}", [])
         finally:
             self._loop.release_slot()
 

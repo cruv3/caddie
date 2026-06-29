@@ -80,3 +80,26 @@ def test_pre_auth_passed_to_run(tmp_path):
     sched.tick()
     pa = sched._loop.runs[0]["pre_authorized"]
     assert pa is not None and pa.description == "send a message"
+
+def test_missed_recurrence_advances(tmp_path):
+    now = datetime(2026, 6, 29, 14, 0, tzinfo=TZ)
+    store, sched = _sched(tmp_path, now)
+    store.add("x", now - timedelta(hours=1), {"kind": "daily", "time": "08:00"}, None)  # overdue
+    sched.handle_missed()
+    t = store.list()[0]
+    assert t.status == "scheduled"                       # recurrence keeps going
+    assert datetime.fromisoformat(t.next_fire) > now     # advanced to a future occurrence
+
+def test_fire_exception_marks_failed_not_stuck_running(tmp_path):
+    now = datetime(2026, 6, 29, 14, 0, tzinfo=TZ)
+    class RaisingLoop(FakeLoop):
+        def run(self, **kwargs):
+            raise RuntimeError("boom")
+    loop = RaisingLoop()
+    store, sched = _sched(tmp_path, now, loop=loop)
+    store.add("x", now, None, None)
+    sched.tick()
+    t = store.list()[0]
+    assert t.status == "failed"                           # not stuck on "running"
+    assert sched._events.reports and sched._events.reports[-1][0] == t.id
+    assert loop.try_acquire_slot() is True                # slot was released by finally
