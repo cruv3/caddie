@@ -8,6 +8,11 @@ from caddie.android.backends.adb.client import AdbError
 from caddie.android.backends.adb.uiautomator import parse_uiautomator_xml
 
 
+def _ascii(text: str) -> str:
+    """Sanitize text to ASCII, replacing non-ASCII characters."""
+    return str(text).encode("ascii", errors="replace").decode("ascii")
+
+
 class ScreenCommands(AppCommands):
     def take_screenshot(self) -> bytes:
         """Return the current screen as a PNG byte string.
@@ -78,7 +83,7 @@ class ScreenCommands(AppCommands):
             self.shell("input", "keyevent", "224")          # KEYCODE_WAKEUP
             self.shell("svc", "power", "stayon", "true")
         except Exception as exc:
-            return {"unlocked": False, "reason": f"wake failed: {exc}"}
+            return {"unlocked": False, "reason": f"wake failed: {_ascii(exc)}"}
         if not self._is_locked():
             return {"unlocked": True, "reason": "already unlocked"}
         size = self.screen_size()
@@ -87,7 +92,7 @@ class ScreenCommands(AppCommands):
             try:
                 self.swipe(w // 2, int(h * 0.80), w // 2, int(h * 0.25), 200)  # swipe up
             except Exception as exc:
-                return {"unlocked": False, "reason": f"swipe failed: {exc}"}
+                return {"unlocked": False, "reason": f"swipe failed: {_ascii(exc)}"}
             if not self._is_locked():
                 return {"unlocked": True, "reason": "swipe-unlocked"}
         return {"unlocked": False, "reason": "device still locked (PIN/pattern?)"}

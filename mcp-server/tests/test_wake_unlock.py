@@ -34,7 +34,7 @@ def test_unlocks_swipe_lock():
 
 
 def test_reports_locked_when_stays_locked():
-    s = FakeScreen([True, True, True, True, True])
+    s = FakeScreen([True, True, True, True])
     r = s.wake_and_unlock()
     assert r["unlocked"] is False
     assert "lock" in r["reason"].lower()
@@ -45,3 +45,23 @@ def test_already_unlocked_no_swipe():
     r = s.wake_and_unlock()
     assert r["unlocked"] is True
     assert s.swipes == []
+
+
+def test_wake_failure_returns_locked():
+    class WakeFails(FakeScreen):
+        def shell(self, *args, timeout_seconds=None):
+            if args and args[0] == "input":
+                raise RuntimeError("boom")
+            return super().shell(*args, timeout_seconds=timeout_seconds)
+    r = WakeFails([True]).wake_and_unlock()
+    assert r["unlocked"] is False
+    assert "wake failed" in r["reason"]
+
+
+def test_swipe_exception_returns_locked():
+    class SwipeFails(FakeScreen):
+        def swipe(self, *a, **k):
+            raise RuntimeError("nope")
+    r = SwipeFails([True, True]).wake_and_unlock()
+    assert r["unlocked"] is False
+    assert "swipe failed" in r["reason"]
