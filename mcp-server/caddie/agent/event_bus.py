@@ -97,6 +97,14 @@ class EventBus:
             payload={"reason": reason},
         ))
 
+    def agent_step(self, description: str, *, tool: str, index: int, total: int) -> None:
+        """A replayed (no per-step LLM) action, surfaced like a live tool call so
+        the user still sees what is happening. Emits started+finished back-to-back
+        (replayed steps are near-instant; this avoids a stuck 'running' state)."""
+        args = {"why": description, "replay": True, "step": index, "of": total}
+        self.publish(ToolEvent(type="tool_call_started", tool=tool, args=args))
+        self.publish(ToolEvent(type="tool_call_finished", tool=tool))
+
 
 EVENT_BUS = EventBus()
 
@@ -153,6 +161,12 @@ class RemoteEventBus:
             type="verification_result", ok=verified,
             payload={"reason": reason},
         ))
+
+    def agent_step(self, description: str, *, tool: str, index: int, total: int) -> None:
+        """Replayed-step transparency (see EventBus.agent_step)."""
+        args = {"why": description, "replay": True, "step": index, "of": total}
+        self.publish(ToolEvent(type="tool_call_started", tool=tool, args=args))
+        self.publish(ToolEvent(type="tool_call_finished", tool=tool))
 
     @contextmanager
     def subscription(self) -> Iterator[queue.Queue[ToolEvent | None]]:  # pragma: no cover

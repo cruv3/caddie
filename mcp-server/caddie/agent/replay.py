@@ -29,7 +29,7 @@ _SETTLE_KEY = {
 }
 
 
-def record_step(name: str, args: dict, last_elements: list[dict]) -> dict | None:
+def _build_step(name: str, args: dict, last_elements: list[dict]) -> dict | None:
     """Map an executed tool call to a replayable step, or None to skip it."""
     if name == "smartphone_open_app":
         return {"action": "open_app", "package": args.get("package_name", "")}
@@ -71,6 +71,38 @@ def record_step(name: str, args: dict, last_elements: list[dict]) -> dict | None
     return None
 
 
+def record_step(name: str, args: dict, last_elements: list[dict]) -> dict | None:
+    """As ``_build_step`` but also capture the model's ``why`` so a later replay
+    can tell the user (live, per step) what each replayed action is doing."""
+    step = _build_step(name, args, last_elements)
+    if step is not None:
+        step["why"] = (args.get("why") or "").strip()
+    return step
+
+
+# Recorded action -> canonical smartphone_* tool name, so a replayed step shows
+# up on the overlay under the same name a live action would.
+_ACTION_TOOL = {
+    "open_app": "smartphone_open_app",
+    "open_url": "smartphone_open_url",
+    "tap": "smartphone_tap_element",
+    "tap_xy": "smartphone_tap_coordinates",
+    "long_press_xy": "smartphone_long_press_coordinates",
+    "scroll": "smartphone_scroll",
+    "press": "smartphone_press_button",
+    "type": "smartphone_type_text",
+    "open_quick_settings": "smartphone_open_quick_settings",
+    "open_notifications": "smartphone_open_notifications",
+    "collapse": "smartphone_collapse",
+    "open_app_drawer": "smartphone_open_app_drawer",
+}
+
+
+def tool_name(step: dict) -> str:
+    """Canonical smartphone_* tool name for a recorded step (overlay label)."""
+    return _ACTION_TOOL.get(step.get("action", ""), "smartphone_action")
+
+
 @dataclass
 class ReplayResult:
     ok: bool                 # all steps executed (does NOT mean task verified)
@@ -99,6 +131,12 @@ def describe_step(step: dict) -> str:
     if a == "press":
         return f"Taste drücken: {step.get('button', '')}"
     return a or "?"
+
+
+def step_why(step: dict) -> str:
+    """What to show the user for this step: the model's recorded ``why`` if any,
+    else a generated human description (so a replayed step is never silent)."""
+    return (step.get("why") or "").strip() or describe_step(step)
 
 
 def fallback_note(steps, rr: "ReplayResult", verify_reason: str | None = None) -> str:
@@ -231,7 +269,7 @@ def _resilient_start(steps, backend, log) -> int:
     return 0
 
 
-def replay(steps, backend, log=lambda _m: None) -> ReplayResult:
+def replay(steps, backend, log=lambda _m: None, on_step=None) -> ReplayResult:
     """Execute steps with cheap per-step assertion. Aborts (ok=False) the moment
     a tap target can't be resolved -> caller hands off to the LLM loop.
 
@@ -277,5 +315,12 @@ def replay(steps, backend, log=lambda _m: None) -> ReplayResult:
         except Exception as exc:
             return ReplayResult(False, i, f"step {action} failed: {exc}")
         settle_after(backend, baseline, key)
+        # Only fully-executed steps reach here (aborts/exceptions returned
+        # above) -> emit the live "what's happening" event with an absolute
+        # index over the full step list.
+        if on_step is not None:
+            on_step(step, i, len(steps))
         log(f"replay step {i + 1}/{len(steps)}: {action} ok")
-    return ReplayResult(True, len(steps))
+    # steps_done = how many steps replay ACTUALLY ran (resilient_start may have
+    # skipped already-satisfied leading steps) -> the count must not overstate.
+    return ReplayResult(True, len(steps) - start)

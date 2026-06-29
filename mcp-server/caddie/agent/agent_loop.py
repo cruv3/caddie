@@ -252,6 +252,14 @@ class AgentLoop:
             print(f"[fast-intent] exec failed: {exc}", flush=True)
         return False, ""
 
+    def _emit_replay_step(self, step: dict, i: int, total: int) -> None:
+        """Surface one replayed step on the event bus (live transparency) so the
+        user still sees what is happening even though replay runs without a per-
+        step LLM call. 1-based index over the full recorded step list."""
+        why = _replay.step_why(step)
+        tool = _replay.tool_name(step)
+        self._events.agent_step(why, tool=tool, index=i + 1, total=total)
+
     def run(
         self,
         task: str,
@@ -313,7 +321,8 @@ class AgentLoop:
         if (_REPLAY_ENABLED and skill is not None and getattr(skill, "steps", None)
                 and _replay_safe and not control.stop_requested):
             rr = _replay.replay(skill.steps, self._backend,
-                                log=lambda m: print(f"[replay] {m}", flush=True))
+                                log=lambda m: print(f"[replay] {m}", flush=True),
+                                on_step=self._emit_replay_step)
             print(f"[replay] done ok={rr.ok} steps={rr.steps_done}/{len(skill.steps)} "
                   f"reason={rr.reason!r}", flush=True)
             _verify_reason = None
@@ -322,14 +331,17 @@ class AgentLoop:
                 print(f"[replay] verify verified={verdict.verified} "
                       f"reason={verdict.reason[:160]!r}", flush=True)
                 if verdict.verified:
+                    done_message = f"Replayed {rr.steps_done} learned step(s)."
                     self._events.verification_result(True, verdict.reason)
-                    self._events.task_finished(ok=True, payload={"outcome": "done_replay"})
+                    self._events.task_finished(ok=True, payload={"outcome": "done_replay",
+                                                                 "message": done_message})
                     self._active_control = None
                     self._last_run = {"task": task, "outcome": "done_replay",
-                                      "final_text": "", "finished_at": time.monotonic()}
+                                      "final_text": done_message,
+                                      "finished_at": time.monotonic()}
                     return {"ok": True, "finished_emitted": True,
                             "outcome": "done_replay", "tool_calls": rr.steps_done,
-                            "turns": 0, "final_text": "", "error": None,
+                            "turns": 0, "final_text": done_message, "error": None,
                             "vision_unsupported": False}
                 _verify_reason = verdict.reason
             print("[replay] fallback -> LLM loop", flush=True)
