@@ -74,8 +74,13 @@ def test_pin_entry_when_env_set(monkeypatch):
     s = FakeScreen([True, True, True, True, False])
     r = s.wake_and_unlock()
     assert r["unlocked"] is True
-    # digit keyevents 1,2,3,4 then ENTER(66) were sent
+    # ENTER keyevent 66 was sent
     assert ("input", "keyevent", "66") in s.shell_calls
+    # digit -> keycode mapping is 7 + int(digit): '1'->8 '2'->9 '3'->10 '4'->11
+    assert ("input", "keyevent", "8") in s.shell_calls
+    assert ("input", "keyevent", "9") in s.shell_calls
+    assert ("input", "keyevent", "10") in s.shell_calls
+    assert ("input", "keyevent", "11") in s.shell_calls
 
 
 def test_pin_path_not_run_when_env_unset(monkeypatch):
