@@ -9,7 +9,7 @@ _WEEKDAYS = {"mon": 0, "tue": 1, "wed": 2, "thu": 3, "fri": 4, "sat": 5, "sun": 
 
 
 def _at_time(now: datetime, hh: int, mm: int) -> datetime:
-    cand = now.replace(hour=hh, minute=mm, second=0, microsecond=0)
+    cand = datetime(now.year, now.month, now.day, hh, mm, tzinfo=now.tzinfo)
     if cand <= now:
         cand += timedelta(days=1)
     return cand
@@ -35,7 +35,7 @@ def parse_when(text: str, now: datetime) -> tuple[datetime, dict | None]:
     if m:
         return now + timedelta(hours=int(m.group(1))), None
 
-    m = re.fullmatch(r"(daily|t.glich)\s+(\d{1,2}:\d{2})", t)
+    m = re.fullmatch(r"(daily|täglich)\s+(\d{1,2}:\d{2})", t)
     if m:
         rec = {"kind": "daily", "time": "%02d:%02d" % _hhmm(m.group(2))}
         return advance(rec, now - timedelta(seconds=1)), rec
@@ -43,7 +43,7 @@ def parse_when(text: str, now: datetime) -> tuple[datetime, dict | None]:
     if m:
         rec = {"kind": "weekdays", "time": "%02d:%02d" % _hhmm(m.group(2))}
         return advance(rec, now - timedelta(seconds=1)), rec
-    m = re.fullmatch(r"(weekly|w.chentlich)\s+([a-z]{3})\s+(\d{1,2}:\d{2})", t)
+    m = re.fullmatch(r"(weekly|wöchentlich)\s+([a-z]{3})\s+(\d{1,2}:\d{2})", t)
     if m:
         wd = _WEEKDAYS.get(m.group(2))
         if wd is None:
@@ -72,7 +72,7 @@ def advance(recurrence: dict, after: datetime) -> datetime:
     """Next occurrence strictly after ``after`` (tz-aware)."""
     hh, mm = _hhmm(recurrence["time"])
     kind = recurrence["kind"]
-    cand = after.replace(hour=hh, minute=mm, second=0, microsecond=0)
+    cand = datetime(after.year, after.month, after.day, hh, mm, tzinfo=after.tzinfo)
     for _ in range(366):  # bounded calendar loop
         if cand > after and _matches(kind, cand, recurrence):
             return cand

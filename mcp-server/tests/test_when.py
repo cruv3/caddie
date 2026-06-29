@@ -57,3 +57,14 @@ def test_advance_multi_day_no_duplicate():
 def test_invalid_raises():
     with pytest.raises(ValueError):
         parse_when("sometime soonish", NOW)
+
+
+def test_advance_across_dst_spring_forward_is_aware_and_strict():
+    rec = {"kind": "daily", "time": "09:00"}
+    # afternoon the day before the DST switch
+    after = datetime(2026, 3, 28, 15, 0, tzinfo=TZ)
+    nxt = advance(rec, after)
+    assert nxt.tzinfo is not None          # stays tz-aware across the boundary
+    assert nxt > after                     # strictly greater
+    assert (nxt.hour, nxt.minute) == (9, 0)
+    assert nxt.date() == datetime(2026, 3, 29).date()
