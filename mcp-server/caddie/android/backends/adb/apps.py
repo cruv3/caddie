@@ -4,14 +4,19 @@ from pathlib import Path
 from caddie.android.backends.adb.client import AdbError
 from caddie.android.backends.adb.input import InputCommands
 
-# monkey returns exit 0 even when the package is missing; it prints these to
-# stdout instead. Launch failure must be detected from stdout, not the exit code.
+# monkey returns exit 0 even when the package is missing; it prints failure text
+# to stdout instead. Detect launch SUCCESS from the positive marker monkey emits
+# on a real launch ("Events injected: N"), not merely the absence of a failure
+# string -- empty/Error output must NOT count as success (would mask a missing
+# package and let the agent wander).
 _LAUNCH_FAIL_MARKERS = ("No activities found", "monkey aborted")
 
 
-def _launch_failed(out: str) -> bool:
+def _launch_succeeded(out: str) -> bool:
     o = out or ""
-    return any(m in o for m in _LAUNCH_FAIL_MARKERS)
+    if any(m in o for m in _LAUNCH_FAIL_MARKERS):
+        return False
+    return "Events injected" in o
 
 
 def _app_token(package_name: str) -> str:
@@ -42,22 +47,27 @@ class AppCommands(InputCommands):
                              "android.intent.category.LAUNCHER", "1", timeout_seconds=30)
         except AdbError as exc:
             return False, str(exc)
-        return (not _launch_failed(out)), out
+        return _launch_succeeded(out), out
 
     def _resolve_package(self, package_name: str) -> str:
         """Map a possibly-wrong package guess to an installed package id, fail-closed:
-        exact id, else a UNIQUE token-contains match; ambiguous/none -> AdbError."""
+        exact id, else a UNIQUE segment match (last segment == token), else a UNIQUE
+        substring match; ambiguous/none -> AdbError (never best-guess)."""
         installed = self.list_apps(include_system=True)
         if package_name in installed:
             return package_name
         token = _app_token(package_name)
-        cands = [p for p in installed if token and token in p.lower()]
-        if len(cands) == 1:
-            return cands[0]
-        if not cands:
+        if not token:
             raise AdbError(f"no installed package matches '{package_name}'")
-        raise AdbError(
-            f"ambiguous package '{package_name}'; candidates: " + ", ".join(cands[:8]))
+        # prefer a precise last-segment match before a coarse substring match
+        for cands in ([p for p in installed if _app_token(p) == token],
+                      [p for p in installed if token in p.lower()]):
+            if len(cands) == 1:
+                return cands[0]
+            if len(cands) > 1:
+                raise AdbError(
+                    f"ambiguous package '{package_name}'; candidates: " + ", ".join(cands[:8]))
+        raise AdbError(f"no installed package matches '{package_name}'")
 
     def open_app(self, package_name: str) -> str:
         pkg = (package_name or "").strip()

@@ -64,3 +64,26 @@ def test_open_app_missing_package_detected_from_stdout():
     with pytest.raises(AdbError):
         a.open_app("com.x.calculator")
     assert a.launched == []
+
+
+def test_open_app_empty_or_error_output_is_not_success():
+    # monkey prints neither 'Events injected' nor a known failure marker -> must
+    # NOT be treated as success (that would mask the wander bug).
+    class WeirdApps(FakeApps):
+        def shell(self, *args, timeout_seconds=None):
+            if args and args[0] == "monkey":
+                return "Error: something odd happened"  # no 'Events injected'
+            return ""
+    w = WeirdApps(["com.x.clock"], [])
+    with pytest.raises(AdbError):
+        w.open_app("com.x.clock")
+    assert w.launched == []
+
+
+def test_open_app_prefers_segment_match_over_substring():
+    # token 'maps' -> the package whose LAST SEGMENT is 'maps', not the substring
+    # false match 'com.x.mapsave'
+    a = FakeApps(["com.google.android.apps.maps", "com.x.mapsave"],
+                 ["com.google.android.apps.maps", "com.x.mapsave"])
+    a.open_app("maps")
+    assert a.launched == ["com.google.android.apps.maps"]
