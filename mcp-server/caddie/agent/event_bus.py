@@ -105,6 +105,12 @@ class EventBus:
         self.publish(ToolEvent(type="tool_call_started", tool=tool, args=args))
         self.publish(ToolEvent(type="tool_call_finished", tool=tool))
 
+    def scheduled_task_report(self, task_id: str, status: str, message: str,
+                              steps: list) -> None:
+        self.publish(ToolEvent(type="scheduled_task_report",
+                               payload={"task_id": task_id, "status": status,
+                                        "message": message, "steps": steps}))
+
 
 EVENT_BUS = EventBus()
 
@@ -167,6 +173,12 @@ class RemoteEventBus:
         args = {"why": description, "replay": True, "step": index, "of": total}
         self.publish(ToolEvent(type="tool_call_started", tool=tool, args=args))
         self.publish(ToolEvent(type="tool_call_finished", tool=tool))
+
+    def scheduled_task_report(self, task_id: str, status: str, message: str,
+                              steps: list) -> None:
+        self.publish(ToolEvent(type="scheduled_task_report",
+                               payload={"task_id": task_id, "status": status,
+                                        "message": message, "steps": steps}))
 
     @contextmanager
     def subscription(self) -> Iterator[queue.Queue[ToolEvent | None]]:  # pragma: no cover
