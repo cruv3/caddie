@@ -68,8 +68,22 @@ def main() -> int:
     loop = AgentLoop(ctx, LmStudioClient())
     sched = Scheduler(ctx.schedule_store, loop, ctx.backend, ctx.events)
 
+    def _device_alive() -> bool:
+        try:
+            ctx.backend.shell("echo", "ok")
+            return True
+        except Exception:
+            return False
+
     results = []
     for i, (task, mode) in enumerate(TASKS, 1):
+        if not _device_alive():
+            # emulator died mid-battery -> mark this + all remaining honestly,
+            # don't pollute results with false agent failures.
+            for j in range(i, len(TASKS) + 1):
+                results.append((j, TASKS[j - 1][1], TASKS[j - 1][0], "DEVICE_DOWN", 0, 0.0, 0.0))
+            print(f"[BATTERY] device not responding at task {i} -> aborting battery", flush=True)
+            break
         try:
             ctx.backend.press_button("HOME")  # clean-ish start between tasks
             time.sleep(0.8)
