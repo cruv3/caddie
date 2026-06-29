@@ -1,7 +1,25 @@
+import re
 from pathlib import Path
 
 from caddie.android.backends.adb.client import AdbError
 from caddie.android.backends.adb.input import InputCommands
+
+# monkey returns exit 0 even when the package is missing; it prints these to
+# stdout instead. Launch failure must be detected from stdout, not the exit code.
+_LAUNCH_FAIL_MARKERS = ("No activities found", "monkey aborted")
+
+
+def _launch_failed(out: str) -> bool:
+    o = out or ""
+    return any(m in o for m in _LAUNCH_FAIL_MARKERS)
+
+
+def _app_token(package_name: str) -> str:
+    """A coarse search token from a (possibly wrong) package guess: the last
+    dotted segment with any trailing version digits stripped
+    (e.g. 'com.android.calculator2' -> 'calculator')."""
+    seg = (package_name or "").lower().rsplit(".", 1)[-1]
+    return re.sub(r"\d+$", "", seg)
 
 
 class AppCommands(InputCommands):
@@ -17,12 +35,42 @@ class AppCommands(InputCommands):
                 packages.append(line.removeprefix("package:"))
         return sorted(packages)
 
+    def _try_launch(self, pkg: str) -> tuple[bool, str]:
+        """Launch via monkey; success only if stdout lacks the failure markers."""
+        try:
+            out = self.shell("monkey", "-p", pkg, "-c",
+                             "android.intent.category.LAUNCHER", "1", timeout_seconds=30)
+        except AdbError as exc:
+            return False, str(exc)
+        return (not _launch_failed(out)), out
+
+    def _resolve_package(self, package_name: str) -> str:
+        """Map a possibly-wrong package guess to an installed package id, fail-closed:
+        exact id, else a UNIQUE token-contains match; ambiguous/none -> AdbError."""
+        installed = self.list_apps(include_system=True)
+        if package_name in installed:
+            return package_name
+        token = _app_token(package_name)
+        cands = [p for p in installed if token and token in p.lower()]
+        if len(cands) == 1:
+            return cands[0]
+        if not cands:
+            raise AdbError(f"no installed package matches '{package_name}'")
+        raise AdbError(
+            f"ambiguous package '{package_name}'; candidates: " + ", ".join(cands[:8]))
+
     def open_app(self, package_name: str) -> str:
-        self.checked(
-            ["shell", "monkey", "-p", package_name, "-c", "android.intent.category.LAUNCHER", "1"],
-            timeout_seconds=30,
-        )
-        return f"Launched {package_name}"
+        pkg = (package_name or "").strip()
+        ok, _out = self._try_launch(pkg)
+        if ok:
+            return f"Launched {pkg}"
+        # guessed package didn't launch -> resolve against installed packages
+        target = self._resolve_package(pkg)  # raises on none/ambiguous (fail-closed)
+        if target != pkg:
+            ok2, _ = self._try_launch(target)
+            if ok2:
+                return f"Launched {target} (resolved from '{pkg}')"
+        raise AdbError(f"could not launch '{pkg}'")
 
     def terminate_app(self, package_name: str) -> str:
         self.shell("am", "force-stop", package_name)

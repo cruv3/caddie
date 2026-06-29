@@ -27,19 +27,40 @@ Common thread: failed first action + weak recovery. Existing mechanisms DETECT
 
 ## Fixes (this change — the two high-value, deterministic ones)
 
-### Fix A (root cause #2): open_app package resolution
-`caddie/android/backends/adb/apps.py` `open_app(package_name)`: if the launch
-fails OR the package is not installed, resolve it:
-- Read installed packages (`pm list packages`, already wrapped by `list_apps`).
-- If `package_name` is an exact installed package -> launch (current behavior).
-- Else treat `package_name` as a hint (app/package fragment): find installed
-  packages whose id contains the hint tokens (case-insensitive; e.g. "calculator"
-  -> com.google.android.calculator / com.android.calculator2). If exactly one (or
-  a best unambiguous match) -> launch it. If several -> raise an AdbError listing
-  the candidates so the model can pick. If none -> AdbError "no installed package
-  matches '<hint>'" (clear, not a raw monkey failure).
-This makes open_app resilient to the model guessing a wrong/partial package and
-turns a silent wander-trigger into either a success or an actionable error.
+### Fix A (root cause #2): open_app package resolution  [REVISED per Codex]
+`caddie/android/backends/adb/apps.py` `open_app(package_name)`:
+
+**A1 — detect monkey failure via stdout (Codex):** `monkey` returns exit 0 even
+when the package is missing (it prints "** No activities found to run, monkey
+aborted"). So the current `checked([... monkey ...])` never raises on a missing
+package -> silent fake-success. Change: capture stdout; treat launch as SUCCESS
+only if stdout contains "Events injected" and NOT "No activities found" /
+"aborted" / "Error". Otherwise fall through to resolution.
+
+**A2 — resolve against package IDS only (Codex: no labels available):** drop any
+label matching (`pm list packages` exposes ids only). Match the guessed
+`package_name` against installed package ids with a STRICT, fail-closed hierarchy:
+1. exact id match -> launch.
+2. else derive a token from the guess: last dotted segment, strip a known prefix
+   (com./com.android./com.google.android.) and trailing digits
+   (e.g. "com.android.calculator2" -> "calculator").
+3. installed ids whose id contains that token (case-insensitive):
+   - exactly 1 -> launch it.
+   - >1 -> raise AdbError "ambiguous: <candidates>" (NEVER best-guess).
+   - 0 -> raise AdbError "no installed package matches '<package_name>'".
+After launching a resolved package, re-check the monkey stdout success marker.
+
+This turns a silent wander-trigger into either a correct launch or an actionable,
+fail-closed error. open_app stays non-consequential (opening an installed app);
+ambiguity refuses rather than risk the wrong app.
+
+### Fix C (root cause #1, cheap): cap repeated get_skill calls
+`caddie/agent/agent_loop.py`: if the model calls the SAME
+`smartphone_get_skill_<id>` tool a second time in one run, short-circuit with a
+tool result like "Skill <id> already loaded this run - ACT now (call a real
+smartphone_* action) or pick a different skill." Kills the "wrong-skill
+fixation" (Chrome looped get_skill 5x) in 1 turn instead of waiting for the
+loop-breaker at 5. Track the set of get_skill ids seen this run.
 
 ### Fix B (root cause #3): allow open_settings (navigation) in observable mode
 `caddie/agent/agent_loop.py:664` mode gate currently rejects

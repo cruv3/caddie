@@ -413,6 +413,7 @@ class AgentLoop:
             asks_made = 0
             empty_turns = 0
             prose_nudges = 0
+            skill_calls_seen: set[str] = set()
             done_message = None
             fail_reason = None
             # Loop-breaker + Stage-1-gate state (per run).
@@ -658,11 +659,28 @@ class AgentLoop:
                             name=name, ok=True, text=answer_text)))
                         continue
 
+                    # get_skill loop guard: a get_skill_* tool only LOADS a skill's
+                    # text (no state change). The model sometimes re-fetches the same
+                    # (often wrong) skill in a loop instead of acting -> cap at one
+                    # fetch per skill id per run.
+                    if name.startswith("smartphone_get_skill_"):
+                        if name in skill_calls_seen:
+                            messages.append(_tool_message(call.get("id", ""), ToolCallResult(
+                                name=name, ok=True,
+                                text=("You already loaded this skill this run. Do NOT fetch "
+                                      "it again - take a real smartphone_* action now, or pick "
+                                      "a different approach."))))
+                            continue
+                        skill_calls_seen.add(name)
+
                     # ── Mode gate: fast-only tools ───────────────────────────
                     # The deep-link shortcut exists only in FAST mode, so OBSERVABLE
                     # mode is pure UI (clean fast-vs-observable study comparison).
-                    if (name in ("smartphone_open_settings", "smartphone_set_setting",
-                                 "smartphone_toggle")
+                    # open_settings is pure navigation (am start -> opens a settings
+                    # screen, no state change) -> allowed in observable mode too; it
+                    # fixes the "can't find the setting" wander. Only the actual
+                    # state changes (set_setting/toggle) stay fast-only.
+                    if (name in ("smartphone_set_setting", "smartphone_toggle")
                             and os.environ.get("LLM_SMARTPHONE_MODE", "observable") != "fast"):
                         messages.append(_tool_message(call.get("id", ""), ToolCallResult(
                             name=name, ok=True,
