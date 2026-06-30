@@ -36,6 +36,25 @@ def test_find_none_when_state_unreadable():
     assert find_toggle([_switch(1, "Wifi", False)], "battery saver") == (None, None)
 
 
+def test_find_toggle_http_label_schema():
+    # HTTP bridge emits 'label'/'description' rather than text/content_description
+    els = [{"index": 7, "label": "Battery Saver", "description": "",
+            "class": "android.widget.Switch", "checkable": True, "checked": False,
+            "clickable": True, "bounds": {"center_y": 50}}]
+    assert find_toggle(els, "battery saver") == (7, False)
+
+
+def test_find_toggle_picks_nearest_switch():
+    # two switches within band; must pick the NEAREST to the label row, not the first
+    els = [
+        _row(3, "Wi-Fi", 100),
+        _switch(8, "", True, cy=160),    # d=60
+        _switch(9, "", False, cy=105),   # d=5  (nearest -> its state wins)
+    ]
+    idx, cur = find_toggle(els, "wi-fi")
+    assert idx == 3 and cur is False
+
+
 # --- set_toggle (backend, via fake) ---------------------------------------
 
 class FakeScreen:

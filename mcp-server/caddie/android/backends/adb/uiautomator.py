@@ -34,7 +34,7 @@ def parse_uiautomator_xml(xml_text: str | None, *, max_elements: int) -> list[di
         checkable = node.attrib.get("checkable") == "true"
         bounds = parse_bounds(node.attrib.get("bounds", ""))
 
-        if not (text or desc or resource_id or clickable):
+        if not (text or desc or resource_id or clickable or checkable):
             continue
 
         elements.append(

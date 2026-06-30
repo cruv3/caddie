@@ -80,7 +80,10 @@ class ScreenCommands(AppCommands):
             raise AdbError(f"no readable toggle matching {label!r}")
         if cur == want:
             return f"{label!r} already {'on' if want else 'off'}"
+        from caddie.android.settle import baseline_hash, settle_after
+        baseline = baseline_hash(self)
         self.tap_element(idx)
+        settle_after(self, baseline, "tap")   # let the switch state settle before verify
         _i2, cur2 = find_toggle(self.list_elements().get("elements", []), label)
         if cur2 == want:
             return f"set {label!r} {'on' if want else 'off'}"

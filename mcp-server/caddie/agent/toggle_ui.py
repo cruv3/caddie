@@ -21,8 +21,11 @@ def _is_switch(el: dict) -> bool:
 
 
 def _haystack(el: dict) -> str:
+    # cover both the ADB schema (text/content_description/resource_id) and the
+    # HTTP-bridge schema (label/description).
     return " ".join(str(el.get(k, "")) for k in
-                    ("text", "content_description", "resource_id")).lower()
+                    ("text", "content_description", "resource_id",
+                     "label", "description")).lower()
 
 
 def find_toggle(elements: list[dict], label: str) -> tuple[int | None, bool | None]:
@@ -35,18 +38,22 @@ def find_toggle(elements: list[dict], label: str) -> tuple[int | None, bool | No
     matches = [e for e in elements if lab in _haystack(e)]
     if not matches:
         return None, None
-    # the switch: a matched element that IS a switch, else a switch sharing a row
+    # the switch: a matched element that IS a switch, else the NEAREST checkable
+    # element (by vertical distance to any match) within the same row band.
     sw = next((m for m in matches if _is_switch(m)), None)
     if sw is None:
+        best = None
+        best_d = None
         for m in matches:
             my = _center_y(m)
             if my is None:
                 continue
-            sw = next((e for e in elements
-                       if _is_switch(e) and _center_y(e) is not None
-                       and abs(_center_y(e) - my) <= 60), None)
-            if sw is not None:
-                break
+            for e in elements:
+                if _is_switch(e) and _center_y(e) is not None:
+                    d = abs(_center_y(e) - my)
+                    if d <= 80 and (best_d is None or d < best_d):
+                        best, best_d = e, d
+        sw = best
     if sw is None or sw.get("checked") is None:
         return None, None  # cannot read state -> not a reliable toggle
     # tap target: a clickable matched row, else the switch, else the first match
