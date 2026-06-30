@@ -49,3 +49,6 @@ class AppCommands(InputCommands):
 
     def set_timer(self, seconds: int, message: str = "") -> str:
         raise RuntimeError("set_timer not supported on the HTTP backend")
+
+    def set_volume(self, stream: int, level: str) -> str:
+        raise RuntimeError("set_volume not supported on the HTTP backend")

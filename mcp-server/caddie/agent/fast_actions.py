@@ -261,3 +261,53 @@ def match_clock_intent(task: str):
         if hm is not None:
             return ("alarm", hm[0], hm[1])
     return None
+
+
+# ---------------------------------------------------------------------------
+# Volume resolver: set a stream volume deterministically via
+# `cmd media_session volume` instead of fumbling the UI slider. Command-verb +
+# value gated (a mention/question must not change the volume).
+# Returns ("volume", stream_int, level_str) | None. stream: 3=media(default),
+# 2=ring, 4=alarm, 5=notification, 0=call.
+# ---------------------------------------------------------------------------
+
+_VOLUME_STREAMS = (
+    (2, r"ring|klingel|ringer"),
+    (4, r"alarm|wecker"),
+    (5, r"notification|benachrichtigung"),
+    (0, r"\bcall\b|anruf|in-?call"),
+    (3, r"media|music|musik|video"),
+)
+_VOL_CMD = re.compile(r"\b(set|turn|change|adjust|put|stell\w*|mach\w*|mute|"
+                      r"erh\w*h\w*|senk\w*|lauter|leiser)\b")
+
+
+def match_volume_intent(task: str):
+    if not task:
+        return None
+    t = " " + task.strip().lower() + " "
+    if not re.search(r"volume|lautst\w*rke", t):
+        return None
+    if not _VOL_CMD.search(t):
+        return None
+    if re.search(r"\bmute\b|stumm|lautlos", t):
+        level = "min"
+    elif re.search(r"\b(max|maximum|h\w*chste|voll|full)\b", t):
+        level = "max"
+    elif re.search(r"\b(min|minimum|niedrigste)\b", t):
+        level = "min"
+    else:
+        m = re.search(r"(\d{1,3})\s*(?:%|percent|prozent)", t)
+        if m:
+            level = f"{m.group(1)}%"
+        else:
+            m = re.search(r"\b(?:to|auf)\s+(\d{1,3})\b", t)
+            if not m:
+                return None
+            level = m.group(1)
+    stream = 3
+    for s, pat in _VOLUME_STREAMS:
+        if re.search(pat, t):
+            stream = s
+            break
+    return ("volume", stream, level)

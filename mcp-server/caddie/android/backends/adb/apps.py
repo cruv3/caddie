@@ -146,3 +146,41 @@ class AppCommands(InputCommands):
         self.shell(*args, timeout_seconds=15)
         return f"Set timer for {int(seconds)}s"
 
+    def set_volume(self, stream: int, level: str) -> str:
+        """Set a stream volume deterministically via media_session (no UI slider).
+        `level`: 'max' | 'min' | '<n>%' | absolute int. Reads the device's range
+        so percent/max map correctly."""
+        out = self.shell("cmd", "media_session", "volume", "--stream", str(int(stream)),
+                         "--get", timeout_seconds=15)
+        m = re.search(r"range \[0\.\.(\d+)\]", out or "")
+        maxv = int(m.group(1)) if m else 15
+        lv = str(level).strip().lower()
+        if lv in ("max", "maximum"):
+            target = maxv
+        elif lv in ("min", "minimum", "mute"):
+            target = 0
+        elif lv.endswith("%"):
+            try:
+                pct = float(lv.rstrip("%"))
+            except ValueError:
+                pct = 0.0
+            target = round(max(0.0, min(100.0, pct)) / 100 * maxv)
+        else:
+            try:
+                target = int(float(lv))
+            except ValueError:
+                target = 0
+            target = max(0, min(maxv, target))
+        self.shell("cmd", "media_session", "volume", "--stream", str(int(stream)),
+                   "--set", str(target), timeout_seconds=15)
+        # VERIFY it actually took: on many devices media volume won't change via
+        # ADB when nothing is playing -> raise so the caller falls back to the UI
+        # instead of falsely reporting success.
+        chk = self.shell("cmd", "media_session", "volume", "--stream", str(int(stream)),
+                         "--get", timeout_seconds=15)
+        m2 = re.search(r"volume is (\d+)", chk or "")
+        if m2 is None or int(m2.group(1)) != target:
+            raise AdbError(f"volume not applied (wanted {target}, got "
+                           f"{m2.group(1) if m2 else '?'}) -- ADB volume-set is a no-op here")
+        return f"Set stream {stream} volume to {target}/{maxv}"
+

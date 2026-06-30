@@ -311,6 +311,16 @@ class AgentLoop:
             print(f"[clock-intent] exec failed: {exc}", flush=True)
         return False, ""
 
+    def _exec_volume_intent(self, intent: tuple) -> tuple[bool, str]:
+        """Execute a matched volume intent via the backend (cmd media_session)."""
+        try:
+            _, stream, level = intent
+            self._backend.set_volume(stream, level)
+            return True, f"Set volume ({level})"
+        except Exception as exc:
+            print(f"[volume-intent] exec failed: {exc}", flush=True)
+        return False, ""
+
     def _emit_replay_step(self, step: dict, i: int, total: int) -> None:
         """Surface one replayed step on the event bus (live transparency) so the
         user still sees what is happening even though replay runs without a per-
@@ -393,6 +403,26 @@ class AgentLoop:
                     _ok, _desc = self._exec_fast_intent(_tg)
                     if _ok:
                         print(f"[toggle-intent] {_desc} (0 turns)", flush=True)
+                        self._events.task_finished(ok=True, payload={"outcome": "done_fast",
+                                                                     "message": _desc})
+                        self._active_control = None
+                        self._last_run = {"task": task, "outcome": "done_fast",
+                                          "final_text": _desc, "finished_at": time.monotonic()}
+                        return {"ok": True, "finished_emitted": True, "outcome": "done_fast",
+                                "tool_calls": 1, "turns": 0, "final_text": _desc,
+                                "error": None, "vision_unsupported": False, "steps": []}
+
+            # -- VOLUME RESOLVER (stream volume, BOTH modes) -------------------
+            # Deterministic stream volume via media_session instead of the UI
+            # slider. Disable with LLM_SMARTPHONE_VOLUME_RESOLVER=0.
+            if (os.environ.get("LLM_SMARTPHONE_VOLUME_RESOLVER", "1") != "0"
+                    and not control.stop_requested):
+                from caddie.agent.fast_actions import match_volume_intent
+                _vi = match_volume_intent(task)
+                if _vi:
+                    _ok, _desc = self._exec_volume_intent(_vi)
+                    if _ok:
+                        print(f"[volume-intent] {_desc} (0 turns)", flush=True)
                         self._events.task_finished(ok=True, payload={"outcome": "done_fast",
                                                                      "message": _desc})
                         self._active_control = None
