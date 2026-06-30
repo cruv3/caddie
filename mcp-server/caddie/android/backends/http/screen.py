@@ -45,6 +45,23 @@ class ScreenCommands(AppCommands):
                  or match.get("resource_id") or "?")
         return f"Tapped element #{index} ({label!r}) at ({cx}, {cy})"
 
+    def set_toggle(self, label: str, want_on: bool) -> str:
+        """State-aware toggle (see ADB ScreenCommands.set_toggle). Works only if the
+        bridge's elements carry checkable/checked state; else raises and the caller
+        falls back to plain tapping."""
+        from caddie.agent.toggle_ui import find_toggle
+        want = bool(want_on)
+        idx, cur = find_toggle(self.list_elements().get("elements", []), label)
+        if idx is None:
+            raise HttpBridgeError(f"no readable toggle matching {label!r}")
+        if cur == want:
+            return f"{label!r} already {'on' if want else 'off'}"
+        self.tap_element(idx)
+        _i2, cur2 = find_toggle(self.list_elements().get("elements", []), label)
+        if cur2 == want:
+            return f"set {label!r} {'on' if want else 'off'}"
+        raise HttpBridgeError(f"toggle {label!r} did not change to {'on' if want else 'off'}")
+
     def ui_hash(self) -> str:
         """Hash the on-device accessibility node tree. Used by the settle
         gate to detect when the UI has changed and stabilised after an

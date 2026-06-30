@@ -31,6 +31,7 @@ def parse_uiautomator_xml(xml_text: str | None, *, max_elements: int) -> list[di
         resource_id = node.attrib.get("resource-id", "")
         clickable = node.attrib.get("clickable") == "true"
         enabled = node.attrib.get("enabled") == "true"
+        checkable = node.attrib.get("checkable") == "true"
         bounds = parse_bounds(node.attrib.get("bounds", ""))
 
         if not (text or desc or resource_id or clickable):
@@ -46,6 +47,9 @@ def parse_uiautomator_xml(xml_text: str | None, *, max_elements: int) -> list[di
                 "package": node.attrib.get("package", ""),
                 "clickable": clickable,
                 "enabled": enabled,
+                "checkable": checkable,
+                # only meaningful for checkable widgets; None otherwise
+                "checked": (node.attrib.get("checked") == "true") if checkable else None,
                 "bounds": bounds,
             }
         )

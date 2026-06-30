@@ -68,6 +68,24 @@ class ScreenCommands(AppCommands):
                  or match.get("resource_id") or "?")
         return f"Tapped element #{index} ({label!r}) at ({cx}, {cy})"
 
+    def set_toggle(self, label: str, want_on: bool) -> str:
+        """State-aware toggle: find the switch for *label*, read its current state,
+        and tap ONLY if it differs from the desired state, then verify. Raises (so
+        the caller falls back to plain tapping) when no readable toggle is found --
+        never blindly flips (which could turn the wrong direction)."""
+        from caddie.agent.toggle_ui import find_toggle
+        want = bool(want_on)
+        idx, cur = find_toggle(self.list_elements().get("elements", []), label)
+        if idx is None:
+            raise AdbError(f"no readable toggle matching {label!r}")
+        if cur == want:
+            return f"{label!r} already {'on' if want else 'off'}"
+        self.tap_element(idx)
+        _i2, cur2 = find_toggle(self.list_elements().get("elements", []), label)
+        if cur2 == want:
+            return f"set {label!r} {'on' if want else 'off'}"
+        raise AdbError(f"toggle {label!r} did not change to {'on' if want else 'off'}")
+
     def _is_locked(self) -> bool:
         try:
             out = self.shell("dumpsys", "window", timeout_seconds=10)

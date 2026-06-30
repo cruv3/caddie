@@ -37,6 +37,25 @@ def register_input_tools(mcp: FastMCP, context: ServerContext) -> None:
             return result
 
     @mcp.tool()
+    def smartphone_set_toggle(label: str, on: bool, why: str = "") -> str:
+        """Set a labeled on/off SWITCH to a desired state reliably. Reads the
+        switch's current state and taps ONLY if it differs (never flips it the
+        wrong way), then verifies. PREFER this over smartphone_tap_element when you
+        want a switch turned ON or OFF (e.g. an in-app or settings toggle).
+
+        Args:
+            label: visible label of the toggle row (e.g. "Battery Saver").
+            on: True to turn it on, False to turn it off.
+            why: Brief German reason shown live on the device overlay (max 80 chars).
+        """
+        with publish_tool_call("smartphone_set_toggle", bus=context.events,
+                               label=label, on=on, why=why):
+            baseline = baseline_hash(context.backend)
+            result = context.backend.set_toggle(label, on)
+            settle_after(context.backend, baseline, "tap")
+            return result
+
+    @mcp.tool()
     def smartphone_scroll(direction: str, amount: float = 0.6, why: str = "") -> str:
         """Scroll the current view without guessing coordinates.
 
