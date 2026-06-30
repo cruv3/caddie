@@ -23,9 +23,12 @@ def test_builds_explored_hint_entry():
     assert e.intent_text == "change the screen lock timeout to 30 seconds"
 
 
-def test_path_is_the_labeled_taps_in_order():
+def test_path_is_the_app_entry_then_labeled_taps_in_order():
+    # the path now keeps the app-entry ('open settings app') so the hint says how
+    # to REACH the screen, not just the in-screen taps.
     e = build_demonstration("set screen timeout", _steps())
     assert e.provenance["path"] == [
+        "open settings app",
         "Display & Touchbedienung",
         "Display automatisch ausschalten",
         "Nach 30 Sekunden",

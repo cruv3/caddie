@@ -18,11 +18,18 @@ from caddie.memory.entry import MemoryEntry
 
 
 def _path_labels(steps: list[dict] | None) -> list[str]:
-    """Ordered human labels of the labeled tap steps (skips open_app / tap_xy /
-    unlabeled widgets -- those teach nothing reusable)."""
+    """Ordered human labels of the path: the app-entry ('open X app') plus the
+    labeled tap steps. Coordinate taps / unlabeled widgets are skipped (they teach
+    nothing reusable), but the app entry MUST stay -- without it the hint omits how
+    to even reach the screen (e.g. 'open settings app -> Battery -> Battery Saver')."""
     out: list[str] = []
     for s in steps or []:
         if not isinstance(s, dict):
+            continue
+        if s.get("action") == "open_app":
+            pkg = (s.get("package") or "").strip()
+            if pkg:
+                out.append(f"open {pkg.rsplit('.', 1)[-1]} app")
             continue
         lbl = (s.get("label") or "").strip()
         if lbl:

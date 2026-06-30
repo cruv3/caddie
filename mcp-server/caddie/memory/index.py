@@ -63,6 +63,10 @@ class MemoryIndex:
 
         Only entries with kind == "explored" are considered.
         Gated by the retriever's threshold (same as match()).
+
+        Retrieve a LARGER pool then filter to explored, so a couple of skill hits
+        (a different kind) can't crowd explored entries out of the top-k.
         """
-        hits = self._retriever.match(task, k=k)
-        return [entry for entry, _score in hits if entry.kind == "explored"]
+        hits = self._retriever.match(task, k=max(k * 5, 10))
+        explored = [entry for entry, _score in hits if entry.kind == "explored"]
+        return explored[:k]
