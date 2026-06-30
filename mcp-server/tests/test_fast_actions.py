@@ -71,3 +71,13 @@ def test_match_returns_none_for_nonparametric():
     for t in ("open the display settings", "find a pizza place", "send an email to bob",
               "what is on my calendar", "open chrome", ""):
         assert match_fast_intent(t) is None, t
+
+
+def test_toggle_requires_command_verb_not_mention():
+    # a mention/question with a stray on/off must NOT fire the toggle (no command verb)
+    for t in ("is battery saver on", "what is do not disturb",
+              "tell me if dark mode is on", "the battery saver icon is on the bar"):
+        assert match_fast_intent(t) is None, t
+    # explicit commands still match
+    assert match_fast_intent("turn on battery saver") == ("toggle", "battery saver", "on")
+    assert match_fast_intent("schalte dunkles design aus") == ("toggle", "dark mode", "off")

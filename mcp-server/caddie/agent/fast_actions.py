@@ -170,13 +170,20 @@ def match_fast_intent(task: str) -> tuple | None:
             return ("setting", "auto_rotate", "on" if oo == "1" else "off")
 
     # --- toggles ---
-    for svc, pat in (("dark mode", r"dark mode|dark theme|dunkles design|dunkelmodus|nachtmodus"),
-                     ("battery saver", r"battery saver|energiesparmodus|akkusparmodus|stromsparmodus"),
-                     ("do not disturb", r"do not disturb|\bdnd\b|nicht stören|ruhemodus")):
-        if re.search(pat, t):
-            oo = _task_onoff(t)
-            if oo is not None:
-                return ("toggle", svc, "on" if oo == "1" else "off")
+    # Require an explicit COMMAND verb so a mere mention/question ("is battery
+    # saver on?") does NOT flip the switch -- important now that the toggle
+    # resolver runs in observable mode for every task.
+    _cmd = re.search(r"\b(turn|switch|enable|disable|activate|deactivate|set|"
+                     r"aktivier\w*|deaktivier\w*|einschalt\w*|ausschalt\w*|schalt\w*|"
+                     r"mach|stell\w*)\b", t)
+    if _cmd:
+        for svc, pat in (("dark mode", r"dark mode|dark theme|dunkles design|dunkelmodus|nachtmodus"),
+                         ("battery saver", r"battery saver|energiesparmodus|akkusparmodus|stromsparmodus"),
+                         ("do not disturb", r"do not disturb|\bdnd\b|nicht stören|ruhemodus")):
+            if re.search(pat, t):
+                oo = _task_onoff(t)
+                if oo is not None:
+                    return ("toggle", svc, "on" if oo == "1" else "off")
     return None
 
 
