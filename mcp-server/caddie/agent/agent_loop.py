@@ -379,6 +379,29 @@ class AgentLoop:
                                 "tool_calls": 1, "turns": 0, "final_text": _desc,
                                 "error": None, "vision_unsupported": False, "steps": []}
 
+            # -- TOGGLE RESOLVER (on/off switches, BOTH modes) ----------------
+            # On/off toggles (battery saver, dark mode, DND, auto-rotate) fail via
+            # the UI (the agent reaches the page but cannot flip the switch). Set
+            # them DETERMINISTICALLY via ADB (settings/svc/cmd) in BOTH modes,
+            # reusing match_fast_intent's toggle branch. Value pickers (set_setting)
+            # stay fast-only. Disable with LLM_SMARTPHONE_TOGGLE_RESOLVER=0.
+            if (os.environ.get("LLM_SMARTPHONE_TOGGLE_RESOLVER", "1") != "0"
+                    and not control.stop_requested):
+                from caddie.agent.fast_actions import match_fast_intent
+                _tg = match_fast_intent(task)
+                if _tg and _tg[0] == "toggle":
+                    _ok, _desc = self._exec_fast_intent(_tg)
+                    if _ok:
+                        print(f"[toggle-intent] {_desc} (0 turns)", flush=True)
+                        self._events.task_finished(ok=True, payload={"outcome": "done_fast",
+                                                                     "message": _desc})
+                        self._active_control = None
+                        self._last_run = {"task": task, "outcome": "done_fast",
+                                          "final_text": _desc, "finished_at": time.monotonic()}
+                        return {"ok": True, "finished_emitted": True, "outcome": "done_fast",
+                                "tool_calls": 1, "turns": 0, "final_text": _desc,
+                                "error": None, "vision_unsupported": False, "steps": []}
+
             # ── FAST-INTENT RESOLVER (fast mode only) ────────────────────────
             # Deterministically map a parametric settings/toggle task straight to a
             # whitelisted ADB action, bypassing the LLM's tool-choice (which under-
