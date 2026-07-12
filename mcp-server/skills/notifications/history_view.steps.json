@@ -1,0 +1,140 @@
+[
+  {
+    "action": "open_notifications"
+  },
+  {
+    "action": "scroll",
+    "direction": "down",
+    "amount": 0.5
+  },
+  {
+    "action": "open_notifications"
+  },
+  {
+    "action": "scroll",
+    "direction": "down",
+    "amount": 0.5
+  },
+  {
+    "action": "open_app",
+    "package": "com.android.settings"
+  },
+  {
+    "action": "tap",
+    "index": 11,
+    "label": "do not disturb",
+    "text": "do not disturb",
+    "desc": "",
+    "resource_id": "com.google.android.settings.intelligence:id/open_search_view_edit_text",
+    "cls": "android.widget.EditText",
+    "clickable": true,
+    "bounds": {
+      "left": 162,
+      "top": 176,
+      "right": 891,
+      "bottom": 419,
+      "center_x": 526,
+      "center_y": 297
+    }
+  },
+  {
+    "action": "type",
+    "text": "notification history",
+    "submit": false
+  },
+  {
+    "action": "tap",
+    "index": 28,
+    "label": "",
+    "text": "",
+    "desc": "",
+    "resource_id": "",
+    "cls": "android.widget.LinearLayout",
+    "clickable": true,
+    "bounds": {
+      "left": 0,
+      "top": 1396,
+      "right": 1080,
+      "bottom": 1955,
+      "center_x": 540,
+      "center_y": 1675
+    }
+  },
+  {
+    "action": "tap",
+    "index": 11,
+    "label": "do notnotification historyy disturb",
+    "text": "do notnotification historyy disturb",
+    "desc": "",
+    "resource_id": "com.google.android.settings.intelligence:id/open_search_view_edit_text",
+    "cls": "android.widget.EditText",
+    "clickable": true,
+    "bounds": {
+      "left": 162,
+      "top": 176,
+      "right": 891,
+      "bottom": 419,
+      "center_x": 526,
+      "center_y": 297
+    }
+  },
+  {
+    "action": "tap",
+    "index": 12,
+    "label": "Clear text",
+    "text": "",
+    "desc": "Clear text",
+    "resource_id": "com.google.android.settings.intelligence:id/open_search_view_clear_button",
+    "cls": "android.widget.ImageButton",
+    "clickable": true,
+    "bounds": {
+      "left": 891,
+      "top": 203,
+      "right": 1080,
+      "bottom": 392,
+      "center_x": 985,
+      "center_y": 297
+    }
+  },
+  {
+    "action": "type",
+    "text": "notification history",
+    "submit": false
+  },
+  {
+    "action": "tap",
+    "index": 20,
+    "label": "",
+    "text": "",
+    "desc": "",
+    "resource_id": "",
+    "cls": "android.widget.LinearLayout",
+    "clickable": true,
+    "bounds": {
+      "left": 0,
+      "top": 422,
+      "right": 1080,
+      "bottom": 981,
+      "center_x": 540,
+      "center_y": 701
+    }
+  },
+  {
+    "action": "tap",
+    "index": 16,
+    "label": "",
+    "text": "",
+    "desc": "",
+    "resource_id": "",
+    "cls": "android.widget.LinearLayout",
+    "clickable": true,
+    "bounds": {
+      "left": 0,
+      "top": 1072,
+      "right": 1080,
+      "bottom": 1689,
+      "center_x": 540,
+      "center_y": 1380
+    }
+  }
+]

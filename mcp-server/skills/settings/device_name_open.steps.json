@@ -1,0 +1,87 @@
+[
+  {
+    "action": "press",
+    "button": "HOME"
+  },
+  {
+    "action": "open_app",
+    "package": "com.android.settings"
+  },
+  {
+    "action": "tap",
+    "index": 44,
+    "label": "About emulated device",
+    "text": "About emulated device",
+    "desc": "",
+    "resource_id": "android:id/title",
+    "cls": "android.widget.TextView",
+    "clickable": false,
+    "bounds": {
+      "left": 63,
+      "top": 1942,
+      "right": 532,
+      "bottom": 2010,
+      "center_x": 297,
+      "center_y": 1976
+    }
+  },
+  {
+    "action": "tap",
+    "index": 11,
+    "label": "About phone",
+    "text": "About phone",
+    "desc": "",
+    "resource_id": "com.google.android.settings.intelligence:id/open_search_view_edit_text",
+    "cls": "android.widget.EditText",
+    "clickable": true,
+    "bounds": {
+      "left": 126,
+      "top": 142,
+      "right": 933,
+      "bottom": 331,
+      "center_x": 529,
+      "center_y": 236
+    }
+  },
+  {
+    "action": "tap",
+    "index": 12,
+    "label": "Clear text",
+    "text": "",
+    "desc": "Clear text",
+    "resource_id": "com.google.android.settings.intelligence:id/open_search_view_clear_button",
+    "cls": "android.widget.ImageButton",
+    "clickable": true,
+    "bounds": {
+      "left": 933,
+      "top": 163,
+      "right": 1080,
+      "bottom": 310,
+      "center_x": 1006,
+      "center_y": 236
+    }
+  },
+  {
+    "action": "type",
+    "text": "device name",
+    "submit": false
+  },
+  {
+    "action": "tap",
+    "index": 44,
+    "label": "About emulated device",
+    "text": "About emulated device",
+    "desc": "",
+    "resource_id": "android:id/title",
+    "cls": "android.widget.TextView",
+    "clickable": false,
+    "bounds": {
+      "left": 63,
+      "top": 1942,
+      "right": 532,
+      "bottom": 2010,
+      "center_x": 297,
+      "center_y": 1976
+    }
+  }
+]

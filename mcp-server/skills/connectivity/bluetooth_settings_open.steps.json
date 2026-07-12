@@ -1,0 +1,62 @@
+[
+  {
+    "action": "press",
+    "button": "BACK"
+  },
+  {
+    "action": "press",
+    "button": "HOME"
+  },
+  {
+    "action": "open_app",
+    "package": "com.android.settings"
+  },
+  {
+    "action": "tap_xy",
+    "x": 529,
+    "y": 236
+  },
+  {
+    "action": "type",
+    "text": "Bluetooth",
+    "submit": false
+  },
+  {
+    "action": "scroll",
+    "direction": "down",
+    "amount": 0.5
+  },
+  {
+    "action": "tap_xy",
+    "x": 529,
+    "y": 236
+  },
+  {
+    "action": "tap_xy",
+    "x": 1006,
+    "y": 236
+  },
+  {
+    "action": "type",
+    "text": "Bluetooth",
+    "submit": false
+  },
+  {
+    "action": "tap",
+    "index": 20,
+    "label": "",
+    "text": "",
+    "desc": "",
+    "resource_id": "",
+    "cls": "android.widget.LinearLayout",
+    "clickable": true,
+    "bounds": {
+      "left": 0,
+      "top": 334,
+      "right": 1080,
+      "bottom": 557,
+      "center_x": 540,
+      "center_y": 445
+    }
+  }
+]

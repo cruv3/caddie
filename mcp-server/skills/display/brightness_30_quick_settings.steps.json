@@ -1,0 +1,31 @@
+[
+  {
+    "action": "open_quick_settings"
+  },
+  {
+    "action": "tap_xy",
+    "x": 305,
+    "y": 190
+  },
+  {
+    "action": "tap_xy",
+    "x": 206,
+    "y": 190
+  },
+  {
+    "action": "open_quick_settings"
+  },
+  {
+    "action": "tap_xy",
+    "x": 206,
+    "y": 190
+  },
+  {
+    "action": "open_quick_settings"
+  },
+  {
+    "action": "tap_xy",
+    "x": 305,
+    "y": 190
+  }
+]

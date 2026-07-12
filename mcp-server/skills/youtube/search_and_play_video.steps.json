@@ -1,0 +1,47 @@
+[
+  {
+    "action": "open_app",
+    "package": "com.google.android.youtube"
+  },
+  {
+    "action": "tap",
+    "index": 25,
+    "label": "Search YouTube",
+    "text": "",
+    "desc": "Search YouTube",
+    "resource_id": "",
+    "cls": "android.view.ViewGroup",
+    "clickable": true,
+    "bounds": {
+      "left": 204,
+      "top": 630,
+      "right": 876,
+      "bottom": 745,
+      "center_x": 540,
+      "center_y": 687
+    }
+  },
+  {
+    "action": "type",
+    "text": "how to tie a tie",
+    "submit": true
+  },
+  {
+    "action": "tap",
+    "index": 26,
+    "label": "Sponsored - How to tie a tie (for Beginners) - 1 minute, 49 seconds - How to tie a tie Easy way - How to tie a tie - play video",
+    "text": "",
+    "desc": "Sponsored - How to tie a tie (for Beginners) - 1 minute, 49 seconds - How to tie a tie Easy way - How to tie a tie - play video",
+    "resource_id": "",
+    "cls": "android.view.ViewGroup",
+    "clickable": true,
+    "bounds": {
+      "left": 0,
+      "top": 511,
+      "right": 1080,
+      "bottom": 1382,
+      "center_x": 540,
+      "center_y": 946
+    }
+  }
+]

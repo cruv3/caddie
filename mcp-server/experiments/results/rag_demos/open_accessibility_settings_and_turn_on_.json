@@ -1,0 +1,27 @@
+[
+  {
+    "id": "demo_f697216bfcc6",
+    "app": "",
+    "intent_text": "open accessibility settings and turn on color inversion",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Farbe & Bewegung",
+        "Farbumkehr",
+        "android:id/content",
+        "android:id/switch_widget"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  }
+]

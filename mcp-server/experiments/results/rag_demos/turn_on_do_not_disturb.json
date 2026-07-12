@@ -1,0 +1,25 @@
+[
+  {
+    "id": "demo_b15ffc6528d8",
+    "app": "",
+    "intent_text": "turn on do not disturb",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Modi",
+        "Bitte nicht stören"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  }
+]

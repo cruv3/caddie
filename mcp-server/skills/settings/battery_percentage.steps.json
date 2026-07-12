@@ -1,0 +1,24 @@
+[
+  {
+    "action": "open_app",
+    "package": "com.android.settings"
+  },
+  {
+    "action": "tap",
+    "index": 44,
+    "label": "Battery percentage",
+    "text": "Battery percentage",
+    "desc": "",
+    "resource_id": "android:id/title",
+    "cls": "android.widget.TextView",
+    "clickable": false,
+    "bounds": {
+      "left": 63,
+      "top": 1790,
+      "right": 456,
+      "bottom": 1858,
+      "center_x": 259,
+      "center_y": 1824
+    }
+  }
+]

@@ -1,0 +1,50 @@
+[
+  {
+    "action": "open_app",
+    "package": "com.android.settings"
+  },
+  {
+    "action": "press",
+    "button": "BACK"
+  },
+  {
+    "action": "open_app",
+    "package": "com.android.settings"
+  },
+  {
+    "action": "tap",
+    "index": 54,
+    "label": "Modes",
+    "text": "Modes",
+    "desc": "",
+    "resource_id": "android:id/title",
+    "cls": "android.widget.TextView",
+    "clickable": false,
+    "bounds": {
+      "left": 230,
+      "top": 2004,
+      "right": 423,
+      "bottom": 2089,
+      "center_x": 326,
+      "center_y": 2046
+    }
+  },
+  {
+    "action": "tap",
+    "index": 17,
+    "label": "Do Not Disturb",
+    "text": "Do Not Disturb",
+    "desc": "",
+    "resource_id": "android:id/title",
+    "cls": "android.widget.TextView",
+    "clickable": false,
+    "bounds": {
+      "left": 207,
+      "top": 1102,
+      "right": 619,
+      "bottom": 1187,
+      "center_x": 413,
+      "center_y": 1144
+    }
+  }
+]

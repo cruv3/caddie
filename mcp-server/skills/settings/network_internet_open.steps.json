@@ -1,0 +1,57 @@
+[
+  {
+    "action": "press",
+    "button": "HOME"
+  },
+  {
+    "action": "open_app",
+    "package": "com.android.settings"
+  },
+  {
+    "action": "press",
+    "button": "BACK"
+  },
+  {
+    "action": "open_app_drawer"
+  },
+  {
+    "action": "tap",
+    "index": 33,
+    "label": "Settings",
+    "text": "Settings",
+    "desc": "Settings",
+    "resource_id": "com.google.android.apps.nexuslauncher:id/icon",
+    "cls": "android.widget.TextView",
+    "clickable": true,
+    "bounds": {
+      "left": 540,
+      "top": 2037,
+      "right": 787,
+      "bottom": 2352,
+      "center_x": 663,
+      "center_y": 2194
+    }
+  },
+  {
+    "action": "open_app",
+    "package": "com.android.settings"
+  },
+  {
+    "action": "tap",
+    "index": 24,
+    "label": "Network & internet",
+    "text": "Network & internet",
+    "desc": "",
+    "resource_id": "android:id/title",
+    "cls": "android.widget.TextView",
+    "clickable": false,
+    "bounds": {
+      "left": 210,
+      "top": 711,
+      "right": 720,
+      "bottom": 794,
+      "center_x": 465,
+      "center_y": 752
+    }
+  }
+]

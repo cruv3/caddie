@@ -1,0 +1,23 @@
+[
+  {
+    "action": "open_app_drawer"
+  },
+  {
+    "action": "tap",
+    "index": 20,
+    "label": "Contacts",
+    "text": "Contacts",
+    "desc": "Contacts",
+    "resource_id": "com.google.android.apps.nexuslauncher:id/icon",
+    "cls": "android.widget.TextView",
+    "clickable": true,
+    "bounds": {
+      "left": 285,
+      "top": 1176,
+      "right": 540,
+      "bottom": 1500,
+      "center_x": 412,
+      "center_y": 1338
+    }
+  }
+]

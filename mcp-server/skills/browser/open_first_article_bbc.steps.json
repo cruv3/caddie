@@ -1,0 +1,24 @@
+[
+  {
+    "action": "open_url",
+    "url": "https://www.bbc.com"
+  },
+  {
+    "action": "tap",
+    "index": 26,
+    "label": "Congress passes war powers measure for first time, breaking with Trump over Iran",
+    "text": "Congress passes war powers measure for first time, breaking with Trump over Iran",
+    "desc": "",
+    "resource_id": "",
+    "cls": "android.widget.TextView",
+    "clickable": true,
+    "bounds": {
+      "left": 42,
+      "top": 1433,
+      "right": 1039,
+      "bottom": 1656,
+      "center_x": 540,
+      "center_y": 1544
+    }
+  }
+]

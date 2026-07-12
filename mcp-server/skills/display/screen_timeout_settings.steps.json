@@ -1,0 +1,83 @@
+[
+  {
+    "action": "open_app",
+    "package": "com.android.settings"
+  },
+  {
+    "action": "tap",
+    "index": 12,
+    "label": "Clear text",
+    "text": "",
+    "desc": "Clear text",
+    "resource_id": "com.google.android.settings.intelligence:id/open_search_view_clear_button",
+    "cls": "android.widget.ImageButton",
+    "clickable": true,
+    "bounds": {
+      "left": 891,
+      "top": 203,
+      "right": 1080,
+      "bottom": 392,
+      "center_x": 985,
+      "center_y": 297
+    }
+  },
+  {
+    "action": "type",
+    "text": "screen timeout",
+    "submit": false
+  },
+  {
+    "action": "tap",
+    "index": 20,
+    "label": "",
+    "text": "",
+    "desc": "",
+    "resource_id": "",
+    "cls": "android.widget.LinearLayout",
+    "clickable": true,
+    "bounds": {
+      "left": 0,
+      "top": 422,
+      "right": 1080,
+      "bottom": 705,
+      "center_x": 540,
+      "center_y": 563
+    }
+  },
+  {
+    "action": "tap",
+    "index": 21,
+    "label": "Screen timeout",
+    "text": "Screen timeout",
+    "desc": "",
+    "resource_id": "android:id/title",
+    "cls": "android.widget.TextView",
+    "clickable": false,
+    "bounds": {
+      "left": 81,
+      "top": 1285,
+      "right": 540,
+      "bottom": 1376,
+      "center_x": 310,
+      "center_y": 1330
+    }
+  },
+  {
+    "action": "tap",
+    "index": 35,
+    "label": "10 minutes",
+    "text": "10 minutes",
+    "desc": "",
+    "resource_id": "android:id/title",
+    "cls": "android.widget.TextView",
+    "clickable": false,
+    "bounds": {
+      "left": 244,
+      "top": 1829,
+      "right": 582,
+      "bottom": 1920,
+      "center_x": 413,
+      "center_y": 1874
+    }
+  }
+]

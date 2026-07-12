@@ -33,6 +33,8 @@ __pycache__/
 mcp-server/*.log
 mcp-server/*.err
 mcp-server/active_pids.txt
+mcp-server/experiments/results/*.log
+mcp-server/scheduled_tasks.json
 
 # Demo-/Scratch-Aufnahmen
 mcp-server/*.mp4

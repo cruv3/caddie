@@ -1,0 +1,43 @@
+[
+  {
+    "action": "tap",
+    "index": 21,
+    "label": "Chrome",
+    "text": "Chrome",
+    "desc": "Chrome",
+    "resource_id": "",
+    "cls": "android.widget.TextView",
+    "clickable": true,
+    "bounds": {
+      "left": 577,
+      "top": 1897,
+      "right": 750,
+      "bottom": 2092,
+      "center_x": 663,
+      "center_y": 1994
+    }
+  },
+  {
+    "action": "tap_xy",
+    "x": 990,
+    "y": 200
+  },
+  {
+    "action": "tap",
+    "index": 30,
+    "label": "Downloads",
+    "text": "Downloads",
+    "desc": "",
+    "resource_id": "com.android.chrome:id/menu_item_text",
+    "cls": "android.widget.TextView",
+    "clickable": false,
+    "bounds": {
+      "left": 493,
+      "top": 1013,
+      "right": 737,
+      "bottom": 1139,
+      "center_x": 615,
+      "center_y": 1076
+    }
+  }
+]

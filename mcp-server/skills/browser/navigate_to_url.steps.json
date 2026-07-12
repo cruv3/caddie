@@ -1,0 +1,118 @@
+[
+  {
+    "action": "open_app",
+    "package": "com.android.chrome"
+  },
+  {
+    "action": "type",
+    "text": "wikipedia.org",
+    "submit": true
+  },
+  {
+    "action": "tap",
+    "index": 43,
+    "label": "translate.google.com/?sl=ru&tl=en&op=translate",
+    "text": "translate.google.com/?sl=ru&tl=en&op=translate",
+    "desc": "",
+    "resource_id": "com.android.chrome:id/url_bar",
+    "cls": "android.widget.EditText",
+    "clickable": true,
+    "bounds": {
+      "left": 211,
+      "top": 2190,
+      "right": 691,
+      "bottom": 2337,
+      "center_x": 451,
+      "center_y": 2263
+    }
+  },
+  {
+    "action": "type",
+    "text": "wikipedia.org",
+    "submit": true
+  },
+  {
+    "action": "press",
+    "button": "HOME"
+  },
+  {
+    "action": "open_app",
+    "package": "com.android.chrome"
+  },
+  {
+    "action": "tap",
+    "index": 43,
+    "label": "translate.google.com/?sl=ru&tl=en&op=translate",
+    "text": "translate.google.com/?sl=ru&tl=en&op=translate",
+    "desc": "",
+    "resource_id": "com.android.chrome:id/url_bar",
+    "cls": "android.widget.EditText",
+    "clickable": true,
+    "bounds": {
+      "left": 211,
+      "top": 2190,
+      "right": 691,
+      "bottom": 2337,
+      "center_x": 451,
+      "center_y": 2263
+    }
+  },
+  {
+    "action": "type",
+    "text": "wikipedia.org",
+    "submit": true
+  },
+  {
+    "action": "press",
+    "button": "RECENTS"
+  },
+  {
+    "action": "tap",
+    "index": 6,
+    "label": "com.google.android.apps.nexuslauncher:id/task_view_single",
+    "text": "",
+    "desc": "",
+    "resource_id": "com.google.android.apps.nexuslauncher:id/task_view_single",
+    "cls": "android.widget.FrameLayout",
+    "clickable": true,
+    "bounds": {
+      "left": 0,
+      "top": 295,
+      "right": 131,
+      "bottom": 1926,
+      "center_x": 65,
+      "center_y": 1110
+    }
+  },
+  {
+    "action": "open_app",
+    "package": "com.android.chrome"
+  },
+  {
+    "action": "tap",
+    "index": 43,
+    "label": "translate.google.com/?sl=ru&tl=en&op=translate",
+    "text": "translate.google.com/?sl=ru&tl=en&op=translate",
+    "desc": "",
+    "resource_id": "com.android.chrome:id/url_bar",
+    "cls": "android.widget.EditText",
+    "clickable": true,
+    "bounds": {
+      "left": 211,
+      "top": 2190,
+      "right": 691,
+      "bottom": 2337,
+      "center_x": 451,
+      "center_y": 2263
+    }
+  },
+  {
+    "action": "type",
+    "text": "wikipedia.org",
+    "submit": true
+  },
+  {
+    "action": "open_url",
+    "url": "https://wikipedia.org"
+  }
+]

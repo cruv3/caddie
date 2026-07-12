@@ -1,0 +1,42 @@
+[
+  {
+    "action": "open_app",
+    "package": "com.google.android.deskclock"
+  },
+  {
+    "action": "tap",
+    "index": 22,
+    "label": "Clock",
+    "text": "Clock",
+    "desc": "Predicted app: Clock",
+    "resource_id": "",
+    "cls": "android.widget.TextView",
+    "clickable": true,
+    "bounds": {
+      "left": 824,
+      "top": 1897,
+      "right": 997,
+      "bottom": 2092,
+      "center_x": 910,
+      "center_y": 1994
+    }
+  },
+  {
+    "action": "tap",
+    "index": 29,
+    "label": "Alarms",
+    "text": "",
+    "desc": "Alarms",
+    "resource_id": "com.google.android.deskclock:id/tab_menu_alarm",
+    "cls": "android.widget.FrameLayout",
+    "clickable": true,
+    "bounds": {
+      "left": 0,
+      "top": 2193,
+      "right": 216,
+      "bottom": 2361,
+      "center_x": 108,
+      "center_y": 2277
+    }
+  }
+]

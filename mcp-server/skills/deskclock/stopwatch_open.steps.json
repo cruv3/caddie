@@ -1,0 +1,51 @@
+[
+  {
+    "action": "tap",
+    "index": 22,
+    "label": "Clock",
+    "text": "Clock",
+    "desc": "Predicted app: Clock",
+    "resource_id": "",
+    "cls": "android.widget.TextView",
+    "clickable": true,
+    "bounds": {
+      "left": 822,
+      "top": 1880,
+      "right": 1011,
+      "bottom": 2094,
+      "center_x": 916,
+      "center_y": 1987
+    }
+  },
+  {
+    "action": "open_app",
+    "package": "com.google.android.deskclock"
+  },
+  {
+    "action": "tap",
+    "index": 4,
+    "label": "com.google.android.apps.nexuslauncher:id/scrim_view",
+    "text": "",
+    "desc": "",
+    "resource_id": "com.google.android.apps.nexuslauncher:id/scrim_view",
+    "cls": "android.view.View",
+    "clickable": false,
+    "bounds": {
+      "left": 0,
+      "top": 0,
+      "right": 1080,
+      "bottom": 2424,
+      "center_x": 540,
+      "center_y": 1212
+    }
+  },
+  {
+    "action": "tap_xy",
+    "x": 756,
+    "y": 2350
+  },
+  {
+    "action": "open_app",
+    "package": "com.google.android.deskclock"
+  }
+]

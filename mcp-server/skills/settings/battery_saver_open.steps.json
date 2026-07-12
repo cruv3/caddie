@@ -1,0 +1,121 @@
+[
+  {
+    "action": "open_app",
+    "package": "com.android.settings"
+  },
+  {
+    "action": "tap",
+    "index": 5,
+    "label": "com.android.settings:id/search_action_bar",
+    "text": "",
+    "desc": "",
+    "resource_id": "com.android.settings:id/search_action_bar",
+    "cls": "android.widget.LinearLayout",
+    "clickable": true,
+    "bounds": {
+      "left": 42,
+      "top": 157,
+      "right": 1038,
+      "bottom": 346,
+      "center_x": 540,
+      "center_y": 251
+    }
+  },
+  {
+    "action": "type",
+    "text": "Akkusparmodus",
+    "submit": false
+  },
+  {
+    "action": "type",
+    "text": "Battery saver",
+    "submit": false
+  },
+  {
+    "action": "tap",
+    "index": 13,
+    "label": "Text löschen",
+    "text": "",
+    "desc": "Text löschen",
+    "resource_id": "com.google.android.settings.intelligence:id/open_search_view_clear_button",
+    "cls": "android.widget.ImageButton",
+    "clickable": true,
+    "bounds": {
+      "left": 933,
+      "top": 157,
+      "right": 1080,
+      "bottom": 304,
+      "center_x": 1006,
+      "center_y": 230
+    }
+  },
+  {
+    "action": "type",
+    "text": "Battery",
+    "submit": true
+  },
+  {
+    "action": "press",
+    "button": "BACK"
+  },
+  {
+    "action": "open_app",
+    "package": "com.android.settings"
+  },
+  {
+    "action": "scroll",
+    "direction": "up",
+    "amount": 0.6
+  },
+  {
+    "action": "scroll",
+    "direction": "down",
+    "amount": 0.6
+  },
+  {
+    "action": "scroll",
+    "direction": "up",
+    "amount": 0.8
+  },
+  {
+    "action": "scroll",
+    "direction": "down",
+    "amount": 0.8
+  },
+  {
+    "action": "tap",
+    "index": 53,
+    "label": "Akku",
+    "text": "Akku",
+    "desc": "",
+    "resource_id": "android:id/title",
+    "cls": "android.widget.TextView",
+    "clickable": false,
+    "bounds": {
+      "left": 221,
+      "top": 1213,
+      "right": 321,
+      "bottom": 1269,
+      "center_x": 271,
+      "center_y": 1241
+    }
+  },
+  {
+    "action": "tap",
+    "index": 20,
+    "label": "Energiesparmodus",
+    "text": "Energiesparmodus",
+    "desc": "",
+    "resource_id": "android:id/title",
+    "cls": "android.widget.TextView",
+    "clickable": false,
+    "bounds": {
+      "left": 84,
+      "top": 995,
+      "right": 464,
+      "bottom": 1051,
+      "center_x": 274,
+      "center_y": 1023
+    }
+  }
+]

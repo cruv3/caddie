@@ -1,0 +1,122 @@
+[
+  {
+    "action": "tap",
+    "index": 3,
+    "label": "com.google.android.settings.intelligence:id/main_content",
+    "text": "",
+    "desc": "",
+    "resource_id": "com.google.android.settings.intelligence:id/main_content",
+    "cls": "android.widget.FrameLayout",
+    "clickable": false,
+    "bounds": {
+      "left": 0,
+      "top": 0,
+      "right": 1080,
+      "bottom": 2424,
+      "center_x": 540,
+      "center_y": 1212
+    }
+  },
+  {
+    "action": "tap",
+    "index": 1,
+    "label": "com.google.android.settings.intelligence:id/action_bar_root",
+    "text": "",
+    "desc": "",
+    "resource_id": "com.google.android.settings.intelligence:id/action_bar_root",
+    "cls": "android.widget.LinearLayout",
+    "clickable": false,
+    "bounds": {
+      "left": 0,
+      "top": 0,
+      "right": 1080,
+      "bottom": 2424,
+      "center_x": 540,
+      "center_y": 1212
+    }
+  },
+  {
+    "action": "tap",
+    "index": 2,
+    "label": "android:id/content",
+    "text": "",
+    "desc": "",
+    "resource_id": "android:id/content",
+    "cls": "android.widget.FrameLayout",
+    "clickable": false,
+    "bounds": {
+      "left": 0,
+      "top": 0,
+      "right": 1080,
+      "bottom": 2424,
+      "center_x": 540,
+      "center_y": 1212
+    }
+  },
+  {
+    "action": "tap",
+    "index": 1,
+    "label": "com.google.android.settings.intelligence:id/action_bar_root",
+    "text": "",
+    "desc": "",
+    "resource_id": "com.google.android.settings.intelligence:id/action_bar_root",
+    "cls": "android.widget.LinearLayout",
+    "clickable": false,
+    "bounds": {
+      "left": 0,
+      "top": 0,
+      "right": 1080,
+      "bottom": 2424,
+      "center_x": 540,
+      "center_y": 1212
+    }
+  },
+  {
+    "action": "press",
+    "button": "BACK"
+  },
+  {
+    "action": "press",
+    "button": "HOME"
+  },
+  {
+    "action": "open_app",
+    "package": "com.android.settings"
+  },
+  {
+    "action": "tap",
+    "index": 36,
+    "label": "Apps",
+    "text": "Apps",
+    "desc": "",
+    "resource_id": "android:id/title",
+    "cls": "android.widget.TextView",
+    "clickable": false,
+    "bounds": {
+      "left": 210,
+      "top": 1138,
+      "right": 332,
+      "bottom": 1209,
+      "center_x": 271,
+      "center_y": 1173
+    }
+  },
+  {
+    "action": "tap",
+    "index": 34,
+    "label": "Default apps",
+    "text": "Default apps",
+    "desc": "",
+    "resource_id": "android:id/title",
+    "cls": "android.widget.TextView",
+    "clickable": false,
+    "bounds": {
+      "left": 63,
+      "top": 1697,
+      "right": 361,
+      "bottom": 1768,
+      "center_x": 212,
+      "center_y": 1732
+    }
+  }
+]

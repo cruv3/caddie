@@ -1,0 +1,70 @@
+[
+  {
+    "action": "open_url",
+    "url": "https://www.youtube.com"
+  },
+  {
+    "action": "tap",
+    "index": 51,
+    "label": "Search YouTube",
+    "text": "",
+    "desc": "Search YouTube",
+    "resource_id": "",
+    "cls": "android.view.ViewGroup",
+    "clickable": true,
+    "bounds": {
+      "left": 186,
+      "top": 706,
+      "right": 894,
+      "bottom": 811,
+      "center_x": 540,
+      "center_y": 758
+    }
+  },
+  {
+    "action": "type",
+    "text": "lofi music",
+    "submit": true
+  },
+  {
+    "action": "tap",
+    "index": 49,
+    "label": "Best of lofi hip hop 2021 ✨ [beats to relax/study to] - 6 hours, 10 minutes, 58 seconds -  - Lofi Girl - 55 million views - 4y ago - play video",
+    "text": "",
+    "desc": "Best of lofi hip hop 2021 ✨ [beats to relax/study to] - 6 hours, 10 minutes, 58 seconds -  - Lofi Girl - 55 million views - 4y ago - play video",
+    "resource_id": "",
+    "cls": "android.view.ViewGroup",
+    "clickable": true,
+    "bounds": {
+      "left": 0,
+      "top": 1822,
+      "right": 1080,
+      "bottom": 2235,
+      "center_x": 540,
+      "center_y": 2028
+    }
+  },
+  {
+    "action": "scroll",
+    "direction": "down",
+    "amount": 0.6
+  },
+  {
+    "action": "tap",
+    "index": 48,
+    "label": "Best of lofi hip hop 2021 ✨ [beats to relax/study to] - 6 hours, 10 minutes, 58 seconds -  - Lofi Girl - 55 million views - 4y ago - play video",
+    "text": "",
+    "desc": "Best of lofi hip hop 2021 ✨ [beats to relax/study to] - 6 hours, 10 minutes, 58 seconds -  - Lofi Girl - 55 million views - 4y ago - play video",
+    "resource_id": "",
+    "cls": "android.view.ViewGroup",
+    "clickable": true,
+    "bounds": {
+      "left": 0,
+      "top": 1407,
+      "right": 1080,
+      "bottom": 2193,
+      "center_x": 540,
+      "center_y": 1800
+    }
+  }
+]

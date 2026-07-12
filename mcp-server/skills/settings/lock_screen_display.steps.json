@@ -1,0 +1,24 @@
+[
+  {
+    "action": "open_app",
+    "package": "com.android.settings"
+  },
+  {
+    "action": "tap",
+    "index": 20,
+    "label": "",
+    "text": "",
+    "desc": "",
+    "resource_id": "",
+    "cls": "android.widget.LinearLayout",
+    "clickable": true,
+    "bounds": {
+      "left": 0,
+      "top": 360,
+      "right": 1080,
+      "bottom": 638,
+      "center_x": 540,
+      "center_y": 499
+    }
+  }
+]

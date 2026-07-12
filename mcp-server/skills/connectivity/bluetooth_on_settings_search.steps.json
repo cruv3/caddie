@@ -1,0 +1,75 @@
+[
+  {
+    "action": "open_app",
+    "package": "com.android.settings"
+  },
+  {
+    "action": "tap_xy",
+    "x": 540,
+    "y": 257
+  },
+  {
+    "action": "type",
+    "text": "Bluetooth",
+    "submit": false
+  },
+  {
+    "action": "tap",
+    "index": 1,
+    "label": "android:id/content",
+    "text": "",
+    "desc": "",
+    "resource_id": "android:id/content",
+    "cls": "android.widget.FrameLayout",
+    "clickable": false,
+    "bounds": {
+      "left": 0,
+      "top": 136,
+      "right": 1080,
+      "bottom": 389,
+      "center_x": 540,
+      "center_y": 262
+    }
+  },
+  {
+    "action": "tap",
+    "index": 3,
+    "label": "Helligkeit des Displays",
+    "text": "Helligkeit des Displays",
+    "desc": "",
+    "resource_id": "",
+    "cls": "android.widget.SeekBar",
+    "clickable": false,
+    "bounds": {
+      "left": 42,
+      "top": 194,
+      "right": 1038,
+      "bottom": 331,
+      "center_x": 540,
+      "center_y": 262
+    }
+  },
+  {
+    "action": "tap",
+    "index": 22,
+    "label": "",
+    "text": "",
+    "desc": "",
+    "resource_id": "",
+    "cls": "android.widget.LinearLayout",
+    "clickable": true,
+    "bounds": {
+      "left": 0,
+      "top": 433,
+      "right": 1080,
+      "bottom": 664,
+      "center_x": 540,
+      "center_y": 548
+    }
+  },
+  {
+    "action": "tap_xy",
+    "x": 916,
+    "y": 419
+  }
+]

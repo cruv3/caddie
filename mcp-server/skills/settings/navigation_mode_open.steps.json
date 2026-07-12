@@ -1,0 +1,65 @@
+[
+  {
+    "action": "press",
+    "button": "BACK"
+  },
+  {
+    "action": "tap",
+    "index": 11,
+    "label": "About phone",
+    "text": "About phone",
+    "desc": "",
+    "resource_id": "com.google.android.settings.intelligence:id/open_search_view_edit_text",
+    "cls": "android.widget.EditText",
+    "clickable": true,
+    "bounds": {
+      "left": 138,
+      "top": 150,
+      "right": 919,
+      "bottom": 357,
+      "center_x": 528,
+      "center_y": 253
+    }
+  },
+  {
+    "action": "type",
+    "text": "navigation mode",
+    "submit": false
+  },
+  {
+    "action": "tap",
+    "index": 21,
+    "label": "Navigation mode",
+    "text": "Navigation mode",
+    "desc": "",
+    "resource_id": "android:id/title",
+    "cls": "android.widget.TextView",
+    "clickable": false,
+    "bounds": {
+      "left": 69,
+      "top": 406,
+      "right": 553,
+      "bottom": 501,
+      "center_x": 311,
+      "center_y": 453
+    }
+  },
+  {
+    "action": "tap",
+    "index": 36,
+    "label": "Navigation mode",
+    "text": "Navigation mode",
+    "desc": "",
+    "resource_id": "android:id/title",
+    "cls": "android.widget.TextView",
+    "clickable": false,
+    "bounds": {
+      "left": 69,
+      "top": 2161,
+      "right": 546,
+      "bottom": 2246,
+      "center_x": 307,
+      "center_y": 2203
+    }
+  }
+]

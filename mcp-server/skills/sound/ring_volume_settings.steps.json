@@ -1,0 +1,12 @@
+[
+  {
+    "action": "scroll",
+    "direction": "up",
+    "amount": 0.5
+  },
+  {
+    "action": "scroll",
+    "direction": "up",
+    "amount": 0.4
+  }
+]

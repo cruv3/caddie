@@ -1,0 +1,79 @@
+[
+  {
+    "action": "open_app",
+    "package": "com.android.settings"
+  },
+  {
+    "action": "scroll",
+    "direction": "down",
+    "amount": 0.7
+  },
+  {
+    "action": "tap",
+    "index": 1,
+    "label": "com.google.android.settings.intelligence:id/action_bar_root",
+    "text": "",
+    "desc": "",
+    "resource_id": "com.google.android.settings.intelligence:id/action_bar_root",
+    "cls": "android.widget.LinearLayout",
+    "clickable": false,
+    "bounds": {
+      "left": 0,
+      "top": 0,
+      "right": 1080,
+      "bottom": 2424,
+      "center_x": 540,
+      "center_y": 1212
+    }
+  },
+  {
+    "action": "open_app",
+    "package": "com.android.settings"
+  },
+  {
+    "action": "scroll",
+    "direction": "down",
+    "amount": 0.7
+  },
+  {
+    "action": "tap",
+    "index": 5,
+    "label": "com.android.settings:id/search_action_bar",
+    "text": "",
+    "desc": "",
+    "resource_id": "com.android.settings:id/search_action_bar",
+    "cls": "android.widget.LinearLayout",
+    "clickable": true,
+    "bounds": {
+      "left": 46,
+      "top": 173,
+      "right": 1034,
+      "bottom": 380,
+      "center_x": 540,
+      "center_y": 276
+    }
+  },
+  {
+    "action": "type",
+    "text": "Android version",
+    "submit": false
+  },
+  {
+    "action": "tap",
+    "index": 21,
+    "label": "Android version",
+    "text": "Android version",
+    "desc": "",
+    "resource_id": "android:id/title",
+    "cls": "android.widget.TextView",
+    "clickable": false,
+    "bounds": {
+      "left": 69,
+      "top": 406,
+      "right": 515,
+      "bottom": 501,
+      "center_x": 292,
+      "center_y": 453
+    }
+  }
+]
