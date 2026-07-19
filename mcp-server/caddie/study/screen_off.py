@@ -168,7 +168,7 @@ class ScreenOffManager:
         with self._lock:
             # Check cancellation before sleeping
             if self._cancelled:
-                return ScreenOffResult(
+                result = ScreenOffResult(
                     mode=config.mode,
                     task_id=config.task_id,
                     display_was_on=display_was_on,
@@ -177,6 +177,8 @@ class ScreenOffManager:
                     elapsed_ms=int((time.monotonic() - start) * 1000),
                     message="Cancelled before timer",
                 )
+                self._log_initiation_result(result)
+                return result
             # Sleep in small increments to allow cancellation
             remaining = self._wait_seconds
             while remaining > 0:
@@ -187,7 +189,7 @@ class ScreenOffManager:
                 remaining = max(0.0, remaining - slept)
             # Final cancellation check after sleep
             if self._cancelled:
-                return ScreenOffResult(
+                result = ScreenOffResult(
                     mode=config.mode,
                     task_id=config.task_id,
                     display_was_on=display_was_on,
@@ -196,6 +198,8 @@ class ScreenOffManager:
                     elapsed_ms=int((time.monotonic() - start) * 1000),
                     message="Cancelled during timer",
                 )
+                self._log_initiation_result(result)
+                return result
 
         result = self._wait_and_initiate(config, display_was_on)
         elapsed_ms = int((time.monotonic() - start) * 1000)

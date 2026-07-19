@@ -90,9 +90,6 @@ def _handler_factory(
             if self.path == "/study/health":
                 self._handle_study_health()
                 return
-            if self.path == "/study/preflight":
-                self._handle_study_preflight()
-                return
             if self.path == "/study/trials/status":
                 self._handle_study_status()
                 return
@@ -206,11 +203,15 @@ def _handler_factory(
         # ------------------------------------------------------------------
 
         def _handle_study_preflight(self) -> None:
-            """GET /study/preflight — run preflight checks (Spec §4.2)."""
+            """POST /study/preflight — run preflight checks (Spec §4.2)."""
             from caddie.study import preflight
 
             suite = preflight.default_suite()
             results = suite.run()
+            timed_out = sum(1 for r in results if r.check.status == "timeout")
+            all_passed = len(results) > 0 and all(
+                r.passed for r in results
+            ) and timed_out == 0
             self._send_json({
                 "ok": True,
                 "preflight": {
@@ -228,6 +229,8 @@ def _handler_factory(
                         "passed": sum(1 for r in results if r.passed),
                         "failed": sum(1 for r in results if r.failed),
                         "skipped": sum(1 for r in results if r.skipped),
+                        "timed_out": timed_out,
+                        "all_passed": all_passed,
                     },
                 },
             })
@@ -250,7 +253,7 @@ def _handler_factory(
         def _handle_study_run(self) -> None:
             """POST /study/trials/run — start a deterministic trial.
 
-            Body: {"participant": "P01", "trial_index": 0, "condition": "stepwise",
+            Body: {"participant": "P01", "trial_index": 0, "condition": "c1_stepwise",
                    "specs_dir": "...", "data_dir": "..."}
             """
             from caddie.study.session import SessionManager
@@ -266,7 +269,7 @@ def _handler_factory(
             payload = self._read_json()
             participant = str(payload.get("participant", "P01")).strip()
             trial_index = int(payload.get("trial_index", 0))
-            condition_str = str(payload.get("condition", "stepwise")).strip().lower()
+            condition_str = str(payload.get("condition", "c1_stepwise")).strip().lower()
             specs_dir = str(payload.get("specs_dir", ""))
             data_dir = str(payload.get("data_dir", ""))
 
