@@ -30,6 +30,8 @@ Directory structure
 
 from __future__ import annotations
 
+import threading
+
 from dataclasses import dataclass, field
 from typing import Callable, Optional, Protocol, Sequence
 
@@ -57,7 +59,7 @@ class OversightDecision:
     confirmed: bool = False
     cancelled: bool = False
     declined: bool = False
-    modified_steps: list[StudyStep] = field(default_factory=list)
+    modified_steps: tuple[StudyStep, ...] = field(default_factory=tuple)
     reason: str = ""
 
 
@@ -117,10 +119,11 @@ class OversightManager:
         logger: StudyLogger,
         condition: StudyCondition = StudyCondition.STEPWISE,
         step_callback: Optional[Callable[[StudyStep, str], OversightDecision]] = None,
-        batch_callback: Optional[Callable[[Sequence[StudyStep]], OversightDecision]] = None,
+        batch_callback: Optional[Callable[[Sequence[StudyStep], Sequence[str]], OversightDecision]] = None,
     ) -> None:
         self._logger = logger
         self._condition = condition
+        self._lock = threading.RLock()  # Protects _cancelled, _declined_steps, _pending_steps
         self._cancelled = False
         self._declined_steps: list[str] = []
         self._pending_steps: list[StudyStep] = []
@@ -151,17 +154,18 @@ class OversightManager:
         Returns:
             An ``OversightDecision`` with confirmation status.
         """
-        if self._cancelled:
-            return OversightDecision(cancelled=True)
+        with self._lock:
+            if self._cancelled:
+                return OversightDecision(cancelled=True)
 
-        # C2: defer to batch summary — just queue the step
-        if self._condition == StudyCondition.FINAL_CHECKPOINT:
-            self._pending_steps.append(step)
-            return OversightDecision(confirmed=True)
+            # C2: defer to batch summary — just queue the step
+            if self._condition == StudyCondition.FINAL_CHECKPOINT:
+                self._pending_steps.append(step)
+                return OversightDecision(confirmed=True)
 
-        # C3: no gate — always pass through
-        if self._condition == StudyCondition.VOLUNTARY_INTERVENTION:
-            return OversightDecision(confirmed=True)
+            # C3: no gate — always pass through
+            if self._condition == StudyCondition.VOLUNTARY_INTERVENTION:
+                return OversightDecision(confirmed=True)
 
         # C1: stepwise — require explicit confirmation
         return self._gate_stepwise(step, narration)
@@ -199,8 +203,9 @@ class OversightManager:
         Returns:
             An ``OversightDecision`` with confirmation status.
         """
-        if self._cancelled:
-            return OversightDecision(cancelled=True)
+        with self._lock:
+            if self._cancelled:
+                return OversightDecision(cancelled=True)
 
         # C1: no batch summary — individual gates already handled
         if self._condition == StudyCondition.STEPWISE:
@@ -211,19 +216,23 @@ class OversightManager:
 
     def cancel(self) -> None:
         """Mark the oversight session as cancelled."""
-        self._cancelled = True
+        with self._lock:
+            self._cancelled = True
 
     def is_cancelled(self) -> bool:
         """Check whether the trial has been cancelled."""
-        return self._cancelled
+        with self._lock:
+            return self._cancelled
 
     def get_pending_steps(self) -> list[StudyStep]:
         """Return the current list of pending consequential steps (C2)."""
-        return list(self._pending_steps)
+        with self._lock:
+            return list(self._pending_steps)
 
     def clear_pending_steps(self) -> None:
         """Clear the pending consequential steps (used after batch commit)."""
-        self._pending_steps.clear()
+        with self._lock:
+            self._pending_steps.clear()
 
     # ------------------------------------------------------------------
     # Internal gate handlers
@@ -234,42 +243,44 @@ class OversightManager:
     ) -> OversightDecision:
         """Execute a C1 stepwise confirmation gate."""
         display_narration = narration or step.narration or f"Step {step.id}"
-        action_desc = _extract_action_description(step.action)
 
-        # Log the confirmation prompt
+        # Log the confirmation prompt (outside lock to avoid deadlocks)
         self._logger.confirmation_shown(
             step_id=step.id,
             narration=display_narration,
         )
 
-        # In tests, confirm_consequential_step would prompt the user.
-        # For the real Android bridge, this would show a dialog and wait
-        # for the user to confirm or decline.
-        #
-        # The executor's backend overrides confirm_consequential_step to
-        # provide canned responses during testing. The manager itself does
-        # not block — it delegates to the backend's oversight callback.
         decision = self._prompt_user(step, display_narration)
 
-        if decision.cancelled:
-            self._cancelled = True
-            self._logger.confirmation_resolved(
-                step_id=step.id,
-                accepted=False,
-                details={"decision": "cancelled", "reason": decision.reason, "condition": self._condition.value},
-            )
-            return decision
+        with self._lock:
+            # Re-check cancellation after callback returns (BLOCKER: race after blocking callback)
+            if self._cancelled:
+                self._logger.confirmation_resolved(
+                    step_id=step.id,
+                    accepted=False,
+                    details={"decision": "cancelled", "reason": "cancelled during callback", "condition": self._condition.value},
+                )
+                return OversightDecision(cancelled=True)
 
-        if decision.declined:
-            self._declined_steps.append(step.id)
-            self._logger.confirmation_resolved(
-                step_id=step.id,
-                accepted=False,
-                details={"decision": "declined", "reason": decision.reason, "condition": self._condition.value},
-            )
-            return decision
+            if decision.cancelled:
+                self._cancelled = True
+                self._logger.confirmation_resolved(
+                    step_id=step.id,
+                    accepted=False,
+                    details={"decision": "cancelled", "reason": decision.reason, "condition": self._condition.value},
+                )
+                return decision
 
-        # Confirmed
+            if decision.declined:
+                self._declined_steps.append(step.id)
+                self._logger.confirmation_resolved(
+                    step_id=step.id,
+                    accepted=False,
+                    details={"decision": "declined", "reason": decision.reason, "condition": self._condition.value},
+                )
+                return decision
+
+        # Confirmed — log outside lock
         self._logger.confirmation_resolved(
             step_id=step.id,
             accepted=True,
@@ -291,18 +302,22 @@ class OversightManager:
             narrations: Effective narrations (optional — falls back to
                         ``step.narration or step.action``).
         """
-        if not steps:
-            return OversightDecision(confirmed=True)
+        with self._lock:
+            if self._cancelled:
+                return OversightDecision(cancelled=True)
 
-        if narrations:
-            narration_parts = [
-                f"  {s.id}: {n}" for s, n in zip(steps, narrations)
-            ]
-        else:
-            narration_parts = [
-                f"  {s.id}: {s.narration or s.action}" for s in steps
-            ]
-        batch_text = "\n".join(narration_parts)
+            if not steps:
+                return OversightDecision(confirmed=True)
+
+            if narrations:
+                narration_parts = [
+                    f"  {s.id}: {n}" for s, n in zip(steps, narrations)
+                ]
+            else:
+                narration_parts = [
+                    f"  {s.id}: {s.narration or s.action}" for s in steps
+                ]
+            batch_text = "\n".join(narration_parts)
 
         # Log the batch confirmation prompt
         self._logger.confirmation_shown(
@@ -310,13 +325,13 @@ class OversightManager:
             narration=f"{batch_text} (batch_consequential, {len(steps)} steps)",
         )
 
-        # In tests, the user would see the batch and decide.
-        # For now, accept the batch by default.
-        decision = self._prompt_batch(steps)
+        # Prompt batch with effective narrations so callback can see them
+        decision = self._prompt_batch(steps, narrations)
 
-        if decision.cancelled:
-            self._cancelled = True
-            return decision
+        with self._lock:
+            if decision.cancelled:
+                self._cancelled = True
+                return decision
 
         # Log one confirmation_resolved for the batch as a whole
         self._logger.confirmation_resolved(
@@ -345,7 +360,9 @@ class OversightManager:
             return self._step_callback(step, narration)
         return OversightDecision(confirmed=True)
 
-    def _prompt_batch(self, steps: Sequence[StudyStep]) -> OversightDecision:
+    def _prompt_batch(
+        self, steps: Sequence[StudyStep], narrations: Sequence[str] | None = None
+    ) -> OversightDecision:
         """Prompt the user to confirm a batch of steps.
 
         In the Android integration, ``batch_callback`` would be set to a
@@ -354,11 +371,18 @@ class OversightManager:
 
         Args:
             steps: The list of consequential steps to review.
+            narrations: Effective narrations for each step (includes error descriptions).
 
         Returns:
             An ``OversightDecision`` reflecting the user's choice.
         """
         if self._batch_callback is not None:
+            # Backward compatible: try narrations first, fall back to steps-only
+            if narrations is not None:
+                try:
+                    return self._batch_callback(steps, narrations)
+                except TypeError:
+                    return self._batch_callback(steps)
             return self._batch_callback(steps)
         return OversightDecision(confirmed=True)
 

@@ -78,15 +78,20 @@ class SessionMetrics:
 
     @classmethod
     def snapshot(cls, state: StudySession) -> "SessionMetrics":
-        """Create a snapshot from the current session state."""
-        return cls(
-            elapsed_ms=state.elapsed_ms,
-            steps_executed=state.steps_executed,
-            pending_oversight_steps=state.pending_oversight_steps,
-            current_step_index=state.current_step_index,
-            is_paused=state.state is SessionState.PAUSED,
-            verification_pending=state.verification_pending,
-        )
+        """Create an atomic snapshot from the current session state.
+
+        Acquires the session lock once and reads all fields under it
+        to avoid internally inconsistent snapshots.
+        """
+        with state._lock:
+            return cls(
+                elapsed_ms=state._compute_elapsed(),
+                steps_executed=state._steps_executed,
+                pending_oversight_steps=state._pending_oversight_steps,
+                current_step_index=state._current_step_index,
+                is_paused=state._state is SessionState.PAUSED,
+                verification_pending=state._verification_pending,
+            )
 
 
 # ---------------------------------------------------------------------------
@@ -161,19 +166,27 @@ class StudySession:
 
     @property
     def steps_executed(self) -> int:
-        return self._steps_executed
+        """Thread-safe: read under lock."""
+        with self._lock:
+            return self._steps_executed
 
     @property
     def pending_oversight_steps(self) -> int:
-        return self._pending_oversight_steps
+        """Thread-safe: read under lock."""
+        with self._lock:
+            return self._pending_oversight_steps
 
     @property
     def current_step_index(self) -> int:
-        return self._current_step_index
+        """Thread-safe: read under lock."""
+        with self._lock:
+            return self._current_step_index
 
     @property
     def verification_pending(self) -> bool:
-        return self._verification_pending
+        """Thread-safe: read under lock."""
+        with self._lock:
+            return self._verification_pending
 
     # ------------------------------------------------------------------
     # Lifecycle transitions
@@ -217,29 +230,56 @@ class StudySession:
         """Resume the session. Transitions PAUSED -> RUNNING.
 
         Delegates to the RunControl so the agent loop also resumes.
+        Accumulates pause duration (does not overwrite).
         """
         with self._lock:
             if self._state is SessionState.PAUSED:
-                self._pause_duration_ms = int(
+                pause_ms = int(
                     (time.monotonic() - self._paused_at) * 1000
                 )
+                self._pause_duration_ms += pause_ms
                 self._state = SessionState.RUNNING
                 self._run_control.request_resume()
                 self._logger.session_resumed()
                 logger.debug("StudySession resumed")
 
     def cancel(self) -> None:
-        """Cancel the session. Transitions RUNNING|PAUSED -> CANCELLING -> IDLE.
+        """Cancel the session. Transitions RUNNING|PAUSED -> CANCELLING.
 
         Delegates to the RunControl so the agent loop stops.
+        Cancels the oversight manager.
+        Hard cleanup (_cleanup) is triggered by the executor on the terminal path,
+        not by cancel() itself — allowing the session to be cancelled while
+        still RUNNING/PAUSED.
+
+        Returns:
+            True if cancellation was applied (state was RUNNING or PAUSED).
         """
         with self._lock:
             if self._state in (SessionState.RUNNING, SessionState.PAUSED):
                 self._state = SessionState.CANCELLING
-                self._run_control.request_stop()
                 self._cancelled = True
-                self._logger.session_cancelled()
-                logger.info("StudySession cancelled")
+                applied = True
+            else:
+                applied = False
+
+        if applied:
+            # Cancel oversight manager outside lock
+            try:
+                self._oversight_manager.cancel()
+            except Exception:
+                logger.warning("OversightManager.cancel() failed", exc_info=True)
+
+            # Request stop outside lock to avoid deadlocks
+            try:
+                self._run_control.request_stop()
+            except Exception:
+                logger.warning("RunControl.request_stop() failed", exc_info=True)
+
+            self._logger.session_cancelled()
+            logger.info("StudySession cancelled -> CANCELLING")
+
+        return applied
 
     # ------------------------------------------------------------------
     # Progress tracking
@@ -266,28 +306,38 @@ class StudySession:
     # ------------------------------------------------------------------
 
     def complete(self) -> None:
-        """Complete the session (terminal state). Hard cleanup."""
+        """Complete the session (terminal state). Hard cleanup.
+
+        Idempotent — safe to call multiple times.
+        """
         self._cleanup("completed")
 
     def fail(self, reason: str = "unknown") -> None:
         """Fail the session (terminal state). Hard cleanup.
 
+        Idempotent — safe to call multiple times.
+
         Args:
             reason: The reason for failure.
         """
+        self._cleanup("failed")
+        # Log outside the lock to avoid nested lock acquisition
         self._logger.session_failed(reason=reason)
         logger.error("StudySession failed: %s", reason)
-        self._cleanup("failed")
 
     def mark_trial_complete(self, outcome: str) -> None:
         """Mark that a trial completed with the given outcome.
+
+        Accepts either a ``TrialOutcome`` enum value or its string value.
 
         Args:
             outcome: Either 'success', 'verification_failed', 'aborted',
                 or 'technical_failure'.
         """
+        # Accept TrialOutcome enum or string value
+        outcome_str = outcome.value if hasattr(outcome, 'value') else outcome
         with self._lock:
-            if outcome in ("success", "verification_failed"):
+            if outcome_str in ("success", "verification_failed"):
                 self._completed_trials += 1
             # Update pending oversight steps (cleared after trial)
             self._pending_oversight_steps = 0
@@ -295,6 +345,10 @@ class StudySession:
 
     def _cleanup(self, outcome: str) -> None:
         """Hard cleanup: release resources, log final state.
+
+        Idempotent — subsequent calls return immediately.
+        All state mutations happen under the lock; external callbacks
+        (session_ended) execute outside the lock to avoid deadlocks.
 
         Args:
             outcome: Either 'completed' or 'failed'.
@@ -312,6 +366,12 @@ class StudySession:
                 self._run_control.request_stop()
             except Exception:
                 logger.warning("RunControl cleanup failed", exc_info=True)
+
+            # Cancel oversight manager outside lock
+            try:
+                self._oversight_manager.cancel()
+            except Exception:
+                logger.warning("OversightManager.cancel() failed", exc_info=True)
 
             # Ensure verification is cleaned up (no pending state)
             self._verification_pending = False
@@ -367,8 +427,32 @@ class StudySession:
         """
         self._run_control.wait_while_paused()
 
+    def request_stop(self) -> None:
+        """Request stop from the outside (e.g., executor abort).
+
+        Transitions to CANCELLING if currently RUNNING or PAUSED.
+        Idempotent — safe to call multiple times.
+        """
+        with self._lock:
+            if self._state in (SessionState.RUNNING, SessionState.PAUSED):
+                self._state = SessionState.CANCELLING
+                self._cancelled = True
+                self._run_control.request_stop()
+                self._logger.session_cancelled()
+            elif self._state in (SessionState.COMPLETED, SessionState.FAILED):
+                pass  # already terminal, ignore
+            elif self._state is SessionState.CANCELLING:
+                pass  # already cancelling
+            else:
+                # IDLE state — just log cancellation
+                self._logger.session_cancelled()
+
     def request_pause(self, *, intervention: bool = False) -> Optional[OversightDecision]:
         """Request pause from the outside (e.g., touch takeover).
+
+        Non-blocking when the session is RUNNING — returns None immediately.
+        Blocks only when an external caller has already paused the session
+        (state is PAUSED), waiting for resume or cancellation.
 
         Args:
             intervention: Whether this pause was triggered by user intervention.
@@ -381,16 +465,21 @@ class StudySession:
             if self._state is SessionState.RUNNING:
                 self.pause()
 
-        # Wait for resume or cancel
-        while True:
-            with self._lock:
-                if self._state in (SessionState.RUNNING, SessionState.PAUSED):
-                    return None
-                if self._state is SessionState.CANCELLING:
-                    return OversightDecision(cancelled=True)
-                # Terminal state reached during pause
-                return None
-            time.sleep(0.1)
+        # Only block if an external pause is pending (state is PAUSED)
+        # Otherwise return immediately so the executor can continue.
+        with self._lock:
+            if self._state is SessionState.PAUSED:
+                # External pause is pending — block until resume or cancel
+                while True:
+                    with self._lock:
+                        if self._state in (SessionState.RUNNING, SessionState.PAUSED):
+                            return None
+                        if self._state is SessionState.CANCELLING:
+                            return OversightDecision(cancelled=True)
+                        return None
+                    time.sleep(0.1)
+            # RUNNING or terminal — return immediately
+            return None
 
     # ------------------------------------------------------------------
     # Metrics

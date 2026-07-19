@@ -396,195 +396,222 @@ class TrialExecutor:
         -------
         TrialResult
             The outcome and statistics for this trial.
+
+        The entire method is wrapped in try/finally to ensure that
+        trial_complete and session cleanup happen even if an exception
+        occurs during logging, screenshots, gate evaluation, or state updates.
         """
         self._start_mono = time.monotonic()
         self._steps_executed = []
         self._screenshots = []
+        _trial_id: str | None = None
+        _outcome: TrialOutcome = TrialOutcome.TECHNICAL_FAILURE
+        _reason: str = "Unexpected exception"
+        _steps_done: int = 0
 
-        # Log trial start
-        self._trial_id = self._logger.trial_start(
-            task_id=self._spec.id,
-            block="main",
-            variant="normal" if self._error_tasks.isdisjoint({self._spec.id}) else "error",
-        )
-
-        # Capture pre-trial screenshot
-        self._screenshots.append(
-            self._logger.screenshot_captured("pre_trial", trial_id=self._trial_id)
-        )
-
-        # Pre-resolve all consequential steps (BLOCKER 7: C2 shows actual injected values)
-        consequential_steps: list[StudyStep] = []
-        resolved_map: dict[str, ResolvedStep] = {}
-        for step in self._spec.steps:
-            resolved = self._resolve_step(step)
-            resolved_map[step.id] = resolved
-            if step.consequential:
-                consequential_steps.append(step)
-
-        # Execute steps
-        steps = self._spec.steps
-
-        # C2: collect pending consequential steps for batch summary
-        c2_pending: list[ResolvedStep] = []
-        c2_gate_shown = False
-
-        for step_idx, step in enumerate(steps):
-            # BLOCKER 6: Check trial deadline before each step
-            if self._elapsed_ms() > self._spec.max_duration_s * 1000:
-                return self._abort_trial(
-                    step_idx,
-                    TrialOutcome.CONFIRMATION_TIMEOUT,
-                    "Trial exceeded max_duration_s",
-                )
-
-            # Check cancellation
-            if self._oversight.is_cancelled():
-                return self._abort_trial(
-                    step_idx,
-                    TrialOutcome.ABORTED,
-                    "User cancelled the trial",
-                )
-
-            # Check session pause
-            pause_decision = self._session.request_pause() if self._session else None
-            if pause_decision is not None:
-                if pause_decision.cancelled:
-                    return self._abort_trial(
-                        step_idx,
-                        TrialOutcome.ABORTED,
-                        "Session cancelled",
-                    )
-
-            # C2: first consequential step triggers gate, then continue normally
-            if step.consequential and self._condition == StudyCondition.FINAL_CHECKPOINT:
-                resolved = resolved_map[step.id]
-                c2_pending.append(resolved)
-                if not c2_gate_shown:
-                    c2_gate_shown = True
-                    # Collect remaining consequential steps for the same batch
-                    for later_step in steps[step_idx + 1:]:
-                        if later_step.consequential:
-                            c2_pending.append(resolved_map[later_step.id])
-                    # Gate the batch — pass effective action strings for C2 display
-                    c2_steps = [r.source for r in c2_pending]
-                    c2_narrations = [r.narration for r in c2_pending]
-                    # Use show_c2_summary_with_narrations if available, fallback to
-                    # show_c2_summary for backward compatibility
-                    show_fn = getattr(self._oversight, "show_c2_summary_with_narrations", None)
-                    c2_decision = show_fn(
-                        c2_steps, c2_narrations
-                    ) if show_fn else self._oversight.show_c2_summary(c2_steps)
-                    if not c2_decision.confirmed:
-                        return self._abort_trial(
-                            step_idx,
-                            TrialOutcome.ABORTED,
-                            "C2 summary declined" if c2_decision.declined
-                            else "C2 summary cancelled",
-                        )
-                    # Apply modified_steps from C2 decision (BLOCKER 14)
-                    for modified in c2_decision.modified_steps:
-                        # Update the resolved map so future execution uses modified step
-                        for r in c2_pending:
-                            if r.source.id == modified.id:
-                                resolved_map[modified.id] = ResolvedStep(
-                                    source=modified,
-                                    effective_action=modified.action,
-                                    narration=modified.narration or modified.action,
-                                    error_injected=bool(modified.error_variant),
-                                    error_variant_id=modified.error_variant.id if modified.error_variant else None,
-                                )
-                    c2_pending.clear()
-
-            # C1: individual gate for consequential steps
-            if step.consequential and self._condition == StudyCondition.STEPWISE:
-                resolved = resolved_map[step.id]
-                # BLOCKER 6: per-step gate timeout
-                deadline = time.monotonic() + self._spec.per_gate_timeout_s
-                decision = self._oversight.confirm_consequential_step(
-                    step, resolved.narration,
-                )
-                # Log error exactly once (BLOCKER 3: resolved.error_injected, not double-log)
-                if resolved.error_injected and resolved.error_variant_id:
-                    self._logger.error_injected(
-                        step.id,
-                        trial_id=self._trial_id,
-                        error_variant_id=resolved.error_variant_id,
-                        field=step.error_variant.field if step.error_variant else "",
-                        wrong_value=step.error_variant.wrong_value if step.error_variant else "",
-                        correct_value=step.error_variant.correct_value if step.error_variant else "",
-                    )
-                if not decision.confirmed:
-                    return self._abort_trial(
-                        step_idx,
-                        TrialOutcome.ABORTED,
-                        f"Step {step.id} declined in C1 gate",
-                    )
-
-            # Execute the step (single resolution, single STEP_START)
-            resolved = resolved_map[step.id]
-            result = self._execute_step(step, resolved, step_idx)
-            self._steps_executed.append(result)
-
-            # Update session progress — only mark completed on success (BLOCKER 10)
-            if self._session and result.success:
-                self._session.mark_step_executed(step_idx + 1)
-
-            if not result.success:
-                # Step failed — abort trial
-                return self._abort_trial(
-                    step_idx,
-                    TrialOutcome.TECHNICAL_FAILURE,
-                    result.error or "Step execution failed",
-                )
-
-        # Run post-trial verification
-        verification_passed = False
-        verification_results: list[dict] = []
-        if self._verification_backend:
-            summary = self._run_verification(
-                self._trial_id,
-                self._verification_backend,
+        try:
+            # Log trial start
+            self._trial_id = self._logger.trial_start(
+                task_id=self._spec.id,
+                block="main",
+                variant="normal" if self._error_tasks.isdisjoint({self._spec.id}) else "error",
             )
-            verification_passed = summary.all_passed
-            verification_results = [asdict(r) for r in summary.results]
 
-        # Determine final outcome based on verification
-        if verification_passed:
-            final_outcome = TrialOutcome.SUCCESS
-            final_reason = "All steps completed successfully"
-        elif self._verification_backend:
-            final_outcome = TrialOutcome.VERIFICATION_FAILED
-            final_reason = "Post-trial verification failed"
-        else:
-            final_outcome = TrialOutcome.SUCCESS
-            final_reason = "All steps completed successfully (no verification backend)"
+            # Capture pre-trial screenshot
+            self._screenshots.append(
+                self._logger.screenshot_captured("pre_trial", trial_id=self._trial_id)
+            )
 
-        # Log trial complete
-        self._logger.trial_complete(
-            self._trial_id,
-            outcome=final_outcome.value,
-            total_steps=len(steps),
-            errors_injected=self._count_errors_injected(),
-            duration_ms=self._elapsed_ms(),
-        )
+            # Pre-resolve all consequential steps
+            resolved_map: dict[str, ResolvedStep] = {}
+            for step in self._spec.steps:
+                resolved = self._resolve_step(step)
+                resolved_map[step.id] = resolved
 
-        result = TrialResult(
-            outcome=final_outcome,
-            steps_executed=self._steps_executed,
-            steps_done=len(self._steps_executed),
-            duration_ms=self._elapsed_ms(),
-            reason=final_reason,
-            verification_passed=verification_passed,
-            verification_results=verification_results,
-            screenshots=self._screenshots,
-        )
+            # Execute steps
+            steps = self._spec.steps
 
-        # Signal session completion
-        if self._session:
-            self._session.mark_trial_complete(final_outcome)
+            # C2: collect pending consequential steps for batch summary
+            c2_pending: list[ResolvedStep] = []
+            c2_gate_shown = False
 
-        return result
+            for step_idx, step in enumerate(steps):
+                # BLOCKER 6: Check trial deadline before each step
+                if self._elapsed_ms() > self._spec.max_duration_s * 1000:
+                    _outcome = TrialOutcome.CONFIRMATION_TIMEOUT
+                    _reason = "Trial exceeded max_duration_s"
+                    _steps_done = step_idx
+                    return self._abort_trial(step_idx, _outcome, _reason)
+
+                # Check cancellation
+                if self._oversight.is_cancelled():
+                    _outcome = TrialOutcome.ABORTED
+                    _reason = "User cancelled the trial"
+                    _steps_done = step_idx
+                    return self._abort_trial(step_idx, _outcome, _reason)
+
+                # Check session pause
+                pause_decision = self._session.request_pause() if self._session else None
+                if pause_decision is not None:
+                    if pause_decision.cancelled:
+                        _outcome = TrialOutcome.ABORTED
+                        _reason = "Session cancelled"
+                        _steps_done = step_idx
+                        return self._abort_trial(step_idx, _outcome, _reason)
+
+                # C2: first consequential step triggers gate, then continue normally
+                if step.consequential and self._condition == StudyCondition.FINAL_CHECKPOINT:
+                    resolved = resolved_map[step.id]
+                    c2_pending.append(resolved)
+                    if not c2_gate_shown:
+                        c2_gate_shown = True
+                        # Collect remaining consequential steps for the same batch
+                        for later_step in steps[step_idx + 1:]:
+                            if later_step.consequential:
+                                c2_pending.append(resolved_map[later_step.id])
+                        # Gate the batch — pass effective narrations for C2 display (BLOCKER B5)
+                        c2_steps = [r.source for r in c2_pending]
+                        c2_narrations = [r.narration for r in c2_pending]
+                        show_fn = getattr(self._oversight, "show_c2_summary_with_narrations", None)
+                        c2_decision = show_fn(
+                            c2_steps, c2_narrations
+                        ) if show_fn else self._oversight.show_c2_summary(c2_steps)
+                        if not c2_decision.confirmed:
+                            _outcome = TrialOutcome.ABORTED
+                            _reason = "C2 summary declined" if c2_decision.declined else "C2 summary cancelled"
+                            _steps_done = step_idx
+                            return self._abort_trial(step_idx, _outcome, _reason)
+                        # Apply modified_steps from C2 decision
+                        for modified in c2_decision.modified_steps:
+                            for r in c2_pending:
+                                if r.source.id == modified.id:
+                                    resolved_map[modified.id] = ResolvedStep(
+                                        source=modified,
+                                        effective_action=modified.action,
+                                        narration=modified.narration or modified.action,
+                                        error_injected=bool(modified.error_variant),
+                                        error_variant_id=modified.error_variant.id if modified.error_variant else None,
+                                    )
+                        c2_pending.clear()
+
+                # C1: individual gate for consequential steps
+                if step.consequential and self._condition == StudyCondition.STEPWISE:
+                    resolved = resolved_map[step.id]
+                    # BLOCKER B3: per-step gate timeout enforcement
+                    deadline = time.monotonic() + self._spec.per_gate_timeout_s
+                    decision = self._oversight.confirm_consequential_step(
+                        step, resolved.narration,
+                    )
+                    # Check if we exceeded the deadline (timeout after callback returns)
+                    if time.monotonic() > deadline:
+                        _outcome = TrialOutcome.CONFIRMATION_TIMEOUT
+                        _reason = f"C1 gate timeout on step {step.id}"
+                        _steps_done = step_idx
+                        return self._abort_trial(step_idx, _outcome, _reason)
+                    if not decision.confirmed:
+                        _outcome = TrialOutcome.ABORTED
+                        _reason = f"Step {step.id} declined in C1 gate"
+                        _steps_done = step_idx
+                        return self._abort_trial(step_idx, _outcome, _reason)
+
+                # Execute the step (single resolution, single STEP_START)
+                resolved = resolved_map[step.id]
+                result = self._execute_step(step, resolved, step_idx)
+                self._steps_executed.append(result)
+
+                # Update session progress — only mark completed on success
+                if result.success:
+                    _steps_done = step_idx + 1
+                    if self._session:
+                        self._session.mark_step_executed(step_idx + 1)
+
+                if not result.success:
+                    # Step failed — abort trial
+                    _outcome = TrialOutcome.TECHNICAL_FAILURE
+                    _reason = result.error or "Step execution failed"
+                    return self._abort_trial(step_idx, _outcome, _reason)
+
+            # Run post-trial verification
+            verification_passed = False
+            verification_results: list[dict] = []
+            if self._verification_backend:
+                summary = self._run_verification(
+                    self._trial_id,
+                    self._verification_backend,
+                )
+                verification_passed = summary.all_passed
+                verification_results = [asdict(r) for r in summary.results]
+
+            # Determine final outcome based on verification
+            if verification_passed:
+                _outcome = TrialOutcome.SUCCESS
+                _reason = "All steps completed successfully"
+            elif self._verification_backend:
+                _outcome = TrialOutcome.VERIFICATION_FAILED
+                _reason = "Post-trial verification failed"
+            else:
+                _outcome = TrialOutcome.SUCCESS
+                _reason = "All steps completed successfully (no verification backend)"
+
+            # Log trial complete
+            self._logger.trial_complete(
+                self._trial_id,
+                outcome=_outcome.value,
+                total_steps=len(steps),
+                errors_injected=self._count_errors_injected(),
+                duration_ms=self._elapsed_ms(),
+            )
+
+            result = TrialResult(
+                outcome=_outcome,
+                steps_executed=self._steps_executed,
+                steps_done=_steps_done,
+                duration_ms=self._elapsed_ms(),
+                reason=_reason,
+                verification_passed=verification_passed,
+                verification_results=verification_results,
+                screenshots=self._screenshots,
+            )
+
+            # Signal session completion
+            if self._session:
+                self._session.mark_trial_complete(_outcome)
+
+            return result
+
+        except Exception as exc:
+            # Catch-all for any unexpected exception — ensure cleanup
+            trial_id = getattr(self, '_trial_id', None)
+            if trial_id is not None:
+                try:
+                    self._logger.trial_complete(
+                        trial_id,
+                        outcome=TrialOutcome.TECHNICAL_FAILURE.value,
+                        total_steps=0,
+                        errors_injected=0,
+                        duration_ms=self._elapsed_ms(),
+                    )
+                except Exception:
+                    pass
+            if self._session:
+                try:
+                    self._session.request_stop()
+                except Exception:
+                    pass
+            return TrialResult(
+                outcome=TrialOutcome.TECHNICAL_FAILURE,
+                steps_executed=self._steps_executed,
+                steps_done=_steps_done,
+                duration_ms=self._elapsed_ms(),
+                reason=f"Unexpected error: {exc}",
+            )
+        finally:
+            # Ensure session is stopped on any terminal path
+            if self._session and not self._session.is_terminal:
+                try:
+                    self._session.request_stop()
+                except Exception:
+                    pass
 
     def _abort_trial(
         self,

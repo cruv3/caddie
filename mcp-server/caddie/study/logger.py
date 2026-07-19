@@ -320,30 +320,38 @@ class StudyLogger:
         details : dict, optional
             Additional structured data for the event.
         """
-        event = StudyEvent(
-            event_type=event_type,
-            timestamp=self._now_iso(),
-            elapsed_ms=self._clock.elapsed_ms(),
-            study_version=self._study_version,
-            participant_id=self._participant_id,
-            session_id=self._session_id,
-            block=block,
-            task_id=task_id,
-            condition=self._condition,
-            trial_id=trial_id,
-            variant=variant,
-            step_id=step_id,
-            narration=narration,
-            action=action,
-            details=details or {},
-        )
-        self._write_event(event)
+        # Generate timestamp under lock to preserve ordering (MINOR: timestamp ordering)
+        with self._lock:
+            event = StudyEvent(
+                event_type=event_type,
+                timestamp=self._now_iso(),
+                elapsed_ms=self._clock.elapsed_ms(),
+                study_version=self._study_version,
+                participant_id=self._participant_id,
+                session_id=self._session_id,
+                block=block,
+                task_id=task_id,
+                condition=self._condition,
+                trial_id=trial_id,
+                variant=variant,
+                step_id=step_id,
+                narration=narration,
+                action=action,
+                details=details or {},
+            )
+            self._write_event_locked(event)
+
+    def _write_event_locked(self, event: StudyEvent) -> None:
+        """Append a pre-built event to the JSONL file (must hold _lock)."""
+        with open(self._events_path, "a", encoding="utf-8") as f:
+            f.write(event.to_json_line() + "\n")
+            f.flush()
+            os.fsync(f.fileno())  # Durability guarantee
 
     def _write_event(self, event: StudyEvent) -> None:
-        """Thread-safe append to the JSONL file."""
+        """Thread-safe append to the JSONL file (acquires lock)."""
         with self._lock:
-            with open(self._events_path, "a", encoding="utf-8") as f:
-                f.write(event.to_json_line() + "\n")
+            self._write_event_locked(event)
 
     # ------------------------------------------------------------------
     # Trial lifecycle
@@ -775,10 +783,15 @@ class StudyLogger:
         The summary is derived from the raw events but serves as the
         canonical human-readable report.  It is never the sole record.
 
+        Thread-safe: acquires the logger lock to prevent reading while
+        another thread is appending.
+
         Returns the path to the written summary file.
         """
-        # Read back raw events for enrichment
-        raw_events = self.get_raw_events()
+        # Read back raw events for enrichment (under lock)
+        with self._lock:
+            raw_events = self.get_raw_events_internal()
+
         step_events = [e for e in raw_events if e.event_type in (
             EventType.STEP_START, EventType.STEP_FINISH,
         )]
@@ -839,16 +852,26 @@ class StudyLogger:
         Thread-safe: acquires the logger lock to prevent reading while
         another thread is appending.
 
-        Corrupted lines (partial JSON) are skipped with a warning;
+        Corrupted lines (partial JSON) are skipped;
         only a trailing partial line prevents recovery.
 
         Returns a list of StudyEvent objects.
         """
-        events: list[StudyEvent] = []
         with self._lock:
-            if not self._events_path.exists():
-                return events
-            text = self._events_path.read_text(encoding="utf-8")
+            return self.get_raw_events_internal()
+
+    def get_raw_events_internal(self) -> list[StudyEvent]:
+        """Read all events from the JSONL file (caller must hold _lock).
+
+        Corrupted lines are skipped; only a trailing partial line
+        prevents recovery.
+
+        Returns a list of StudyEvent objects.
+        """
+        events: list[StudyEvent] = []
+        if not self._events_path.exists():
+            return events
+        text = self._events_path.read_text(encoding="utf-8")
         for line in text.splitlines():
             line = line.strip()
             if not line:
