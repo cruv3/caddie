@@ -208,7 +208,7 @@ def _handler_factory(
 
             suite = preflight.default_suite()
             results = suite.run()
-            timed_out = sum(1 for r in results if r.check.status == "timeout")
+            timed_out = sum(1 for r in results if r.status.value == "timeout")
             all_passed = len(results) > 0 and all(
                 r.passed for r in results
             ) and timed_out == 0
