@@ -87,6 +87,12 @@ def _handler_factory(
             if self.path == "/events":
                 self._handle_observer_stream()
                 return
+            if self.path == "/study/health":
+                self._handle_study_health()
+                return
+            if self.path == "/study/trials/status":
+                self._handle_study_status()
+                return
             self._send_json({"ok": False, "error": "not_found"}, status=404)
 
         def _handle_observer_stream(self) -> None:
@@ -171,6 +177,12 @@ def _handler_factory(
             if self.path == "/control":
                 self._handle_control()
                 return
+            if self.path == "/study/trials/run":
+                self._handle_study_run()
+                return
+            if self.path == "/study/trials/abort":
+                self._handle_study_abort()
+                return
             self._send_json({"ok": False, "error": "not_found"}, status=404)
 
         def _handle_control(self) -> None:
@@ -182,6 +194,220 @@ def _handler_factory(
             text = str(text) if text is not None else None
             result = agent_loop.apply_control(action, text)
             self._send_json(result, status=200 if result.get("ok") else 400)
+
+        # ------------------------------------------------------------------
+        # Study endpoints (§4.2 of design spec)
+        # ------------------------------------------------------------------
+
+        def _handle_study_health(self) -> None:
+            """GET /study/health — study system availability."""
+            from caddie.study.session import SessionManager
+            mgr = SessionManager()
+            session = mgr.session
+            if session is None:
+                self._send_json({"ok": True, "study_ready": True, "session": "idle"})
+                return
+            self._send_json({
+                "ok": True,
+                "study_ready": session.is_running,
+                "session": session.state.value,
+                "steps_executed": session.steps_executed,
+            })
+
+        def _handle_study_run(self) -> None:
+            """POST /study/trials/run — start a deterministic trial.
+
+            Body: {"participant": "P01", "trial_index": 0, "condition": "stepwise",
+                   "specs_dir": "...", "data_dir": "..."}
+            """
+            from caddie.study.session import SessionManager
+            from caddie.study.logger import StudyLogger
+            from caddie.study.oversight import OversightManager
+            from caddie.study.matrix import generate_from_specs_dir
+            from caddie.study.spec_loader import load_all_specs
+            from caddie.study.executor import TrialExecutor
+            from caddie.study.model import StudyCondition
+            from pathlib import Path
+            import time as _time
+
+            payload = self._read_json()
+            participant = str(payload.get("participant", "P01")).strip()
+            trial_index = int(payload.get("trial_index", 0))
+            condition_str = str(payload.get("condition", "stepwise")).strip().lower()
+            specs_dir = str(payload.get("specs_dir", ""))
+            data_dir = str(payload.get("data_dir", ""))
+
+            try:
+                condition = StudyCondition(condition_str)
+            except ValueError:
+                self._send_json({
+                    "ok": False, "error": f"Invalid condition: {condition_str}. "
+                                          "Must be one of: stepwise, final_checkpoint, voluntary"
+                }, status=400)
+                return
+
+            # Load specs
+            try:
+                if specs_dir:
+                    import caddie.study.spec_loader as _sl
+                    _orig = getattr(_sl, 'STUDY_SPECS_DIR', None)
+                    _sl.STUDY_SPECS_DIR = Path(specs_dir)
+                    specs = load_all_specs()
+                    if _orig is not None:
+                        _sl.STUDY_SPECS_DIR = _orig
+                else:
+                    specs = load_all_specs()
+            except Exception as exc:
+                self._send_json({"ok": False, "error": f"Spec load failed: {exc}"}, status=500)
+                return
+
+            if not specs:
+                self._send_json({"ok": False, "error": "No specs loaded"}, status=400)
+                return
+
+            # Generate matrix to get participant config
+            try:
+                configs = generate_from_specs_dir(specs_dir if specs_dir else None)
+            except Exception as exc:
+                self._send_json({"ok": False, "error": f"Matrix generation failed: {exc}"}, status=500)
+                return
+
+            if participant not in configs:
+                self._send_json({"ok": False, "error": f"Participant {participant} not found"}, status=400)
+                return
+
+            p_config = configs[participant]
+
+            # Select the trial spec for this participant/trial
+            # For simplicity, use the first trial spec — the full implementation
+            # would map participant→trial via the matrix
+            trial_spec = specs.get(p_config.task_order[0])
+            if trial_spec is None:
+                trial_spec = next(iter(specs.values()))
+
+            # Create study logger
+            session_id = f"sess_{_time.time():.0f}"
+            try:
+                logger_inst = StudyLogger(
+                    base_dir=Path(data_dir) if data_dir else None,
+                    study_version=trial_spec.version,
+                    participant_id=participant,
+                    session_id=session_id,
+                    condition=condition,
+                )
+            except Exception as exc:
+                self._send_json({"ok": False, "error": f"Logger creation failed: {exc}"}, status=500)
+                return
+
+            # Create oversight manager
+            try:
+                oversight = OversightManager(
+                    logger=logger_inst,
+                    condition=condition,
+                )
+            except Exception as exc:
+                self._send_json({"ok": False, "error": f"Oversight creation failed: {exc}"}, status=500)
+                return
+
+            # Create session
+            mgr = SessionManager()
+            try:
+                session = mgr.create(
+                    logger=logger_inst,
+                    run_control=agent_loop._agent_loop._run_control,
+                    oversight_manager=oversight,
+                )
+                session.start()
+            except RuntimeError as exc:
+                self._send_json({"ok": False, "error": str(exc)}, status=409)
+                return
+
+            # Create executor and run trial
+            try:
+                executor = TrialExecutor(
+                    backend=context.backend,
+                    logger=logger_inst,
+                    oversight=oversight,
+                    spec=trial_spec,
+                    condition=condition,
+                    error_tasks=frozenset(p_config.error_tasks),
+                )
+                result = executor.run()
+            except Exception as exc:
+                session.fail(reason=f"Execution error: {exc}")
+                self._send_json({"ok": False, "error": str(exc)}, status=500)
+                return
+
+            # Clean up session
+            if result.outcome.value == "success":
+                session.complete()
+            else:
+                session.fail(reason=result.reason)
+
+            self._send_json({
+                "ok": True,
+                "trial_id": session_id,
+                "outcome": result.outcome.value,
+                "steps_executed": result.steps_done,
+                "duration_ms": result.duration_ms,
+                "reason": result.reason,
+            })
+
+        def _handle_study_status(self) -> None:
+            """GET /study/trials/status — current session status."""
+            from caddie.study.session import SessionManager
+
+            mgr = SessionManager()
+            session = mgr.session
+            if session is None:
+                self._send_json({
+                    "ok": True,
+                    "has_session": False,
+                    "session": "idle",
+                })
+                return
+
+            metrics = session.get_metrics()
+            self._send_json({
+                "ok": True,
+                "has_session": True,
+                "state": session.state.value,
+                "steps_executed": metrics.steps_executed,
+                "elapsed_ms": metrics.elapsed_ms,
+                "is_paused": metrics.is_paused,
+                "verification_pending": metrics.verification_pending,
+            })
+
+        def _handle_study_abort(self) -> None:
+            """POST /study/trials/abort — abort the current trial.
+
+            Body: {"reason": "experimenter_abort"} (optional)
+            """
+            from caddie.study.session import SessionManager
+
+            payload = self._read_json()
+            reason = str(payload.get("reason", "experimenter_abort")).strip()
+
+            mgr = SessionManager()
+            session = mgr.session
+            if session is None:
+                self._send_json({"ok": False, "error": "No active session"}, status=404)
+                return
+
+            applied = session.cancel()
+            if applied:
+                self._send_json({
+                    "ok": True,
+                    "aborted": True,
+                    "reason": reason,
+                })
+            else:
+                self._send_json({
+                    "ok": True,
+                    "aborted": False,
+                    "reason": reason,
+                    "note": "Session already terminal or idle",
+                })
 
         def _handle_event_ingest(self) -> None:
             """Internal: worker MCP processes (--only=tools / --only=skills)
