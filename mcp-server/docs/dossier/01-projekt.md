@@ -2,29 +2,33 @@
 
 ## Worum geht es
 
-Masterarbeit. Untersuchungsgegenstand: **UI-Abstraktions- und
-Transparenz-Schichten fuer LLM-gesteuerte Smartphone-Agenten** - also Software,
-bei der ein Sprachmodell ein echtes Android-Geraet bedient (tippen, wischen,
-Apps oeffnen, Einstellungen aendern), und die Frage, **wie der Nutzer dabei
-sieht, versteht und kontrolliert, was der Agent tut**.
+Masterarbeit. Untersuchungsgegenstand: **Shared Autonomy und User Oversight bei
+LLM-basierten Smartphone-Agenten** - also Software, bei der ein Sprachmodell
+ein echtes Android-Geraet bedient (tippen, wischen, Apps oeffnen und
+app-uebergreifende Aufgaben ausfuehren), waehrend der Mensch das Verhalten
+beobachten, bestaetigen, korrigieren oder abbrechen kann.
 
 Zwei Stossrichtungen:
 
 1. **Technisch**: Kann ein (lokales) LLM ueber eine saubere Abstraktionsschicht
    (Werkzeuge statt Pixel-Klicks) zuverlaessig ein Smartphone bedienen?
-2. **HCI / Mensch-Maschine**: Welche sichtbare Begleit-Schicht (Overlay/Avatar,
-   Bestaetigungen, Eingriffsmoeglichkeiten) macht den Agenten vertrauenswuerdig
-   und steuerbar? Das ist der eigentliche Forschungsbeitrag.
+2. **HCI / Mensch-Maschine**: Wie viel verpflichtende menschliche Aufsicht ist
+   bei weitgehend autonomer Ausfuehrung sinnvoll, und wie wirkt sie sich auf
+   Aufwand, Beanspruchung, Kontrolle, Aufmerksamkeit und Fehlererkennung aus?
+   Das ist der eigentliche Forschungsbeitrag.
 
 ## Forschungsfrage (Arbeitsstand)
 
-Wie beeinflussen verschiedene **UI-Transparenz-Konditionen** (keine Anzeige bis
-hin zu einem aktiv erklaerenden Avatar) das **Vertrauen, die wahrgenommene
-Kontrolle und die Aufgaben-Performance** bei der Nutzung eines
-LLM-Smartphone-Agenten - besonders bei kritischen Aktionen?
+**RQ1:** Wie beeinflusst der erforderliche Umfang menschlicher Aufsicht den
+Interaktionsaufwand, die subjektive Beanspruchung und die wahrgenommene
+Kontrolle bei einem transparenten Smartphone-Agenten?
 
-Titel-Favorit: "Vom autonomen Werkzeug zum kooperativen Partner: UI-Abstraktion
-und Nutzerkontrolle bei LLM-Smartphone-Agenten."
+**RQ2:** Wie beeinflusst die Kritikalitaet einer Aufgabe den Zielkonflikt
+zwischen frei werdender Aufmerksamkeit und rechtzeitiger Fehlererkennung bei
+reduzierter Aufsicht?
+
+Arbeitstitel: **Shared Autonomy - Designing User Oversight for LLM-Based
+Smartphone Agents**.
 
 ## Geschichte: V1 -> V2
 
@@ -47,7 +51,7 @@ und Nutzerkontrolle bei LLM-Smartphone-Agenten."
 - **Inferenz**: LM Studio als lokales Modell-Backend (OpenAI-kompatibel);
   zusaetzlich Claude Opus 4.7 als starker Vergleichsmasstab.
 
-## Status (2026-05-27)
+## Status (2026-07-19)
 
 - Backend-Stack stabil (Code-Freeze auf MCP-Server-Ebene, nur noch Bugfixes).
 - Failure-Mode-Studie durch (72 Trials), Claude-Vergleich durch.
@@ -55,9 +59,19 @@ und Nutzerkontrolle bei LLM-Smartphone-Agenten."
   Eingriff, Swipe-to-Confirm, Mid-run-Korrektur. Dafuer Agent-Loop aus LM Studio
   herausgeloest (eigener Loop).
 - Korrektur-Test durchgefuehrt (2 Modelle).
-- Overlay-Konditionen: Baseline steht, Transparent Companion (Pill) laeuft,
-  Selective Spotlight und Solid Canvas noch offen.
-- Thesis noch nicht angemeldet - Scope mit Betreuer noch verhandelbar.
+- Der fruehere Vergleich von Overlay-/Avatar-Varianten wurde als Hauptstudie
+  verworfen. Die laufende Aktionsanzeige bleibt in allen Bedingungen konstant.
+- Aktueller Studienfaktor ist der Umfang verpflichtender Aufsicht:
+  Schrittbestaetigungen (C1), ein finaler Checkpoint (C2) oder keine
+  verpflichtende Bestaetigung bei freiwilligem Eingriff (C3).
+- Die Hauptstudie nutzt sechs Cross-App-Aufgaben in drei Paaren aus jeweils
+  niedrigerer und hoeherer Kritikalitaet. Ausfuehrung, Reaktionszeiten, Fehler
+  und Fehlerzeitpunkte werden kontrolliert vorgegeben.
+- Ein explorativer Zusatz untersucht drei Arten zeitversetzter Initiierung bei
+  ausgeschaltetem Bildschirm: nur benachrichtigen, aktivieren und nachfragen,
+  oder aktivieren und selbststaendig ausfuehren.
+- Ziel sind 18 auswertbare Personen (Rekrutierung 20-24), Dauer ca. 60-75
+  Minuten. Pilotierung und finale organisatorische Freigaben stehen noch aus.
 
 ## Wo welche Doku liegt
 

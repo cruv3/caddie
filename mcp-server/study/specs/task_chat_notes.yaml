@@ -1,0 +1,34 @@
+version: "v1"
+id: "task_chat_notes"
+instruction_de: "Übernimm die letzte Nachricht aus der Projektgruppe in eine Checkliste."
+criticality: "low"
+required_packages: ["com.caddie"]
+seeded_artifacts: ["Caddie Study Group Message"]
+reset_checklist: ["Clear study note"]
+steps:
+  - id: "chat_open"
+    action: "com.caddie/.MainActivity"
+    narration: "Chat wird geöffnet..."
+    step_type: "normal"
+    min_narration_ms: 400
+  - id: "read_message"
+    action: "click 'Last Group Message'"
+    narration: "Letzte Nachricht lesen..."
+    step_type: "consequential"
+    consequential: true
+    min_narration_ms: 800
+  - id: "create_note"
+    action: "click 'Create Checklist'"
+    narration: "Checkliste erstellen..."
+    step_type: "commit"
+    commit: true
+    min_narration_ms: 1200
+error_steps: []
+verification:
+  - id: "v_note_created"
+    assertion: "Checkliste enthält Nachrichteninhalt"
+    check_type: "text_present"
+    parameters: { text: "Projektgruppe" }
+    screenshot_evidence: true
+max_duration_s: 120
+per_gate_timeout_s: 30

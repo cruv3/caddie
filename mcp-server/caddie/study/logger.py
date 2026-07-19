@@ -205,7 +205,7 @@ class MonotonicClock:
 
     def __init__(self) -> None:
         self._start_ns: int = time.monotonic_ns()
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
 
     def elapsed_ms(self) -> float:
         with self._lock:
@@ -255,7 +255,7 @@ class StudyLogger:
         self._session_id = session_id
         self._condition = condition
         self._clock = MonotonicClock()
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
         self._counter_lock = threading.Lock()
         self._trial_id_counter = 0
 
@@ -376,15 +376,23 @@ class StudyLogger:
         trial_id: str,
         outcome: str,
         *,
+        task_id: str = "",
         total_steps: int = 0,
         errors_injected: int = 0,
         duration_ms: float = 0.0,
         details: Optional[dict[str, Any]] = None,
     ) -> None:
-        """Mark a trial as complete with its outcome."""
+        """Mark a trial as complete with its outcome.
+
+        Parameters
+        ----------
+        task_id : str
+            The task that was completed. Defaults to empty (unknown).
+        """
         self.log(
             EventType.TRIAL_COMPLETE,
             trial_id=trial_id,
+            task_id=task_id,
             details={
                 "outcome": outcome,
                 "total_steps": total_steps,
@@ -404,12 +412,14 @@ class StudyLogger:
         narration: str,
         *,
         trial_id: Optional[str] = None,
+        task_id: str = "",
     ) -> None:
         self.log(
             EventType.STEP_START,
             step_id=step_id,
             narration=narration,
             trial_id=trial_id,
+            task_id=task_id,
         )
 
     def step_finish(
@@ -417,6 +427,7 @@ class StudyLogger:
         step_id: str,
         *,
         trial_id: Optional[str] = None,
+        task_id: str = "",
         action: Optional[str] = None,
         details: Optional[dict[str, Any]] = None,
     ) -> None:
@@ -424,6 +435,7 @@ class StudyLogger:
             EventType.STEP_FINISH,
             step_id=step_id,
             trial_id=trial_id,
+            task_id=task_id,
             action=action,
             details=details or {},
         )
@@ -453,18 +465,21 @@ class StudyLogger:
         accepted: bool,
         response_latency_ms: float = 0.0,
         trial_id: Optional[str] = None,
+        task_id: str = "",
         details: Optional[dict[str, Any]] = None,
     ) -> None:
         self.log(
             EventType.CONFIRMATION_RESOLVED,
             step_id=step_id,
             trial_id=trial_id,
+            task_id=task_id,
             details={
                 "accepted": accepted,
                 "response_latency_ms": response_latency_ms,
             }
             | (details or {}),
         )
+
 
     # ------------------------------------------------------------------
     # Intervention events
@@ -474,6 +489,8 @@ class StudyLogger:
         self,
         kind: str,
         *,
+        trial_id: Optional[str] = None,
+        task_id: str = "",
         latency_ms: float = 0.0,
         details: Optional[dict[str, Any]] = None,
     ) -> None:
@@ -501,6 +518,7 @@ class StudyLogger:
         step_id: str,
         *,
         trial_id: Optional[str] = None,
+        task_id: str = "",
         error_variant_id: str,
         field: str,
         wrong_value: str,
@@ -510,6 +528,7 @@ class StudyLogger:
             EventType.ERROR_INJECTED,
             step_id=step_id,
             trial_id=trial_id,
+            task_id=task_id,
             details={
                 "error_variant_id": error_variant_id,
                 "field": field,
@@ -527,12 +546,14 @@ class StudyLogger:
         rule_count: int,
         *,
         trial_id: Optional[str] = None,
+        task_id: str = "",
     ) -> None:
         self.log(
             EventType.VERIFICATION_START,
             step_id="<verification>",
             narration=f"Starting {rule_count} verification checks",
             trial_id=trial_id,
+            task_id=task_id,
         )
 
     def verification_complete(
@@ -543,6 +564,7 @@ class StudyLogger:
         timed_out: int = 0,
         skipped: int = 0,
         trial_id: Optional[str] = None,
+        task_id: str = "",
     ) -> None:
         self.log(
             EventType.VERIFICATION_COMPLETE,
@@ -553,6 +575,7 @@ class StudyLogger:
                 f"{timed_out} timed out, {skipped} skipped"
             ),
             trial_id=trial_id,
+            task_id=task_id,
             details={
                 "total_rules": passed + failed + timed_out + skipped,
                 "passed": passed,
@@ -568,12 +591,14 @@ class StudyLogger:
         passed: bool,
         *,
         trial_id: Optional[str] = None,
+        task_id: str = "",
         screenshot_path: Optional[str] = None,
         details: Optional[dict[str, Any]] = None,
     ) -> None:
         self.log(
             EventType.VERIFICATION_RESULT,
             trial_id=trial_id,
+            task_id=task_id,
             details={
                 "rule_id": rule_id,
                 "passed": passed,
@@ -699,12 +724,16 @@ class StudyLogger:
     ) -> str:
         """Record a screenshot capture and return its relative path.
 
-        Returns a relative path like ``screenshots/P01_<trial>_<label>.png``.
-        The actual image must be written to ``self.screenshots_dir``.
+        Returns a relative path like screenshots/P01_<trial>_<label>_<uuid>.png.
+        The actual image must be written to self.screenshots_dir.
+
+        Uses trial_id + UUID in the filename to guarantee uniqueness even
+        under concurrent or repeated calls with the same label.
         """
-        ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
         safe_pid = self._participant_id.replace(" ", "_")
-        filename = f"{safe_pid}_{ts}_{label}.png"
+        safe_tid = (trial_id or "none").replace(" ", "_")
+        uuid_hex = uuid.uuid4().hex[:8]
+        filename = f"{safe_pid}_{safe_tid}_{label}_{uuid_hex}.png"
         rel_path = f"screenshots/{filename}"
         self.log(
             EventType.SCREENSHOT_CAPTURED,
@@ -780,11 +809,14 @@ class StudyLogger:
             "metadata": metadata or {},
         }
 
+        # Write atomically: temp file + os.replace prevents partial reads
         summary_path = self._session_dir / "summary.json"
-        summary_path.write_text(
+        tmp_path = self._session_dir / "summary.json.tmp"
+        tmp_path.write_text(
             json.dumps(summary, indent=2, ensure_ascii=False),
             encoding="utf-8",
         )
+        os.replace(str(tmp_path), str(summary_path))
         return summary_path
 
     # ------------------------------------------------------------------

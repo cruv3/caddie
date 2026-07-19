@@ -100,6 +100,19 @@ Meeting-Notizen.
 
 ## D. Vertrauen, Kontrolle, Agent-Transparenz (HCI)
 
+### Types and Levels of Automation (Parasuraman, Sheridan & Wickens, 2000) [web]
+
+- **Was**: Modelliert, welche Funktionen Automation uebernimmt und in welchem
+  Umfang der Mensch in Informationsaufnahme, Analyse, Entscheidung und
+  Handlungsausfuehrung eingebunden bleibt.
+- **Was wir daraus nutzen (wie/warum)**: Theoretischer Anker fuer unsere
+  experimentelle Abstufung von User Oversight. Unsere drei Bedingungen sind
+  keine direkte Kopie des Modells, operationalisieren aber unterschiedliche
+  Eingriffspunkte bei ansonsten gleichbleibend hoher Automation: jede
+  folgenreiche Aktion bestaetigen (C1), einen finalen Checkpoint bestaetigen
+  (C2), oder ohne verpflichtende Bestaetigung mit freiwilligem Eingriff
+  ausfuehren lassen (C3).
+
 ### Plan-Then-Execute (2025) [web] - arxiv 2502.01390
 
 - **Was**: Empirische **Nutzerstudie** (kein Technik-Paper) zu Vertrauen und
@@ -112,22 +125,22 @@ Meeting-Notizen.
   Kontrolle). Gemessen: Vertrauen und Team-Performance.
 - **Ergebnis**: zweischneidig - gut bei gutem Plan + echter Beteiligung; aber
   Nutzer entwickeln **Ueber-Vertrauen in nur plausibel wirkende Plaene**.
-- **Was wir daraus nutzen (wie/warum)**: Die **theoretische Bruecke** zu unserem
-  Korrektur-Befund. Unser Ergebnis "Korrektur macht aus falschem `done` ein
-  ehrliches `failed`" ist das Gegenmittel gegen dieses Ueber-Vertrauen:
-  **Sichtbarmachen von Scheitern kalibriert Vertrauen**. Warum wichtig: das
-  laedt unseren (zahlenmaessig duennen) Korrektur-Befund theoretisch auf - es
-  geht nicht um "Korrektur repariert Tasks", sondern um Vertrauens-Kalibrierung.
-  Ausserdem: die Risiko-Abstufung der Aufgaben uebernehmen wir (niedrige vs.
-  hohe Kritikalitaet).
+- **Was wir daraus nutzen (wie/warum)**: Die Risiko-Abstufung der Aufgaben und
+  die Warnung vor nur plausibel wirkender Transparenz bleiben relevant. Anders
+  als das Paper zeigen wir keinen vorab zu genehmigenden Plan. Stattdessen
+  bleibt eine knappe laufende Aktionsanzeige in allen Bedingungen konstant,
+  waehrend nur die verpflichtenden Eingriffspunkte variieren. Damit soll der
+  Einfluss von Aufsicht nicht mit dem Einfluss eines Plan-Previews vermischt
+  werden.
 
 ### Autonomy Reshapes Personalization, Privacy & Trust (2025) [web] - arxiv 2510.04465
 
 - **Was**: Untersucht, wie der **Autonomiegrad** eines Agenten den Effekt von
   Personalisierung auf Datenschutz-Sorgen und Vertrauen veraendert.
-- **Was wir daraus nutzen (wie/warum)**: Stuetzt, dass **Autonomiegrad eine
-  eigene Variable** ist - genau unsere abgestuften Konditionen (keine Anzeige bis
-  aktiv erklaerender Avatar). (Nur Abstract-Ebene, vor Zitation querlesen.)
+- **Was wir daraus nutzen (wie/warum)**: Stuetzt, dass der Umfang von Autonomie
+  beziehungsweise menschlicher Aufsicht eine eigenstaendige HCI-Variable ist.
+  Das passt zur aktuellen C1-C3-Achse. (Nur Abstract-Ebene, vor Zitation
+  querlesen.)
 
 ### A2UI / AG-UI und "Agent UX" [web] - blog.doubleslash.de
 
@@ -135,14 +148,14 @@ Meeting-Notizen.
 - **Wie/Loesung**: Der Agent **beschreibt die UI-Struktur** und sendet
   strukturierte Erklaerungen (warum welche Aktion, welche Hypothesen, Konfidenz).
   "Agent UX": zeige *was* der Agent tut, *warum*, und erlaube jederzeit Override.
-- **Was wir daraus nutzen (wie/warum)**: Konzeptioneller Rahmen fuer unsere
-  Transparenz-Schicht. Unsere "Pill mit `why`-Satz" ist eine konkrete, **mobile**
-  Umsetzung dieses Prinzips - waehrend A2UI Desktop/Enterprise adressiert. Warum
-  wichtig: liefert die Begriffe (was/warum/Override) fuer unsere Konditionen.
+- **Was wir daraus nutzen (wie/warum)**: Konzeptioneller Rahmen fuer die
+  konstante Aktionsanzeige und den jederzeitigen Override. Die Transparenz ist
+  in der aktuellen Studie kein eigener Faktor mehr, sondern die notwendige
+  gemeinsame Grundlage, auf der User Oversight ueberhaupt moeglich ist.
 
 ---
 
-## E. Transparente Avatar-/Companion-Overlays (Produkte, Desktop)
+## E. Transparente Avatar-/Companion-Overlays (historischer Design-Hintergrund)
 
 - **Open-LLM-VTuber** [web/such]: Live2D-Avatar, Sprachdialog (ASR/TTS), visuelle
   Wahrnehmung, Multi-Tool. **Pet-Mode**: transparent, always-on-top,
@@ -151,30 +164,31 @@ Meeting-Notizen.
   Gedaechtnis.
 - **AnythingLLM Desktop Assistant** [such]: OS-weites Overlay mit App-Kontext.
 - **Super Agent Party** [such]: anpassbarer Avatar, transparent fuer OBS.
-- **Was wir daraus nutzen (wie/warum)**: Beweis, dass ein transparenter
-  Avatar-Overlay **technisch geloest und beliebt** ist - wir muessen das Rad
-  nicht neu erfinden, koennen uns auf erprobte Muster (transparent,
-  klick-durchlaessig) stuetzen. ABER alle sind **Chat-Begleiter**; keiner zeigt
-  einen Agenten, der **das Geraet bedient**. Genau hier setzen wir an.
+- **Was wir daraus nutzen (wie/warum)**: Diese Produkte waren Grundlage der
+  frueher geplanten Avatar-/Overlay-Variation. Fuer die aktuelle Hauptstudie
+  werden sie nur noch als Design-Hintergrund behandelt; ein Avatar ist keine
+  experimentelle Bedingung mehr.
 
 ---
 
 ## F. Die Luecke (unser Beitrag)
 
-Drei Felder existieren getrennt:
+Mehrere Felder existieren weitgehend getrennt:
 
 1. **GUI-Agenten** bedienen Geraete (AppAgent, MobileWorld), aber ohne
    nutzerseitige Transparenz/Kontrolle; Overlays nur zum Zielen.
-2. **Agent-Transparenz/Trust** ist erforscht (Plan-Then-Execute, A2UI), aber
-   Desktop/Enterprise, nicht am Smartphone, das der Agent selbst bedient.
-3. **Transparente Avatar-Companions** existieren (Open-LLM-VTuber, HoloWaifu),
-   aber als Chat-Begleiter, nicht als Sichtbarmachung eines *handelnden* Agenten.
+2. **Agent-Transparenz/Trust** ist erforscht (Plan-Then-Execute, A2UI), aber oft
+   nicht fuer einen Smartphone-Agenten, der reale Cross-App-Aktionen ausfuehrt.
+3. **Levels of Automation** beschreiben die Verteilung von Funktionen zwischen
+   Mensch und Automation, werden aber selten als konkrete mobile
+   Bestaetigungs- und Eingriffsmechanismen untersucht.
 
-**Unsere Nische**: die Kombination - ein transparenter Companion/Avatar, der
-einen LLM-Agenten beim **Bedienen eines Smartphones** sichtbar und
-kontrollierbar macht (Pause, Eingriff, Bestaetigung kritischer Aktionen,
-Korrektur), plus der **empirische Vergleich** verschiedener
-Transparenz-Konditionen auf Vertrauen, Kontrolle und Performance.
+**Unsere Nische**: Shared Autonomy fuer einen LLM-basierten Smartphone-Agenten.
+Der Agent fuehrt reale Cross-App-Aufgaben aus, waehrend eine konstante
+Aktionsanzeige Beobachtbarkeit schafft und drei Stufen verpflichtender
+menschlicher Aufsicht empirisch verglichen werden. Zusaetzlich wird untersucht,
+wie Aufgabenkritikalitaet den Zielkonflikt zwischen frei werdender Aufmerksamkeit
+und rechtzeitiger Fehlererkennung beeinflusst.
 
 ## Quellenliste
 
@@ -183,6 +197,7 @@ Transparenz-Konditionen auf Vertrauen, Kontrolle und Performance.
 - VLAA-GUI: https://arxiv.org/abs/2604.21375
 - AppAgent (CHI 2025): https://appagent-official.github.io/ , https://github.com/TencentQQGYLab/AppAgent
 - Plan-Then-Execute: https://arxiv.org/abs/2502.01390
+- Parasuraman, Sheridan & Wickens (2000): https://doi.org/10.1109/3468.844354
 - Autonomy/Privacy/Trust: https://arxiv.org/pdf/2510.04465
 - A2UI / AG-UI: https://blog.doubleslash.de/en/software-technologien/agentic-ui-ag-ui-a2ui/
 - LLM-Brained GUI Agents (Uebersicht): https://www.emergentmind.com/topics/llm-brained-gui-agents

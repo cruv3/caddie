@@ -1,0 +1,59 @@
+version: "v1"
+id: "task_music_playlist"
+instruction_de: "Schreibe im Chat drei Lieder in deine Playlist."
+criticality: "high"
+required_packages:
+  - "com.caddie"
+seeded_artifacts:
+  - "Caddie Study Playlist"
+reset_checklist:
+  - "Verify study playlist exists"
+  - "Remove three target songs"
+steps:
+  - id: "chat_open"
+    action: "com.caddie/.MainActivity"
+    narration: "Chat wird geöffnet..."
+    step_type: "normal"
+    min_narration_ms: 400
+  - id: "msg_enter_song1"
+    action: "input text 'Stressed Out'"
+    narration: "Lied 1 eingeben: Stressed Out"
+    step_type: "normal"
+    min_narration_ms: 600
+  - id: "msg_enter_song2"
+    action: "input text 'Bohemian Rhapsody'"
+    narration: "Lied 2 eingeben: Bohemian Rhapsody"
+    step_type: "normal"
+    error_variant: "err_wrong_song2"
+    min_narration_ms: 600
+  - id: "msg_enter_song3"
+    action: "input text 'Blinding Lights'"
+    narration: "Lied 3 eingeben: Blinding Lights"
+    step_type: "normal"
+    min_narration_ms: 600
+  - id: "msg_send"
+    action: "click 'Send'"
+    narration: "Nachricht senden..."
+    step_type: "consequential"
+    consequential: true
+    min_narration_ms: 800
+  - id: "playlist_confirm"
+    action: "verify '3 songs in playlist'"
+    narration: "Songs wurden zur Playlist hinzugefügt."
+    step_type: "commit"
+    commit: true
+    min_narration_ms: 1200
+error_steps:
+  - "msg_enter_song2"
+c2_summary_lines:
+  - "Song 2: Bohemian Rhapsody (falsch: Bohemian City)"
+verification:
+  - id: "v_song_count"
+    assertion: "Playlist enthält genau 3 Songs"
+    check_type: "field_count"
+    parameters:
+      view_id: "playlist_item_list"
+      expected_count: 3
+    screenshot_evidence: true
+max_duration_s: 120
+per_gate_timeout_s: 30

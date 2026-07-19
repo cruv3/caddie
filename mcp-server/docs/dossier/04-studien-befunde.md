@@ -103,3 +103,13 @@ Roh-Daten/Belege: `docs/correction-test-log.md`, `docs/media/corrtest/`,
 3. Die Interaktions-Schicht (Eingriff, Bestaetigung, Korrektur) funktioniert
    technisch und kann reparierbare Fehler heilen sowie Scheitern ehrlich machen,
    hebt aber keine Modell-Faehigkeitsgrenzen auf.
+
+## Konsequenz fuer die aktuelle Nutzerstudie
+
+Die technische Empirie begruendet, warum die Nutzerstudie User Oversight und
+Fehlererkennung untersucht. Sie wird jedoch nicht mit frei schwankenden
+Modellfehlern durchgefuehrt: Agentenaktionen, Abweichungen und Fehlerzeitpunkte
+werden als Wizard-of-Oz-/Replay-Ablauf kontrolliert. So lassen sich C1
+(schrittweise Aufsicht), C2 (finaler Checkpoint) und C3 (freiwilliger Eingriff)
+fair vergleichen. Die reale Modellzuverlaessigkeit bleibt technischer Kontext,
+ist aber keine abhaengige Variable der Nutzerstudie.

@@ -1,0 +1,45 @@
+version: "v1"
+id: "task_gallery_messenger"
+instruction_de: "Sende drei Fotos und eine Begrüßung an die Projektgruppe."
+criticality: "high"
+required_packages:
+  - "com.caddie"
+seeded_artifacts:
+  - "Caddie Study Photo 1"
+  - "Caddie Study Photo 2"
+  - "Caddie Study Photo 3"
+reset_checklist:
+  - "Remove study photos from conversation"
+steps:
+  - id: "gallery_open"
+    action: "com.caddie/.MainActivity"
+    narration: "Galerie wird geöffnet..."
+    step_type: "normal"
+    min_narration_ms: 400
+  - id: "select_photo1"
+    action: "click 'Caddie Study Photo 1'"
+    narration: "Foto 1 auswählen"
+    step_type: "normal"
+    min_narration_ms: 600
+  - id: "share"
+    action: "click 'Share'"
+    narration: "Teilen..."
+    step_type: "consequential"
+    consequential: true
+    min_narration_ms: 800
+  - id: "confirm"
+    action: "click 'Send'"
+    narration: "Fotos senden..."
+    step_type: "commit"
+    commit: true
+    min_narration_ms: 1200
+error_steps: []
+verification:
+  - id: "v_photos_sent"
+    assertion: "3 Fotos im Gespräch sichtbar"
+    check_type: "text_present"
+    parameters:
+      text: "Caddie Study Photo"
+    screenshot_evidence: true
+max_duration_s: 120
+per_gate_timeout_s: 30

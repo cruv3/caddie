@@ -1,4 +1,62 @@
-# Titel
+# Update nach dem Betreuergespräch - 2026-07-19
+
+> Dieser Abschnitt bildet den aktuellen Stand ab. Die darunter stehende
+> Meeting-Vorbereitung vom Mai 2026 bleibt als historischer Entwicklungsstand
+> erhalten.
+
+## Aktueller Fokus
+
+Arbeitstitel: **Shared Autonomy - Designing User Oversight for LLM-Based
+Smartphone Agents**.
+
+Die Hauptstudie untersucht in einem Within-Subjects-Design drei Grade
+verpflichtender menschlicher Aufsicht:
+
+- **C1:** Bestätigung jeder folgenreichen Aktion,
+- **C2:** ein verpflichtender finaler Checkpoint,
+- **C3:** keine verpflichtende Bestätigung, aber jederzeit freiwilliger
+  Eingriff.
+
+In allen Bedingungen zeigt der Agent knapp die aktuell ausgeführte Aktion. Ein
+vorheriger Ausführungsplan wird nicht als zusätzlicher Faktor verwendet. Die
+Ausführung wird kontrolliert simuliert, damit Aktionen, Zeitpunkte und Fehler
+zwischen den Bedingungen vergleichbar bleiben. Drei der sechs Hauptaufgaben
+enthalten einen vorab definierten Fehler. Die Teilnehmenden werden nicht auf
+konkrete Fehler hingewiesen, lernen aber vorab neutral, wie sie pausieren,
+ändern und abbrechen können. Anschließend erfolgt ein Debriefing.
+
+Die sechs Hauptaufgaben sind als Cross-App-Paare angelegt:
+
+1. Chat zu Musik sowie Galerie zu Messenger,
+2. E-Mail zu Kalender sowie Maps zu Messenger,
+3. Chat zu Supermarkt sowie E-Mail zu einer Banking-Mock-App.
+
+Erfasst werden Interaktionsaufwand, NASA-TLX, ausgewählte getrennt ausgewertete
+TiA-Subskalen, drei eigene Manipulationscheck-Items, einmalig TAM sowie
+Verhaltensmaße zur Fehlererkennung und Nebenaufgabe.
+
+Optional wird explorativ eine zeitversetzte Agentenaktion bei ausgeschaltetem
+Bildschirm untersucht. Verglichen werden **nur benachrichtigen**, **Bildschirm
+aktivieren und Bestätigung einholen** sowie **Bildschirm aktivieren und
+selbstständig ausführen**. Dafür sind drei gegenbalancierte Aufgaben vorgesehen:
+Wetter zu Einkaufsliste, Projektgruppen-Chat zu Notizen und E-Mail zu Kalender.
+Die Projektgruppen-Aufgabe ist bereits umgesetzt. Falls der Pilot eine zu lange
+Gesamtdauer zeigt, wird dieser Teil in den Ausblick verschoben.
+
+Die vollständige Spezifikation mit Forschungsfragen, Hypothesen,
+Fehlerzeitpunkten, Fragebögen und Ablauf steht in
+[`dossier/05-studiendesign.md`](dossier/05-studiendesign.md).
+
+Organisatorisch ist die Buchung über Cal.com für Juli und August 2026 geplant.
+Als vorläufiger Ort ist der Raum über der Mensa beziehungsweise ein Raum in der
+Bibliothek vorgesehen; alternativ ist zu klären, ob noch Zugang zum MoxD-Labor
+besteht.
+
+---
+
+# Historischer Stand der Meeting-Vorbereitung
+
+## Titel
 
 1. Design und Evaluation eines avatar-basierten UI-Transparenz-Paradigmas fuer
    LLM-gesteuerte Smartphone-Agenten.
