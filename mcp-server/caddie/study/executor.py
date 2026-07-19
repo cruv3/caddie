@@ -221,19 +221,41 @@ def _find_element(
     elements: list[dict],
     label: str,
 ) -> Optional[dict]:
-    """Find the first element whose text / content_description / resource_id
-    contains the label (case-insensitive).
+    """Find an element matching the label with structured priority.
 
-    Returns the element dict or ``None``.
+    Resolution order:
+        1. Exact resource_id match
+        2. Exact text/content_description match
+        3. Substring match (case-insensitive)
+
+    Returns ``None`` if zero or multiple ambiguous matches. (MAJOR: #37)
     """
     label_lower = label.casefold()
+
+    # 1. Exact resource_id
+    for el in elements:
+        rid = (el.get("resource_id") or "").casefold()
+        if rid == label_lower:
+            return el
+
+    # 2. Exact text/content_description
+    for el in elements:
+        text = (el.get("text") or "").casefold()
+        desc = (el.get("content_description") or "").casefold()
+        if text == label_lower or desc == label_lower:
+            return el
+
+    # 3. Substring match — check for ambiguity
+    matches: list[dict] = []
     for el in elements:
         text = (el.get("text") or "").casefold()
         desc = (el.get("content_description") or "").casefold()
         rid = (el.get("resource_id") or "").casefold()
         if label_lower in text or label_lower in desc or label_lower in rid:
-            return el
-    return None
+            matches.append(el)
+    if len(matches) == 1:
+        return matches[0]
+    return None  # zero or ambiguous matches
 
 
 # ---------------------------------------------------------------------------

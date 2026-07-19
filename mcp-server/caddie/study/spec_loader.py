@@ -147,6 +147,33 @@ def _safe_bool(val: Any, default: bool) -> bool:
     raise SpecError(f"Invalid boolean value: {val!r} (expected true/false/yes/no/1/0)")
 
 
+def _safe_int(val: Any, default: int = 0) -> int:
+    """Strictly parse an integer value.
+
+    Rejects booleans (since ``isinstance(True, int)`` is ``True`` in Python)
+    and non-integral floats (MAJOR: review #23).  Accepts strings that
+    represent whole numbers.
+
+    Raises SpecError for unrecognized values.
+    """
+    if isinstance(val, bool):
+        raise SpecError(f"Integer field received boolean: {val!r}")
+    if isinstance(val, int):
+        return val
+    if isinstance(val, float):
+        if val != int(val):
+            raise SpecError(
+                f"Integer field received non-integral float: {val!r}"
+            )
+        return int(val)
+    if isinstance(val, str):
+        try:
+            return int(val)
+        except ValueError:
+            raise SpecError(f"Invalid integer string: {val!r}")
+    raise SpecError(f"Invalid integer type: {type(val).__name__} ({val!r})")
+
+
 # ── Parsers ──────────────────────────────────────────────────────────────────
 
 
@@ -219,7 +246,7 @@ def _parse_study_step(step: dict[str, Any], path: str) -> StudyStep:
         else:
             raise SpecError(f"{path}.error_variant: expected dict or string, got {type(ev_raw).__name__}")
 
-    min_narration_ms = int(step.get("min_narration_ms", 800))
+    min_narration_ms = _safe_int(step.get("min_narration_ms", 800))
     if min_narration_ms < 0:
         raise SpecError(f"{path}: min_narration_ms must be >= 0")
 
@@ -435,18 +462,12 @@ def load_trial_spec(filepath: pathlib.Path | str) -> TrialSpec:
     else:
         verification = ()
 
-    # Duration gates
-    try:
-        max_duration_s = int(raw.get("max_duration_s", 300))
-    except (TypeError, ValueError) as e:
-        raise SpecError(f"{filepath}.max_duration_s: invalid value - {e}")
+    # Duration gates — strict integer validation (MAJOR: #23)
+    max_duration_s = _safe_int(raw.get("max_duration_s", 300))
     if max_duration_s <= 0:
         raise SpecError(f"{filepath}: max_duration_s must be > 0")
 
-    try:
-        per_gate_timeout_s = int(raw.get("per_gate_timeout_s", 30))
-    except (TypeError, ValueError) as e:
-        raise SpecError(f"{filepath}.per_gate_timeout_s: invalid value - {e}")
+    per_gate_timeout_s = _safe_int(raw.get("per_gate_timeout_s", 30))
     if per_gate_timeout_s <= 0:
         raise SpecError(f"{filepath}: per_gate_timeout_s must be > 0")
 

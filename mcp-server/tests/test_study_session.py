@@ -302,7 +302,7 @@ def test_session_concurrent_pause_and_step():
     from caddie.study.session import StudySession
     from caddie.agent.run_control import RunControl
 
-    logger = StudyLogger(base_dir=pathlib.Path("tmp"))
+    logger = StudyLogger(base_dir=pathlib.Path("tmp"), study_version="v1", participant_id="P01", session_id="s1")
     run_control = RunControl()
     oversight = OversightManager(logger, StudyCondition.STEPWISE)
     session = StudySession(logger, run_control, oversight)
@@ -350,7 +350,7 @@ def test_logger_unique_trial_ids():
     import threading
     from caddie.study.logger import StudyLogger
 
-    logger = StudyLogger(base_dir=pathlib.Path("tmp"))
+    logger = StudyLogger(base_dir=pathlib.Path("tmp"), study_version="v1", participant_id="P01", session_id="s1")
     trial_ids = []
     errors = []
 

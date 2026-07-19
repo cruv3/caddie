@@ -22,10 +22,11 @@ import json
 import os
 import threading
 import time
+import types
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Mapping, Optional
 
 # ---------------------------------------------------------------------------
 # Public constants
@@ -148,7 +149,7 @@ class StudyEvent:
         step_id: Optional[str] = None,
         narration: Optional[str] = None,
         action: Optional[str] = None,
-        details: Optional[dict[str, Any]] = None,
+        details: Optional[Mapping[str, Any]] = None,
     ):
         if event_type not in EventType.ALL:
             raise ValueError(f"Unknown event type: {event_type}")
@@ -166,7 +167,10 @@ class StudyEvent:
         self.step_id = step_id
         self.narration = narration
         self.action = action
-        self.details = details if details is not None else {}
+        self.details: Mapping[str, Any] = (
+            details if isinstance(details, types.MappingProxyType)
+            else types.MappingProxyType(details) if details else types.MappingProxyType({})
+        )
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -184,7 +188,7 @@ class StudyEvent:
             "step_id": self.step_id,
             "narration": self.narration,
             "action": self.action,
-            "details": self.details,
+            "details": dict(self.details),
         }
 
     def to_json_line(self) -> str:
@@ -249,6 +253,19 @@ class StudyLogger:
         session_id: str = "",
         condition: str = "",
     ):
+        # MAJOR: Validate path components (review #32)
+        for name, value in [
+            ("study_version", study_version),
+            ("participant_id", participant_id),
+            ("session_id", session_id),
+        ]:
+            if not value or not isinstance(value, str):
+                raise ValueError(f"{name} must be a non-empty string")
+            if "/" in value or "\\" in value or value == ".." or "/../" in value or value.endswith("/") or value.endswith("\\"):
+                raise ValueError(
+                    f"{name} must not contain path separators: {value!r}"
+                )
+
         self._base_dir = base_dir
         self._study_version = study_version
         self._participant_id = participant_id
@@ -747,11 +764,18 @@ class StudyLogger:
 
         Uses trial_id + UUID in the filename to guarantee uniqueness even
         under concurrent or repeated calls with the same label.
+
+        Screenshot labels are sanitized to a strict allowlist: alphanumeric,
+        underscore, and hyphen only (MAJOR: review #32).
         """
         safe_pid = self._participant_id.replace(" ", "_")
         safe_tid = (trial_id or "none").replace(" ", "_")
+        # Strict allowlist: only safe characters for filenames
+        safe_label = "".join(
+            c for c in label if c.isalnum() or c in "_-"
+        )
         uuid_hex = uuid.uuid4().hex[:8]
-        filename = f"{safe_pid}_{safe_tid}_{label}_{uuid_hex}.png"
+        filename = f"{safe_pid}_{safe_tid}_{safe_label}_{uuid_hex}.png"
         rel_path = f"screenshots/{filename}"
         self.log(
             EventType.SCREENSHOT_CAPTURED,
@@ -878,7 +902,11 @@ class StudyLogger:
                 continue
             try:
                 d = json.loads(line)
-            except json.JSONDecodeError:
+            except json.JSONDecodeError as exc:
+                logger.warning(
+                    "Skipping corrupted JSONL line %s: %s",
+                    self._events_path.name, exc,
+                )
                 continue  # skip corrupted lines, don't block valid events
             events.append(StudyEvent(
                 event_type=d.get("event_type", ""),

@@ -15,7 +15,7 @@ from caddie.study.oversight import OversightManager, OversightDecision
 
 
 def make_logger(base_dir):
-    return StudyLogger(base_dir=base_dir)
+    return StudyLogger(base_dir=base_dir, study_version="v1", participant_id="P01", session_id="s1")
 
 
 def _step(action, **kwargs):
