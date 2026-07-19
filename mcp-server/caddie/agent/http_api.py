@@ -316,9 +316,12 @@ def _handler_factory(
 
             p_config = configs[participant]
 
-            # Select the trial spec for this participant/trial
             # Select the trial spec for this participant/trial index
-            task_id = p_config.task_order[trial_index]
+            try:
+                task_id = p_config.task_order[trial_index]
+            except IndexError:
+                self._send_json({"ok": False, "error": f"Invalid trial_index: {trial_index} (max: {len(p_config.task_order) - 1})"}, status=400)
+                return
             trial_spec = specs.get(task_id)
             if trial_spec is None:
                 trial_spec = next(iter(specs.values()))
@@ -326,8 +329,11 @@ def _handler_factory(
             # Create study logger
             session_id = f"sess_{_time.time():.0f}"
             try:
+                base_dir = Path(data_dir) if data_dir else None
+                if base_dir:
+                    base_dir.mkdir(parents=True, exist_ok=True)
                 logger_inst = StudyLogger(
-                    base_dir=Path(data_dir) if data_dir else None,
+                    base_dir=base_dir,
                     study_version=trial_spec.version,
                     participant_id=participant,
                     session_id=session_id,
