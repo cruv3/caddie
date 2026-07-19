@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Study Bank</string>
+    <string name="balance_label">Account Balance</string>
+    <string name="transfer_section">Transfer</string>
+    <string name="confirm_section">Confirm</string>
+    <string name="btn_send">Send</string>
+    <string name="btn_confirm">Confirm</string>
+    <string name="btn_reset">Reset</string>
+    <string name="no_pending">No pending transfer</string>
+</resources>

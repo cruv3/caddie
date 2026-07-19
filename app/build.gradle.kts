@@ -66,6 +66,7 @@ android {
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
+    implementation(project(":mcp-server:study-bank"))
     implementation(libs.material)
 
     implementation(platform(libs.androidx.compose.bom))

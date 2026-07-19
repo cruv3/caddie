@@ -24,4 +24,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "Caddie"
 include(":app")
+include(":mcp-server:study-bank")
  
