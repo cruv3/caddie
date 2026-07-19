@@ -117,10 +117,12 @@ class StudySession:
         logger: StudyLogger,
         run_control: RunControl,
         oversight_manager: OversightManager,
+        screen_off_manager: Optional["ScreenOffManager"] = None,
     ) -> None:
         self._logger = logger
         self._run_control = run_control
         self._oversight_manager = oversight_manager
+        self._screen_off_manager = screen_off_manager
 
         self._state = SessionState.IDLE
         self._start_time: float = 0.0
@@ -482,6 +484,25 @@ class StudySession:
             return None
 
     # ------------------------------------------------------------------
+    # Screen-off micro-trials
+    # ------------------------------------------------------------------
+
+    def run_screen_off_block(self, configs) -> list:
+        """Run a block of screen-off micro-trials.
+
+        Args:
+            configs: List of ScreenOffConfig objects.
+
+        Returns:
+            List of ScreenOffResult objects.
+        """
+        if self._screen_off_manager is None:
+            logger.warning("ScreenOffManager not configured — skipping block")
+            return []
+        from caddie.study.screen_off import run_screen_off_block as _block
+        return _block(self._screen_off_manager, configs)
+
+    # ------------------------------------------------------------------
     # Metrics
     # ------------------------------------------------------------------
 
@@ -541,6 +562,7 @@ class SessionManager:
         logger: StudyLogger,
         run_control: RunControl,
         oversight_manager: OversightManager,
+        screen_off_manager: Optional[Any] = None,
     ) -> StudySession:
         """Create a new study session.
 
@@ -548,6 +570,7 @@ class SessionManager:
             logger: The study logger.
             run_control: The agent's RunControl.
             oversight_manager: The oversight manager.
+            screen_off_manager: Optional ScreenOffManager for micro-trials.
 
         Returns:
             The newly created StudySession.
@@ -564,6 +587,7 @@ class SessionManager:
                 logger=logger,
                 run_control=run_control,
                 oversight_manager=oversight_manager,
+                screen_off_manager=screen_off_manager,
             )
             return self._session
 

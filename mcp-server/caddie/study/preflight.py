@@ -36,6 +36,7 @@ class CheckCategory(str, Enum):
     SCREEN = "screen"
     NETWORK = "network"
     STORAGE = "storage"
+    NOTIFICATION = "notification"
     SEED_STATE = "seed_state"
     MATERIALS = "materials"
 
@@ -145,7 +146,10 @@ def check_device_connected(
                 timeout=10,
             )
             elapsed_ms = int((time.monotonic() - start) * 1000)
-            if result.returncode == 0 and "device" in result.stdout:
+            if result.returncode == 0 and any(
+                line.strip().endswith("\tdevice")
+                for line in result.stdout.splitlines()
+            ):
                 return CheckResult(check, CheckStatus.PASS, elapsed_ms, "Device connected")
             return CheckResult(check, CheckStatus.FAIL, elapsed_ms, "No device found")
         except FileNotFoundError:
@@ -261,13 +265,33 @@ def check_storage_space(
         )
         start = time.monotonic()
         try:
-            import os
-            stat = os.statvfs("/")
-            free_mb = (stat.f_bavail * stat.f_frsize) / (1024 * 1024)
+            import subprocess
+            result = subprocess.run(
+                [adb_path, "shell", "df", "/sdcard"],
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
             elapsed_ms = int((time.monotonic() - start) * 1000)
-            if free_mb >= min_mb:
-                return CheckResult(check, CheckStatus.PASS, elapsed_ms, f"{free_mb:.0f} MB free")
-            return CheckResult(check, CheckStatus.FAIL, elapsed_ms, f"{free_mb:.0f} MB free")
+            if result.returncode != 0:
+                return CheckResult(check, CheckStatus.FAIL, elapsed_ms, "df command failed")
+            # Parse df output: e.g. "Filesystem     1K-blocks  Used Available Use% Mounted on"
+            # We need the Available column (3rd data column)
+            lines = result.stdout.strip().splitlines()
+            if len(lines) < 2:
+                return CheckResult(check, CheckStatus.FAIL, elapsed_ms, "df output too short")
+            parts = lines[-1].split()
+            if len(parts) >= 4:
+                # Available is in column 3 (0-indexed: 3)
+                avail_kb = int(parts[3])
+                free_mb = avail_kb / 1024
+                if free_mb >= min_mb:
+                    return CheckResult(check, CheckStatus.PASS, elapsed_ms, f"{free_mb:.0f} MB free on phone")
+                return CheckResult(check, CheckStatus.FAIL, elapsed_ms, f"{free_mb:.0f} MB free (need {min_mb})")
+            return CheckResult(check, CheckStatus.FAIL, elapsed_ms, "Could not parse df output")
+        except subprocess.TimeoutExpired:
+            elapsed_ms = int((time.monotonic() - start) * 1000)
+            return CheckResult(check, CheckStatus.TIMEOUT, elapsed_ms, "ADB timed out")
         except Exception as exc:
             elapsed_ms = int((time.monotonic() - start) * 1000)
             return CheckResult(check, CheckStatus.FAIL, elapsed_ms, str(exc))
@@ -386,6 +410,7 @@ class PreflightSuite:
 
     checks: list[tuple[PreflightCheck, CheckFn]] = field(default_factory=list)
     timeout_per_check: int = 15
+    _results_cache: list[CheckResult] = field(default_factory=list, repr=False)
 
     def add(self, check: PreflightCheck, fn: CheckFn) -> None:
         """Register a check for execution."""
@@ -399,8 +424,18 @@ class PreflightSuite:
         """
         results: list[CheckResult] = []
         for check, fn in self.checks:
+            start = time.monotonic()
             try:
                 result = fn()
+                elapsed_ms = int((time.monotonic() - start) * 1000)
+                # Enforce timeout_per_check
+                if elapsed_ms > self.timeout_per_check * 1000:
+                    result = CheckResult(
+                        check,
+                        CheckStatus.TIMEOUT,
+                        elapsed_ms,
+                        f"Exceeded timeout of {self.timeout_per_check}s",
+                    )
                 results.append(result)
                 logger.info(
                     "Preflight %s: %s (%d ms)",
@@ -409,7 +444,7 @@ class PreflightSuite:
                     result.elapsed_ms,
                 )
             except Exception as exc:
-                elapsed_ms = 0
+                elapsed_ms = int((time.monotonic() - start) * 1000)
                 results.append(
                     CheckResult(
                         check,
@@ -462,6 +497,91 @@ class PreflightSuite:
 # ---------------------------------------------------------------------------
 
 
+def check_banking_app_installed() -> CheckFn:
+    """Check that the study banking mock app is installed."""
+    def _run() -> CheckResult:
+        check = PreflightCheck(
+            id="banking_app",
+            category=CheckCategory.APP_VERSION,
+            description="Study banking mock app installed",
+        )
+        start = time.monotonic()
+        try:
+            import subprocess
+            result = subprocess.run(
+                [ADB_PATH, "shell", "pm", "list", "packages", "com.caddie.studybank"],
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+            elapsed_ms = int((time.monotonic() - start) * 1000)
+            if "com.caddie.studybank" in result.stdout:
+                return CheckResult(check, CheckStatus.PASS, elapsed_ms, "Banking app installed")
+            return CheckResult(check, CheckStatus.FAIL, elapsed_ms, "Banking app not installed")
+        except subprocess.TimeoutExpired:
+            elapsed_ms = int((time.monotonic() - start) * 1000)
+            return CheckResult(check, CheckStatus.TIMEOUT, elapsed_ms, "ADB timed out")
+        except Exception as exc:
+            elapsed_ms = int((time.monotonic() - start) * 1000)
+            return CheckResult(check, CheckStatus.FAIL, elapsed_ms, str(exc))
+    return _run
+
+
+def check_notification_permission() -> CheckFn:
+    """Check that notification permission is granted."""
+    def _run() -> CheckResult:
+        check = PreflightCheck(
+            id="notification_permission",
+            category=CheckCategory.NOTIFICATION,
+            description="Notification permission granted",
+        )
+        start = time.monotonic()
+        try:
+            import subprocess
+            result = subprocess.run(
+                [ADB_PATH, "shell", "dumpsys", "package", "com.caddie",
+                 "|", "grep", "com.caddie"] ,
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+            elapsed_ms = int((time.monotonic() - start) * 1000)
+            # Check for notification permission
+            if "POST_NOTIFICATIONS" in result.stdout or " granted" in result.stdout:
+                return CheckResult(check, CheckStatus.PASS, elapsed_ms, "Notification permission OK")
+            return CheckResult(check, CheckStatus.FAIL, elapsed_ms, "Notification permission not granted")
+        except subprocess.TimeoutExpired:
+            elapsed_ms = int((time.monotonic() - start) * 1000)
+            return CheckResult(check, CheckStatus.TIMEOUT, elapsed_ms, "ADB timed out")
+        except Exception as exc:
+            elapsed_ms = int((time.monotonic() - start) * 1000)
+            return CheckResult(check, CheckStatus.FAIL, elapsed_ms, str(exc))
+    return _run
+
+
+def check_study_materials() -> CheckFn:
+    """Check that study materials directory exists."""
+    def _run() -> CheckResult:
+        check = PreflightCheck(
+            id="study_materials",
+            category=CheckCategory.MATERIALS,
+            description="Study materials present",
+        )
+        start = time.monotonic()
+        try:
+            import os
+            materials_dir = pathlib.Path(__file__).parent.parent.parent / "study" / "materials"
+            if materials_dir.exists() and any(materials_dir.iterdir()):
+                elapsed_ms = int((time.monotonic() - start) * 1000)
+                return CheckResult(check, CheckStatus.PASS, elapsed_ms, "Materials present")
+            elapsed_ms = int((time.monotonic() - start) * 1000)
+            return CheckResult(check, CheckStatus.FAIL, elapsed_ms, "Materials missing")
+        except Exception as exc:
+            elapsed_ms = int((time.monotonic() - start) * 1000)
+            return CheckResult(check, CheckStatus.FAIL, elapsed_ms, str(exc))
+    return _run
+
+
 def default_suite() -> PreflightSuite:
     """Build the default preflight suite with all built-in checks.
 
@@ -479,6 +599,16 @@ def default_suite() -> PreflightSuite:
         category=CheckCategory.APP_VERSION,
         description="Caddie app version matches",
     ), check_app_version())
+    suite.add(PreflightCheck(
+        id="banking_app",
+        category=CheckCategory.APP_VERSION,
+        description="Study banking mock app installed",
+    ), check_banking_app_installed())
+    suite.add(PreflightCheck(
+        id="notification_permission",
+        category=CheckCategory.NOTIFICATION,
+        description="Notification permission granted",
+    ), check_notification_permission())
     suite.add(PreflightCheck(
         id="server_health",
         category=CheckCategory.SERVER,
@@ -499,4 +629,9 @@ def default_suite() -> PreflightSuite:
         category=CheckCategory.NETWORK,
         description="Stable network connection",
     ), _check_network_connectivity())
+    suite.add(PreflightCheck(
+        id="study_materials",
+        category=CheckCategory.MATERIALS,
+        description="Study materials present",
+    ), check_study_materials())
     return suite
