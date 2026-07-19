@@ -1,0 +1,41 @@
+version: "v1"
+id: "task_banking_transfer"
+instruction_de: "Trage die Rechnungsdaten in den Überweisungsformular ein."
+criticality: "high"
+required_packages: ["com.caddie.studybank"]
+seeded_artifacts: ["Caddie Study Invoice"]
+reset_checklist: ["Clear bank form"]
+steps:
+  - id: "bank_open"
+    action: "com.caddie.studybank/.MainActivity"
+    narration: "Bank-App wird geöffnet..."
+    step_type: "normal"
+    min_narration_ms: 400
+  - id: "enter_recipient"
+    action: "input text 'Max Mustermann'"
+    narration: "Empfänger eingeben..."
+    step_type: "consequential"
+    consequential: true
+    min_narration_ms: 600
+  - id: "enter_amount"
+    action: "input text '123.45'"
+    narration: "Betrag eingeben: 123.45 EUR"
+    step_type: "consequential"
+    consequential: true
+    error_variant: "err_wrong_amount"
+    min_narration_ms: 600
+  - id: "confirm_transfer"
+    action: "click 'Review & Send'"
+    narration: "Überweisung prüfen und senden..."
+    step_type: "commit"
+    commit: true
+    min_narration_ms: 1200
+error_steps: ["enter_amount"]
+verification:
+  - id: "v_transfer_done"
+    assertion: "Überweisungsformular ausgefüllt"
+    check_type: "text_present"
+    parameters: { text: "Study account" }
+    screenshot_evidence: true
+max_duration_s: 120
+per_gate_timeout_s: 30

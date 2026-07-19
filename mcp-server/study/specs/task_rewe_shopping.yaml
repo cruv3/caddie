@@ -1,0 +1,40 @@
+version: "v1"
+id: "task_rewe_shopping"
+instruction_de: "Füge drei Produkte mit Mengenangaben in den Warenkorb."
+criticality: "high"
+required_packages: ["de.rewe"]
+seeded_artifacts: ["REWE Study Basket"]
+reset_checklist: ["Remove study items from basket"]
+steps:
+  - id: "rewe_open"
+    action: "de.rewe/.MainActivity"
+    narration: "REWE-App wird geöffnet..."
+    step_type: "normal"
+    min_narration_ms: 400
+  - id: "search_product1"
+    action: "input text 'Milch'"
+    narration: "Produkt 1 suchen: Milch"
+    step_type: "consequential"
+    consequential: true
+    error_variant:
+      id: "err_product_name"
+      field: "search_input"
+      wrong_value: "Mehl"
+      correct_value: "Milch"
+      description: "Falsches Produkt eingegeben"
+    min_narration_ms: 600
+  - id: "add_to_basket"
+    action: "click 'In den Warenkorb'"
+    narration: "Produkt zum Warenkorb hinzufügen..."
+    step_type: "commit"
+    commit: true
+    min_narration_ms: 800
+error_steps: ["search_product1"]
+verification:
+  - id: "v_items_in_basket"
+    assertion: "3 Produkte im Warenkorb"
+    check_type: "field_count"
+    parameters: { view_id: "basket_item_list", expected_count: 3 }
+    screenshot_evidence: true
+max_duration_s: 120
+per_gate_timeout_s: 30
