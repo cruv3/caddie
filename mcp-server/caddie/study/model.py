@@ -119,15 +119,21 @@ class StudyStep:
     """Minimum display time for the narration before the action fires (ms)."""
 
     def __post_init__(self) -> None:
-        """Validate immutable invariants."""
+        """Validate immutable invariants and derive classification flags."""
         if not self.id.strip():
             raise ValueError("StudyStep.id must be a non-empty string")
         if not self.action.strip():
             raise ValueError("StudyStep.action must be a non-empty string")
         if not self.narration.strip():
             raise ValueError("StudyStep.narration must be a non-empty string")
-        if self.step_type == StepType.COMMIT and not self.commit:
-            object.__setattr__(self, "commit", True)
+        # Derive consequential and commit from step_type (R5 MAJOR #1)
+        object.__setattr__(
+            self, "consequential",
+            self.step_type in (StepType.CONSEQUENTIAL, StepType.COMMIT),
+        )
+        object.__setattr__(
+            self, "commit", self.step_type == StepType.COMMIT,
+        )
         if self.min_narration_ms < 0:
             raise ValueError("min_narration_ms must be >= 0")
 
@@ -303,12 +309,46 @@ class ParticipantConfig:
         """Validate immutable invariants."""
         if not self.participant_id.strip():
             raise ValueError("ParticipantConfig.participant_id must be non-empty")
+        # Exactly six main tasks and conditions (R5 MAJOR #2)
+        if len(self.task_order) != 6:
+            raise ValueError(
+                f"ParticipantConfig: task_order must have exactly 6 tasks, "
+                f"got {len(self.task_order)}"
+            )
+        if len(self.condition_order) != 6:
+            raise ValueError(
+                f"ParticipantConfig: condition_order must have exactly 6 conditions, "
+                f"got {len(self.condition_order)}"
+            )
+        # Task and condition lengths must match
         if len(self.task_order) != len(self.condition_order):
             raise ValueError(
                 f"ParticipantConfig: task_order length ({len(self.task_order)}) "
                 f"must equal condition_order length ({len(self.condition_order)})"
             )
-        if len(self.error_tasks) != len(self.screen_off_order):
+        # Error tasks: exactly 3, must be members of task_order
+        if len(self.error_tasks) != 3:
             raise ValueError(
-                "error_tasks length must equal screen_off_order length"
+                f"ParticipantConfig: error_tasks must have exactly 3 tasks, "
+                f"got {len(self.error_tasks)}"
+            )
+        for et in self.error_tasks:
+            if et not in self.task_order:
+                raise ValueError(
+                    f"ParticipantConfig: error_task {et!r} not in task_order"
+                )
+        # Screen-off: exactly 3 modes and 3 tasks, matching lengths
+        if len(self.screen_off_order) != 3:
+            raise ValueError(
+                f"ParticipantConfig: screen_off_order must have exactly 3 modes, "
+                f"got {len(self.screen_off_order)}"
+            )
+        if len(self.screen_off_tasks) != 3:
+            raise ValueError(
+                f"ParticipantConfig: screen_off_tasks must have exactly 3 tasks, "
+                f"got {len(self.screen_off_tasks)}"
+            )
+        if len(self.screen_off_order) != len(self.screen_off_tasks):
+            raise ValueError(
+                "ParticipantConfig: screen_off_order and screen_off_tasks must have equal length"
             )

@@ -69,15 +69,14 @@ def test_study_step_defaults():
 
 
 def test_study_step_defaults_explicit():
-    """Direct dataclass construction defaults consequential/commit to False.
-    Inference to True based on step_type only happens in spec_loader.py."""
+    """consequential and commit are derived from step_type (R5 MAJOR #1)."""
     step = StudyStep(
         id="send_msg",
         action="click 'Send'",
         narration="Nachricht senden...",
         step_type=StepType.CONSEQUENTIAL,
     )
-    assert step.consequential is False
+    assert step.consequential is True  # derived from CONSEQUENTIAL
     assert step.commit is False
 
 
@@ -95,6 +94,7 @@ def test_study_step_explicit_consequential_and_commit():
 
 
 def test_study_step_explicit_overrides():
+    """Explicit consequential/commit are overridden by step_type derivation."""
     step = StudyStep(
         id="search",
         action="input text 'Milk'",
@@ -104,7 +104,7 @@ def test_study_step_explicit_overrides():
         commit=False,
         min_narration_ms=400,
     )
-    assert step.consequential is True
+    assert step.consequential is False  # derived from NORMAL
     assert step.commit is False
     assert step.min_narration_ms == 400
 
