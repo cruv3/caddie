@@ -238,7 +238,7 @@ def _handler_factory(
         def _handle_study_health(self) -> None:
             """GET /study/health — study system availability."""
             from caddie.study.session import SessionManager
-            mgr = SessionManager()
+            mgr = SessionManager.instance()
             session = mgr.session
             if session is None:
                 self._send_json({"ok": True, "study_ready": True, "session": "idle"})
@@ -317,9 +317,9 @@ def _handler_factory(
             p_config = configs[participant]
 
             # Select the trial spec for this participant/trial
-            # For simplicity, use the first trial spec — the full implementation
-            # would map participant→trial via the matrix
-            trial_spec = specs.get(p_config.task_order[0])
+            # Select the trial spec for this participant/trial index
+            task_id = p_config.task_order[trial_index]
+            trial_spec = specs.get(task_id)
             if trial_spec is None:
                 trial_spec = next(iter(specs.values()))
 
@@ -337,22 +337,35 @@ def _handler_factory(
                 self._send_json({"ok": False, "error": f"Logger creation failed: {exc}"}, status=500)
                 return
 
-            # Create oversight manager
+            # Create session — use the agent's active RunControl or create one
+            from caddie.agent.run_control import RunControl
+            run_ctrl = agent_loop._active_control or RunControl()
+
+            # Create oversight manager with RunControl callbacks for C1/C2
+            def _step_callback(step, narration):
+                approved = run_ctrl.await_confirmation(timeout=30.0)
+                return OversightManager._decision_from_bool(approved)
+
+            def _batch_callback(steps, narrations=None):
+                approved = run_ctrl.await_confirmation(timeout=60.0)
+                return OversightManager._decision_from_bool(approved)
+
             try:
                 oversight = OversightManager(
                     logger=logger_inst,
                     condition=condition,
+                    step_callback=_step_callback,
+                    batch_callback=_batch_callback,
                 )
             except Exception as exc:
                 self._send_json({"ok": False, "error": f"Oversight creation failed: {exc}"}, status=500)
                 return
 
-            # Create session
-            mgr = SessionManager()
+            mgr = SessionManager.instance()
             try:
                 session = mgr.create(
                     logger=logger_inst,
-                    run_control=agent_loop._agent_loop._run_control,
+                    run_control=run_ctrl,
                     oversight_manager=oversight,
                 )
                 session.start()
@@ -395,7 +408,7 @@ def _handler_factory(
             """GET /study/trials/status — current session status."""
             from caddie.study.session import SessionManager
 
-            mgr = SessionManager()
+            mgr = SessionManager.instance()
             session = mgr.session
             if session is None:
                 self._send_json({
@@ -426,7 +439,7 @@ def _handler_factory(
             payload = self._read_json()
             reason = str(payload.get("reason", "experimenter_abort")).strip()
 
-            mgr = SessionManager()
+            mgr = SessionManager.instance()
             session = mgr.session
             if session is None:
                 self._send_json({"ok": False, "error": "No active session"}, status=404)

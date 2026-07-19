@@ -506,20 +506,31 @@ class StudySession:
 # ---------------------------------------------------------------------------
 
 
+_session_manager_instance: Optional["SessionManager"] = None
+
+
 class SessionManager:
     """Manages the single active study session.
 
-    This is a thin singleton that ensures only one study session exists
+    This is a singleton that ensures only one study session exists
     at a time. It handles session creation, state transitions, and
     cleanup.
 
     Usage:
-        mgr = SessionManager()
+        mgr = SessionManager.instance()
         session = mgr.create(...)
         session.start()
         # ... run trial ...
         session.complete()
     """
+
+    @classmethod
+    def instance(cls) -> "SessionManager":
+        """Return the singleton instance."""
+        global _session_manager_instance
+        if _session_manager_instance is None:
+            _session_manager_instance = cls()
+        return _session_manager_instance
 
     def __init__(self) -> None:
         self._session: Optional[StudySession] = None

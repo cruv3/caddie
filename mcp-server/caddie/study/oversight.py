@@ -387,6 +387,11 @@ class OversightManager:
             return self._batch_callback(steps)
         return OversightDecision(confirmed=True)
 
+    @classmethod
+    def _decision_from_bool(cls, approved: bool) -> OversightDecision:
+        """Convert a boolean confirmation result to an OversightDecision."""
+        return OversightDecision(confirmed=approved)
+
     def __repr__(self) -> str:
         return (
             f"OversightManager(condition={self._condition.value!r}, "
