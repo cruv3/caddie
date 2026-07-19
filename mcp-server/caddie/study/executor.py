@@ -788,7 +788,7 @@ class TrialExecutor:
                 )
 
         # Capture pre-action screenshot only for commit/error steps (Spec §7)
-        if resolved.source.step_type in (StepType.COMMIT,) or resolved.error_variant_id is not None:
+        if resolved.source.step_type in (StepType.COMMIT,) or resolved.error_injected:
             screenshot_label = f"pre_action_{step_index}"
             self._screenshots.append(
                 self._logger.screenshot_captured(screenshot_label, trial_id=self._trial_id)

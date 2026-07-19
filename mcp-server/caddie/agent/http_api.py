@@ -287,6 +287,9 @@ def _handler_factory(
                 _sl.STUDY_SPECS_DIR = Path(specs_dir)
                 try:
                     specs = load_all_specs()
+                except Exception as exc:
+                    self._send_json({"ok": False, "error": f"Spec load failed: {exc}"}, status=500)
+                    return
                 finally:
                     if _orig is not None:
                         _sl.STUDY_SPECS_DIR = _orig
