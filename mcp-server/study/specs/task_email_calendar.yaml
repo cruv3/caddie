@@ -7,7 +7,7 @@ seeded_artifacts: ["Caddie Study Meeting"]
 reset_checklist: ["Restore original room and reminder"]
 steps:
   - id: "email_open"
-    action: "com.caddie/.MainActivity"
+    action: "open com.caddie/.MainActivity"
     narration: "E-Mail wird geöffnet..."
     step_type: "normal"
     min_narration_ms: 400

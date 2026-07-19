@@ -7,7 +7,7 @@ seeded_artifacts: ["Caddie Study Group Message"]
 reset_checklist: ["Clear study note"]
 steps:
   - id: "chat_open"
-    action: "com.caddie/.MainActivity"
+    action: "open com.caddie/.MainActivity"
     narration: "Chat wird geöffnet..."
     step_type: "normal"
     min_narration_ms: 400

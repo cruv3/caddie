@@ -374,6 +374,48 @@ def _handler_factory(
                 return
 
             # Create executor and run trial
+            # Build a verification backend from the study backend
+            from caddie.study.verification import VerificationBackendProtocol
+
+            class StudyVerificationBackend(VerificationBackendProtocol):
+                def __init__(self, backend):
+                    self._backend = backend
+
+                def check_text_present(self, text: str) -> bool:
+                    try:
+                        elems = self._backend.list_elements()
+                        for el in elems.get("elements", []):
+                            if text.lower() in el.get("text", "").lower():
+                                return True
+                        return False
+                    except Exception:
+                        return False
+
+                def check_text_absent(self, text: str) -> bool:
+                    return not self.check_text_present(text)
+
+                def check_accessibility_element(self, label: str) -> bool:
+                    try:
+                        elems = self._backend.list_elements()
+                        for el in elems.get("elements", []):
+                            if label.lower() in el.get("text", "").lower():
+                                return True
+                        return False
+                    except Exception:
+                        return False
+
+                def check_field_count(self, container_label: str, expected: int) -> bool:
+                    try:
+                        elems = self._backend.list_elements()
+                        # Simple: count elements that contain the container label
+                        count = sum(1 for el in elems.get("elements", [])
+                                   if container_label.lower() in el.get("text", "").lower())
+                        return count >= expected
+                    except Exception:
+                        return False
+
+            verification_backend = StudyVerificationBackend(context.backend)
+
             try:
                 executor = TrialExecutor(
                     backend=context.backend,
@@ -382,6 +424,7 @@ def _handler_factory(
                     spec=trial_spec,
                     condition=condition,
                     error_tasks=frozenset(p_config.error_tasks),
+                    verification_backend=verification_backend,
                 )
                 result = executor.run()
             except Exception as exc:

@@ -7,7 +7,7 @@ seeded_artifacts: ["REWE Study Basket"]
 reset_checklist: ["Remove study items from basket"]
 steps:
   - id: "rewe_open"
-    action: "de.rewe/.MainActivity"
+    action: "open de.rewe/.MainActivity"
     narration: "REWE-App wird geöffnet..."
     step_type: "normal"
     min_narration_ms: 400

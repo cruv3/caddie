@@ -7,7 +7,7 @@ seeded_artifacts: ["Caddie Study Invoice"]
 reset_checklist: ["Clear bank form"]
 steps:
   - id: "bank_open"
-    action: "com.caddie.studybank/.MainActivity"
+    action: "open com.caddie.studybank/.BankingActivity"
     narration: "Bank-App wird geöffnet..."
     step_type: "normal"
     min_narration_ms: 400

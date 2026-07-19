@@ -171,6 +171,7 @@ def generate_participant_config(
     task_ids: list[str],
     criticalities: dict[str, CriticalityClass],
     condition_order: list[StudyCondition],
+    specs: dict[str, TrialSpec] | None = None,
 ) -> ParticipantConfig:
     """Generate a ParticipantConfig for a single participant slot.
 
@@ -193,8 +194,18 @@ def generate_participant_config(
     participant_id = f"P{index + 1:02d}"
 
     # Participant-specific error task selection (deterministic via seed_offset)
+    # Only select tasks that have error variants defined in their specs
+    if specs:
+        tasks_with_errors = [
+            tid for tid in task_ids
+            if specs.get(tid) and specs[tid].error_steps
+        ]
+    else:
+        tasks_with_errors = task_ids
     error_tasks = _select_error_tasks(
-        task_ids, NUM_ERROR_TASKS, seed_offset=index * 1000
+        tasks_with_errors if tasks_with_errors else task_ids,
+        NUM_ERROR_TASKS,
+        seed_offset=index * 1000,
     )
     # Participant-specific screen-off rotation
     screen_off_order = _rotate_screen_off(index)
@@ -280,30 +291,60 @@ def generate_matrix(
             f"Found {len(high_tasks)}."
         )
 
-    # Create all possible low-high pairs
-    all_pairs: list[tuple[str, str]] = []
-    for lt in low_tasks:
-        for ht in high_tasks:
-            all_pairs.append((lt, ht))
-
-    # For 18 participants we need 18 × 3 = 54 pair assignments (3 pairs each).
-    # Cycle through pairs with shuffling to distribute evenly.
+    # For 18 participants we need 18 × 6 = 108 task assignments (3 low + 3 high each).
+    # Use a round-robin assignment to ensure all tasks are distributed evenly.
     criticalities = {tid: specs[tid].criticality for tid in task_ids}
+
+    # Tasks with error variants (need at least 3 per participant)
+    tasks_with_errors = [
+        tid for tid in task_ids
+        if specs[tid].error_steps
+    ]
+    tasks_without_errors = [
+        tid for tid in task_ids
+        if not specs[tid].error_steps
+    ]
 
     configs: dict[str, ParticipantConfig] = {}
     condition_orders = _build_condition_orders()
 
     for i in range(NUM_PARTICIPANTS):
-        # Select 3 pairs for this participant
-        pair_pool = list(all_pairs)
-        rng.shuffle(pair_pool)
-        selected_pairs = pair_pool[:NUM_PAIRS_PER_PARTICIPANT]
+        # Round-robin: assign tasks sequentially
+        low_idx = i % len(low_tasks)
+        high_idx = i % len(high_tasks)
 
-        # Build task order: 3 low tasks + 3 high tasks from selected pairs
-        participant_tasks: list[str] = []
-        for low_tid, high_tid in selected_pairs:
-            participant_tasks.append(low_tid)
-            participant_tasks.append(high_tid)
+        # Select 3 low tasks (round-robin with offset)
+        participant_low: list[str] = []
+        for j in range(NUM_PAIRS_PER_PARTICIPANT):
+            participant_low.append(low_tasks[(low_idx + j) % len(low_tasks)])
+
+        # Select 3 high tasks (round-robin with offset)
+        participant_high: list[str] = []
+        for j in range(NUM_PAIRS_PER_PARTICIPANT):
+            participant_high.append(high_tasks[(high_idx + j) % len(high_tasks)])
+
+        # Build task order: 3 low tasks + 3 high tasks
+        participant_tasks = list(participant_low) + list(participant_high)
+
+        # Ensure at least 3 tasks with error variants are included
+        # If participant doesn't have enough, swap in tasks_with_errors
+        tasks_with_err_in_participant = [
+            tid for tid in participant_tasks if tid in tasks_with_errors
+        ]
+        if len(tasks_with_err_in_participant) < 3:
+            # Replace some non-error tasks with error tasks
+            tasks_to_swap = [
+                tid for tid in participant_tasks
+                if tid not in tasks_with_errors
+            ]
+            tasks_needed = 3 - len(tasks_with_err_in_participant)
+            for j in range(tasks_needed):
+                if tasks_to_swap and tasks_with_errors:
+                    # Swap one non-error task for one error task
+                    swap_out = tasks_to_swap.pop(0)
+                    error_task = tasks_with_errors[i % len(tasks_with_errors)]
+                    idx = participant_tasks.index(swap_out)
+                    participant_tasks[idx] = error_task
 
         # Shuffle the 6 tasks for position balance
         rng.shuffle(participant_tasks)
@@ -315,6 +356,7 @@ def generate_matrix(
             task_ids=participant_tasks,
             criticalities=criticalities,
             condition_order=condition_order,
+            specs=specs,
         )
         configs[config.participant_id] = config
 

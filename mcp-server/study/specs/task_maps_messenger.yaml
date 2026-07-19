@@ -7,7 +7,7 @@ seeded_artifacts: ["Caddie Study Contact"]
 reset_checklist: ["Clear study route"]
 steps:
   - id: "maps_open"
-    action: "com.caddie/.MainActivity"
+    action: "open com.caddie/.MainActivity"
     narration: "Karte wird geöffnet..."
     step_type: "normal"
     min_narration_ms: 400
