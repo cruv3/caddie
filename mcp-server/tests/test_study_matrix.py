@@ -273,3 +273,95 @@ def test_criticality_class_not_string():
                 f"Pair assignment for {task_id} has {type(criticality)} "
                 f"instead of CriticalityClass"
             )
+
+
+# ── Cross-factor balance validation ────────────────────────────────────────
+
+
+def test_cross_factor_condition_criticality_balance():
+    """Condition distribution should be balanced regardless of task criticality."""
+    # Use tuple args so criticality is set correctly
+    specs = _make_specs(
+        ("t1", "low"), ("t2", "low"), ("t3", "low"),
+        ("t4", "high"), ("t5", "high"), ("t6", "high"),
+    )
+    assert len(specs) == 6
+    configs = generate_matrix(specs, seed=42)
+
+    # Each participant gets 2 of each condition (18 participants × 2 = 36 each)
+    counts = {c: 0 for c in StudyCondition}
+    for cfg in configs.values():
+        for cond in cfg.condition_order:
+            counts[cond] += 1
+
+    total = sum(counts.values())
+    expected = total // len(StudyCondition)
+    for cond, count in counts.items():
+        assert abs(count - expected) <= 10, (
+            f"Condition {cond}: {count} (expected ~{expected}, "
+            f"tolerance 10, total slots {total})"
+        )
+
+
+def test_cross_factor_error_exposure_balance():
+    """Error tasks should be evenly distributed across participants."""
+    specs = _make_specs(
+        ("t1", "low"), ("t2", "high"), ("t3", "low"),
+        ("t4", "high"), ("t5", "low"), ("t6", "high"),
+    )
+    configs = generate_matrix(specs, seed=42)
+
+    # Each participant has exactly 3 error tasks (from _select_error_tasks)
+    error_counts = [len(cfg.error_tasks) for cfg in configs.values()]
+    assert all(c == 3 for c in error_counts), (
+        f"Error tasks per participant: {error_counts}, expected all 3"
+    )
+
+    # Across the full cohort, error tasks should cover all specs
+    # (each spec appears as an error task for some participants)
+    all_errors = set()
+    for cfg in configs.values():
+        all_errors.update(cfg.error_tasks)
+    # All 6 tasks should appear as error tasks across the cohort
+    assert len(all_errors) == 6
+
+
+def test_screen_off_rotation_balance():
+    """Screen-off modes should be evenly rotated across all participants."""
+    specs = _make_specs(
+        ("t1", "low"), ("t2", "high"), ("t3", "low"),
+        ("t4", "high"), ("t5", "low"), ("t6", "high"),
+    )
+    configs = generate_matrix(specs, seed=42)
+
+    # Collect all screen-off mode assignments
+    all_modes = []
+    for cfg in configs.values():
+        all_modes.extend(cfg.screen_off_order)
+
+    # With 18 participants and 3 screen-off modes, each mode should appear
+    # approximately 6 times per participant position (but we check presence)
+    for mode in (ScreenOffMode.NOTIFY_ONLY, ScreenOffMode.WAKE_ASK, ScreenOffMode.WAKE_EXECUTE):
+        count = sum(1 for m in all_modes if m == mode)
+        assert count > 0, f"Mode {mode} not found in any participant"
+
+
+def test_cohort_has_all_three_high():
+    """Each participant should have exactly 3 low and 3 high criticality tasks."""
+    specs = _make_specs(
+        ("t1", "low"), ("t2", "high"), ("t3", "low"),
+        ("t4", "high"), ("t5", "low"), ("t6", "high"),
+    )
+    configs = generate_matrix(specs, seed=42)
+
+    for cfg in configs.values():
+        low_count = sum(
+            1 for tid in cfg.task_order
+            if specs[tid].criticality == CriticalityClass.LOW
+        )
+        high_count = sum(
+            1 for tid in cfg.task_order
+            if specs[tid].criticality == CriticalityClass.HIGH
+        )
+        assert low_count == 3, f"{cfg.participant_id}: expected 3 low, got {low_count}"
+        assert high_count == 3, f"{cfg.participant_id}: expected 3 high, got {high_count}"

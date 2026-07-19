@@ -631,3 +631,108 @@ def test_create_study_logger_with_session_id(event_dir):
         condition="c3_voluntary_intervention",
     )
     assert log._session_id == "custom_sess"
+
+
+# ── Concurrency and correlation ────────────────────────────────────────────
+
+
+def test_logger_concurrent_reads_during_writes(tmp_path):
+    """Concurrent reads via get_raw_events should not raise while writes are happening."""
+    import threading
+    import time
+
+    logger = StudyLogger(
+        base_dir=tmp_path,
+        study_version="v1",
+        participant_id="P01",
+        session_id="s1",
+    )
+
+    errors = []
+
+    def writer():
+        try:
+            logger.trial_start("task_1", trial_id="trial_1")
+            logger.step_start("step_open", "App öffnen", trial_id="trial_1", task_id="task_1")
+            time.sleep(0.05)
+            logger.step_finish("step_open", trial_id="trial_1", task_id="task_1")
+            logger.trial_complete("trial_1", "completed", task_id="task_1")
+        except Exception as e:
+            errors.append(str(e))
+
+    def reader():
+        try:
+            for _ in range(20):
+                events = logger.get_raw_events()
+                time.sleep(0.01)
+        except Exception as e:
+            errors.append(str(e))
+
+    t_writer = threading.Thread(target=writer)
+    t_reader = threading.Thread(target=reader)
+
+    t_writer.start()
+    t_reader.start()
+    t_reader.join(timeout=5)
+    t_writer.join(timeout=5)
+
+    assert not errors, f"Concurrent access errors: {errors}"
+    events = logger.get_raw_events()
+    assert len(events) >= 3  # trial_start, step_start, step_finish
+
+
+def test_trial_complete_preserves_task_id(tmp_path):
+    """trial_complete should accept and log task_id."""
+    logger = StudyLogger(
+        base_dir=tmp_path,
+        study_version="v1",
+        participant_id="P01",
+        session_id="s1",
+    )
+    logger.trial_start("task_bank", trial_id="trial_001")
+    logger.step_start("step_open", "Bank öffnen", trial_id="trial_001", task_id="task_bank")
+    logger.step_finish("step_open", trial_id="trial_001", task_id="task_bank")
+    logger.trial_complete("trial_001", "completed", task_id="task_bank")
+
+    events = logger.get_raw_events()
+    # Find the trial_complete event
+    complete_events = [e for e in events if e.event_type == EventType.TRIAL_COMPLETE]
+    assert len(complete_events) == 1
+    assert complete_events[0].trial_id == "trial_001"
+    assert complete_events[0].task_id == "task_bank"
+
+
+def test_screenshot_captured_uses_trial_id_and_uuid(tmp_path):
+    """screenshot_captured should include trial_id and UUID in filename."""
+    logger = StudyLogger(
+        base_dir=tmp_path,
+        study_version="v1",
+        participant_id="P01",
+        session_id="s1",
+    )
+    path = logger.screenshot_captured("post_step", trial_id="trial_001")
+
+    assert "screenshots/" in path
+    assert "P01" in path
+    assert "trial_001" in path
+    # UUID should be present (8 hex chars)
+    parts = path.split("/")[-1]  # filename
+    uuid_part = parts.split("_")[-1].replace(".png", "")
+    assert len(uuid_part) == 8, f"Expected 8-char UUID, got {uuid_part}"
+    assert all(c in "0123456789abcdef" for c in uuid_part.lower()), "Invalid hex UUID"
+
+
+def test_screenshot_captured_unique_names(tmp_path):
+    """Consecutive screenshots with same label should produce unique filenames."""
+    logger = StudyLogger(
+        base_dir=tmp_path,
+        study_version="v1",
+        participant_id="P01",
+        session_id="s1",
+    )
+    paths = set()
+    for i in range(10):
+        p = logger.screenshot_captured("verify", trial_id="trial_001")
+        paths.add(p)
+
+    assert len(paths) == 10, f"Expected 10 unique paths, got {len(paths)}"
