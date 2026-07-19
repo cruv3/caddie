@@ -191,8 +191,8 @@ def test_parse_action_tap_label():
 
 
 def test_parse_action_type_text():
-    assert _parse_action("input text 'Hello'") == ("type", "Hello", False)
-    assert _parse_action("input text 'Hello' (submit)") == ("type", "Hello", True)
+    assert _parse_action("input text 'Hello'") == ("type", "Hello")
+    assert _parse_action("input text 'Hello' (submit)") == ("type", "Hello", "submit")
 
 
 def test_parse_action_scroll():
@@ -464,8 +464,8 @@ def test_error_injected_on_error_step():
     ev = ErrorVariant(
         id="ev_wrong",
         field="amount",
-        wrong_value="50",
-        correct_value="100",
+        wrong_value="75",
+        correct_value="50",
         description="Falscher Betrag",
     )
     steps = [
@@ -490,7 +490,8 @@ def test_error_injected_on_error_step():
     assert len(error_events) == 1
     d = error_events[0].details
     assert d["field"] == "amount"
-    assert d["wrong_value"] == "50"
+    assert d["wrong_value"] == "75"
+    assert d["correct_value"] == "50"
 
 
 def test_error_not_injected_on_non_error_step():
