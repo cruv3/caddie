@@ -419,6 +419,8 @@ class PreflightSuite:
                     )
                 )
                 logger.error("Preflight %s FAILED: %s", check.id, exc)
+        # Cache results so summary() can access them (E2E pre-existing bug)
+        self._results_cache = results
         return results
 
     def summary(self) -> PreflightResult:
