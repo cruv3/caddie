@@ -584,6 +584,22 @@ class TrialExecutor:
                 duration_ms=self._elapsed_ms(),
             )
 
+            # Write summary JSON for the trial
+            try:
+                self._logger.write_summary(
+                    outcome=_outcome.value,
+                    total_steps=len(steps),
+                    errors_injected=self._count_errors_injected(),
+                    duration_ms=self._elapsed_ms(),
+                    trial_ids=[self._trial_id] if self._trial_id else [],
+                    verification_results={
+                        "all_passed": verification_passed,
+                    } if verification_results else None,
+                    screenshots=self._screenshots,
+                )
+            except Exception:
+                pass  # Non-critical: events.jsonl is the authoritative record
+
             result = TrialResult(
                 outcome=_outcome,
                 steps_executed=self._steps_executed,
