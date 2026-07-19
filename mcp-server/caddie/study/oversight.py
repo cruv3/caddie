@@ -84,6 +84,11 @@ class OversightProtocol(Protocol):
     def show_c2_summary(self, steps: Sequence[StudyStep]) -> OversightDecision:
         """Show batch summary of pending consequential steps (C2 mode)."""
 
+    def show_c2_summary_with_narrations(
+        self, steps: Sequence[StudyStep], narrations: Sequence[str]
+    ) -> OversightDecision:
+        """Show batch summary with effective narrations (C2 mode)."""
+
     def is_cancelled(self) -> bool:
         """Check whether the trial has been cancelled."""
 
@@ -177,6 +182,23 @@ class OversightManager:
         Returns:
             An ``OversightDecision`` with confirmation status.
         """
+        return self.show_c2_summary_with_narrations(steps, steps)
+
+    def show_c2_summary_with_narrations(
+        self, steps: Sequence[StudyStep], narrations: Sequence[str]
+    ) -> OversightDecision:
+        """Show batch summary with effective narrations (C2 mode).
+
+        Uses the effective narration (including error descriptions) rather
+        than original step narration.
+
+        Args:
+            steps: The consequential steps to review as a batch.
+            narrations: Effective narrations matching each step.
+
+        Returns:
+            An ``OversightDecision`` with confirmation status.
+        """
         if self._cancelled:
             return OversightDecision(cancelled=True)
 
@@ -185,7 +207,7 @@ class OversightManager:
             return OversightDecision(confirmed=True)
 
         # C2: present the queued batch
-        return self._gate_batch(steps)
+        return self._gate_batch(steps, narrations)
 
     def cancel(self) -> None:
         """Mark the oversight session as cancelled."""
@@ -255,19 +277,31 @@ class OversightManager:
         )
         return OversightDecision(confirmed=True)
 
-    def _gate_batch(self, steps: Sequence[StudyStep]) -> OversightDecision:
+    def _gate_batch(
+        self, steps: Sequence[StudyStep], narrations: Sequence[str] | None = None
+    ) -> OversightDecision:
         """Execute a C2 batch confirmation gate.
 
         All consequential steps collected during the trial are presented
         as a single review. The user can approve, decline specific steps,
         or cancel.
+
+        Args:
+            steps: The consequential steps.
+            narrations: Effective narrations (optional — falls back to
+                        ``step.narration or step.action``).
         """
         if not steps:
             return OversightDecision(confirmed=True)
 
-        narration_parts = [
-            f"  {s.id}: {s.narration or s.action}" for s in steps
-        ]
+        if narrations:
+            narration_parts = [
+                f"  {s.id}: {n}" for s, n in zip(steps, narrations)
+            ]
+        else:
+            narration_parts = [
+                f"  {s.id}: {s.narration or s.action}" for s in steps
+            ]
         batch_text = "\n".join(narration_parts)
 
         # Log the batch confirmation prompt

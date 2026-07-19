@@ -196,6 +196,8 @@ version: v1
 id: task_{i}
 instruction_de: Test instruction {i}
 criticality: {'low' if i % 2 == 0 else 'high'}
+reset_checklist:
+  - App im Home-Screen
 steps:
   - id: open_{i}
     action: open app {i}
@@ -255,6 +257,8 @@ version: v1
 id: task_{i}
 instruction_de: Test instruction {i}
 criticality: {'low' if i % 2 == 0 else 'high'}
+reset_checklist:
+  - App im Home-Screen
 steps:
   - id: open_{i}
     action: open app {i}

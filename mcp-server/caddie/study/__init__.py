@@ -1,7 +1,12 @@
 # caddie.study — deterministic study runtime for the Shared Autonomy experiment.
 # All public types live in caddie.study.model; other modules import from there.
 
-from caddie.study.executor import TrialExecutor, ExecutionResult
+from caddie.study.executor import (
+    TrialExecutor,
+    ExecutionResult,
+    TrialResult,
+    ResolvedStep,
+)
 from caddie.study.logger import StudyLogger, EventType, StudyEvent, MonotonicClock
 from caddie.study.matrix import (
     generate_matrix,
@@ -49,7 +54,6 @@ from caddie.study.screen_off import (
     ScreenOffManager,
     ScreenOffConfig,
     ScreenOffResult,
-    ScreenOffMode,
     run_screen_off_block,
 )
 from caddie.study.session import StudySession, SessionManager, SessionMetrics
@@ -77,6 +81,8 @@ __all__ = [
     # Executor
     "TrialExecutor",
     "ExecutionResult",
+    "TrialResult",
+    "ResolvedStep",
     # Verification
     "VerificationOutcome",
     "VerificationResult",

@@ -290,6 +290,8 @@ class ExecutionResult:
         Wall-clock time spent on this step in milliseconds.
     error_variant_id : Optional[str]
         ID of the injected error variant, if this step had one.
+    error_injected : bool
+        True if this step had a controlled error actually applied.
     """
 
     success: bool
@@ -299,6 +301,7 @@ class ExecutionResult:
     resolved_index: Optional[int] = None
     elapsed_ms: float = 0.0
     error_variant_id: Optional[str] = None
+    error_injected: bool = False
 
 
 @dataclass
@@ -463,10 +466,15 @@ class TrialExecutor:
                     for later_step in steps[step_idx + 1:]:
                         if later_step.consequential:
                             c2_pending.append(resolved_map[later_step.id])
-                    # Gate the batch
-                    c2_decision = self._oversight.show_c2_summary(
-                        [r.source for r in c2_pending]
-                    )
+                    # Gate the batch — pass effective action strings for C2 display
+                    c2_steps = [r.source for r in c2_pending]
+                    c2_narrations = [r.narration for r in c2_pending]
+                    # Use show_c2_summary_with_narrations if available, fallback to
+                    # show_c2_summary for backward compatibility
+                    show_fn = getattr(self._oversight, "show_c2_summary_with_narrations", None)
+                    c2_decision = show_fn(
+                        c2_steps, c2_narrations
+                    ) if show_fn else self._oversight.show_c2_summary(c2_steps)
                     if not c2_decision.confirmed:
                         return self._abort_trial(
                             step_idx,
@@ -474,6 +482,18 @@ class TrialExecutor:
                             "C2 summary declined" if c2_decision.declined
                             else "C2 summary cancelled",
                         )
+                    # Apply modified_steps from C2 decision (BLOCKER 14)
+                    for modified in c2_decision.modified_steps:
+                        # Update the resolved map so future execution uses modified step
+                        for r in c2_pending:
+                            if r.source.id == modified.id:
+                                resolved_map[modified.id] = ResolvedStep(
+                                    source=modified,
+                                    effective_action=modified.action,
+                                    narration=modified.narration or modified.action,
+                                    error_injected=bool(modified.error_variant),
+                                    error_variant_id=modified.error_variant.id if modified.error_variant else None,
+                                )
                     c2_pending.clear()
 
             # C1: individual gate for consequential steps
@@ -506,8 +526,8 @@ class TrialExecutor:
             result = self._execute_step(step, resolved, step_idx)
             self._steps_executed.append(result)
 
-            # Update session progress
-            if self._session:
+            # Update session progress — only mark completed on success (BLOCKER 10)
+            if self._session and result.success:
                 self._session.mark_step_executed(step_idx + 1)
 
             if not result.success:
@@ -707,7 +727,7 @@ class TrialExecutor:
             self._logger.screenshot_captured(screenshot_label, trial_id=self._trial_id)
         )
 
-        # Execute the action
+        # Execute the action (action parsing inside try)
         action_result = self._perform_action(resolved)
 
         if not action_result:
@@ -716,6 +736,7 @@ class TrialExecutor:
                 step=step,
                 error="Action could not be performed",
                 error_variant_id=resolved.error_variant_id,
+                error_injected=resolved.error_injected,
             )
 
         action_type, action_desc, resolved_index = action_result
@@ -732,6 +753,7 @@ class TrialExecutor:
             resolved_index=resolved_index,
             elapsed_ms=elapsed,
             error_variant_id=resolved.error_variant_id,
+            error_injected=resolved.error_injected,
         )
 
     def _perform_action(
@@ -743,11 +765,18 @@ class TrialExecutor:
         or ``None`` if the action cannot be performed (target not found).
 
         BLOCKER 5: Checks backend return values for success status.
+        BLOCKER 12: Action parsing inside try block.
+        BLOCKER 13: Honor min_narration_ms exactly (no 800ms floor).
         """
-        action_type, *rest = _parse_action(resolved.effective_action)
-        desc = rest[0] if rest else ""
+        desc = ""
+        try:
+            action_type, *rest = _parse_action(resolved.effective_action)
+            desc = rest[0] if rest else ""
+        except ValueError as e:
+            self._logger.technical_failure(error=str(e))
+            return None
 
-        # Wait minimum narration duration (BLOCKER 13: use actual min_narration_ms)
+        # Wait minimum narration duration — honor exactly, no floor (BLOCKER 13)
         min_ms = resolved.source.min_narration_ms
         if min_ms > 0:
             time.sleep(min_ms / 1000.0)
@@ -845,10 +874,14 @@ class TrialExecutor:
     # ------------------------------------------------------------------
 
     def _count_errors_injected(self) -> int:
-        """Count how many error steps were actually injected in this trial."""
+        """Count how many error steps were actually injected in this trial.
+
+        Uses the `error_injected` flag on ExecutionResult for accuracy
+        (BLOCKER 16: checks actual injection, not just presence of error_variant_id).
+        """
         return sum(
             1 for r in self._steps_executed
-            if r.error_variant_id is not None and r.success
+            if r.error_injected and r.success
         )
 
     def _elapsed_ms(self) -> float:

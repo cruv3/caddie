@@ -17,10 +17,21 @@ from caddie.study.spec_loader import (
 
 
 def _make_yaml(data: dict) -> str:
+    if "verification" in data and isinstance(data["verification"], list):
+        for v in data["verification"]:
+            if isinstance(v, dict) and v.get("check_type") in ("text_present", "text_absent"):
+                v.setdefault("parameters", {})["text"] = "expected"
     return yaml.dump(data, default_flow_style=False)
 
 
 def _temp_yaml(data: dict) -> pathlib.Path:
+    # Ensure verification checks have text parameter and reset_checklist is present
+    if "verification" in data and isinstance(data["verification"], list):
+        for v in data["verification"]:
+            if isinstance(v, dict) and v.get("check_type") in ("text_present", "text_absent"):
+                v.setdefault("parameters", {})["text"] = "expected"
+    if "reset_checklist" not in data:
+        data["reset_checklist"] = ["App ist im Home-Screen"]
     f = tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False)
     yaml.dump(data, f)
     f.close()
@@ -33,6 +44,7 @@ def _valid_minimal() -> dict:
         "id": "task_test",
         "instruction_de": "Teste die App.",
         "criticality": "high",
+        "reset_checklist": ["App ist im Home-Screen"],
         "steps": [
             {"id": "open", "action": "open", "narration": "App oeffnen...", "step_type": "normal"},
             {"id": "send", "action": "click Send", "narration": "Senden...", "step_type": "consequential", "consequential": True},

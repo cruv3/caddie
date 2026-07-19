@@ -126,6 +126,7 @@ class StudySession:
         self._current_step_index: int = -1
         self._verification_pending: bool = False
         self._cancelled: bool = False
+        self._completed_trials: int = 0
         self._cleanup_called: bool = False
 
         # Thread safety for state mutations (RLock for re-entrant calls)
@@ -290,6 +291,7 @@ class StudySession:
                 self._completed_trials += 1
             # Update pending oversight steps (cleared after trial)
             self._pending_oversight_steps = 0
+            self._current_step_index = -1
 
     def _cleanup(self, outcome: str) -> None:
         """Hard cleanup: release resources, log final state.

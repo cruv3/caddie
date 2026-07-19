@@ -175,16 +175,23 @@ def test_verification_rule_defaults():
 
 
 def test_trial_spec_minimal():
+    steps = (StudyStep(
+        id="s1",
+        action="click 'Send'",
+        narration="Send message",
+        step_type=StepType.NORMAL,
+    ),)
     spec = TrialSpec(
         version="v1",
         id="task_test",
         instruction_de="Test instruction",
         criticality=CriticalityClass.HIGH,
+        steps=steps,
     )
     assert spec.required_packages == ()
     assert spec.seeded_artifacts == ()
     assert spec.reset_checklist == ()
-    assert spec.steps == ()
+    assert len(spec.steps) == 1
     assert spec.error_steps == ()
     assert spec.c2_summary_lines == ()
     assert spec.verification == ()

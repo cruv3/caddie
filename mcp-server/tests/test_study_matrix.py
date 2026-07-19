@@ -13,6 +13,8 @@ from caddie.study.matrix import (
 )
 from caddie.study.model import (
     StudyCondition,
+    StudyStep,
+    StepType,
     CriticalityClass,
     ScreenOffMode,
     ParticipantConfig,
@@ -43,11 +45,19 @@ def _make_specs(*ids_and_crits) -> dict[str, TrialSpec]:
     specs = {}
 
     def _add(tid: str, crit: str) -> None:
+        steps = (StudyStep(
+            id="s1",
+            action="open com.example",
+            narration=f"Task {tid}",
+            step_type=StepType.NORMAL,
+        ),)
         specs[tid] = TrialSpec(
             version="v1",
             id=tid,
             instruction_de=f"Task {tid}",
             criticality=CriticalityClass(crit),
+            steps=steps,
+            reset_checklist=["App ist im Home-Screen"],
         )
 
     # Flatten tuples into (id, crit) pairs
@@ -215,7 +225,7 @@ def test_cohort_condition_distribution():
             id=f"task_{i}",
             instruction_de=f"Task {i}",
             criticality=CriticalityClass.LOW if i % 2 == 0 else CriticalityClass.HIGH,
-            steps=(),
+            steps=(StudyStep(id="s1", action="open com.example", narration="Test", step_type=StepType.NORMAL),),
         )
         for i in range(6)
     }
@@ -255,7 +265,7 @@ def test_cohort_task_criticality_balance():
             id=f"task_{i}",
             instruction_de=f"Task {i}",
             criticality=CriticalityClass.LOW if i % 2 == 0 else CriticalityClass.HIGH,
-            steps=(),
+            steps=(StudyStep(id="s1", action="open com.example", narration="Test", step_type=StepType.NORMAL),),
         )
         for i in range(6)
     }
@@ -285,7 +295,7 @@ def test_criticality_class_not_string():
             id=f"task_{i}",
             instruction_de=f"Task {i}",
             criticality=CriticalityClass.LOW if i % 2 == 0 else CriticalityClass.HIGH,
-            steps=(),
+            steps=(StudyStep(id="s1", action="open com.example", narration="Test", step_type=StepType.NORMAL),),
         )
     configs = generate_matrix(specs)
 

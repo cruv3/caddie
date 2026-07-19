@@ -10,7 +10,7 @@ from __future__ import annotations
 import types
 from dataclasses import dataclass, field
 from enum import StrEnum
-from typing import Any
+from typing import Any, Mapping
 
 
 # ── Enums ────────────────────────────────────────────────────────────────────
@@ -107,7 +107,7 @@ class StudyStep:
     """StepType classification for this step."""
 
     consequential: bool = False
-    """True when this step requires oversight attention (alias for step_type in consequential or commit)."""
+    """True when this step requires oversight attention."""
 
     commit: bool = False
     """True when this is the final irreversible action."""
@@ -117,6 +117,19 @@ class StudyStep:
 
     min_narration_ms: int = 800
     """Minimum display time for the narration before the action fires (ms)."""
+
+    def __post_init__(self) -> None:
+        """Validate immutable invariants."""
+        if not self.id.strip():
+            raise ValueError("StudyStep.id must be a non-empty string")
+        if not self.action.strip():
+            raise ValueError("StudyStep.action must be a non-empty string")
+        if not self.narration.strip():
+            raise ValueError("StudyStep.narration must be a non-empty string")
+        if self.step_type == StepType.COMMIT and not self.commit:
+            object.__setattr__(self, "commit", True)
+        if self.min_narration_ms < 0:
+            raise ValueError("min_narration_ms must be >= 0")
 
 
 @dataclass(frozen=True, slots=True)
@@ -160,13 +173,23 @@ class VerificationRule:
     check_type: str
     """One of: 'accessibility_check', 'screenshot_match', 'text_present', 'text_absent', 'field_count'."""
 
-    parameters: types.MappingProxyType[str, Any] = field(
+    parameters: Mapping[str, Any] = field(
         default_factory=lambda: types.MappingProxyType({})
     )
-    """Backend-specific parameters (package name, view label, expected text, etc.)."""
+    """Backend-specific parameters (package name, view label, expected text, etc.).
+
+    Frozen at construction (MappingProxyType) but annotated as Mapping[str, Any]
+    for flexibility with loader input types."""
 
     screenshot_evidence: bool = True
     """Whether to capture a screenshot at this checkpoint."""
+
+    def __post_init__(self) -> None:
+        """Ensure parameters is a frozen MappingProxyType."""
+        if not isinstance(self.parameters, types.MappingProxyType):
+            object.__setattr__(
+                self, "parameters", types.MappingProxyType(dict(self.parameters))
+            )
 
 
 @dataclass(frozen=True, slots=True)
@@ -215,6 +238,21 @@ class TrialSpec:
     per_gate_timeout_s: int = 30
     """Per-confirmation-gate timeout in seconds."""
 
+    def __post_init__(self) -> None:
+        """Validate immutable invariants."""
+        if not self.id.strip():
+            raise ValueError("TrialSpec.id must be a non-empty string")
+        if not self.version.strip():
+            raise ValueError("TrialSpec.version must be a non-empty string")
+        if not self.instruction_de.strip():
+            raise ValueError("TrialSpec.instruction_de must be a non-empty string")
+        if len(self.steps) == 0:
+            raise ValueError("TrialSpec.steps must contain at least one step")
+        if self.max_duration_s <= 0:
+            raise ValueError("TrialSpec.max_duration_s must be > 0")
+        if self.per_gate_timeout_s <= 0:
+            raise ValueError("TrialSpec.per_gate_timeout_s must be > 0")
+
 
 @dataclass(frozen=True, slots=True)
 class TaskPair:
@@ -260,3 +298,17 @@ class ParticipantConfig:
 
     pair_assignments: tuple[tuple[str, CriticalityClass], ...] = ()
     """((task_id, criticality), ...) for transparency/logging."""
+
+    def __post_init__(self) -> None:
+        """Validate immutable invariants."""
+        if not self.participant_id.strip():
+            raise ValueError("ParticipantConfig.participant_id must be non-empty")
+        if len(self.task_order) != len(self.condition_order):
+            raise ValueError(
+                f"ParticipantConfig: task_order length ({len(self.task_order)}) "
+                f"must equal condition_order length ({len(self.condition_order)})"
+            )
+        if len(self.error_tasks) != len(self.screen_off_order):
+            raise ValueError(
+                "error_tasks length must equal screen_off_order length"
+            )

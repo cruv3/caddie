@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import logging
 import pathlib
+from collections import Counter
 from typing import Any
 
 import yaml
@@ -95,10 +96,10 @@ _TRIAL_SPEC_KEYS = frozenset({
 
 
 def _to_str(val: Any, path: str) -> str:
-    """Convert a value to str, raising SpecError for non-string/non-int types."""
+    """Convert a value to str, raising SpecError for non-string types."""
     if isinstance(val, str):
         return val
-    if isinstance(val, (int, float)):
+    if isinstance(val, (int, float)) and not isinstance(val, bool):
         return str(val)
     raise SpecError(f"{path}: expected a string or number, got {type(val).__name__}")
 
@@ -243,14 +244,20 @@ def _parse_verification(v: dict[str, Any], path: str) -> VerificationRule:
             f"{path}: invalid check_type '{check_type}', "
             f"must be one of {sorted(VALID_CHECK_TYPES)}"
         )
-    # Validate required parameters per check type
-    params = dict(v.get("parameters", {}))
-    # text_present/text_absent: require 'text' in parameters (tests may omit)
-    # Only warn, don't raise — the backend can use the assertion text instead
+    # Validate parameters is a mapping
+    raw_params = v.get("parameters", {})
+    if raw_params is None:
+        raw_params = {}
+    if not isinstance(raw_params, dict):
+        raise SpecError(f"{path}: parameters must be a mapping, got {type(raw_params).__name__}")
+    params = dict(raw_params)
+
+    # text_present/text_absent: require 'text' in parameters (reject, no fallback)
     if check_type == "text_present" and "text" not in params:
-        logging.warning(f"{path}: 'text' parameter missing for check_type 'text_present' (using assertion)")
+        raise SpecError(f"{path}: 'text' parameter required for check_type 'text_present'")
     if check_type == "text_absent" and "text" not in params:
-        logging.warning(f"{path}: 'text' parameter missing for check_type 'text_absent' (using assertion)")
+        raise SpecError(f"{path}: 'text' parameter required for check_type 'text_absent'")
+
     if check_type == "field_count":
         has_label = "container_label" in params or "view_id" in params
         has_expected = "expected" in params or "expected_count" in params
@@ -277,6 +284,12 @@ def _validate_error_steps(steps: tuple[StudyStep, ...], error_step_ids: tuple[st
     step_map = {s.id: s for s in steps}
     step_ids = set(step_map.keys())
 
+    # Check for duplicate error_step IDs
+    err_counts = Counter(error_step_ids)
+    dup_err = {id_val for id_val, cnt in err_counts.items() if cnt > 1}
+    if dup_err:
+        raise SpecError(f"{path}: duplicate error_step IDs: {sorted(dup_err)}")
+
     # Every error_step ID must exist in steps
     for eid in error_step_ids:
         if eid not in step_ids:
@@ -291,6 +304,7 @@ def _validate_error_steps(steps: tuple[StudyStep, ...], error_step_ids: tuple[st
             )
 
     # Every error step must have a complete ErrorVariant (non-empty id, field, values)
+    error_ids_seen: set[str] = set()
     for eid in error_step_ids:
         step = step_map[eid]
         ev = step.error_variant
@@ -301,6 +315,10 @@ def _validate_error_steps(steps: tuple[StudyStep, ...], error_step_ids: tuple[st
                 f"{path}: error_step '{eid}' has incomplete error_variant "
                 f"(id={ev.id!r}, field={ev.field!r})"
             )
+        # Unique error variant IDs
+        if ev.id in error_ids_seen:
+            raise SpecError(f"{path}: duplicate error variant ID '{ev.id}'")
+        error_ids_seen.add(ev.id)
         # String refs have all fields equal to the ref ID; dict refs must differ
         if ev.wrong_value == ev.correct_value and ev.id == ev.wrong_value:
             # String error reference — accept (all fields are the ref ID)
@@ -313,7 +331,8 @@ def _validate_error_steps(steps: tuple[StudyStep, ...], error_step_ids: tuple[st
 
 def _validate_step_ids_unique(steps: tuple[StudyStep, ...], path: str) -> None:
     ids = [s.id for s in steps]
-    duplicates = {i for i in ids if ids.count(i) > 1}
+    counts = Counter(ids)
+    duplicates = {id_val for id_val, cnt in counts.items() if cnt > 1}
     if duplicates:
         raise SpecError(f"{path}: duplicate step IDs: {sorted(duplicates)}")
 
@@ -370,6 +389,8 @@ def load_trial_spec(filepath: pathlib.Path | str) -> TrialSpec:
     required_packages = _str_tuple(raw.get("required_packages"), f"{filepath}.required_packages")
     seeded_artifacts = _str_tuple(raw.get("seeded_artifacts"), f"{filepath}.seeded_artifacts")
     reset_checklist = _str_tuple(raw.get("reset_checklist"), f"{filepath}.reset_checklist")
+    if not reset_checklist:
+        raise SpecError(f"{filepath}: 'reset_checklist' must not be empty")
     c2_summary_lines = _str_tuple(raw.get("c2_summary_lines"), f"{filepath}.c2_summary_lines")
 
     # Steps
@@ -387,6 +408,11 @@ def load_trial_spec(filepath: pathlib.Path | str) -> TrialSpec:
 
     # Error steps
     error_step_ids = _str_tuple(raw.get("error_steps"), f"{filepath}.error_steps")
+    # Check for duplicate error_step IDs
+    err_counts = Counter(error_step_ids)
+    err_dups = {eid for eid, cnt in err_counts.items() if cnt > 1}
+    if err_dups:
+        raise SpecError(f"{filepath}.error_steps: duplicate error step IDs: {sorted(err_dups)}")
     _validate_error_steps(steps, error_step_ids, f"{filepath}")
 
     # Verification
@@ -400,6 +426,12 @@ def load_trial_spec(filepath: pathlib.Path | str) -> TrialSpec:
             )
         except (TypeError, AttributeError) as e:
             raise SpecError(f"{filepath}.verification: non-mapping entry - {e}")
+        # Validate unique verification rule IDs
+        vrule_ids = [vr.id for vr in verification]
+        vrule_counts = Counter(vrule_ids)
+        vrule_dups = {vid for vid, cnt in vrule_counts.items() if cnt > 1}
+        if vrule_dups:
+            raise SpecError(f"{filepath}.verification: duplicate rule IDs: {sorted(vrule_dups)}")
     else:
         verification = ()
 

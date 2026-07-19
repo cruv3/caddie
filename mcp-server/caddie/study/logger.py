@@ -371,6 +371,11 @@ class StudyLogger:
         )
         return trial_id
 
+    # Reserved detail keys that override canonical values
+    _TRIAL_COMPLETE_RESERVED = frozenset({
+        "outcome", "total_steps", "errors_injected", "duration_ms",
+    })
+
     def trial_complete(
         self,
         trial_id: str,
@@ -384,11 +389,14 @@ class StudyLogger:
     ) -> None:
         """Mark a trial as complete with its outcome.
 
-        Parameters
-        ----------
-        task_id : str
-            The task that was completed. Defaults to empty (unknown).
+        Canonical fields (outcome, total_steps, errors_injected, duration_ms)
+        always take precedence over caller-supplied details.
         """
+        extra: dict[str, Any] = dict(details or {})
+        reserved = self._TRIAL_COMPLETE_RESERVED
+        for key in reserved:
+            if key in extra:
+                del extra[key]
         self.log(
             EventType.TRIAL_COMPLETE,
             trial_id=trial_id,
@@ -399,7 +407,7 @@ class StudyLogger:
                 "errors_injected": errors_injected,
                 "duration_ms": duration_ms,
             }
-            | (details or {}),
+            | extra,
         )
 
     # ------------------------------------------------------------------
@@ -503,6 +511,8 @@ class StudyLogger:
         """
         self.log(
             kind,
+            trial_id=trial_id,
+            task_id=task_id,
             details={
                 "intervention_latency_ms": latency_ms,
             }
@@ -829,37 +839,42 @@ class StudyLogger:
         Thread-safe: acquires the logger lock to prevent reading while
         another thread is appending.
 
+        Corrupted lines (partial JSON) are skipped with a warning;
+        only a trailing partial line prevents recovery.
+
         Returns a list of StudyEvent objects.
         """
         events: list[StudyEvent] = []
         with self._lock:
-            events: list[StudyEvent] = []
             if not self._events_path.exists():
                 return events
             text = self._events_path.read_text(encoding="utf-8")
-            for line in text.strip().splitlines():
-                line = line.strip()
-                if not line:
-                    continue
+        for line in text.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
                 d = json.loads(line)
-                events.append(StudyEvent(
-                    event_type=d["event_type"],
-                    timestamp=d["timestamp"],
-                    elapsed_ms=d["elapsed_ms"],
-                    study_version=d["study_version"],
-                    participant_id=d["participant_id"],
-                    session_id=d["session_id"],
-                    block=d.get("block"),
-                    task_id=d.get("task_id"),
-                    condition=d.get("condition"),
-                    trial_id=d.get("trial_id"),
-                    variant=d.get("variant"),
-                    step_id=d.get("step_id"),
-                    narration=d.get("narration"),
-                    action=d.get("action"),
-                    details=d.get("details", {}),
-                ))
-            return events
+            except json.JSONDecodeError:
+                continue  # skip corrupted lines, don't block valid events
+            events.append(StudyEvent(
+                event_type=d.get("event_type", ""),
+                timestamp=d.get("timestamp", ""),
+                elapsed_ms=d.get("elapsed_ms", 0.0),
+                study_version=d.get("study_version", ""),
+                participant_id=d.get("participant_id", ""),
+                session_id=d.get("session_id", ""),
+                block=d.get("block"),
+                task_id=d.get("task_id"),
+                condition=d.get("condition"),
+                trial_id=d.get("trial_id"),
+                variant=d.get("variant"),
+                step_id=d.get("step_id"),
+                narration=d.get("narration"),
+                action=d.get("action"),
+                details=d.get("details", {}),
+            ))
+        return events
 
     # ------------------------------------------------------------------
     # Properties
