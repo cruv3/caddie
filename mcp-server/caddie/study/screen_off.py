@@ -161,13 +161,8 @@ class ScreenOffManager:
         display_was_on = self._check_display()
 
         # Log initiation
-        self._logger.screen_off_initiation(
-            task_id=config.task_id,
-            mode=config.mode.value,
-            display_was_off=not display_was_on,
-            wake_succeeded=False,  # not yet woken
-            details={"initial_display_on": display_was_on},
-        )
+        # Note: actual initiation result is logged in _log_initiation_result()
+        # after wake-up to avoid a placeholder event with wake_succeeded=False
 
         # Sleep for the configured wait time (interruptible by lock)
         with self._lock:

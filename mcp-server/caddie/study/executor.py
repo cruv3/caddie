@@ -42,6 +42,7 @@ from dataclasses import asdict, dataclass, field, replace
 from typing import Any, Callable, Optional
 
 from caddie.study.model import (
+    StepType,
     StudyCondition,
     StudyStep,
     TrialSpec,
@@ -786,11 +787,12 @@ class TrialExecutor:
                     correct_value=ev.correct_value,
                 )
 
-        # Capture pre-action screenshot
-        screenshot_label = f"pre_action_{step_index}"
-        self._screenshots.append(
-            self._logger.screenshot_captured(screenshot_label, trial_id=self._trial_id)
-        )
+        # Capture pre-action screenshot only for commit/error steps (Spec §7)
+        if resolved.source.step_type in (StepType.COMMIT,) or resolved.error_variant_id is not None:
+            screenshot_label = f"pre_action_{step_index}"
+            self._screenshots.append(
+                self._logger.screenshot_captured(screenshot_label, trial_id=self._trial_id)
+            )
 
         # Execute the action (action parsing inside try)
         action_result = self._perform_action(resolved)

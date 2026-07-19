@@ -90,6 +90,9 @@ def _handler_factory(
             if self.path == "/study/health":
                 self._handle_study_health()
                 return
+            if self.path == "/study/preflight":
+                self._handle_study_preflight()
+                return
             if self.path == "/study/trials/status":
                 self._handle_study_status()
                 return
@@ -183,6 +186,9 @@ def _handler_factory(
             if self.path == "/study/trials/abort":
                 self._handle_study_abort()
                 return
+            if self.path == "/study/preflight":
+                self._handle_study_preflight()
+                return
             self._send_json({"ok": False, "error": "not_found"}, status=404)
 
         def _handle_control(self) -> None:
@@ -198,6 +204,33 @@ def _handler_factory(
         # ------------------------------------------------------------------
         # Study endpoints (§4.2 of design spec)
         # ------------------------------------------------------------------
+
+        def _handle_study_preflight(self) -> None:
+            """GET /study/preflight — run preflight checks (Spec §4.2)."""
+            from caddie.study import preflight
+
+            suite = preflight.default_suite()
+            results = suite.run()
+            self._send_json({
+                "ok": True,
+                "preflight": {
+                    "results": [
+                        {
+                            "check": r.check.id,
+                            "status": r.status.value,
+                            "message": r.message,
+                            "elapsed_ms": r.elapsed_ms,
+                        }
+                        for r in results
+                    ],
+                    "summary": {
+                        "total": len(results),
+                        "passed": sum(1 for r in results if r.passed),
+                        "failed": sum(1 for r in results if r.failed),
+                        "skipped": sum(1 for r in results if r.skipped),
+                    },
+                },
+            })
 
         def _handle_study_health(self) -> None:
             """GET /study/health — study system availability."""
@@ -242,24 +275,23 @@ def _handler_factory(
             except ValueError:
                 self._send_json({
                     "ok": False, "error": f"Invalid condition: {condition_str}. "
-                                          "Must be one of: stepwise, final_checkpoint, voluntary"
+                                          "Must be one of: c1_stepwise, c2_final_checkpoint, c3_voluntary_intervention"
                 }, status=400)
                 return
 
             # Load specs
-            try:
-                if specs_dir:
-                    import caddie.study.spec_loader as _sl
-                    _orig = getattr(_sl, 'STUDY_SPECS_DIR', None)
-                    _sl.STUDY_SPECS_DIR = Path(specs_dir)
+            specs = {}
+            if specs_dir:
+                import caddie.study.spec_loader as _sl
+                _orig = getattr(_sl, 'STUDY_SPECS_DIR', None)
+                _sl.STUDY_SPECS_DIR = Path(specs_dir)
+                try:
                     specs = load_all_specs()
+                finally:
                     if _orig is not None:
                         _sl.STUDY_SPECS_DIR = _orig
-                else:
-                    specs = load_all_specs()
-            except Exception as exc:
-                self._send_json({"ok": False, "error": f"Spec load failed: {exc}"}, status=500)
-                return
+            if not specs:
+                specs = load_all_specs()
 
             if not specs:
                 self._send_json({"ok": False, "error": "No specs loaded"}, status=400)

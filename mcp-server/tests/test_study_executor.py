@@ -98,6 +98,9 @@ class FakeOversight:
             )
         return decision
 
+    def is_cancelled(self) -> bool:
+        return self.cancelled
+
     def show_c2_summary(self, steps):
         self.summary_steps.extend(steps)
         if self.decline_summary:

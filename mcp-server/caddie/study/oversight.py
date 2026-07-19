@@ -186,7 +186,8 @@ class OversightManager:
         Returns:
             An ``OversightDecision`` with confirmation status.
         """
-        return self.show_c2_summary_with_narrations(steps, steps)
+        narrations = [s.narration or s.action for s in steps]
+        return self.show_c2_summary_with_narrations(steps, narrations)
 
     def show_c2_summary_with_narrations(
         self, steps: Sequence[StudyStep], narrations: Sequence[str]
