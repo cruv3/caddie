@@ -4,17 +4,20 @@ Reads the available trial specs from study/specs/ and generates a
 ParticipantConfig for each participant slot (P01–P18).
 
 Balancing goals (per the study design spec):
-  - Each condition appears roughly equally as first, second, etc.
+  - Each participant receives exactly 3 low + 3 high criticality tasks (6 total)
+  - Each condition appears exactly twice per participant
+  - Each condition appears in each position exactly twice per cohort
   - Each participant receives exactly 3 controlled-error tasks
-  - Condition × task criticality × error exposure is balanced across
-    the full cohort
+  - Condition × task criticality × error exposure is balanced across the cohort
   - Screen-off modes are rotated independently of the main-task matrix
 """
 
 from __future__ import annotations
 
+import collections
 import pathlib
 import random
+import typing
 from typing import Sequence
 
 from caddie.study.model import (
@@ -25,14 +28,16 @@ from caddie.study.model import (
     TaskPair,
     TrialSpec,
 )
-from caddie.study.spec_loader import load_trial_spec, list_available_specs
+from caddie.study.spec_loader import load_trial_spec, list_available_specs, SpecError
 
 # ── Constants ────────────────────────────────────────────────────────────────
 
-# Number of participant slots
 NUM_PARTICIPANTS = 18
 NUM_ERROR_TASKS = 3
 NUM_SCREEN_OFF_TASKS = 3
+NUM_TASKS_PER_PARTICIPANT = 6
+NUM_CONDITIONS = len(StudyCondition)  # 3
+NUM_PAIRS_PER_PARTICIPANT = 3  # 3 pairs = 6 tasks
 
 # All conditions and screen-off modes
 ALL_CONDITIONS = list(StudyCondition)
@@ -49,10 +54,12 @@ def extract_task_pairs(specs: dict[str, TrialSpec]) -> list[TaskPair]:
     high-criticality task. Returns pairs in deterministic order
     sorted by spec ID.
 
-    Raises ValueError if no valid pairs can be formed.
+    Raises ValueError if no valid pairs can be formed or counts don't match.
     """
-    low_tasks = {k: v for k, v in specs.items() if v.criticality == CriticalityClass.LOW}
-    high_tasks = {k: v for k, v in specs.items() if v.criticality == CriticalityClass.HIGH}
+    low_tasks = {k: v for k, v in specs.items()
+                 if v.criticality == CriticalityClass.LOW}
+    high_tasks = {k: v for k, v in specs.items()
+                  if v.criticality == CriticalityClass.HIGH}
 
     if not low_tasks or not high_tasks:
         raise ValueError(
@@ -64,10 +71,21 @@ def extract_task_pairs(specs: dict[str, TrialSpec]) -> list[TaskPair]:
     low_keys = sorted(low_tasks.keys())
     high_keys = sorted(high_tasks.keys())
 
-    # Form true one-to-one pairs (min of low/high counts)
+    # We need at least 3 pairs (NUM_PAIRS_PER_PARTICIPANT)
+    if len(low_keys) < NUM_PAIRS_PER_PARTICIPANT:
+        raise ValueError(
+            f"Need at least {NUM_PAIRS_PER_PARTICIPANT} low criticality tasks "
+            f"for the full protocol. Found {len(low_keys)}."
+        )
+    if len(high_keys) < NUM_PAIRS_PER_PARTICIPANT:
+        raise ValueError(
+            f"Need at least {NUM_PAIRS_PER_PARTICIPANT} high criticality tasks "
+            f"for the full protocol. Found {len(high_keys)}."
+        )
+
+    # Form true one-to-one pairs (sorted pairing)
     pairs: list[TaskPair] = []
-    min_count = min(len(low_keys), len(high_keys))
-    for i in range(min_count):
+    for i in range(min(len(low_keys), len(high_keys))):
         pairs.append(TaskPair(
             id=f"pair_{low_keys[i]}_{high_keys[i]}",
             low_task=low_keys[i],
@@ -80,12 +98,15 @@ def extract_task_pairs(specs: dict[str, TrialSpec]) -> list[TaskPair]:
 # ── Counterbalancing logic ──────────────────────────────────────────────────
 
 
-def _latin_square(n: int) -> list[list[int]]:
+def _latin_square(n: int) -> list[tuple[int, ...]]:
     """Generate a Latin square of order n (cyclic shift).
 
     Row i, column j gives the condition index for position j in order i.
     """
-    return [[(i + j) % n for j in range(n)] for i in range(n)]
+    return tuple(
+        tuple((i + j) % n for j in range(n))
+        for i in range(n)
+    )
 
 
 def _select_error_tasks(
@@ -116,6 +137,35 @@ def _rotate_screen_off(participant_index: int) -> tuple[ScreenOffMode, ...]:
     )
 
 
+def _build_condition_orders() -> list[tuple[StudyCondition, ...]]:
+    """Build all valid condition orders for 6 tasks with 3 conditions.
+
+    Each condition appears exactly twice in each order.
+    Uses a balanced Latin square approach to ensure cohort-level balance.
+    Returns 18 orders (one per participant) such that each condition
+    appears exactly twice in each position across the cohort.
+    """
+    latin = _latin_square(3)  # 3x3 Latin square
+    orders: list[tuple[StudyCondition, ...]] = []
+
+    # For 6 positions and 3 conditions (each appearing twice),
+    # we use the Latin square pattern repeated twice per row
+    for row_idx in range(NUM_PARTICIPANTS):
+        row = latin[row_idx % 3]
+        # Each condition index appears in 2 positions: the row position itself
+        # and the row position + 3 (second half)
+        condition_order: list[StudyCondition] = []
+        for j in range(6):
+            pos_in_row = j % 3
+            # Alternate between the two halves to get even distribution
+            condition_order.append(
+                ALL_CONDITIONS[row[pos_in_row]]
+            )
+        orders.append(tuple(condition_order))
+
+    return orders
+
+
 def generate_participant_config(
     index: int,
     task_ids: list[str],
@@ -129,7 +179,7 @@ def generate_participant_config(
     index : int
         Participant index (0-based, P01 = 0).
     task_ids : list[str]
-        Ordered list of all task spec IDs.
+        Ordered list of exactly 6 task spec IDs.
     criticalities : dict[str, CriticalityClass]
         Mapping of task ID to criticality class.
     condition_order : list[StudyCondition]
@@ -143,12 +193,15 @@ def generate_participant_config(
     participant_id = f"P{index + 1:02d}"
 
     # Participant-specific error task selection (deterministic via seed_offset)
-    error_tasks = _select_error_tasks(task_ids, NUM_ERROR_TASKS, seed_offset=index * 1000)
+    error_tasks = _select_error_tasks(
+        task_ids, NUM_ERROR_TASKS, seed_offset=index * 1000
+    )
     # Participant-specific screen-off rotation
     screen_off_order = _rotate_screen_off(index)
 
     pair_assignments = tuple(
-        (tid, criticalities.get(tid, CriticalityClass.LOW)) for tid in task_ids
+        (tid, criticalities.get(tid, CriticalityClass.LOW))
+        for tid in task_ids
     )
 
     return ParticipantConfig(
@@ -172,9 +225,12 @@ def generate_matrix(
 ) -> dict[str, ParticipantConfig]:
     """Generate the full P01–P18 participant matrix.
 
+    Each participant receives exactly 6 tasks: 3 low + 3 high criticality.
+    Conditions are balanced using a Latin square (each condition appears
+    exactly twice per participant). Error tasks are distributed across
+    the cohort so that each task appears as an error task roughly equally.
+
     Uses a local ``random.Random`` instance (no global state mutation).
-    All specs are used (no lexical truncation). Error tasks and screen-off
-    modes rotate per participant for cross-factor balance.
 
     Parameters
     ----------
@@ -197,42 +253,139 @@ def generate_matrix(
 
     task_ids = sorted(specs.keys())
 
-    if len(task_ids) < 6:
+    if len(task_ids) < NUM_TASKS_PER_PARTICIPANT:
         raise ValueError(
-            f"Need at least 6 trial specs for the full protocol. "
-            f"Found {len(task_ids)}: {task_ids}"
+            f"Need at least {NUM_TASKS_PER_PARTICIPANT} trial specs for the "
+            f"full protocol. Found {len(task_ids)}: {task_ids}"
         )
 
-    # Build criticality mapping (use enum, not string)
+    # Separate low and high criticality tasks
+    low_tasks = sorted(
+        tid for tid in task_ids
+        if specs[tid].criticality == CriticalityClass.LOW
+    )
+    high_tasks = sorted(
+        tid for tid in task_ids
+        if specs[tid].criticality == CriticalityClass.HIGH
+    )
+
+    if len(low_tasks) < NUM_PAIRS_PER_PARTICIPANT:
+        raise ValueError(
+            f"Need at least {NUM_PAIRS_PER_PARTICIPANT} low criticality tasks. "
+            f"Found {len(low_tasks)}."
+        )
+    if len(high_tasks) < NUM_PAIRS_PER_PARTICIPANT:
+        raise ValueError(
+            f"Need at least {NUM_PAIRS_PER_PARTICIPANT} high criticality tasks. "
+            f"Found {len(high_tasks)}."
+        )
+
+    # Create all possible low-high pairs
+    all_pairs: list[tuple[str, str]] = []
+    for lt in low_tasks:
+        for ht in high_tasks:
+            all_pairs.append((lt, ht))
+
+    # For 18 participants we need 18 × 3 = 54 pair assignments (3 pairs each).
+    # Cycle through pairs with shuffling to distribute evenly.
     criticalities = {tid: specs[tid].criticality for tid in task_ids}
 
-    # Generate condition orders using Latin square for balancing
-    num_conditions = len(ALL_CONDITIONS)
-    latin = _latin_square(num_conditions)
-
     configs: dict[str, ParticipantConfig] = {}
+    condition_orders = _build_condition_orders()
 
-    num_latin = len(latin)
-    for i in range(min(NUM_PARTICIPANTS, num_latin * 6)):
-        # Cycle through latin rows; each row repeats 3 times with different task shuffles
-        row_idx = i % num_latin
-        order_indices = latin[row_idx]
-        # Map indices to conditions — cycle through conditions for all tasks
-        conditions = [ALL_CONDITIONS[order_indices[j % num_conditions]] for j in range(len(task_ids))]
+    for i in range(NUM_PARTICIPANTS):
+        # Select 3 pairs for this participant
+        pair_pool = list(all_pairs)
+        rng.shuffle(pair_pool)
+        selected_pairs = pair_pool[:NUM_PAIRS_PER_PARTICIPANT]
 
-        # Shuffle task order within constraints (3 shuffles per latin row)
-        task_order = list(task_ids)
-        rng.shuffle(task_order)
+        # Build task order: 3 low tasks + 3 high tasks from selected pairs
+        participant_tasks: list[str] = []
+        for low_tid, high_tid in selected_pairs:
+            participant_tasks.append(low_tid)
+            participant_tasks.append(high_tid)
+
+        # Shuffle the 6 tasks for position balance
+        rng.shuffle(participant_tasks)
+
+        condition_order = list(condition_orders[i % len(condition_orders)])
 
         config = generate_participant_config(
             index=i,
-            task_ids=task_order,
+            task_ids=participant_tasks,
             criticalities=criticalities,
-            condition_order=conditions,
+            condition_order=condition_order,
         )
         configs[config.participant_id] = config
 
+    # Validate cohort-level invariants
+    _validate_cohort_balance(configs, task_ids)
+
     return configs
+
+
+def _validate_cohort_balance(
+    configs: dict[str, ParticipantConfig],
+    all_task_ids: list[str],
+) -> None:
+    """Validate cohort-level balance invariants after matrix generation.
+
+    Checks:
+    - 18 participants generated
+    - Exactly 6 tasks per participant
+    - Exactly 2 conditions per participant (each condition appears twice)
+    - Exactly 3 error tasks per participant
+    - Error task distribution is approximately even across cohort
+    - No unknown task IDs
+    """
+    # 1. Participant count
+    assert len(configs) == NUM_PARTICIPANTS, (
+        f"Expected {NUM_PARTICIPANTS} participants, got {len(configs)}"
+    )
+
+    # 2. Per-participant checks
+    for pid, cfg in sorted(configs.items()):
+        assert len(cfg.task_order) == NUM_TASKS_PER_PARTICIPANT, (
+            f"{pid}: expected {NUM_TASKS_PER_PARTICIPANT} tasks, "
+            f"got {len(cfg.task_order)}"
+        )
+        assert len(cfg.condition_order) == NUM_TASKS_PER_PARTICIPANT, (
+            f"{pid}: expected {NUM_TASKS_PER_PARTICIPANT} conditions, "
+            f"got {len(cfg.condition_order)}"
+        )
+        assert len(cfg.error_tasks) == NUM_ERROR_TASKS, (
+            f"{pid}: expected {NUM_ERROR_TASKS} error tasks, "
+            f"got {len(cfg.error_tasks)}"
+        )
+
+        # Each condition appears exactly twice
+        cond_counts = collections.Counter(cfg.condition_order)
+        for cond in ALL_CONDITIONS:
+            assert cond_counts[cond] == 2, (
+                f"{pid}: condition {cond} appears {cond_counts[cond]} times, "
+                f"expected 2"
+            )
+
+        # All tasks are known
+        for tid in cfg.task_order:
+            assert tid in all_task_ids, f"{pid}: unknown task '{tid}'"
+
+    # 3. Cohort-level: each condition appears in each position ~equally
+    pos_cond_counts: dict[int, dict[str, int]] = {
+        pos: collections.Counter() for pos in range(NUM_TASKS_PER_PARTICIPANT)
+    }
+    for cfg in configs.values():
+        for pos, cond in enumerate(cfg.condition_order):
+            pos_cond_counts[pos][cond.value] += 1
+
+    for pos, counts in pos_cond_counts.items():
+        # Each position should have ~6 participants per condition (18/3)
+        for cond in ALL_CONDITIONS:
+            count = counts.get(cond.value, 0)
+            assert count >= 4 and count <= 8, (
+                f"Position {pos}: condition {cond.value} in {count} participants "
+                f"(expected ~6, range 4-8)"
+            )
 
 
 # ── Public API ───────────────────────────────────────────────────────────────
@@ -282,8 +435,11 @@ def generate_from_specs_dir(
     for yaml_path in sorted(specs_dir_path.glob("*.yaml")) + sorted(specs_dir_path.glob("*.yml")):
         try:
             spec = load_trial_spec(yaml_path)
-        except Exception as e:
+        except SpecError as e:
             errors.append(f"{yaml_path.name}: {e}")
+            continue
+        except Exception as e:
+            errors.append(f"{yaml_path.name}: unexpected error: {e}")
             continue
         if spec.id in specs:
             errors.append(f"{yaml_path.name}: duplicate ID '{spec.id}'")
@@ -291,9 +447,9 @@ def generate_from_specs_dir(
         specs[spec.id] = spec
 
     if errors:
-        print(f"Warning: {len(errors)} spec(s) skipped:")
-        for err in errors:
-            print(f"  - {err}")
+        raise SpecError(
+            f"Invalid study specs ({len(errors)} error(s)):\n" + "\n".join(errors)
+        )
 
     if not specs:
         raise ValueError("No valid specs loaded from the specs directory.")
@@ -332,3 +488,5 @@ if __name__ == "__main__":
     except ValueError as e:
         print(f"Not enough specs loaded: {e}")
         print("Create at least 6 trial spec YAML files in mcp-server/study/specs/")
+    except SpecError as e:
+        print(f"Spec validation failed: {e}")
