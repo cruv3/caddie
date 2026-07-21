@@ -157,8 +157,8 @@
         android:layout_height="56dp"
         android:layout_gravity="end"
         android:background="@drawable/bg_calendar_fab"
-        android:contentDescription="@string/create_event"
         android:gravity="center"
+        android:importantForAccessibility="no"
         android:text="@string/plus_symbol"
         android:textColor="@color/calendar_background"
         android:textSize="30sp" />

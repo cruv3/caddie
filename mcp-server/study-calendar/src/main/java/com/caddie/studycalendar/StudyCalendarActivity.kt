@@ -50,7 +50,7 @@ class StudyCalendarActivity : AppCompatActivity() {
     private fun bindSchedule() {
         val today = LocalDate.now()
         val tomorrow = today.plusDays(1)
-        val weekdayFormatter = DateTimeFormatter.ofPattern("EEEE", Locale.GERMAN)
+        val weekdayFormatter = DateTimeFormatter.ofPattern("EEE", Locale.GERMAN)
         val monthFormatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.GERMAN)
 
         findViewById<TextView>(R.id.month_title).text = today.format(monthFormatter)
@@ -62,12 +62,18 @@ class StudyCalendarActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.exam_time).text = range(10)
     }
 
-    private fun meetingHour(): Int =
-        getSharedPreferences(PREFS, MODE_PRIVATE)
-            .getInt(KEY_MEETING_START_HOUR, DEFAULT_MEETING_START_HOUR)
-            .takeIf { it in 0..22 } ?: DEFAULT_MEETING_START_HOUR
+    private fun meetingHour(): Int {
+        val hour = try {
+            getSharedPreferences(PREFS, MODE_PRIVATE)
+                .getInt(KEY_MEETING_START_HOUR, DEFAULT_MEETING_START_HOUR)
+        } catch (_: ClassCastException) {
+            DEFAULT_MEETING_START_HOUR
+        }
+        return hour.takeIf { it in 0..22 } ?: DEFAULT_MEETING_START_HOUR
+    }
 
-    private fun range(hour: Int): String = "%02d:00–%02d:00 Uhr".format(hour, hour + 1)
+    private fun range(hour: Int): String =
+        "%02d:00–%02d:00 Uhr".format(Locale.GERMAN, hour, hour + 1)
 
     companion object {
         const val ACTION_RESET = "com.caddie.studycalendar.ACTION_RESET"
