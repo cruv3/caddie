@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.StudyCalendar" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">@color/calendar_background</item>
+        <item name="android:colorAccent">@color/calendar_event_blue</item>
+        <item name="android:textColorPrimary">@color/calendar_text_primary</item>
+        <item name="android:textColorSecondary">@color/calendar_text_secondary</item>
+    </style>
+</resources>
