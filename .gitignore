@@ -29,6 +29,9 @@ __pycache__/
 # Claude local
 .claude/settings.local.json
 
+# Isolated feature worktrees
+.worktrees/
+
 # Runtime logs / scratch (experiment runner, emulator, task server)
 mcp-server/*.log
 mcp-server/*.err
