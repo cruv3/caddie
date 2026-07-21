@@ -5,4 +5,11 @@
     <string name="exam_title">Prüfung</string>
     <string name="create_event">Termin erstellen</string>
     <string name="plus_symbol" translatable="false">+</string>
+    <string name="calendar_name">Studienkalender</string>
+    <string name="edit_event">Bearbeiten</string>
+    <string name="edit_meeting">Projektsitzung bearbeiten</string>
+    <string name="hour_15">15 Stunden</string>
+    <string name="hour_16">16 Stunden</string>
+    <string name="confirm_time">OK</string>
+    <string name="save_event">Speichern</string>
 </resources>
