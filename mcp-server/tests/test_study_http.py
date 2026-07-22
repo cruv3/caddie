@@ -586,3 +586,372 @@ class TestStudyAbort:
         assert s2 == 200
         assert b2["ok"] is True
         assert "aborted" in b2
+
+
+# ---------------------------------------------------------------------------
+# Coordinator-backed arm/status/abort control
+# ---------------------------------------------------------------------------
+
+
+def _coordinator_handler(
+    coordinator,
+    *,
+    backend=None,
+    prepare=None,
+    preflight=lambda: True,
+    reset=lambda: True,
+    session_manager=None,
+):
+    from caddie.agent.http_api import _handler_factory
+
+    return _handler_factory(
+        SimpleNamespace(backend=backend or MagicMock()),
+        MagicMock(),
+        SimpleNamespace(_active_control=None),
+        coordinator=coordinator,
+        prepare_trial_fn=prepare,
+        preflight_fn=preflight,
+        reset_fn=reset,
+        session_manager=session_manager,
+    )
+
+
+def _dispatch(handler_type, method: str, path: str, payload: dict | None = None):
+    handler = handler_type.__new__(handler_type)
+    handler.path = path
+    handler._read_json = lambda: payload or {}
+    sent = []
+    handler._send_json = lambda body, status=200: sent.append((status, body))
+    getattr(handler, f"do_{method}")()
+    assert len(sent) == 1
+    return sent[0]
+
+
+def _arm_payload(specs_dir: Path, data_dir: Path, trial_index: int = 0) -> dict:
+    conditions = ("c1_stepwise", "c2_final_checkpoint", "c3_voluntary_intervention")
+    return {
+        "participant": "P01",
+        "trial_index": trial_index,
+        "condition": conditions[trial_index % 3],
+        "specs_dir": str(specs_dir),
+        "data_dir": str(data_dir),
+    }
+
+
+def test_agent_http_server_owns_a_process_local_coordinator(monkeypatch):
+    import sys
+    from types import ModuleType
+
+    from caddie.agent.http_api import AgentHttpServer
+
+    agent_loop_module = ModuleType("caddie.agent.agent_loop")
+    agent_loop_module.AgentLoop = MagicMock()
+    monkeypatch.setitem(sys.modules, "caddie.agent.agent_loop", agent_loop_module)
+    first = AgentHttpServer(SimpleNamespace())
+    second = AgentHttpServer(SimpleNamespace())
+
+    assert first._coordinator is not second._coordinator
+
+
+def test_arm_prepares_without_executor_or_backend_calls(study_specs_dir, study_data_dir):
+    from caddie.study.coordinator import ArmedState, ArmedTrialCoordinator
+    from caddie.study.runtime import prepare_trial
+
+    coordinator = ArmedTrialCoordinator()
+    backend = MagicMock()
+    handler = _coordinator_handler(coordinator, backend=backend, prepare=prepare_trial)
+
+    with patch("caddie.study.runtime.TrialExecutor") as executor:
+        status, body = _dispatch(
+            handler, "POST", "/study/trials/arm",
+            _arm_payload(study_specs_dir, study_data_dir),
+        )
+
+    assert status == 201
+    assert body == {
+        "ok": True,
+        "armed": True,
+        "participant": "P01",
+        "trial_index": 0,
+        "task_id": coordinator.status().task_id,
+        "condition": "c1_stepwise",
+        "inject_error": coordinator.status().inject_error,
+    }
+    assert coordinator.status().state is ArmedState.ARMED
+    executor.assert_not_called()
+    backend.assert_not_called()
+    assert str(study_specs_dir) not in json.dumps(body)
+    assert str(study_data_dir) not in json.dumps(body)
+
+
+@pytest.mark.parametrize(
+    "changes",
+    [
+        {"participant": "P99"},
+        {"trial_index": -1},
+        {"condition": "invalid"},
+        {"condition": "c2_final_checkpoint"},
+    ],
+)
+def test_arm_rejects_invalid_assignment_without_preflight_or_reset(
+    study_specs_dir, study_data_dir, changes,
+):
+    from caddie.study.coordinator import ArmedTrialCoordinator
+    from caddie.study.runtime import prepare_trial
+
+    preflight = MagicMock(return_value=True)
+    reset = MagicMock(return_value=True)
+    coordinator = ArmedTrialCoordinator()
+    payload = _arm_payload(study_specs_dir, study_data_dir)
+    payload.update(changes)
+
+    status, body = _dispatch(
+        _coordinator_handler(
+            coordinator, prepare=prepare_trial, preflight=preflight, reset=reset,
+        ),
+        "POST", "/study/trials/arm", payload,
+    )
+
+    assert status == 400
+    assert body["ok"] is False
+    assert coordinator.status().state is None
+    preflight.assert_not_called()
+    reset.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    ("preflight_result", "reset_result", "expected_status"),
+    [(False, True, 503), (True, False, 500)],
+)
+def test_arm_preparation_failure_leaves_coordinator_idle(
+    study_specs_dir, study_data_dir, preflight_result, reset_result, expected_status,
+):
+    from caddie.study.coordinator import ArmedTrialCoordinator
+    from caddie.study.runtime import prepare_trial
+
+    coordinator = ArmedTrialCoordinator()
+    status, body = _dispatch(
+        _coordinator_handler(
+            coordinator,
+            prepare=prepare_trial,
+            preflight=lambda: preflight_result,
+            reset=lambda: reset_result,
+        ),
+        "POST", "/study/trials/arm", _arm_payload(study_specs_dir, study_data_dir),
+    )
+
+    assert status == expected_status
+    assert body["ok"] is False
+    assert coordinator.status().state is None
+
+
+def test_arm_conflict_is_rejected_before_preparation(study_specs_dir, study_data_dir):
+    from caddie.study.coordinator import ArmedTrialCoordinator
+    from caddie.study.runtime import prepare_trial
+
+    coordinator = ArmedTrialCoordinator()
+    first = _coordinator_handler(coordinator, prepare=prepare_trial)
+    assert _dispatch(
+        first, "POST", "/study/trials/arm", _arm_payload(study_specs_dir, study_data_dir),
+    )[0] == 201
+    prepare = MagicMock()
+
+    status, _ = _dispatch(
+        _coordinator_handler(coordinator, prepare=prepare),
+        "POST", "/study/trials/arm", _arm_payload(study_specs_dir, study_data_dir),
+    )
+
+    assert status == 409
+    prepare.assert_not_called()
+
+
+def test_arm_running_conflict_is_rejected_before_preparation(study_specs_dir, study_data_dir):
+    from caddie.study.coordinator import ArmedTrialCoordinator
+    from caddie.study.runtime import prepare_trial
+
+    coordinator = ArmedTrialCoordinator()
+    handler = _coordinator_handler(coordinator, prepare=prepare_trial)
+    _dispatch(
+        handler, "POST", "/study/trials/arm", _arm_payload(study_specs_dir, study_data_dir),
+    )
+    coordinator.route_and_claim("Testaufgabe")
+    prepare = MagicMock()
+
+    status, _ = _dispatch(
+        _coordinator_handler(coordinator, prepare=prepare),
+        "POST", "/study/trials/arm", _arm_payload(study_specs_dir, study_data_dir),
+    )
+
+    assert status == 409
+    prepare.assert_not_called()
+
+
+def test_terminal_trial_can_prepare_and_rearm_next_sequential_trial(
+    study_specs_dir, study_data_dir,
+):
+    from caddie.study.coordinator import ArmedState, ArmedTrialCoordinator
+    from caddie.study.runtime import prepare_trial
+
+    coordinator = ArmedTrialCoordinator()
+    handler = _coordinator_handler(coordinator, prepare=prepare_trial)
+    _, first = _dispatch(
+        handler, "POST", "/study/trials/arm", _arm_payload(study_specs_dir, study_data_dir, 0),
+    )
+    claim = coordinator.route_and_claim("Testaufgabe").claim
+    assert claim is not None
+    coordinator.finish_success(claim)
+
+    status, second = _dispatch(
+        handler, "POST", "/study/trials/arm", _arm_payload(study_specs_dir, study_data_dir, 1),
+    )
+
+    assert status == 201
+    assert coordinator.status().state is ArmedState.ARMED
+    assert first["task_id"] != second["task_id"]
+    assert second["trial_index"] == 1
+    assert second["condition"] == "c2_final_checkpoint"
+
+
+def test_status_uses_coordinator_and_never_exposes_paths_or_utterance(
+    study_specs_dir, study_data_dir,
+):
+    from caddie.study.coordinator import ArmedTrialCoordinator
+    from caddie.study.runtime import prepare_trial
+
+    coordinator = ArmedTrialCoordinator()
+    handler = _coordinator_handler(coordinator, prepare=prepare_trial)
+    status, idle = _dispatch(handler, "GET", "/study/trials/status")
+    assert status == 200
+    assert idle["state"] == "idle"
+
+    _dispatch(
+        handler, "POST", "/study/trials/arm", _arm_payload(study_specs_dir, study_data_dir),
+    )
+    _, armed = _dispatch(handler, "GET", "/study/trials/status")
+    assert armed["state"] == "armed"
+    assert armed["task_id"] == coordinator.status().task_id
+    coordinator.route_and_claim("Testaufgabe secret utterance")
+    _, running = _dispatch(handler, "GET", "/study/trials/status")
+
+    assert running["state"] == "running"
+    assert running["participant"] == "P01"
+    assert running["attempt_count"] == 1
+    serialized = json.dumps(running)
+    assert "secret utterance" not in serialized
+    assert str(study_specs_dir) not in serialized
+    assert str(study_data_dir) not in serialized
+
+
+@pytest.mark.parametrize("terminal", ["completed", "failed", "aborted"])
+def test_status_preserves_each_safe_terminal_state(
+    study_specs_dir, study_data_dir, terminal,
+):
+    from caddie.study.coordinator import ArmedTrialCoordinator
+    from caddie.study.runtime import prepare_trial
+
+    coordinator = ArmedTrialCoordinator()
+    handler = _coordinator_handler(coordinator, prepare=prepare_trial)
+    _dispatch(
+        handler, "POST", "/study/trials/arm", _arm_payload(study_specs_dir, study_data_dir),
+    )
+    claim = coordinator.route_and_claim("Testaufgabe").claim
+    assert claim is not None
+    if terminal == "completed":
+        coordinator.finish_success(claim)
+    elif terminal == "failed":
+        coordinator.finish_failure(claim, "technical failure")
+    else:
+        coordinator.abort("experimenter abort")
+
+    _, body = _dispatch(handler, "GET", "/study/trials/status")
+
+    assert body["state"] == terminal
+    assert body["participant"] == "P01"
+    assert "specs_dir" not in body
+    assert "data_dir" not in body
+
+
+def test_abort_armed_and_repeated_abort_preserves_first_reason(
+    study_specs_dir, study_data_dir,
+):
+    from caddie.study.coordinator import ArmedTrialCoordinator
+    from caddie.study.runtime import prepare_trial
+
+    coordinator = ArmedTrialCoordinator()
+    handler = _coordinator_handler(coordinator, prepare=prepare_trial)
+    _dispatch(
+        handler, "POST", "/study/trials/arm", _arm_payload(study_specs_dir, study_data_dir),
+    )
+
+    assert _dispatch(
+        handler, "POST", "/study/trials/abort", {"reason": "first"},
+    ) == (200, {"ok": True, "applied": True, "state": "aborted", "reason": "first"})
+    assert _dispatch(
+        handler, "POST", "/study/trials/abort", {"reason": "second"},
+    ) == (200, {"ok": True, "applied": False, "state": "aborted", "reason": "first"})
+
+
+def test_abort_running_marks_coordinator_before_cancelling_session(
+    study_specs_dir, study_data_dir,
+):
+    from caddie.study.coordinator import ArmedState, ArmedTrialCoordinator
+    from caddie.study.runtime import prepare_trial
+
+    coordinator = ArmedTrialCoordinator()
+    session = MagicMock()
+    session.cancel.side_effect = lambda: coordinator.status().state is ArmedState.ABORTED
+    manager = SimpleNamespace(session=session)
+    handler = _coordinator_handler(
+        coordinator, prepare=prepare_trial, session_manager=manager,
+    )
+    _dispatch(
+        handler, "POST", "/study/trials/arm", _arm_payload(study_specs_dir, study_data_dir),
+    )
+    coordinator.route_and_claim("Testaufgabe")
+
+    status, body = _dispatch(handler, "POST", "/study/trials/abort", {})
+
+    assert status == 200
+    assert body["applied"] is True
+    session.cancel.assert_called_once_with()
+
+
+def test_abort_idle_is_404_and_empty_reason_is_400():
+    from caddie.study.coordinator import ArmedTrialCoordinator
+
+    handler = _coordinator_handler(ArmedTrialCoordinator(), prepare=MagicMock())
+    assert _dispatch(handler, "POST", "/study/trials/abort", {})[0] == 404
+    assert _dispatch(handler, "POST", "/study/trials/abort", {"reason": "  "})[0] == 400
+
+
+def test_diagnostic_run_refuses_armed_coordinator_before_runtime_call(
+    study_specs_dir, study_data_dir,
+):
+    from caddie.study.coordinator import ArmedTrialCoordinator
+    from caddie.study.runtime import prepare_trial
+
+    coordinator = ArmedTrialCoordinator()
+    handler = _coordinator_handler(coordinator, prepare=prepare_trial)
+    _dispatch(
+        handler, "POST", "/study/trials/arm", _arm_payload(study_specs_dir, study_data_dir),
+    )
+
+    with patch("caddie.study.runtime.execute_claimed_trial") as execute:
+        status, _ = _dispatch(handler, "POST", "/study/trials/run", {})
+
+    assert status == 409
+    execute.assert_not_called()
+
+
+def test_default_reset_uses_native_pwsh_argv_and_central_script():
+    from caddie.agent.http_api import _reset_study_device
+
+    with patch("caddie.agent.http_api.subprocess.run") as run:
+        run.return_value.returncode = 0
+        assert _reset_study_device() is True
+
+    argv = run.call_args.args[0]
+    assert argv[:3] == ["pwsh", "-NoProfile", "-File"]
+    assert Path(argv[3]).name == "reset_study_device.ps1"
+    assert Path(argv[3]).parent.name == "scripts"
+    assert run.call_args.kwargs == {"check": False}

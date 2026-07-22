@@ -3,10 +3,12 @@ from __future__ import annotations
 import json
 import logging
 import os
+from pathlib import Path
+import subprocess
 import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from typing import Callable
+from typing import Any, Callable
 
 from caddie.agent.event_bus import EVENT_BUS
 from caddie.agent.lmstudio import LmStudioClient
@@ -27,8 +29,11 @@ class _ExclusiveThreadingHTTPServer(ThreadingHTTPServer):
 
 class AgentHttpServer:
     def __init__(self, context: ServerContext) -> None:
+        from caddie.study.coordinator import ArmedTrialCoordinator
+
         self._context = context
         self._lmstudio = LmStudioClient()
+        self._coordinator = ArmedTrialCoordinator()
         # Lazy import: agent_loop -> tool_bridge -> tools zieht viel nach;
         # das Verzoegern bis zur Instanziierung haelt die Modul-Import-
         # Reihenfolge sicher (caddie hat einen latenten Zyklus).
@@ -44,7 +49,12 @@ class AgentHttpServer:
             return
         host = os.environ.get(ENV_AGENT_HOST, DEFAULT_AGENT_HOST)
         port = _env_port()
-        handler = _handler_factory(self._context, self._lmstudio, self._agent_loop)
+        handler = _handler_factory(
+            self._context,
+            self._lmstudio,
+            self._agent_loop,
+            coordinator=self._coordinator,
+        )
         self._server = _ExclusiveThreadingHTTPServer((host, port), handler)
         self._thread = threading.Thread(target=self._server.serve_forever, daemon=True)
         self._thread.start()
@@ -78,7 +88,23 @@ def _handler_factory(
     context: ServerContext,
     lmstudio: LmStudioClient,
     agent_loop,
+    *,
+    coordinator=None,
+    prepare_trial_fn: Callable[..., Any] | None = None,
+    preflight_fn: Callable[[], bool] | None = None,
+    reset_fn: Callable[[], bool] | None = None,
+    session_manager=None,
 ) -> Callable[..., BaseHTTPRequestHandler]:
+    from caddie.study.coordinator import ArmedTrialCoordinator
+    from caddie.study.runtime import prepare_trial
+    from caddie.study.session import SessionManager
+
+    coordinator = coordinator if coordinator is not None else ArmedTrialCoordinator()
+    prepare_trial_fn = prepare_trial_fn or prepare_trial
+    preflight_fn = preflight_fn or _study_preflight_passes
+    reset_fn = reset_fn or _reset_study_device
+    session_manager = session_manager or SessionManager.instance()
+
     class AgentRequestHandler(BaseHTTPRequestHandler):
         def do_GET(self) -> None:
             if self.path == "/health":
@@ -180,6 +206,9 @@ def _handler_factory(
             if self.path == "/study/trials/run":
                 self._handle_study_run()
                 return
+            if self.path == "/study/trials/arm":
+                self._handle_study_arm()
+                return
             if self.path == "/study/trials/abort":
                 self._handle_study_abort()
                 return
@@ -237,18 +266,101 @@ def _handler_factory(
 
         def _handle_study_health(self) -> None:
             """GET /study/health — study system availability."""
-            from caddie.study.session import SessionManager
-            mgr = SessionManager.instance()
-            session = mgr.session
-            if session is None:
-                self._send_json({"ok": True, "study_ready": True, "session": "idle"})
+            from caddie.study.coordinator import ArmedState
+
+            coordinator_state = coordinator.status().state
+            session = session_manager.session
+            response = {
+                "ok": True,
+                "study_ready": coordinator_state is not ArmedState.RUNNING,
+                "coordinator_available": True,
+                "coordinator": (
+                    coordinator_state.value if coordinator_state is not None else "idle"
+                ),
+                "session": session.state.value if session is not None else "idle",
+            }
+            if session is not None:
+                response["steps_executed"] = session.steps_executed
+            self._send_json(response)
+
+        def _handle_study_arm(self) -> None:
+            """Prepare and arm one assigned trial without executing it."""
+            from caddie.study.coordinator import (
+                ArmedState,
+                CoordinatorConflictError,
+            )
+            from caddie.study.model import StudyCondition
+
+            if coordinator.status().state in (ArmedState.ARMED, ArmedState.RUNNING):
+                self._send_json(
+                    {"ok": False, "error": "a study trial is already active"},
+                    status=409,
+                )
                 return
+
+            payload = self._read_json()
+            participant = payload.get("participant")
+            trial_index = payload.get("trial_index")
+            condition_value = payload.get("condition")
+            try:
+                condition = StudyCondition(str(condition_value).strip().lower())
+                specs_value = payload.get("specs_dir")
+                data_value = payload.get("data_dir")
+                specs_dir = Path(specs_value) if specs_value else None
+                data_dir = Path(data_value) if data_value else None
+                prepared = prepare_trial_fn(
+                    participant, trial_index, condition, specs_dir, data_dir,
+                )
+            except (TypeError, ValueError) as exc:
+                self._send_json({"ok": False, "error": str(exc)}, status=400)
+                return
+
+            try:
+                preflight_passed = preflight_fn()
+            except Exception:
+                self._send_json(
+                    {"ok": False, "error": "study preflight failed"}, status=503,
+                )
+                return
+            if not preflight_passed:
+                self._send_json(
+                    {"ok": False, "error": "study preflight did not pass"},
+                    status=503,
+                )
+                return
+
+            try:
+                reset_passed = reset_fn()
+            except Exception:
+                self._send_json(
+                    {"ok": False, "error": "study device reset failed"}, status=500,
+                )
+                return
+            if not reset_passed:
+                self._send_json(
+                    {"ok": False, "error": "study device reset failed"}, status=500,
+                )
+                return
+
+            try:
+                coordinator.arm(prepared.config, prepared.spec)
+            except CoordinatorConflictError as exc:
+                self._send_json({"ok": False, "error": str(exc)}, status=409)
+                return
+            except (TypeError, ValueError) as exc:
+                self._send_json({"ok": False, "error": str(exc)}, status=400)
+                return
+
+            config = prepared.config
             self._send_json({
                 "ok": True,
-                "study_ready": session.is_running,
-                "session": session.state.value,
-                "steps_executed": session.steps_executed,
-            })
+                "armed": True,
+                "participant": config.participant_id,
+                "trial_index": config.trial_index,
+                "task_id": config.task_id,
+                "condition": config.condition.value,
+                "inject_error": config.inject_error,
+            }, status=201)
 
         def _handle_study_run(self) -> None:
             """POST /study/trials/run — start a deterministic trial.
@@ -257,6 +369,7 @@ def _handler_factory(
                    "specs_dir": "...", "data_dir": "..."}
             """
             from caddie.agent.run_control import RunControl
+            from caddie.study.coordinator import ArmedState
             from caddie.study.coordinator import ClaimToken, ClaimedTrial
             from caddie.study.model import StudyCondition
             from caddie.study.runtime import (
@@ -266,6 +379,13 @@ def _handler_factory(
                 prepare_trial,
             )
             from pathlib import Path
+
+            if coordinator.status().state in (ArmedState.ARMED, ArmedState.RUNNING):
+                self._send_json(
+                    {"ok": False, "error": "a study trial is already active"},
+                    status=409,
+                )
+                return
 
             payload = self._read_json()
             participant = payload.get("participant", "P01")
@@ -323,60 +443,85 @@ def _handler_factory(
             })
 
         def _handle_study_status(self) -> None:
-            """GET /study/trials/status — current session status."""
-            from caddie.study.session import SessionManager
+            """GET /study/trials/status — safe coordinator status."""
+            from caddie.study.coordinator import ArmedState
 
-            mgr = SessionManager.instance()
-            session = mgr.session
-            if session is None:
-                self._send_json({
-                    "ok": True,
-                    "has_session": False,
-                    "session": "idle",
-                })
-                return
-
-            metrics = session.get_metrics()
-            self._send_json({
+            status = coordinator.status()
+            response = {
                 "ok": True,
-                "has_session": True,
-                "state": session.state.value,
-                "steps_executed": metrics.steps_executed,
-                "elapsed_ms": metrics.elapsed_ms,
-                "is_paused": metrics.is_paused,
-                "verification_pending": metrics.verification_pending,
-            })
+                "state": status.state.value if status.state is not None else "idle",
+                "participant": status.participant_id,
+                "trial_index": status.trial_index,
+                "task_id": status.task_id,
+                "condition": status.condition.value if status.condition is not None else None,
+                "inject_error": status.inject_error,
+                "attempt_count": status.attempt_count,
+                "reason": status.reason,
+            }
+            session = session_manager.session
+            if status.state is ArmedState.RUNNING and session is not None:
+                metrics = session.get_metrics()
+                response.update({
+                    "steps_executed": metrics.steps_executed,
+                    "elapsed_ms": metrics.elapsed_ms,
+                    "is_paused": metrics.is_paused,
+                    "verification_pending": metrics.verification_pending,
+                })
+            self._send_json(response)
 
         def _handle_study_abort(self) -> None:
             """POST /study/trials/abort — abort the current trial.
 
             Body: {"reason": "experimenter_abort"} (optional)
             """
-            from caddie.study.session import SessionManager
+            from caddie.study.coordinator import ArmedState, InvalidTransitionError
 
             payload = self._read_json()
             reason = str(payload.get("reason", "experimenter_abort")).strip()
-
-            mgr = SessionManager.instance()
-            session = mgr.session
-            if session is None:
-                self._send_json({"ok": False, "error": "No active session"}, status=404)
+            if not reason:
+                self._send_json({"ok": False, "error": "reason must be non-empty"}, status=400)
                 return
 
-            applied = session.cancel()
-            if applied:
+            before = coordinator.status()
+            if before.state is None:
+                self._send_json({"ok": False, "error": "No armed trial"}, status=404)
+                return
+            if before.state is ArmedState.ABORTED:
+                self._send_json({
+                    "ok": True, "applied": False, "state": "aborted",
+                    "reason": before.reason,
+                })
+                return
+            if before.state in (ArmedState.COMPLETED, ArmedState.FAILED):
+                self._send_json({
+                    "ok": True, "applied": False, "state": before.state.value,
+                    "reason": before.reason,
+                })
+                return
+
+            try:
+                applied = coordinator.abort(reason)
+            except InvalidTransitionError:
+                current = coordinator.status()
                 self._send_json({
                     "ok": True,
-                    "aborted": True,
-                    "reason": reason,
+                    "applied": False,
+                    "state": current.state.value if current.state is not None else "idle",
+                    "reason": current.reason,
                 })
-            else:
-                self._send_json({
-                    "ok": True,
-                    "aborted": False,
-                    "reason": reason,
-                    "note": "Session already terminal or idle",
-                })
+                return
+
+            if before.state is ArmedState.RUNNING:
+                session = session_manager.session
+                if session is not None:
+                    session.cancel()
+            current = coordinator.status()
+            self._send_json({
+                "ok": True,
+                "applied": applied,
+                "state": current.state.value,
+                "reason": current.reason,
+            })
 
         def _handle_event_ingest(self) -> None:
             """Internal: worker MCP processes (--only=tools / --only=skills)
@@ -561,6 +706,26 @@ def _handler_factory(
             self.wfile.write(data)
 
     return AgentRequestHandler
+
+
+def _study_preflight_passes() -> bool:
+    """Run the real preflight suite and require every check to pass."""
+    from caddie.study.preflight import default_suite
+
+    results = default_suite().run()
+    return bool(results) and all(
+        result.passed and result.status.value != "timeout" for result in results
+    )
+
+
+def _reset_study_device() -> bool:
+    """Synchronously reset the study device through the reviewed script."""
+    script = Path(__file__).resolve().parents[2] / "scripts" / "reset_study_device.ps1"
+    completed = subprocess.run(
+        ["pwsh", "-NoProfile", "-File", str(script)],
+        check=False,
+    )
+    return completed.returncode == 0
 
 
 def _env_port() -> int:
