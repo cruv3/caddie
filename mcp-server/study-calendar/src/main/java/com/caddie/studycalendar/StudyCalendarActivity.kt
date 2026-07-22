@@ -16,8 +16,10 @@ class StudyCalendarActivity : AppCompatActivity() {
     private enum class Screen { SCHEDULE, DETAIL, EDITOR }
 
     private var screen = Screen.SCHEDULE
-    private var selectedHour = DEFAULT_MEETING_START_HOUR
+    private var confirmedHour = DEFAULT_MEETING_START_HOUR
+    private var pendingHour = DEFAULT_MEETING_START_HOUR
     private var detailIsMeeting = true
+    private var chooserVisible = false
 
     @Suppress("DEPRECATION")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,17 +37,46 @@ class StudyCalendarActivity : AppCompatActivity() {
         applySystemBarInsets()
         bindSchedule()
         bindInteractions()
-        selectedHour = meetingHour()
-        showSchedule()
+        restoreState(savedInstanceState)
+        renderScreen()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString(STATE_SCREEN, screen.name)
+        outState.putBoolean(STATE_DETAIL_IS_MEETING, detailIsMeeting)
+        outState.putInt(STATE_CONFIRMED_HOUR, confirmedHour)
+        outState.putInt(STATE_PENDING_HOUR, pendingHour)
+        outState.putBoolean(STATE_CHOOSER_VISIBLE, chooserVisible)
+    }
+
+    private fun restoreState(savedInstanceState: Bundle?) {
+        val storedHour = meetingHour()
+        if (savedInstanceState == null) {
+            confirmedHour = storedHour
+            pendingHour = storedHour
+            return
+        }
+
+        screen = savedInstanceState.getString(STATE_SCREEN)
+            ?.let { saved -> Screen.entries.firstOrNull { it.name == saved } }
+            ?: Screen.SCHEDULE
+        detailIsMeeting = savedInstanceState.getBoolean(STATE_DETAIL_IS_MEETING, true)
+        if (screen == Screen.EDITOR && !detailIsMeeting) screen = Screen.DETAIL
+        confirmedHour = validatedHour(savedInstanceState.getInt(STATE_CONFIRMED_HOUR, storedHour))
+        pendingHour = validatedHour(savedInstanceState.getInt(STATE_PENDING_HOUR, confirmedHour))
+        chooserVisible = screen == Screen.EDITOR &&
+            savedInstanceState.getBoolean(STATE_CHOOSER_VISIBLE, false)
+        if (!chooserVisible) pendingHour = confirmedHour
     }
 
     private fun applySystemBarInsets() {
-        val schedule = findViewById<android.view.View>(R.id.schedule_screen)
-        val initialLeft = schedule.paddingLeft
-        val initialTop = schedule.paddingTop
-        val initialRight = schedule.paddingRight
-        val initialBottom = schedule.paddingBottom
-        ViewCompat.setOnApplyWindowInsetsListener(schedule) { view, windowInsets ->
+        val root = findViewById<View>(R.id.calendar_root)
+        val initialLeft = root.paddingLeft
+        val initialTop = root.paddingTop
+        val initialRight = root.paddingRight
+        val initialBottom = root.paddingBottom
+        ViewCompat.setOnApplyWindowInsetsListener(root) { view, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             view.setPadding(
                 initialLeft + insets.left,
@@ -55,7 +86,7 @@ class StudyCalendarActivity : AppCompatActivity() {
             )
             windowInsets
         }
-        ViewCompat.requestApplyInsets(schedule)
+        ViewCompat.requestApplyInsets(root)
     }
 
     private fun bindSchedule() {
@@ -78,13 +109,18 @@ class StudyCalendarActivity : AppCompatActivity() {
         findViewById<View>(R.id.exam_event).setOnClickListener { showDetail(meeting = false) }
         findViewById<View>(R.id.edit_event).setOnClickListener { showEditor() }
         findViewById<View>(R.id.start_time).setOnClickListener {
-            findViewById<View>(R.id.time_choice).visibility = View.VISIBLE
+            pendingHour = confirmedHour
+            chooserVisible = true
+            refreshHourSelection()
+            refreshChooserVisibility()
         }
         findViewById<View>(R.id.hour_15).setOnClickListener { chooseHour(15) }
         findViewById<View>(R.id.hour_16).setOnClickListener { chooseHour(16) }
         findViewById<View>(R.id.confirm_time).setOnClickListener {
-            findViewById<View>(R.id.time_choice).visibility = View.GONE
+            confirmedHour = pendingHour
+            chooserVisible = false
             refreshEditorTime()
+            refreshChooserVisibility()
         }
         findViewById<View>(R.id.save_event).setOnClickListener { persistMeetingHour() }
 
@@ -92,7 +128,12 @@ class StudyCalendarActivity : AppCompatActivity() {
             override fun handleOnBackPressed() {
                 val timeChoice = findViewById<View>(R.id.time_choice)
                 when {
-                    timeChoice.visibility == View.VISIBLE -> timeChoice.visibility = View.GONE
+                    timeChoice.visibility == View.VISIBLE -> {
+                        pendingHour = confirmedHour
+                        chooserVisible = false
+                        refreshHourSelection()
+                        refreshChooserVisibility()
+                    }
                     screen == Screen.EDITOR -> showDetail(meeting = true)
                     screen == Screen.DETAIL -> showSchedule()
                     else -> {
@@ -106,21 +147,35 @@ class StudyCalendarActivity : AppCompatActivity() {
 
     private fun showSchedule() {
         screen = Screen.SCHEDULE
-        findViewById<View>(R.id.schedule_screen).visibility = View.VISIBLE
-        findViewById<View>(R.id.detail_screen).visibility = View.GONE
-        findViewById<View>(R.id.editor_screen).visibility = View.GONE
-        findViewById<View>(R.id.time_choice).visibility = View.GONE
-        bindSchedule()
+        chooserVisible = false
+        renderScreen()
     }
 
     private fun showDetail(meeting: Boolean) {
         screen = Screen.DETAIL
         detailIsMeeting = meeting
-        findViewById<View>(R.id.schedule_screen).visibility = View.GONE
-        findViewById<View>(R.id.detail_screen).visibility = View.VISIBLE
-        findViewById<View>(R.id.editor_screen).visibility = View.GONE
-        findViewById<View>(R.id.time_choice).visibility = View.GONE
+        chooserVisible = false
+        renderScreen()
+    }
 
+    private fun renderScreen() {
+        findViewById<View>(R.id.schedule_screen).visibility =
+            if (screen == Screen.SCHEDULE) View.VISIBLE else View.GONE
+        findViewById<View>(R.id.detail_screen).visibility =
+            if (screen == Screen.DETAIL) View.VISIBLE else View.GONE
+        findViewById<View>(R.id.editor_screen).visibility =
+            if (screen == Screen.EDITOR) View.VISIBLE else View.GONE
+
+        when (screen) {
+            Screen.SCHEDULE -> bindSchedule()
+            Screen.DETAIL -> renderDetail()
+            Screen.EDITOR -> renderEditor()
+        }
+        refreshChooserVisibility()
+    }
+
+    private fun renderDetail() {
+        val meeting = detailIsMeeting
         val date = if (meeting) LocalDate.now() else LocalDate.now().plusDays(1)
         val dateFormatter = DateTimeFormatter.ofPattern("EEEE, d. MMMM", Locale.GERMAN)
         findViewById<TextView>(R.id.detail_title).setText(
@@ -132,29 +187,37 @@ class StudyCalendarActivity : AppCompatActivity() {
     }
 
     private fun showEditor() {
-        check(detailIsMeeting)
+        if (!detailIsMeeting) return
         screen = Screen.EDITOR
-        selectedHour = meetingHour()
-        findViewById<View>(R.id.schedule_screen).visibility = View.GONE
-        findViewById<View>(R.id.detail_screen).visibility = View.GONE
-        findViewById<View>(R.id.editor_screen).visibility = View.VISIBLE
-        findViewById<View>(R.id.time_choice).visibility = View.GONE
+        confirmedHour = meetingHour()
+        pendingHour = confirmedHour
+        chooserVisible = false
+        renderScreen()
+    }
+
+    private fun renderEditor() {
         refreshEditorTime()
         refreshHourSelection()
     }
 
     private fun chooseHour(hour: Int) {
-        selectedHour = hour
+        if (hour !in ALLOWED_HOURS || !chooserVisible) return
+        pendingHour = hour
         refreshHourSelection()
     }
 
     private fun refreshHourSelection() {
-        findViewById<View>(R.id.hour_15).isSelected = selectedHour == 15
-        findViewById<View>(R.id.hour_16).isSelected = selectedHour == 16
+        findViewById<View>(R.id.hour_15).isSelected = pendingHour == 15
+        findViewById<View>(R.id.hour_16).isSelected = pendingHour == 16
+    }
+
+    private fun refreshChooserVisibility() {
+        findViewById<View>(R.id.time_choice).visibility =
+            if (screen == Screen.EDITOR && chooserVisible) View.VISIBLE else View.GONE
     }
 
     private fun refreshEditorTime() {
-        val label = "Beginnt um: %02d:00".format(Locale.GERMAN, selectedHour)
+        val label = "Beginnt um: %02d:00".format(Locale.GERMAN, confirmedHour)
         findViewById<TextView>(R.id.start_time).apply {
             text = label
             contentDescription = label
@@ -162,11 +225,11 @@ class StudyCalendarActivity : AppCompatActivity() {
     }
 
     private fun persistMeetingHour() {
-        require(selectedHour in setOf(15, 16))
-        getSharedPreferences(PREFS, MODE_PRIVATE).edit()
-            .putInt(KEY_MEETING_START_HOUR, selectedHour)
+        if (chooserVisible || confirmedHour !in ALLOWED_HOURS) return
+        val saved = getSharedPreferences(PREFS, MODE_PRIVATE).edit()
+            .putInt(KEY_MEETING_START_HOUR, confirmedHour)
             .commit()
-        showDetail(meeting = true)
+        if (saved) showDetail(meeting = true)
     }
 
     private fun meetingHour(): Int {
@@ -176,8 +239,11 @@ class StudyCalendarActivity : AppCompatActivity() {
         } catch (_: ClassCastException) {
             DEFAULT_MEETING_START_HOUR
         }
-        return hour.takeIf { it in 0..22 } ?: DEFAULT_MEETING_START_HOUR
+        return validatedHour(hour)
     }
+
+    private fun validatedHour(hour: Int): Int =
+        hour.takeIf { it in ALLOWED_HOURS } ?: DEFAULT_MEETING_START_HOUR
 
     private fun range(hour: Int): String =
         "%02d:00–%02d:00 Uhr".format(Locale.GERMAN, hour, hour + 1)
@@ -187,5 +253,12 @@ class StudyCalendarActivity : AppCompatActivity() {
         const val PREFS = "study_calendar_state"
         const val KEY_MEETING_START_HOUR = "meeting_start_hour"
         const val DEFAULT_MEETING_START_HOUR = 14
+        val ALLOWED_HOURS = setOf(14, 15, 16)
+
+        private const val STATE_SCREEN = "screen"
+        private const val STATE_DETAIL_IS_MEETING = "detail_is_meeting"
+        private const val STATE_CONFIRMED_HOUR = "confirmed_hour"
+        private const val STATE_PENDING_HOUR = "pending_hour"
+        private const val STATE_CHOOSER_VISIBLE = "chooser_visible"
     }
 }

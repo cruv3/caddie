@@ -7,6 +7,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <!-- Intentionally exported: this synthetic study fixture is reset through package-scoped ADB broadcasts. -->
         <receiver android:name=".StudyCalendarResetReceiver" android:exported="true">
             <intent-filter>
                 <action android:name="com.caddie.studycalendar.ACTION_RESET" />
