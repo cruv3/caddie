@@ -229,7 +229,8 @@ def test_device_reset_targets_fake_calendar_and_skips_google_provider_by_default
         "Invoke-StudyAppReset -Package $reset.Package -Action $reset.Action" in lines
     )
     assert '$installedOutput = Invoke-Adb -Arguments @("shell", "pm", "path", $Package)' in lines
-    assert '$broadcastOutput = Invoke-Adb -Arguments @("shell", "am", "broadcast", "-p", $Package, "-a", $Action)' in lines
+    assert '$broadcastOutput = Invoke-Adb -Arguments @("shell", "am", "broadcast", "--include-stopped-packages", "-p", $Package, "-a", $Action)' in lines
+    assert '$broadcastOutput = Invoke-Adb -Arguments @("shell", "am", "broadcast", "-p", $Package, "-a", $Action)' not in lines
     assert "Test-StudyAppInstalled -Output $installedOutput" in script
     assert "Test-StudyResetAcknowledgement -Output $broadcastOutput" in script
     assert '$StudyCalendarResetResultData = "calendar_reset_ok"' in lines

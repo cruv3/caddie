@@ -44,7 +44,7 @@ function Invoke-StudyAppReset {
     }
 
     Stop-StudyApp -Package $Package
-    $broadcastOutput = Invoke-Adb -Arguments @("shell", "am", "broadcast", "-p", $Package, "-a", $Action)
+    $broadcastOutput = Invoke-Adb -Arguments @("shell", "am", "broadcast", "--include-stopped-packages", "-p", $Package, "-a", $Action)
     if (-not (Test-StudyResetAcknowledgement -Output $broadcastOutput)) {
         throw "ADB broadcast did not return the reset acknowledgement for $Package.`nOutput: $($broadcastOutput -join "`n")"
     }
