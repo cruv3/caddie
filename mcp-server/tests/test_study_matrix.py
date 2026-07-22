@@ -20,6 +20,7 @@ from caddie.study.model import (
     ParticipantConfig,
     TrialSpec,
 )
+from caddie.study.spec_loader import load_all_specs
 
 
 # ── Constants ───────────────────────────────────────────────────────────────
@@ -201,6 +202,39 @@ def test_generate_from_specs_dir_works():
     configs = generate_from_specs_dir(seed=42)
     assert len(configs) == 18
     assert "P01" in configs
+
+
+def test_real_specs_assign_six_distinct_tasks_per_participant():
+    configs = generate_from_specs_dir(seed=42)
+
+    for cfg in configs.values():
+        assert len(cfg.task_order) == 6
+        assert len(set(cfg.task_order)) == 6, (
+            f"{cfg.participant_id}: duplicate tasks in {cfg.task_order}"
+        )
+
+
+def test_real_specs_assign_three_tasks_of_each_criticality():
+    specs = load_all_specs()
+    configs = generate_from_specs_dir(seed=42)
+
+    for cfg in configs.values():
+        criticalities = [specs[task_id].criticality for task_id in cfg.task_order]
+        assert criticalities.count(CriticalityClass.LOW) == 3, cfg.participant_id
+        assert criticalities.count(CriticalityClass.HIGH) == 3, cfg.participant_id
+
+
+def test_real_specs_assign_three_distinct_eligible_error_tasks():
+    specs = load_all_specs()
+    configs = generate_from_specs_dir(seed=42)
+
+    for cfg in configs.values():
+        assert len(cfg.error_tasks) == 3
+        assert len(set(cfg.error_tasks)) == 3, (
+            f"{cfg.participant_id}: duplicate errors in {cfg.error_tasks}"
+        )
+        assert set(cfg.error_tasks) <= set(cfg.task_order), cfg.participant_id
+        assert all(specs[task_id].error_steps for task_id in cfg.error_tasks)
 
 
 def test_print_matrix_does_not_raise():

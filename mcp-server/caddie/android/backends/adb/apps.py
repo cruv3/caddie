@@ -71,6 +71,15 @@ class AppCommands(InputCommands):
 
     def open_app(self, package_name: str) -> str:
         pkg = (package_name or "").strip()
+        if "/" in pkg:
+            package, component = pkg.split("/", 1)
+            if not package or not component:
+                raise AdbError(f"invalid explicit component '{pkg}'")
+            if package not in self.list_apps(include_system=True):
+                raise AdbError(f"no installed package matches '{package}'")
+            self.shell("am", "start", "-n", pkg, timeout_seconds=30)
+            return f"Launched {pkg}"
+
         ok, _out = self._try_launch(pkg)
         if ok:
             return f"Launched {pkg}"

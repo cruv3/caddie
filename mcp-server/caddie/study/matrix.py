@@ -332,19 +332,30 @@ def generate_matrix(
             tid for tid in participant_tasks if tid in tasks_with_errors
         ]
         if len(tasks_with_err_in_participant) < 3:
-            # Replace some non-error tasks with error tasks
-            tasks_to_swap = [
-                tid for tid in participant_tasks
-                if tid not in tasks_with_errors
-            ]
             tasks_needed = 3 - len(tasks_with_err_in_participant)
-            for j in range(tasks_needed):
-                if tasks_to_swap and tasks_with_errors:
-                    # Swap one non-error task for one error task
-                    swap_out = tasks_to_swap.pop(0)
-                    error_task = tasks_with_errors[i % len(tasks_with_errors)]
-                    idx = participant_tasks.index(swap_out)
-                    participant_tasks[idx] = error_task
+            offset = i % len(tasks_with_errors) if tasks_with_errors else 0
+            error_candidates = (
+                tasks_with_errors[offset:] + tasks_with_errors[:offset]
+            )
+            for error_task in error_candidates:
+                if tasks_needed == 0:
+                    break
+                if error_task in participant_tasks:
+                    continue
+                error_criticality = criticalities[error_task]
+                swap_idx = next(
+                    (
+                        idx
+                        for idx, task_id in enumerate(participant_tasks)
+                        if task_id not in tasks_with_errors
+                        and criticalities[task_id] == error_criticality
+                    ),
+                    None,
+                )
+                if swap_idx is None:
+                    continue
+                participant_tasks[swap_idx] = error_task
+                tasks_needed -= 1
 
         # Shuffle the 6 tasks for position balance
         rng.shuffle(participant_tasks)

@@ -12,24 +12,60 @@ class FakeApps(AppCommands):
         self._installed = list(installed)
         self._launchable = set(launchable)
         self.launched = []
+        self.commands = []
 
     def list_apps(self, include_system: bool = True):
         return sorted(self._installed)
 
     def shell(self, *args, timeout_seconds=None):
+        self.commands.append(args)
         if args and args[0] == "monkey":
             pkg = args[2]  # ["monkey","-p",pkg,...]
             if pkg in self._launchable:
                 self.launched.append(pkg)
                 return "Events injected: 1\n## Network stats: 0 bytes"
             return "** No activities found to run, monkey aborted."
+        if args[:3] == ("am", "start", "-n"):
+            self.launched.append(args[3])
+            return f"Starting: Intent {{ cmp={args[3]} }}"
         return ""
 
 
-def test_open_app_exact_launch():
+def test_open_app_package_only_still_launches_with_monkey():
     a = FakeApps(["com.x.clock"], ["com.x.clock"])
     assert "com.x.clock" in a.open_app("com.x.clock")
     assert a.launched == ["com.x.clock"]
+    assert a.commands == [
+        (
+            "monkey",
+            "-p",
+            "com.x.clock",
+            "-c",
+            "android.intent.category.LAUNCHER",
+            "1",
+        )
+    ]
+
+
+def test_open_app_explicit_component_launches_with_am_start():
+    component = "com.x.clock/.ClockActivity"
+    a = FakeApps(["com.x.clock"], ["com.x.clock"])
+
+    assert component in a.open_app(component)
+    assert a.launched == [component]
+    assert a.commands == [("am", "start", "-n", component)]
+
+
+def test_open_app_explicit_component_requires_installed_package():
+    component = "com.missing.clock/.ClockActivity"
+    a = FakeApps(["com.x.clock"], ["com.x.clock"])
+
+    with pytest.raises(AdbError) as exc_info:
+        a.open_app(component)
+
+    assert "no installed package" in str(exc_info.value).lower()
+    assert a.launched == []
+    assert a.commands == []
 
 
 def test_open_app_resolves_wrong_guess_by_token():
