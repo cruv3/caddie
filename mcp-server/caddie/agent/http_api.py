@@ -611,7 +611,7 @@ def _handler_factory(
         def _start_study_worker(self, claim) -> threading.Thread:
             """Run one claimed deterministic trial and own its terminal event."""
             from caddie.agent.run_control import RunControl
-            from caddie.study.coordinator import InvalidTransitionError
+            from caddie.study.coordinator import ArmedState, InvalidTransitionError
             from caddie.study.model import TrialOutcome
             from caddie.study.runtime import execute_claimed_trial
 
@@ -634,6 +634,10 @@ def _handler_factory(
                     if not acquired:
                         raise RuntimeError("agent run slot is busy")
                     agent_loop._active_control = control
+                    if coordinator.status().state is not ArmedState.RUNNING:
+                        raise InvalidTransitionError(
+                            "study trial was aborted before worker startup"
+                        )
                     result = execute_claimed_trial(
                         claim,
                         context.backend,

@@ -1280,6 +1280,55 @@ def test_abort_during_worker_startup_stops_control_before_trial_can_act(
     assert captured_control[0].stop_requested
 
 
+def test_abort_before_worker_registers_control_prevents_runtime_start(
+    study_specs_dir, study_data_dir,
+):
+    from caddie.study.coordinator import ArmedState, ArmedTrialCoordinator
+    from caddie.study.runtime import prepare_trial
+
+    slot_entered = threading.Event()
+    release_slot = threading.Event()
+    coordinator = ArmedTrialCoordinator()
+    agent_loop = MagicMock(_active_control=None)
+
+    def acquire_slot():
+        slot_entered.set()
+        assert release_slot.wait(1.0)
+        return True
+
+    agent_loop.try_acquire_slot.side_effect = acquire_slot
+    handler = _coordinator_handler(
+        coordinator,
+        context=_task_context(),
+        agent_loop=agent_loop,
+        prepare=prepare_trial,
+        session_manager=SimpleNamespace(session=None),
+    )
+    _dispatch(handler, "POST", "/study/trials/arm", _arm_payload(study_specs_dir, study_data_dir))
+    task_response = []
+
+    with patch("caddie.study.runtime.execute_claimed_trial") as execute:
+        request_thread = threading.Thread(
+            target=lambda: task_response.append(
+                _dispatch(handler, "POST", "/task", {"task": "Jarvis Testaufgabe"})
+            ),
+        )
+        request_thread.start()
+        assert slot_entered.wait(1.0)
+        assert agent_loop._active_control is None
+        abort_status, _ = _dispatch(
+            handler, "POST", "/study/trials/abort", {"reason": "startup abort"},
+        )
+        release_slot.set()
+        request_thread.join(timeout=1.0)
+
+    assert not request_thread.is_alive()
+    assert task_response[0][0] == 202
+    assert abort_status == 200
+    assert coordinator.status().state is ArmedState.ABORTED
+    execute.assert_not_called()
+
+
 def test_trial_worker_failure_sets_failed_and_emits_one_terminal_event(
     study_specs_dir, study_data_dir,
 ):
