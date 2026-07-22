@@ -93,6 +93,30 @@ def _contains_phrase(text: str, phrase: str) -> bool:
     return bool(phrase) and f" {phrase} " in f" {text} "
 
 
+def _contains_compact_multiword_phrase(text: object, phrase: object) -> bool:
+    """Match a multiword phrase across obfuscated in-word separators.
+
+    Candidate comparisons remain bounded by real whitespace-delimited words,
+    preventing a compact phrase from matching inside unrelated surrounding
+    words.  Single-token exclusions intentionally do not use this view.
+    """
+    if not isinstance(phrase, str) or not any(character.isspace() for character in phrase):
+        return False
+    compact_phrase = _joined_intra_word_text(phrase).replace(" ", "")
+    if not compact_phrase:
+        return False
+    words = _joined_intra_word_text(text).split()
+    for start in range(len(words)):
+        compact_candidate = ""
+        for word in words[start:]:
+            compact_candidate += word
+            if compact_candidate == compact_phrase:
+                return True
+            if len(compact_candidate) >= len(compact_phrase):
+                break
+    return False
+
+
 def match_task(text: object, trigger: TriggerContract) -> MatchResult:
     """Match text against one trigger contract without side effects."""
     if not isinstance(text, str):
@@ -131,6 +155,7 @@ def match_task(text: object, trigger: TriggerContract) -> MatchResult:
         if (
             _contains_phrase(normalized_input, normalized_concept)
             or _contains_phrase(joined_input, joined_concept)
+            or _contains_compact_multiword_phrase(text, concept)
         ) and normalized_concept not in seen_forbidden:
             forbidden_matches.append(concept)
             seen_forbidden.add(normalized_concept)

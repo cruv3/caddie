@@ -289,6 +289,48 @@ def test_joined_forbidden_detection_keeps_an_ordinary_allowed_calendar_request_c
     assert result.decision is RouteDecision.CLAIMED
 
 
+@pytest.mark.parametrize(
+    "obfuscated_forbidden",
+    ["ni-cht-stö-ren", "ni\u00adcht st\u00adören", "ni\u200bcht st\u200bören"],
+)
+def test_router_rejects_obfuscated_multiword_forbidden_concepts(obfuscated_forbidden):
+    spec = load_all_specs()["task_email_calendar"]
+    utterance = (
+        "Verschiebe die heutige Projektsitzung auf 15 Uhr und speichere die Änderung; "
+        f"aktiviere {obfuscated_forbidden}."
+    )
+
+    result = StudyTaskRouter().route(utterance, spec)
+
+    assert result.decision is RouteDecision.RETRY
+    assert result.match is not None
+    assert result.match.reason == "forbidden_concept"
+    assert result.match.forbidden_matches == ("nicht stören",)
+
+
+def test_compact_multiword_forbidden_detection_keeps_legitimate_email_request_claimed():
+    spec = load_all_specs()["task_email_calendar"]
+
+    result = StudyTaskRouter().route(
+        "Verschiebe die heutige Projektsitzung auf 15 Uhr und speichere die Änderung.",
+        spec,
+    )
+
+    assert result.decision is RouteDecision.CLAIMED
+
+
+def test_compact_forbidden_detection_does_not_join_short_single_token_concepts():
+    spec = load_all_specs()["task_email_calendar"]
+
+    result = StudyTaskRouter().route(
+        "Verschiebe die heutige Projektsitzung auf 15 Uhr und speichere die Änderung; "
+        "die Buchstaben D N D gehören nur zu einer Notiz.",
+        spec,
+    )
+
+    assert result.decision is RouteDecision.CLAIMED
+
+
 def test_forbidden_matches_are_deduplicated_by_normalized_equivalence():
     trigger = TriggerContract(
         reference_phrases=("Referenz",),
