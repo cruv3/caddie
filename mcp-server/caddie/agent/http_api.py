@@ -23,6 +23,9 @@ from caddie.context import ServerContext
 from caddie.memory.selection import select_prompt_skills, select_prompt_hints
 
 
+logger = logging.getLogger(__name__)
+
+
 class _ExclusiveThreadingHTTPServer(ThreadingHTTPServer):
     allow_reuse_address = False
 
@@ -290,6 +293,7 @@ def _handler_factory(
                 CoordinatorConflictError,
             )
             from caddie.study.model import StudyCondition
+            from caddie.study.spec_loader import SpecError
 
             if coordinator.status().state in (ArmedState.ARMED, ArmedState.RUNNING):
                 self._send_json(
@@ -311,6 +315,16 @@ def _handler_factory(
                 prepared = prepare_trial_fn(
                     participant, trial_index, condition, specs_dir, data_dir,
                 )
+            except SpecError as exc:
+                self._send_json({"ok": False, "error": str(exc)}, status=400)
+                return
+            except OSError:
+                logger.exception("study trial preparation failed")
+                self._send_json(
+                    {"ok": False, "error": "study trial preparation failed"},
+                    status=500,
+                )
+                return
             except (TypeError, ValueError) as exc:
                 self._send_json({"ok": False, "error": str(exc)}, status=400)
                 return

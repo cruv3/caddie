@@ -745,6 +745,45 @@ def test_arm_preparation_failure_leaves_coordinator_idle(
     assert coordinator.status().state is None
 
 
+def test_arm_maps_spec_error_to_client_response_and_leaves_idle():
+    from caddie.study.coordinator import ArmedTrialCoordinator
+    from caddie.study.spec_loader import SpecError
+
+    coordinator = ArmedTrialCoordinator()
+    prepare = MagicMock(side_effect=SpecError("invalid trigger contract"))
+
+    status, body = _dispatch(
+        _coordinator_handler(coordinator, prepare=prepare),
+        "POST",
+        "/study/trials/arm",
+        {"participant": "P01", "trial_index": 0, "condition": "c1_stepwise"},
+    )
+
+    assert status == 400
+    assert body == {"ok": False, "error": "invalid trigger contract"}
+    assert coordinator.status().state is None
+
+
+def test_arm_maps_preparation_oserror_to_safe_server_response_and_leaves_idle(caplog):
+    from caddie.study.coordinator import ArmedTrialCoordinator
+
+    coordinator = ArmedTrialCoordinator()
+    prepare = MagicMock(side_effect=OSError("C:/private/specs/read failed"))
+
+    status, body = _dispatch(
+        _coordinator_handler(coordinator, prepare=prepare),
+        "POST",
+        "/study/trials/arm",
+        {"participant": "P01", "trial_index": 0, "condition": "c1_stepwise"},
+    )
+
+    assert status == 500
+    assert body == {"ok": False, "error": "study trial preparation failed"}
+    assert "private" not in json.dumps(body)
+    assert coordinator.status().state is None
+    assert "study trial preparation failed" in caplog.text
+
+
 def test_arm_conflict_is_rejected_before_preparation(study_specs_dir, study_data_dir):
     from caddie.study.coordinator import ArmedTrialCoordinator
     from caddie.study.runtime import prepare_trial
