@@ -256,22 +256,22 @@ def _handler_factory(
             Body: {"participant": "P01", "trial_index": 0, "condition": "c1_stepwise",
                    "specs_dir": "...", "data_dir": "..."}
             """
-            from caddie.study.session import SessionManager
-            from caddie.study.logger import StudyLogger
-            from caddie.study.oversight import OversightManager
-            from caddie.study.matrix import generate_from_specs_dir
-            from caddie.study.spec_loader import load_all_specs
-            from caddie.study.executor import TrialExecutor
+            from caddie.agent.run_control import RunControl
+            from caddie.study.coordinator import ClaimToken, ClaimedTrial
             from caddie.study.model import StudyCondition
+            from caddie.study.runtime import (
+                RuntimeExecutionError,
+                execute_claimed_trial,
+                prepare_trial,
+            )
             from pathlib import Path
-            import time as _time
 
             payload = self._read_json()
-            participant = str(payload.get("participant", "P01")).strip()
-            trial_index = int(payload.get("trial_index", 0))
+            participant = payload.get("participant", "P01")
+            trial_index = payload.get("trial_index", 0)
             condition_str = str(payload.get("condition", "c1_stepwise")).strip().lower()
-            specs_dir = str(payload.get("specs_dir", ""))
-            data_dir = str(payload.get("data_dir", ""))
+            specs_value = payload.get("specs_dir", "")
+            data_value = payload.get("data_dir", "")
 
             try:
                 condition = StudyCondition(condition_str)
@@ -282,173 +282,39 @@ def _handler_factory(
                 }, status=400)
                 return
 
-            # Load specs
-            specs = {}
-            if specs_dir:
-                import caddie.study.spec_loader as _sl
-                _orig = getattr(_sl, 'STUDY_SPECS_DIR', None)
-                _sl.STUDY_SPECS_DIR = Path(specs_dir)
-                try:
-                    specs = load_all_specs()
-                except Exception as exc:
-                    self._send_json({"ok": False, "error": f"Spec load failed: {exc}"}, status=500)
-                    return
-                finally:
-                    if _orig is not None:
-                        _sl.STUDY_SPECS_DIR = _orig
-            if not specs:
-                specs = load_all_specs()
-
-            if not specs:
-                self._send_json({"ok": False, "error": "No specs loaded"}, status=400)
-                return
-
-            # Generate matrix to get participant config
             try:
-                configs = generate_from_specs_dir(specs_dir if specs_dir else None)
-            except Exception as exc:
-                self._send_json({"ok": False, "error": f"Matrix generation failed: {exc}"}, status=500)
-                return
-
-            if participant not in configs:
-                self._send_json({"ok": False, "error": f"Participant {participant} not found"}, status=400)
-                return
-
-            p_config = configs[participant]
-
-            # Select the trial spec for this participant/trial index
-            try:
-                task_id = p_config.task_order[trial_index]
-            except IndexError:
-                self._send_json({"ok": False, "error": f"Invalid trial_index: {trial_index} (max: {len(p_config.task_order) - 1})"}, status=400)
-                return
-            trial_spec = specs.get(task_id)
-            if trial_spec is None:
-                trial_spec = next(iter(specs.values()))
-
-            # Create study logger
-            session_id = f"sess_{_time.time():.0f}"
-            try:
-                base_dir = Path(data_dir) if data_dir else None
-                if base_dir:
-                    base_dir.mkdir(parents=True, exist_ok=True)
-                logger_inst = StudyLogger(
-                    base_dir=base_dir,
-                    study_version=trial_spec.version,
-                    participant_id=participant,
-                    session_id=session_id,
-                    condition=condition,
+                specs_dir = Path(specs_value) if specs_value else None
+                data_dir = Path(data_value) if data_value else None
+                prepared = prepare_trial(
+                    participant, trial_index, condition, specs_dir, data_dir,
                 )
-            except Exception as exc:
-                self._send_json({"ok": False, "error": f"Logger creation failed: {exc}"}, status=500)
-                return
-
-            # Create session — use the agent's active RunControl or create one
-            from caddie.agent.run_control import RunControl
-            run_ctrl = agent_loop._active_control or RunControl()
-
-            # Create oversight manager with RunControl callbacks for C1/C2
-            def _step_callback(step, narration):
-                approved = run_ctrl.await_confirmation(timeout=30.0)
-                return OversightManager._decision_from_bool(approved)
-
-            def _batch_callback(steps, narrations=None):
-                approved = run_ctrl.await_confirmation(timeout=60.0)
-                return OversightManager._decision_from_bool(approved)
-
-            try:
-                oversight = OversightManager(
-                    logger=logger_inst,
-                    condition=condition,
-                    step_callback=_step_callback,
-                    batch_callback=_batch_callback,
+                utterance = payload.get("utterance", prepared.spec.instruction_de)
+                claim = ClaimedTrial(
+                    prepared.config,
+                    prepared.spec,
+                    utterance,
+                    ClaimToken(0),
                 )
-            except Exception as exc:
-                self._send_json({"ok": False, "error": f"Oversight creation failed: {exc}"}, status=500)
-                return
-
-            mgr = SessionManager.instance()
-            try:
-                session = mgr.create(
-                    logger=logger_inst,
-                    run_control=run_ctrl,
-                    oversight_manager=oversight,
+                run_control = agent_loop._active_control or RunControl()
+                result = execute_claimed_trial(
+                    claim, context.backend, run_control,
                 )
-                session.start()
-            except RuntimeError as exc:
-                self._send_json({"ok": False, "error": str(exc)}, status=409)
+            except (TypeError, ValueError) as exc:
+                self._send_json({"ok": False, "error": str(exc)}, status=400)
                 return
-
-            # Create executor and run trial
-            # Build a verification backend from the study backend
-            from caddie.study.verification import VerificationBackendProtocol
-
-            class StudyVerificationBackend(VerificationBackendProtocol):
-                def __init__(self, backend):
-                    self._backend = backend
-
-                def check_text_present(self, text: str) -> bool:
-                    try:
-                        elems = self._backend.list_elements()
-                        for el in elems.get("elements", []):
-                            if text.lower() in el.get("text", "").lower():
-                                return True
-                        return False
-                    except Exception:
-                        return False
-
-                def check_text_absent(self, text: str) -> bool:
-                    return not self.check_text_present(text)
-
-                def check_accessibility_element(self, label: str) -> bool:
-                    try:
-                        elems = self._backend.list_elements()
-                        for el in elems.get("elements", []):
-                            if label.lower() in el.get("text", "").lower():
-                                return True
-                        return False
-                    except Exception:
-                        return False
-
-                def check_field_count(self, container_label: str, expected: int) -> bool:
-                    try:
-                        elems = self._backend.list_elements()
-                        # Simple: count elements that contain the container label
-                        count = sum(1 for el in elems.get("elements", [])
-                                   if container_label.lower() in el.get("text", "").lower())
-                        return count >= expected
-                    except Exception:
-                        return False
-
-            verification_backend = StudyVerificationBackend(context.backend)
-
-            try:
-                executor = TrialExecutor(
-                    backend=context.backend,
-                    logger=logger_inst,
-                    oversight=oversight,
-                    spec=trial_spec,
-                    condition=condition,
-                    error_tasks=frozenset(p_config.error_tasks),
-                    verification_backend=verification_backend,
-                )
-                result = executor.run()
+            except RuntimeExecutionError as exc:
+                status = 409 if exc.stage == "session" else 500
+                self._send_json({"ok": False, "error": str(exc)}, status=status)
+                return
             except Exception as exc:
-                session.fail(reason=f"Execution error: {exc}")
                 self._send_json({"ok": False, "error": str(exc)}, status=500)
                 return
 
-            # Clean up session
-            if result.outcome.value == "success":
-                session.complete()
-            else:
-                session.fail(reason=result.reason)
-
             self._send_json({
                 "ok": True,
-                "trial_id": session_id,
+                "trial_id": result.session_id,
                 "outcome": result.outcome.value,
-                "steps_executed": result.steps_done,
+                "steps_executed": result.steps_executed,
                 "duration_ms": result.duration_ms,
                 "reason": result.reason,
             })

@@ -12,6 +12,7 @@ import json
 import threading
 from http.server import BaseHTTPRequestHandler
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -414,6 +415,60 @@ class TestStudyStatus:
 
 
 class TestStudyRun:
+    def test_handler_delegates_to_shared_runtime(self, tmp_path):
+        from caddie.agent.http_api import _handler_factory
+        from caddie.study.model import StudyCondition, TrialOutcome
+        from caddie.study.runtime import RuntimeResult
+
+        backend = object()
+        run_control = object()
+        spec = SimpleNamespace(instruction_de="Diagnose-Aufgabe")
+        prepared = SimpleNamespace(config=object(), spec=spec)
+        runtime_result = RuntimeResult(
+            outcome=TrialOutcome.SUCCESS,
+            session_id="sess_test",
+            steps_executed=2,
+            duration_ms=10.5,
+            reason="done",
+        )
+        context = SimpleNamespace(backend=backend)
+        agent_loop = SimpleNamespace(_active_control=run_control)
+        handler_type = _handler_factory(context, MagicMock(), agent_loop)
+        handler = handler_type.__new__(handler_type)
+        handler._read_json = lambda: {
+            "participant": "P01",
+            "trial_index": 0,
+            "condition": "c1_stepwise",
+            "specs_dir": str(tmp_path / "specs"),
+            "data_dir": str(tmp_path / "data"),
+        }
+        sent = []
+        handler._send_json = lambda body, status=200: sent.append((status, body))
+
+        with (
+            patch("caddie.study.runtime.prepare_trial", return_value=prepared) as prepare,
+            patch("caddie.study.runtime.execute_claimed_trial", return_value=runtime_result) as execute,
+        ):
+            handler._handle_study_run()
+
+        prepare.assert_called_once_with(
+            "P01", 0, StudyCondition.STEPWISE, tmp_path / "specs", tmp_path / "data"
+        )
+        claim, passed_backend, passed_control = execute.call_args.args
+        assert claim.config is prepared.config
+        assert claim.spec is spec
+        assert claim.participant_utterance == "Diagnose-Aufgabe"
+        assert passed_backend is backend
+        assert passed_control is run_control
+        assert sent == [(200, {
+            "ok": True,
+            "trial_id": "sess_test",
+            "outcome": "success",
+            "steps_executed": 2,
+            "duration_ms": 10.5,
+            "reason": "done",
+        })]
+
     def test_run_success(self, mock_agent_loop, mock_backend, study_specs_dir, study_data_dir):
         """Valid run → ok=True with trial details."""
         rc = mock_agent_loop._agent_loop._run_control

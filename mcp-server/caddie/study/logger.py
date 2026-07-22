@@ -54,6 +54,7 @@ class EventType:
     SESSION_CANCELLED = "session_cancelled"
     SESSION_FAILED = "session_failed"
     SESSION_ENDED = "session_ended"
+    PARTICIPANT_UTTERANCE = "participant_utterance"
     TRIAL_START = "trial_start"
     STEP_START = "step_start"
     STEP_FINISH = "step_finish"
@@ -96,6 +97,7 @@ class EventType:
     ALL = frozenset({
         SESSION_STARTED, SESSION_PAUSED, SESSION_RESUMED,
         SESSION_CANCELLED, SESSION_FAILED, SESSION_ENDED,
+        PARTICIPANT_UTTERANCE,
         TRIAL_START, STEP_START, STEP_FINISH, TRIAL_COMPLETE,
         CONFIRMATION_SHOWN, CONFIRMATION_RESOLVED,
         PAUSE, RESUME, STOP, CORRECTION, TOUCH_INTERVENTION,
@@ -373,6 +375,19 @@ class StudyLogger:
     # ------------------------------------------------------------------
     # Trial lifecycle
     # ------------------------------------------------------------------
+
+    def participant_utterance(self, text: str) -> None:
+        """Record the exact utterance that claimed this study trial."""
+        if type(text) is not str:
+            raise TypeError("participant utterance must be an exact string")
+        if not text.strip():
+            raise ValueError("participant utterance must be non-empty")
+        try:
+            text.encode("utf-8")
+            json.dumps(text, ensure_ascii=False)
+        except (TypeError, ValueError, UnicodeError) as exc:
+            raise ValueError("participant utterance must be JSON-safe") from exc
+        self.log(EventType.PARTICIPANT_UTTERANCE, details={"text": text})
 
     def trial_start(
         self,

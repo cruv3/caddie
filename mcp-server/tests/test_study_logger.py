@@ -65,6 +65,7 @@ def test_event_type_all_includes_all():
         EventType.SESSION_STARTED, EventType.SESSION_PAUSED,
         EventType.SESSION_RESUMED, EventType.SESSION_CANCELLED,
         EventType.SESSION_FAILED, EventType.SESSION_ENDED,
+        EventType.PARTICIPANT_UTTERANCE,
         EventType.TRIAL_START, EventType.STEP_START, EventType.STEP_FINISH,
         EventType.TRIAL_COMPLETE,
         EventType.CONFIRMATION_SHOWN, EventType.CONFIRMATION_RESOLVED,
@@ -77,6 +78,22 @@ def test_event_type_all_includes_all():
         EventType.SCREENSHOT_CAPTURED, EventType.EXPERIMENTER_ACTION,
     }
     assert EventType.ALL == all_events
+
+
+def test_participant_utterance_is_structured_and_timestamped(logger):
+    logger.participant_utterance("Bitte sende die Nachricht")
+
+    event = logger.get_raw_events_internal()[0]
+    assert event.event_type == EventType.PARTICIPANT_UTTERANCE
+    assert event.details == {"text": "Bitte sende die Nachricht"}
+    assert event.timestamp
+    assert event.elapsed_ms >= 0
+
+
+@pytest.mark.parametrize("text", ["", "   ", "\ud800", None, 7])
+def test_participant_utterance_rejects_invalid_text(logger, text):
+    with pytest.raises((TypeError, ValueError)):
+        logger.participant_utterance(text)
 
 
 # ---------------------------------------------------------------------------
