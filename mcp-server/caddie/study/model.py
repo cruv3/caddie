@@ -227,9 +227,6 @@ class TrialSpec:
     criticality: CriticalityClass
     """Low or high criticality for counterbalancing."""
 
-    trigger: TriggerContract | None = None
-    """Deterministic routing contract; required for YAML-loaded specs."""
-
     required_packages: tuple[str, ...] = ()
     """Android package names that must be installed and accessible."""
 
@@ -256,6 +253,9 @@ class TrialSpec:
 
     per_gate_timeout_s: int = 30
     """Per-confirmation-gate timeout in seconds."""
+
+    trigger: TriggerContract | None = None
+    """Deterministic routing contract; required for YAML-loaded specs."""
 
     def __post_init__(self) -> None:
         """Validate immutable invariants."""

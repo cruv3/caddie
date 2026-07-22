@@ -199,6 +199,27 @@ def test_trial_spec_minimal():
     assert spec.per_gate_timeout_s == 30
 
 
+def test_trial_spec_legacy_positional_required_packages_binding():
+    steps = (StudyStep(
+        id="s1",
+        action="open app",
+        narration="Open app",
+        step_type=StepType.NORMAL,
+    ),)
+
+    spec = TrialSpec(
+        "v1",
+        "task_test",
+        "Test instruction",
+        CriticalityClass.HIGH,
+        ("com.example.app",),
+        steps=steps,
+    )
+
+    assert spec.required_packages == ("com.example.app",)
+    assert spec.trigger is None
+
+
 # ── ParticipantConfig ───────────────────────────────────────────────────────
 
 
