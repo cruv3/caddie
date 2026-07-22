@@ -1,5 +1,7 @@
 """Tests for caddie.study.matrix — participant counterbalancing."""
 
+from collections import Counter
+
 from caddie.study.matrix import (
     NUM_PARTICIPANTS,
     NUM_ERROR_TASKS,
@@ -235,6 +237,42 @@ def test_real_specs_assign_three_distinct_eligible_error_tasks():
         )
         assert set(cfg.error_tasks) <= set(cfg.task_order), cfg.participant_id
         assert all(specs[task_id].error_steps for task_id in cfg.error_tasks)
+
+
+def test_real_specs_balance_task_exposure_across_the_cohort():
+    specs = load_all_specs()
+    configs = generate_from_specs_dir(seed=42)
+    exposure = Counter(
+        task_id for cfg in configs.values() for task_id in cfg.task_order
+    )
+
+    assert set(exposure) == set(specs)
+    assert all(count in {13, 14} for count in exposure.values()), exposure
+    for criticality in (CriticalityClass.LOW, CriticalityClass.HIGH):
+        pool = {
+            task_id
+            for task_id, spec in specs.items()
+            if spec.criticality == criticality
+        }
+        pool_exposure = {task_id: exposure[task_id] for task_id in pool}
+        assert sum(pool_exposure.values()) == 54
+        assert all(count in {13, 14} for count in pool_exposure.values()), (
+            criticality,
+            pool_exposure,
+        )
+
+
+def test_real_specs_balance_eligible_error_exposure_across_the_cohort():
+    specs = load_all_specs()
+    configs = generate_from_specs_dir(seed=42)
+    eligible = {task_id for task_id, spec in specs.items() if spec.error_steps}
+    exposure = Counter(
+        task_id for cfg in configs.values() for task_id in cfg.error_tasks
+    )
+
+    assert set(exposure) == eligible
+    assert all(count in {13, 14} for count in exposure.values()), exposure
+    assert sum(exposure.values()) == 54
 
 
 def test_print_matrix_does_not_raise():
