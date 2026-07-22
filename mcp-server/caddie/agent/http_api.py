@@ -260,6 +260,7 @@ def _handler_factory(
             from caddie.study.coordinator import ClaimToken, ClaimedTrial
             from caddie.study.model import StudyCondition
             from caddie.study.runtime import (
+                RuntimeConflictError,
                 RuntimeExecutionError,
                 execute_claimed_trial,
                 prepare_trial,
@@ -302,9 +303,11 @@ def _handler_factory(
             except (TypeError, ValueError) as exc:
                 self._send_json({"ok": False, "error": str(exc)}, status=400)
                 return
+            except RuntimeConflictError as exc:
+                self._send_json({"ok": False, "error": str(exc)}, status=409)
+                return
             except RuntimeExecutionError as exc:
-                status = 409 if exc.stage == "session" else 500
-                self._send_json({"ok": False, "error": str(exc)}, status=status)
+                self._send_json({"ok": False, "error": str(exc)}, status=500)
                 return
             except Exception as exc:
                 self._send_json({"ok": False, "error": str(exc)}, status=500)

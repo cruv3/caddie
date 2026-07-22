@@ -469,6 +469,39 @@ class TestStudyRun:
             "reason": "done",
         })]
 
+    def test_handler_maps_runtime_conflict_to_409(self):
+        from caddie.agent.http_api import _handler_factory
+        from caddie.study.runtime import RuntimeConflictError
+
+        prepared = SimpleNamespace(
+            config=object(), spec=SimpleNamespace(instruction_de="Diagnose-Aufgabe")
+        )
+        handler_type = _handler_factory(
+            SimpleNamespace(backend=object()),
+            MagicMock(),
+            SimpleNamespace(_active_control=object()),
+        )
+        handler = handler_type.__new__(handler_type)
+        handler._read_json = lambda: {
+            "participant": "P01", "trial_index": 0, "condition": "c1_stepwise",
+        }
+        sent = []
+        handler._send_json = lambda body, status=200: sent.append((status, body))
+
+        with (
+            patch("caddie.study.runtime.prepare_trial", return_value=prepared),
+            patch(
+                "caddie.study.runtime.execute_claimed_trial",
+                side_effect=RuntimeConflictError("a study session is already active"),
+            ),
+        ):
+            handler._handle_study_run()
+
+        assert sent == [(409, {
+            "ok": False,
+            "error": "session: a study session is already active",
+        })]
+
     def test_run_success(self, mock_agent_loop, mock_backend, study_specs_dir, study_data_dir):
         """Valid run → ok=True with trial details."""
         rc = mock_agent_loop._agent_loop._run_control

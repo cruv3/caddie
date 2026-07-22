@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import threading
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -10,7 +11,12 @@ from caddie.study.coordinator import ClaimToken, ClaimedTrial
 from caddie.study.executor import TrialResult
 from caddie.study.matrix import generate_from_specs_dir
 from caddie.study.model import StudyCondition, TrialOutcome
-from caddie.study.runtime import RuntimeExecutionError, execute_claimed_trial, prepare_trial
+from caddie.study.runtime import (
+    RuntimeConflictError,
+    RuntimeExecutionError,
+    execute_claimed_trial,
+    prepare_trial,
+)
 from caddie.study.session import SessionManager
 
 
@@ -177,3 +183,50 @@ def test_execute_refuses_to_clear_running_session(specs_dir: Path, tmp_path: Pat
     with pytest.raises(RuntimeExecutionError, match="active"):
         execute_claimed_trial(claim, object(), MagicMock())
     assert manager.session is existing
+
+
+def test_concurrent_starts_create_one_logger_and_one_typed_conflict(
+    specs_dir: Path, tmp_path: Path,
+) -> None:
+    claim = _prepared_claim(specs_dir, tmp_path / "data")
+    success = TrialResult(
+        outcome=TrialOutcome.SUCCESS, steps_done=0, duration_ms=1, reason="",
+    )
+    first_entered = threading.Event()
+    release_first = threading.Event()
+    logger_calls: list[str] = []
+    outcomes: list[object] = []
+    errors: list[BaseException] = []
+
+    from caddie.study.runtime import StudyLogger as RealStudyLogger
+
+    def delayed_logger(**kwargs):
+        logger_calls.append(kwargs["session_id"])
+        first_entered.set()
+        assert release_first.wait(timeout=5)
+        return RealStudyLogger(**kwargs)
+
+    def run_trial() -> None:
+        try:
+            outcomes.append(execute_claimed_trial(claim, object(), MagicMock()))
+        except BaseException as exc:
+            errors.append(exc)
+
+    with (
+        patch("caddie.study.runtime.StudyLogger", side_effect=delayed_logger),
+        patch("caddie.study.runtime.TrialExecutor") as executor_type,
+    ):
+        executor_type.return_value.run.return_value = success
+        owner = threading.Thread(target=run_trial)
+        owner.start()
+        assert first_entered.wait(timeout=5)
+        run_trial()
+        release_first.set()
+        owner.join(timeout=5)
+
+    assert not owner.is_alive()
+    assert len(outcomes) == 1
+    assert len(errors) == 1
+    assert isinstance(errors[0], RuntimeConflictError)
+    assert len(logger_calls) == 1
+    assert len(list((tmp_path / "data").rglob("events.jsonl"))) == 1

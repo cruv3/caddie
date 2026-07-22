@@ -530,6 +530,10 @@ class StudySession:
 _session_manager_instance: Optional["SessionManager"] = None
 
 
+class SessionConflictError(RuntimeError):
+    """A study session or start reservation already owns the single slot."""
+
+
 class SessionManager:
     """Manages the single active study session.
 
@@ -555,7 +559,21 @@ class SessionManager:
 
     def __init__(self) -> None:
         self._session: Optional[StudySession] = None
+        self._reservation: object | None = None
         self._lock = threading.Lock()
+
+    def reserve_for_create(self) -> object:
+        """Atomically claim the session slot before constructing side effects."""
+        with self._lock:
+            if self._reservation is not None:
+                raise SessionConflictError("A study session is already active")
+            if self._session is not None:
+                if self._session.is_terminal:
+                    self._session = None
+                else:
+                    raise SessionConflictError("A study session is already active")
+            self._reservation = object()
+            return self._reservation
 
     def create(
         self,
@@ -563,6 +581,8 @@ class SessionManager:
         run_control: RunControl,
         oversight_manager: OversightManager,
         screen_off_manager: Optional[Any] = None,
+        *,
+        reservation: object | None = None,
     ) -> StudySession:
         """Create a new study session.
 
@@ -579,17 +599,26 @@ class SessionManager:
             RuntimeError: if a session is already active.
         """
         with self._lock:
-            if self._session is not None:
-                raise RuntimeError(
-                    "A study session is already active"
-                )
-            self._session = StudySession(
+            if reservation is None:
+                if self._reservation is not None or self._session is not None:
+                    raise SessionConflictError("A study session is already active")
+            elif reservation is not self._reservation or self._session is not None:
+                raise SessionConflictError("A study session is already active")
+            session = StudySession(
                 logger=logger,
                 run_control=run_control,
                 oversight_manager=oversight_manager,
                 screen_off_manager=screen_off_manager,
             )
-            return self._session
+            self._session = session
+            self._reservation = None
+            return session
+
+    def release_reservation(self, reservation: object) -> None:
+        """Release a matching uninstalled reservation after construction failure."""
+        with self._lock:
+            if self._reservation is reservation:
+                self._reservation = None
 
     @property
     def session(self) -> Optional[StudySession]:
@@ -600,3 +629,4 @@ class SessionManager:
         """Clear the active session reference."""
         with self._lock:
             self._session = None
+            self._reservation = None

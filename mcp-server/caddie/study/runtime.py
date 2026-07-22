@@ -13,7 +13,7 @@ from caddie.study.logger import StudyLogger
 from caddie.study.matrix import generate_matrix
 from caddie.study.model import StudyCondition, TrialOutcome, TrialSpec
 from caddie.study.oversight import OversightManager
-from caddie.study.session import SessionManager
+from caddie.study.session import SessionConflictError, SessionManager
 from caddie.study.spec_loader import STUDY_SPECS_DIR, SpecError, load_trial_spec
 from caddie.study.verification import VerificationBackendProtocol
 
@@ -44,6 +44,13 @@ class RuntimeExecutionError(RuntimeError):
         self.stage = stage
         self.session_id = session_id
         super().__init__(f"{stage}: {message}")
+
+
+class RuntimeConflictError(RuntimeExecutionError):
+    """Another trial owns the single study session slot."""
+
+    def __init__(self, message: str) -> None:
+        super().__init__("session", message)
 
 
 class StudyVerificationBackend(VerificationBackendProtocol):
@@ -162,16 +169,10 @@ def execute_claimed_trial(claim: ClaimedTrial, backend: Any, run_control: Any) -
         raise TypeError("claim must be a ClaimedTrial")
 
     manager = SessionManager.instance()
-    # Inspect-and-release the old terminal reference under the manager lock.
-    # Calling clear() after a separate status check could erase a newly-created
-    # running session from another request.
-    with manager._lock:
-        current = manager._session
-        if current is not None:
-            if current.is_terminal:
-                manager._session = None
-            else:
-                raise RuntimeExecutionError("session", "a study session is already active")
+    try:
+        reservation = manager.reserve_for_create()
+    except SessionConflictError as exc:
+        raise RuntimeConflictError(str(exc)) from exc
 
     session_id = f"sess_{uuid.uuid4().hex}"
     session = None
@@ -211,6 +212,7 @@ def execute_claimed_trial(claim: ClaimedTrial, backend: Any, run_control: Any) -
             logger=study_logger,
             run_control=run_control,
             oversight_manager=oversight,
+            reservation=reservation,
         )
         session.start()
         study_logger.participant_utterance(claim.participant_utterance)
@@ -241,9 +243,14 @@ def execute_claimed_trial(claim: ClaimedTrial, backend: Any, run_control: Any) -
             duration_ms=result.duration_ms,
             reason=result.reason,
         )
+    except SessionConflictError as exc:
+        manager.release_reservation(reservation)
+        raise RuntimeConflictError(str(exc)) from exc
     except RuntimeExecutionError:
+        manager.release_reservation(reservation)
         raise
     except Exception as exc:
+        manager.release_reservation(reservation)
         if session is not None and not session.is_terminal:
             try:
                 session.fail(reason=f"{stage}: {exc}")
