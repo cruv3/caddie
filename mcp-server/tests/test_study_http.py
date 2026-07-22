@@ -597,6 +597,8 @@ def _coordinator_handler(
     coordinator,
     *,
     backend=None,
+    context=None,
+    agent_loop=None,
     prepare=None,
     preflight=lambda: True,
     reset=lambda: True,
@@ -604,10 +606,11 @@ def _coordinator_handler(
 ):
     from caddie.agent.http_api import _handler_factory
 
+    context = context or SimpleNamespace(backend=backend or MagicMock())
     return _handler_factory(
-        SimpleNamespace(backend=backend or MagicMock()),
+        context,
         MagicMock(),
-        SimpleNamespace(_active_control=None),
+        agent_loop or SimpleNamespace(_active_control=None),
         coordinator=coordinator,
         prepare_trial_fn=prepare,
         preflight_fn=preflight,
@@ -619,12 +622,46 @@ def _coordinator_handler(
 def _dispatch(handler_type, method: str, path: str, payload: dict | None = None):
     handler = handler_type.__new__(handler_type)
     handler.path = path
+    handler.headers = {}
     handler._read_json = lambda: payload or {}
     sent = []
     handler._send_json = lambda body, status=200: sent.append((status, body))
     getattr(handler, f"do_{method}")()
     assert len(sent) == 1
     return sent[0]
+
+
+def _task_context(backend=None):
+    skills = MagicMock()
+    skills.match.return_value = []
+    return SimpleNamespace(backend=backend or MagicMock(), skills=skills)
+
+
+def _wait_for_state(coordinator, state, timeout=1.0):
+    import time
+
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if coordinator.status().state is state:
+            return
+        time.sleep(0.005)
+    assert coordinator.status().state is state
+
+
+def _dispatch_stream(handler_type, payload: dict):
+    handler = handler_type.__new__(handler_type)
+    handler.path = "/task/stream"
+    handler.headers = {}
+    handler._read_json = lambda: payload
+    handler.wfile = io.BytesIO()
+    response = []
+    handler.send_response = lambda status: response.append(status)
+    handler.send_header = lambda *_args: None
+    handler.end_headers = lambda: None
+    sent_json = []
+    handler._send_json = lambda body, status=200: sent_json.append((status, body))
+    handler.do_POST()
+    return response, sent_json, handler.wfile.getvalue().decode("utf-8")
 
 
 def _arm_payload(specs_dir: Path, data_dir: Path, trial_index: int = 0) -> dict:
@@ -1001,3 +1038,296 @@ def test_default_reset_uses_native_pwsh_argv_and_central_script():
     assert Path(argv[3]).name == "reset_study_device.ps1"
     assert Path(argv[3]).parent.name == "scripts"
     assert run.call_args.kwargs == {"check": False}
+
+
+# ---------------------------------------------------------------------------
+# Participant-initiated routing through the normal task endpoints
+# ---------------------------------------------------------------------------
+
+
+def test_task_without_armed_trial_preserves_normal_agent_loop():
+    from caddie.study.coordinator import ArmedTrialCoordinator
+
+    coordinator = ArmedTrialCoordinator()
+    context = _task_context()
+    agent_loop = MagicMock()
+    agent_loop.run.return_value = {"ok": True, "finished_emitted": True}
+    agent_loop.recent_run.return_value = None
+    handler = _coordinator_handler(
+        coordinator, context=context, agent_loop=agent_loop, prepare=MagicMock(),
+    )
+
+    with (
+        patch("caddie.agent.http_api.select_prompt_skills", return_value=[]),
+        patch("caddie.agent.http_api.select_prompt_hints", return_value=[]),
+        patch("caddie.agent.http_api.build_system_prompt", return_value="prompt"),
+    ):
+        status, body = _dispatch(handler, "POST", "/task", {"task": "normale Aufgabe"})
+
+    assert status == 200
+    assert body["ok"] is True
+    agent_loop.run.assert_called_once()
+
+
+def test_task_mismatch_returns_exact_retry_without_agent_or_backend_work(
+    study_specs_dir, study_data_dir,
+):
+    import queue
+
+    from caddie.agent.event_bus import EVENT_BUS
+    from caddie.study.coordinator import ArmedState, ArmedTrialCoordinator
+    from caddie.study.runtime import prepare_trial
+
+    coordinator = ArmedTrialCoordinator()
+    backend = MagicMock()
+    context = _task_context(backend)
+    agent_loop = MagicMock()
+    handler = _coordinator_handler(
+        coordinator, context=context, agent_loop=agent_loop, prepare=prepare_trial,
+    )
+    _dispatch(handler, "POST", "/study/trials/arm", _arm_payload(study_specs_dir, study_data_dir))
+
+    with EVENT_BUS.subscription() as events:
+        status, body = _dispatch(handler, "POST", "/task", {"task": "Jarvis spiele Musik"})
+        published = []
+        while True:
+            try:
+                published.append(events.get_nowait())
+            except queue.Empty:
+                break
+
+    retry = "Das habe ich nicht ganz verstanden. Kannst du die Aufgabe bitte noch einmal sagen?"
+    assert status == 200
+    assert body == {"ok": False, "study": "retry", "message": retry}
+    assert any(e.type == "question_asked" and e.payload == {"question": retry} for e in published)
+    assert coordinator.status().state is ArmedState.ARMED
+    agent_loop.run.assert_not_called()
+    backend.assert_not_called()
+
+
+def test_matching_task_starts_exactly_one_background_trial_and_completes(
+    study_specs_dir, study_data_dir,
+):
+    from caddie.study.coordinator import ArmedState, ArmedTrialCoordinator
+    from caddie.study.model import TrialOutcome
+    from caddie.study.runtime import RuntimeResult, prepare_trial
+
+    coordinator = ArmedTrialCoordinator()
+    context = _task_context()
+    agent_loop = MagicMock(_active_control=None)
+    agent_loop.try_acquire_slot.return_value = True
+    handler = _coordinator_handler(
+        coordinator, context=context, agent_loop=agent_loop, prepare=prepare_trial,
+    )
+    _dispatch(handler, "POST", "/study/trials/arm", _arm_payload(study_specs_dir, study_data_dir))
+    runtime_result = RuntimeResult(TrialOutcome.SUCCESS, "sess-1", 2, 12.0, "done")
+
+    with patch("caddie.study.runtime.execute_claimed_trial", return_value=runtime_result) as execute:
+        status, body = _dispatch(handler, "POST", "/task", {"task": "Jarvis Testaufgabe"})
+        _wait_for_state(coordinator, ArmedState.COMPLETED)
+
+    assert status == 202
+    assert body["study"] == "accepted"
+    execute.assert_called_once()
+    agent_loop.run.assert_not_called()
+
+
+def test_second_task_while_trial_runs_becomes_correction_not_second_trial(
+    study_specs_dir, study_data_dir,
+):
+    from caddie.study.coordinator import ArmedState, ArmedTrialCoordinator
+    from caddie.study.model import TrialOutcome
+    from caddie.study.runtime import RuntimeResult, prepare_trial
+
+    release = threading.Event()
+    entered = threading.Event()
+    coordinator = ArmedTrialCoordinator()
+    context = _task_context()
+    agent_loop = MagicMock(_active_control=None)
+    agent_loop.try_acquire_slot.return_value = True
+    agent_loop.apply_control.return_value = {"ok": True}
+    handler = _coordinator_handler(
+        coordinator, context=context, agent_loop=agent_loop, prepare=prepare_trial,
+    )
+    _dispatch(handler, "POST", "/study/trials/arm", _arm_payload(study_specs_dir, study_data_dir))
+
+    def execute(*_args):
+        entered.set()
+        assert release.wait(1.0)
+        return RuntimeResult(TrialOutcome.SUCCESS, "sess-1", 2, 12.0, "done")
+
+    with patch("caddie.study.runtime.execute_claimed_trial", side_effect=execute) as execute_mock:
+        first_status, _ = _dispatch(handler, "POST", "/task", {"task": "Jarvis Testaufgabe"})
+        assert entered.wait(1.0)
+        second_status, second = _dispatch(
+            handler, "POST", "/task", {"task": "nimm bitte den anderen Eintrag"},
+        )
+        release.set()
+        _wait_for_state(coordinator, ArmedState.COMPLETED)
+
+    assert first_status == 202
+    assert second_status == 200
+    assert second["study"] == "running_input"
+    agent_loop.apply_control.assert_called_once_with("correct", "nimm bitte den anderen Eintrag")
+    assert execute_mock.call_count == 1
+
+
+def test_claim_response_waits_until_running_input_control_is_ready(
+    study_specs_dir, study_data_dir,
+):
+    import time
+
+    from caddie.study.coordinator import ArmedState, ArmedTrialCoordinator
+    from caddie.study.model import TrialOutcome
+    from caddie.study.runtime import RuntimeResult, prepare_trial
+
+    real_thread = threading.Thread
+
+    class DelayedThread:
+        def __init__(self, *, target, name, daemon):
+            self._inner = real_thread(
+                target=lambda: (time.sleep(0.05), target()), name=name, daemon=daemon,
+            )
+
+        def start(self):
+            self._inner.start()
+
+        def join(self, timeout=None):
+            self._inner.join(timeout)
+
+    release = threading.Event()
+    coordinator = ArmedTrialCoordinator()
+    agent_loop = MagicMock(_active_control=None)
+    agent_loop.try_acquire_slot.return_value = True
+    agent_loop.apply_control.side_effect = lambda action, text: {
+        "ok": agent_loop._active_control is not None,
+    }
+    handler = _coordinator_handler(
+        coordinator,
+        context=_task_context(),
+        agent_loop=agent_loop,
+        prepare=prepare_trial,
+    )
+    _dispatch(handler, "POST", "/study/trials/arm", _arm_payload(study_specs_dir, study_data_dir))
+
+    def execute(*_args):
+        assert release.wait(1.0)
+        return RuntimeResult(TrialOutcome.SUCCESS, "sess-ready", 2, 12.0, "done")
+
+    with (
+        patch("caddie.agent.http_api.threading.Thread", DelayedThread),
+        patch("caddie.study.runtime.execute_claimed_trial", side_effect=execute),
+    ):
+        first_status, _ = _dispatch(handler, "POST", "/task", {"task": "Jarvis Testaufgabe"})
+        second_status, _ = _dispatch(handler, "POST", "/task", {"task": "ändere den Eintrag"})
+        release.set()
+        _wait_for_state(coordinator, ArmedState.COMPLETED)
+
+    assert first_status == 202
+    assert second_status == 200
+
+
+def test_trial_worker_failure_sets_failed_and_emits_one_terminal_event(
+    study_specs_dir, study_data_dir,
+):
+    import queue
+
+    from caddie.agent.event_bus import EVENT_BUS
+    from caddie.study.coordinator import ArmedState, ArmedTrialCoordinator
+    from caddie.study.runtime import prepare_trial
+
+    coordinator = ArmedTrialCoordinator()
+    agent_loop = MagicMock(_active_control=None)
+    agent_loop.try_acquire_slot.return_value = True
+    handler = _coordinator_handler(
+        coordinator, context=_task_context(), agent_loop=agent_loop, prepare=prepare_trial,
+    )
+    _dispatch(handler, "POST", "/study/trials/arm", _arm_payload(study_specs_dir, study_data_dir))
+
+    with EVENT_BUS.subscription() as events, patch(
+        "caddie.study.runtime.execute_claimed_trial", side_effect=RuntimeError("boom"),
+    ):
+        status, _ = _dispatch(handler, "POST", "/task", {"task": "Jarvis Testaufgabe"})
+        _wait_for_state(coordinator, ArmedState.FAILED)
+        published = []
+        while True:
+            try:
+                published.append(events.get_nowait())
+            except queue.Empty:
+                break
+
+    terminal = [event for event in published if event.type == "task_finished"]
+    assert status == 202
+    assert len(terminal) == 1
+    assert terminal[0].ok is False
+    agent_loop.release_slot.assert_called_once_with()
+    assert agent_loop._active_control is None
+
+
+def test_task_stream_mismatch_returns_same_exact_retry_as_oneshot(
+    study_specs_dir, study_data_dir,
+):
+    from caddie.study.coordinator import ArmedState, ArmedTrialCoordinator
+    from caddie.study.runtime import prepare_trial
+
+    coordinator = ArmedTrialCoordinator()
+    backend = MagicMock()
+    agent_loop = MagicMock()
+    handler = _coordinator_handler(
+        coordinator,
+        context=_task_context(backend),
+        agent_loop=agent_loop,
+        prepare=prepare_trial,
+    )
+    _dispatch(handler, "POST", "/study/trials/arm", _arm_payload(study_specs_dir, study_data_dir))
+
+    response, sent_json, stream = _dispatch_stream(
+        handler, {"task": "Jarvis spiele Musik"},
+    )
+
+    retry = "Das habe ich nicht ganz verstanden. Kannst du die Aufgabe bitte noch einmal sagen?"
+    assert response == []
+    assert sent_json == [(200, {"ok": False, "study": "retry", "message": retry})]
+    assert stream == ""
+    assert coordinator.status().state is ArmedState.ARMED
+    agent_loop.run.assert_not_called()
+    backend.assert_not_called()
+
+
+def test_task_stream_matching_trial_stays_open_through_terminal_event(
+    study_specs_dir, study_data_dir,
+):
+    from caddie.study.coordinator import ArmedState, ArmedTrialCoordinator
+    from caddie.study.model import TrialOutcome
+    from caddie.study.runtime import RuntimeResult, prepare_trial
+
+    coordinator = ArmedTrialCoordinator()
+    agent_loop = MagicMock(_active_control=None)
+    agent_loop.try_acquire_slot.return_value = True
+    handler = _coordinator_handler(
+        coordinator,
+        context=_task_context(),
+        agent_loop=agent_loop,
+        prepare=prepare_trial,
+    )
+    _dispatch(handler, "POST", "/study/trials/arm", _arm_payload(study_specs_dir, study_data_dir))
+    runtime_result = RuntimeResult(TrialOutcome.SUCCESS, "sess-stream", 2, 12.0, "done")
+
+    with patch("caddie.study.runtime.execute_claimed_trial", return_value=runtime_result) as execute:
+        response, sent_json, stream = _dispatch_stream(
+            handler, {"task": "Jarvis Testaufgabe"},
+        )
+
+    events = [
+        json.loads(line.removeprefix("data: "))
+        for line in stream.splitlines()
+        if line.startswith("data: ")
+    ]
+    assert response == [200]
+    assert sent_json == []
+    assert [event["type"] for event in events] == ["task_started", "task_finished"]
+    assert events[-1]["ok"] is True
+    assert events[-1]["payload"]["trial_id"] == "sess-stream"
+    assert coordinator.status().state is ArmedState.COMPLETED
+    execute.assert_called_once()
+    agent_loop.run.assert_not_called()

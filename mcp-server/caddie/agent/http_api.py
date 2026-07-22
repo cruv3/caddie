@@ -25,6 +25,11 @@ from caddie.memory.selection import select_prompt_skills, select_prompt_hints
 
 logger = logging.getLogger(__name__)
 
+_STUDY_RETRY_MESSAGE = (
+    "Das habe ich nicht ganz verstanden. "
+    "Kannst du die Aufgabe bitte noch einmal sagen?"
+)
+
 
 class _ExclusiveThreadingHTTPServer(ThreadingHTTPServer):
     allow_reuse_address = False
@@ -559,11 +564,114 @@ def _handler_factory(
             log.warning("ingested %s tool=%s", kwargs.get("type"), kwargs.get("tool"))
             self._send_json({"ok": True})
 
+        def _handle_study_task_decision(self, task: str):
+            """Route one participant utterance before normal agent handling."""
+            from caddie.study.coordinator import CoordinatorDecision
+
+            routed = coordinator.route_and_claim(task)
+            if routed.decision is CoordinatorDecision.PASS_THROUGH:
+                return None
+            if routed.decision is CoordinatorDecision.RETRY:
+                EVENT_BUS.question_asked(_STUDY_RETRY_MESSAGE)
+                self._send_json({
+                    "ok": False,
+                    "study": "retry",
+                    "message": _STUDY_RETRY_MESSAGE,
+                })
+                return routed
+            if routed.decision is CoordinatorDecision.RUNNING_INPUT:
+                control_result = agent_loop.apply_control("correct", task)
+                self._send_json({
+                    "ok": bool(control_result.get("ok", False)),
+                    "study": "running_input",
+                    "message": "Korrektur übernommen",
+                }, status=200 if control_result.get("ok", False) else 409)
+                return routed
+
+            assert routed.decision is CoordinatorDecision.CLAIMED
+            assert routed.claim is not None
+            self._start_study_worker(routed.claim)
+            self._send_json({
+                "ok": True,
+                "study": "accepted",
+                "participant": routed.claim.config.participant_id,
+                "trial_index": routed.claim.config.trial_index,
+                "task_id": routed.claim.config.task_id,
+            }, status=202)
+            return routed
+
+        def _start_study_worker(self, claim) -> threading.Thread:
+            """Run one claimed deterministic trial and own its terminal event."""
+            from caddie.agent.run_control import RunControl
+            from caddie.study.coordinator import InvalidTransitionError
+            from caddie.study.model import TrialOutcome
+            from caddie.study.runtime import execute_claimed_trial
+
+            EVENT_BUS.task_started(claim.participant_utterance)
+            control_ready = threading.Event()
+
+            def _run() -> None:
+                acquired = False
+                control = RunControl()
+                ok = False
+                terminal_payload: dict[str, Any] = {
+                    "participant": claim.config.participant_id,
+                    "trial_index": claim.config.trial_index,
+                    "task_id": claim.config.task_id,
+                }
+                try:
+                    acquired = bool(agent_loop.try_acquire_slot())
+                    if not acquired:
+                        raise RuntimeError("agent run slot is busy")
+                    agent_loop._active_control = control
+                    control_ready.set()
+                    result = execute_claimed_trial(claim, context.backend, control)
+                    terminal_payload.update({
+                        "trial_id": result.session_id,
+                        "outcome": result.outcome.value,
+                        "steps_executed": result.steps_executed,
+                    })
+                    if result.outcome is TrialOutcome.SUCCESS:
+                        coordinator.finish_success(claim)
+                        ok = True
+                    else:
+                        coordinator.finish_failure(claim, result.outcome.value)
+                except InvalidTransitionError:
+                    # An experimenter abort already owns the terminal state.
+                    terminal_payload["outcome"] = "aborted"
+                except Exception:
+                    logger.exception("participant-started study trial failed")
+                    try:
+                        coordinator.finish_failure(claim, "technical_failure")
+                    except InvalidTransitionError:
+                        pass
+                    terminal_payload.update({
+                        "outcome": "technical_failure",
+                        "message": "Die Studienaufgabe konnte nicht ausgeführt werden.",
+                    })
+                finally:
+                    control_ready.set()
+                    if agent_loop._active_control is control:
+                        agent_loop._active_control = None
+                    if acquired:
+                        agent_loop.release_slot()
+                    EVENT_BUS.task_finished(ok=ok, payload=terminal_payload)
+
+            worker = threading.Thread(
+                target=_run, name="study-trial-worker", daemon=True,
+            )
+            worker.start()
+            control_ready.wait(timeout=1.0)
+            return worker
+
         def _handle_task_oneshot(self) -> None:
             payload = self._read_json()
             task = str(payload.get("task", "")).strip()
             if not task:
                 self._send_json({"ok": False, "error": "missing_task"}, status=400)
+                return
+
+            if self._handle_study_task_decision(task) is not None:
                 return
 
             matched = context.skills.match(task)          # TRIGGER — for replay/recording, UNCHANGED
@@ -640,6 +748,52 @@ def _handler_factory(
                 self._send_json({"ok": False, "error": "missing_task"}, status=400)
                 return
 
+            from caddie.study.coordinator import CoordinatorDecision
+
+            routed = coordinator.route_and_claim(task)
+            if routed.decision is CoordinatorDecision.RETRY:
+                EVENT_BUS.question_asked(_STUDY_RETRY_MESSAGE)
+                self._send_json({
+                    "ok": False,
+                    "study": "retry",
+                    "message": _STUDY_RETRY_MESSAGE,
+                })
+                return
+            if routed.decision is CoordinatorDecision.RUNNING_INPUT:
+                control_result = agent_loop.apply_control("correct", task)
+                self._send_json({
+                    "ok": bool(control_result.get("ok", False)),
+                    "study": "running_input",
+                    "message": "Korrektur übernommen",
+                }, status=200 if control_result.get("ok", False) else 409)
+                return
+            if routed.decision is CoordinatorDecision.CLAIMED:
+                assert routed.claim is not None
+                self.send_response(200)
+                self.send_header("Content-Type", "text/event-stream; charset=utf-8")
+                self.send_header("Cache-Control", "no-cache")
+                self.send_header("Connection", "keep-alive")
+                self.send_header("X-Accel-Buffering", "no")
+                self.end_headers()
+                with EVENT_BUS.subscription() as queue_ref:
+                    worker = self._start_study_worker(routed.claim)
+                    try:
+                        while True:
+                            event = queue_ref.get()
+                            if event is None:
+                                break
+                            try:
+                                self.wfile.write(
+                                    f"data: {json.dumps(event.to_dict())}\n\n".encode("utf-8")
+                                )
+                                self.wfile.flush()
+                            except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError, OSError):
+                                return
+                            if event.type == "task_finished":
+                                break
+                    finally:
+                        worker.join(timeout=1.0)
+                return
             matched = context.skills.match(task)          # TRIGGER — for replay/recording, UNCHANGED
             prompt_skills = select_prompt_skills(context, task, trigger_matched=matched)  # SEMANTIC (if flag on) — prompt only; reuses trigger result when flag off
             criterion = payload.get("criterion")
