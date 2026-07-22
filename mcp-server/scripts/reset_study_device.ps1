@@ -1,6 +1,7 @@
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 $StudyCalendarResetResultCode = 1204
+$StudyCalendarResetResultData = "calendar_reset_ok"
 
 function Invoke-Adb {
     param([string[]]$Arguments)
@@ -19,17 +20,32 @@ function Stop-StudyApp {
     Invoke-Adb -Arguments @("shell", "am", "force-stop", $Package) | Out-Null
 }
 
+function Test-StudyAppInstalled {
+    param([string[]]$Output)
+
+    return [bool]($Output | Where-Object { $_ -match "^package:" })
+}
+
+function Test-StudyResetAcknowledgement {
+    param([string[]]$Output)
+
+    $expectedAcknowledgement = 'Broadcast completed: result={0}, data="{1}"' -f $StudyCalendarResetResultCode, $StudyCalendarResetResultData
+    return [bool]($Output | Where-Object {
+        $_ -match "^\s*$([regex]::Escape($expectedAcknowledgement))\s*$"
+    })
+}
+
 function Invoke-StudyAppReset {
     param([string]$Package, [string]$Action)
 
     $installedOutput = Invoke-Adb -Arguments @("shell", "pm", "path", $Package)
-    if (($installedOutput -join "`n") -notmatch "^package:") {
+    if (-not (Test-StudyAppInstalled -Output $installedOutput)) {
         throw "ADB package validation failed for $Package.`nOutput: $($installedOutput -join "`n")"
     }
 
     Stop-StudyApp -Package $Package
     $broadcastOutput = Invoke-Adb -Arguments @("shell", "am", "broadcast", "-p", $Package, "-a", $Action)
-    if (($broadcastOutput -join "`n") -notmatch "Broadcast completed: result=$StudyCalendarResetResultCode") {
+    if (-not (Test-StudyResetAcknowledgement -Output $broadcastOutput)) {
         throw "ADB broadcast did not return the reset acknowledgement for $Package.`nOutput: $($broadcastOutput -join "`n")"
     }
 }

@@ -1,4 +1,5 @@
 import re
+import subprocess
 from pathlib import Path
 from xml.etree import ElementTree
 
@@ -56,6 +57,24 @@ def active_powershell_text(text: str) -> str:
         for raw_line in text.splitlines()
         if (line := raw_line.strip()) and not line.startswith("#")
     )
+
+
+def invoke_reset_predicate(predicate: str, output: list[str]) -> bool:
+    script = (MCP / "scripts/reset_study_device.ps1").read_text(encoding="utf-8")
+    definitions = script.split("$resets = @(\n", maxsplit=1)[0]
+    arguments = ", ".join("'" + line.replace("'", "''") + "'" for line in output)
+    command = (
+        definitions
+        + f"\nif ({predicate} -Output @({arguments})) {{ exit 0 }} else {{ exit 1 }}"
+    )
+    completed = subprocess.run(
+        ["powershell", "-NoProfile", "-NonInteractive", "-Command", command],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    return completed.returncode == 0
 
 
 def test_gradle_active_lines_exclude_block_comments():
@@ -211,7 +230,9 @@ def test_device_reset_targets_fake_calendar_and_skips_google_provider_by_default
     )
     assert '$installedOutput = Invoke-Adb -Arguments @("shell", "pm", "path", $Package)' in lines
     assert '$broadcastOutput = Invoke-Adb -Arguments @("shell", "am", "broadcast", "-p", $Package, "-a", $Action)' in lines
-    assert "Broadcast completed: result=$StudyCalendarResetResultCode" in script
+    assert "Test-StudyAppInstalled -Output $installedOutput" in script
+    assert "Test-StudyResetAcknowledgement -Output $broadcastOutput" in script
+    assert '$StudyCalendarResetResultData = "calendar_reset_ok"' in lines
     assert 'Invoke-Adb -Arguments @("shell", "settings", "put", "global", "zen_mode", "0") | Out-Null' in lines
     assert 'Stop-StudyApp -Package "com.caddie.studycalendar"' in lines
     assert "ADB command failed with exit code ${LASTEXITCODE}:" in script
@@ -222,6 +243,30 @@ def test_device_reset_targets_fake_calendar_and_skips_google_provider_by_default
         "reset_study_calendar.ps1",
     )
     assert all(term not in script for term in forbidden)
+    assert invoke_reset_predicate(
+        "Test-StudyAppInstalled",
+        ["* daemon started successfully", "package:/data/app/com.caddie.studycalendar/base.apk"],
+    )
+    assert not invoke_reset_predicate(
+        "Test-StudyAppInstalled",
+        ["notpackage:/data/app/com.caddie.studycalendar/base.apk"],
+    )
+    assert not invoke_reset_predicate(
+        "Test-StudyAppInstalled",
+        ["prefixpackage:/data/app/com.caddie.studycalendar/base.apk"],
+    )
+    assert invoke_reset_predicate(
+        "Test-StudyResetAcknowledgement",
+        ['Broadcast completed: result=1204, data="calendar_reset_ok"'],
+    )
+    for near_miss in (
+        'Broadcast completed: result=12040, data="calendar_reset_ok"',
+        'Broadcast completed: result=1204, data="wrong"',
+        'prefix Broadcast completed: result=1204, data="calendar_reset_ok"',
+        'Broadcast completed: result=1204, data="calendar_reset_ok" suffix',
+        "Broadcast completed: result=0",
+    ):
+        assert not invoke_reset_predicate("Test-StudyResetAcknowledgement", [near_miss])
 
 
 def test_reset_receiver_exposes_the_ordered_broadcast_success_acknowledgement():
