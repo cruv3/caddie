@@ -3,6 +3,7 @@
 import tempfile
 import pathlib
 
+import pytest
 import yaml
 
 from caddie.study.spec_loader import (
@@ -44,6 +45,12 @@ def _valid_minimal() -> dict:
         "id": "task_test",
         "instruction_de": "Teste die App.",
         "criticality": "high",
+        "trigger": {
+            "reference_phrases": ["Teste die App."],
+            "required_concepts": [["testen", "test"]],
+            "forbidden_concepts": ["abbrechen"],
+            "wake_words": ["jarvis", "caddie"],
+        },
         "reset_checklist": ["App ist im Home-Screen"],
         "steps": [
             {"id": "open", "action": "open", "narration": "App oeffnen...", "step_type": "normal"},
@@ -68,6 +75,29 @@ def test_load_valid_spec():
     assert len(spec.steps) == 2
     assert spec.steps[0].step_type.value == "normal"
     assert spec.steps[1].consequential is True
+
+
+def test_loaded_trigger_values_are_immutable_tuples():
+    spec = load_trial_spec(_temp_yaml(_valid_minimal()))
+
+    assert spec.trigger is not None
+    assert spec.trigger.reference_phrases == ("Teste die App.",)
+    assert spec.trigger.required_concepts == (("testen", "test"),)
+    assert spec.trigger.forbidden_concepts == ("abbrechen",)
+    assert spec.trigger.wake_words == ("jarvis", "caddie")
+    assert isinstance(spec.trigger.reference_phrases, tuple)
+    assert isinstance(spec.trigger.required_concepts, tuple)
+    assert isinstance(spec.trigger.required_concepts[0], tuple)
+
+
+def test_calendar_dnd_trigger_contract_is_audited():
+    base = pathlib.Path(__file__).resolve().parent.parent / "study" / "specs"
+    spec = load_trial_spec(base / "task_calendar_dnd.yaml")
+
+    assert spec.trigger is not None
+    assert ("prüfung", "pruefung", "exam") in spec.trigger.required_concepts
+    assert ("kalender", "termin") in spec.trigger.required_concepts
+    assert ("nicht stören", "nicht stoeren", "dnd") in spec.trigger.required_concepts
 
 
 def test_load_spec_with_error_variant_in_step():
@@ -113,6 +143,53 @@ def test_load_spec_from_known_path():
 
 
 # ── Validation errors ──────────────────────────────────────────────────────
+
+
+def test_error_missing_trigger():
+    data = _valid_minimal()
+    del data["trigger"]
+
+    with pytest.raises(SpecError, match="trigger"):
+        load_trial_spec(_temp_yaml(data))
+
+
+@pytest.mark.parametrize("reference_phrases", [[], [""], ["   "], [7]])
+def test_error_invalid_trigger_reference_phrases(reference_phrases):
+    data = _valid_minimal()
+    data["trigger"]["reference_phrases"] = reference_phrases
+
+    with pytest.raises(SpecError, match=r"trigger\.reference_phrases"):
+        load_trial_spec(_temp_yaml(data))
+
+
+@pytest.mark.parametrize(
+    "required_concepts",
+    [[], ["test"], [[]], [[""]], [["   "]], [[7]]],
+)
+def test_error_invalid_trigger_required_concepts(required_concepts):
+    data = _valid_minimal()
+    data["trigger"]["required_concepts"] = required_concepts
+
+    with pytest.raises(SpecError, match=r"trigger\.required_concepts"):
+        load_trial_spec(_temp_yaml(data))
+
+
+@pytest.mark.parametrize("field", ["forbidden_concepts", "wake_words"])
+@pytest.mark.parametrize("value", [[""], ["   "], [7]])
+def test_error_invalid_optional_trigger_string_lists(field, value):
+    data = _valid_minimal()
+    data["trigger"][field] = value
+
+    with pytest.raises(SpecError, match=rf"trigger\.{field}"):
+        load_trial_spec(_temp_yaml(data))
+
+
+def test_error_unknown_trigger_field():
+    data = _valid_minimal()
+    data["trigger"]["match_everything"] = True
+
+    with pytest.raises(SpecError, match="match_everything"):
+        load_trial_spec(_temp_yaml(data))
 
 
 def test_error_missing_version():

@@ -2,6 +2,16 @@ version: "v1"
 id: "task_rewe_shopping"
 instruction_de: "Füge drei Produkte mit Mengenangaben in den Warenkorb."
 criticality: "high"
+trigger:
+  reference_phrases:
+    - "Füge drei Produkte mit Mengenangaben in den Warenkorb."
+  required_concepts:
+    - ["drei produkte", "3 produkte", "produkte"]
+    - ["mengenangaben", "mengen", "menge"]
+    - ["warenkorb", "einkaufswagen"]
+    - ["füge", "fuege", "hinzufügen", "hinzufuegen"]
+  forbidden_concepts: ["fotos", "playlist", "überweisung", "ueberweisung", "kalender"]
+  wake_words: ["jarvis", "caddie"]
 required_packages: ["de.rewe"]
 seeded_artifacts: ["REWE Study Basket"]
 reset_checklist: ["Remove study items from basket"]

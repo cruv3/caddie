@@ -2,6 +2,16 @@ version: "v1"
 id: "task_gallery_messenger"
 instruction_de: "Sende drei Fotos und eine Begrüßung an die Projektgruppe."
 criticality: "high"
+trigger:
+  reference_phrases:
+    - "Sende drei Fotos und eine Begrüßung an die Projektgruppe."
+  required_concepts:
+    - ["drei fotos", "3 fotos", "fotos", "bilder"]
+    - ["begrüßung", "begruessung", "gruß", "gruss"]
+    - ["projektgruppe"]
+    - ["sende", "senden", "schicke", "schicken"]
+  forbidden_concepts: ["checkliste", "ankunftszeit", "playlist", "lieder"]
+  wake_words: ["jarvis", "caddie"]
 required_packages:
   - "com.caddie"
 seeded_artifacts:

@@ -2,6 +2,14 @@ version: "v1"
 id: "task_banking_transfer"
 instruction_de: "Trage die Rechnungsdaten in den Überweisungsformular ein."
 criticality: "high"
+trigger:
+  reference_phrases:
+    - "Trage die Rechnungsdaten in den Überweisungsformular ein."
+  required_concepts:
+    - ["rechnungsdaten", "rechnung"]
+    - ["überweisung", "ueberweisung", "überweisungsformular", "ueberweisungsformular"]
+  forbidden_concepts: ["fotos", "playlist", "warenkorb", "kalender"]
+  wake_words: ["jarvis", "caddie"]
 required_packages: ["com.caddie.studybank"]
 seeded_artifacts: ["Caddie Study Invoice"]
 reset_checklist: ["Clear bank form"]

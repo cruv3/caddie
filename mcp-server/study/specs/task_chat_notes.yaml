@@ -2,6 +2,15 @@ version: "v1"
 id: "task_chat_notes"
 instruction_de: "Übernimm die letzte Nachricht aus der Projektgruppe in eine Checkliste."
 criticality: "low"
+trigger:
+  reference_phrases:
+    - "Übernimm die letzte Nachricht aus der Projektgruppe in eine Checkliste."
+  required_concepts:
+    - ["letzte nachricht", "nachricht"]
+    - ["projektgruppe"]
+    - ["checkliste", "notiz"]
+  forbidden_concepts: ["fotos", "ankunftszeit", "playlist", "lieder"]
+  wake_words: ["jarvis", "caddie"]
 required_packages: ["com.caddie"]
 seeded_artifacts: ["Caddie Study Group Message"]
 reset_checklist: ["Clear study note"]

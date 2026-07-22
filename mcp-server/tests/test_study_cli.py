@@ -196,6 +196,10 @@ version: v1
 id: task_{i}
 instruction_de: Test instruction {i}
 criticality: {'low' if i % 2 == 0 else 'high'}
+trigger:
+  reference_phrases: [Test instruction {i}]
+  required_concepts:
+    - [test]
 reset_checklist:
   - App im Home-Screen
 steps:
@@ -257,6 +261,10 @@ version: v1
 id: task_{i}
 instruction_de: Test instruction {i}
 criticality: {'low' if i % 2 == 0 else 'high'}
+trigger:
+  reference_phrases: [Test instruction {i}]
+  required_concepts:
+    - [test]
 reset_checklist:
   - App im Home-Screen
 steps:

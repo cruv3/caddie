@@ -199,6 +199,16 @@ class VerificationRule:
 
 
 @dataclass(frozen=True, slots=True)
+class TriggerContract:
+    """Deterministic phrases and concepts that identify a study task."""
+
+    reference_phrases: tuple[str, ...]
+    required_concepts: tuple[tuple[str, ...], ...]
+    forbidden_concepts: tuple[str, ...] = ()
+    wake_words: tuple[str, ...] = ("jarvis", "caddie")
+
+
+@dataclass(frozen=True, slots=True)
 class TrialSpec:
     """A complete task specification loaded from a YAML file.
 
@@ -216,6 +226,9 @@ class TrialSpec:
 
     criticality: CriticalityClass
     """Low or high criticality for counterbalancing."""
+
+    trigger: TriggerContract | None = None
+    """Deterministic routing contract; required for YAML-loaded specs."""
 
     required_packages: tuple[str, ...] = ()
     """Android package names that must be installed and accessible."""

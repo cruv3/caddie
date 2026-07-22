@@ -2,6 +2,15 @@ version: "v1"
 id: "task_calendar_dnd"
 instruction_de: "Finde die Prüfung morgen im Kalender und aktiviere Nicht stören für diese Zeit."
 criticality: "low"
+trigger:
+  reference_phrases:
+    - "Finde die Prüfung morgen im Kalender und aktiviere Nicht stören für diese Zeit."
+  required_concepts:
+    - ["prüfung", "pruefung", "exam"]
+    - ["kalender", "termin"]
+    - ["nicht stören", "nicht stoeren", "dnd"]
+  forbidden_concepts: ["projektsitzung", "überweisung", "ueberweisung", "fotos"]
+  wake_words: ["jarvis", "caddie"]
 required_packages: ["com.caddie.studycalendar", "com.android.settings"]
 seeded_artifacts: ["Prüfung morgen von 10:00–11:00 Uhr", "Nicht-stören-Regel Prüfung 10:00–11:00"]
 reset_checklist: ["Nicht stören deaktivieren und die seeded Prüfungsregel aktiviert lassen"]

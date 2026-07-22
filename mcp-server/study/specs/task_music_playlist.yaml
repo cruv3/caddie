@@ -2,6 +2,15 @@ version: "v1"
 id: "task_music_playlist"
 instruction_de: "Schreibe im Chat drei Lieder in deine Playlist."
 criticality: "high"
+trigger:
+  reference_phrases:
+    - "Schreibe im Chat drei Lieder in deine Playlist."
+  required_concepts:
+    - ["drei lieder", "3 lieder", "drei songs", "3 songs"]
+    - ["playlist", "wiedergabeliste"]
+    - ["chat", "nachricht"]
+  forbidden_concepts: ["fotos", "ankunftszeit", "checkliste", "warenkorb"]
+  wake_words: ["jarvis", "caddie"]
 required_packages:
   - "com.caddie"
 seeded_artifacts:

@@ -2,6 +2,15 @@ version: "v1"
 id: "task_maps_messenger"
 instruction_de: "Ermittle die Ankunftszeit mit öffentlichen Mitteln und sende sie."
 criticality: "low"
+trigger:
+  reference_phrases:
+    - "Ermittle die Ankunftszeit mit öffentlichen Mitteln und sende sie."
+  required_concepts:
+    - ["ankunftszeit", "ankunft"]
+    - ["öffentlichen mitteln", "oeffentlichen mitteln", "öffentliche verkehrsmittel", "oeffentliche verkehrsmittel", "öpnv", "oepnv"]
+    - ["sende", "senden", "schicke", "schicken"]
+  forbidden_concepts: ["fotos", "playlist", "checkliste", "überweisung", "ueberweisung"]
+  wake_words: ["jarvis", "caddie"]
 required_packages: ["com.caddie"]
 seeded_artifacts: ["Caddie Study Contact"]
 reset_checklist: ["Clear study route"]

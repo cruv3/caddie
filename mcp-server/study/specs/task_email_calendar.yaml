@@ -2,6 +2,16 @@ version: "v1"
 id: "task_email_calendar"
 instruction_de: "Verschiebe die heutige Projektsitzung auf 15:00 Uhr und speichere die Änderung."
 criticality: "low"
+trigger:
+  reference_phrases:
+    - "Verschiebe die heutige Projektsitzung auf 15:00 Uhr und speichere die Änderung."
+  required_concepts:
+    - ["projektsitzung", "sitzung"]
+    - ["verschiebe", "verschieben", "verlege", "verlegen"]
+    - ["15:00", "15 uhr"]
+    - ["speichere", "speichern"]
+  forbidden_concepts: ["prüfung", "pruefung", "nicht stören", "nicht stoeren", "dnd"]
+  wake_words: ["jarvis", "caddie"]
 required_packages: ["com.caddie.studycalendar"]
 seeded_artifacts: ["Projektsitzung heute um 14:00 Uhr"]
 reset_checklist: ["Projektsitzung auf 14:00–15:00 Uhr zurücksetzen"]

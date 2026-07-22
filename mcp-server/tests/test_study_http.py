@@ -61,6 +61,10 @@ version: "1.0"
 id: {name}
 instruction_de: Testaufgabe
 criticality: {crit}
+trigger:
+  reference_phrases: [Testaufgabe]
+  required_concepts:
+    - [testaufgabe]
 steps:
   - id: step1
     action: tap "Send"

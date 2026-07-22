@@ -21,6 +21,7 @@ from caddie.study.model import (
     ErrorVariant,
     StepType,
     StudyStep,
+    TriggerContract,
     TrialOutcome,
     TrialSpec,
     VerificationRule,
@@ -75,11 +76,19 @@ _VERIFICATION_KEYS = frozenset({
     "screenshot_evidence",
 })
 
+_TRIGGER_KEYS = frozenset({
+    "reference_phrases",
+    "required_concepts",
+    "forbidden_concepts",
+    "wake_words",
+})
+
 _TRIAL_SPEC_KEYS = frozenset({
     "version",
     "id",
     "instruction_de",
     "criticality",
+    "trigger",
     "required_packages",
     "seeded_artifacts",
     "reset_checklist",
@@ -130,6 +139,32 @@ def _str_tuple(data: Any, path: str) -> tuple[str, ...]:
     return tuple(_str_list(data, path))
 
 
+def _non_empty_string_tuple(
+    data: Any,
+    path: str,
+    *,
+    require_items: bool,
+) -> tuple[str, ...]:
+    """Strictly validate a list of non-empty strings without coercion."""
+    if not isinstance(data, list):
+        raise SpecError(f"{path}: expected a list, got {type(data).__name__}")
+    if require_items and not data:
+        raise SpecError(f"{path}: must be a non-empty list")
+
+    values: list[str] = []
+    for index, value in enumerate(data):
+        item_path = f"{path}[{index}]"
+        if not isinstance(value, str):
+            raise SpecError(
+                f"{item_path}: expected a non-empty string, "
+                f"got {type(value).__name__}"
+            )
+        if not value.strip():
+            raise SpecError(f"{item_path}: must be a non-empty string")
+        values.append(value)
+    return tuple(values)
+
+
 def _safe_bool(val: Any, default: bool) -> bool:
     """Strictly parse a boolean value, avoiding Python's bool('false') == True.
 
@@ -175,6 +210,54 @@ def _safe_int(val: Any, default: int = 0) -> int:
 
 
 # ── Parsers ──────────────────────────────────────────────────────────────────
+
+
+def _parse_trigger(trigger: Any, path: str) -> TriggerContract:
+    if not isinstance(trigger, dict):
+        raise SpecError(f"{path}: expected a mapping, got {type(trigger).__name__}")
+
+    _check_unknown_fields(trigger, _TRIGGER_KEYS, path)
+    _check_required(trigger, ["reference_phrases", "required_concepts"], path)
+
+    reference_phrases = _non_empty_string_tuple(
+        trigger["reference_phrases"],
+        f"{path}.reference_phrases",
+        require_items=True,
+    )
+
+    groups_raw = trigger["required_concepts"]
+    if not isinstance(groups_raw, list):
+        raise SpecError(
+            f"{path}.required_concepts: expected a list, "
+            f"got {type(groups_raw).__name__}"
+        )
+    if not groups_raw:
+        raise SpecError(f"{path}.required_concepts: must be a non-empty list")
+    required_concepts = tuple(
+        _non_empty_string_tuple(
+            group,
+            f"{path}.required_concepts[{index}]",
+            require_items=True,
+        )
+        for index, group in enumerate(groups_raw)
+    )
+
+    forbidden_concepts = _non_empty_string_tuple(
+        trigger.get("forbidden_concepts", []),
+        f"{path}.forbidden_concepts",
+        require_items=False,
+    )
+    wake_words = _non_empty_string_tuple(
+        trigger.get("wake_words", ["jarvis", "caddie"]),
+        f"{path}.wake_words",
+        require_items=False,
+    )
+    return TriggerContract(
+        reference_phrases=reference_phrases,
+        required_concepts=required_concepts,
+        forbidden_concepts=forbidden_concepts,
+        wake_words=wake_words,
+    )
 
 
 def _parse_error_variant(ev: dict[str, Any], path: str) -> ErrorVariant:
@@ -399,7 +482,13 @@ def load_trial_spec(filepath: pathlib.Path | str) -> TrialSpec:
         raise SpecError(f"{filepath}: top-level must be a YAML mapping, got {type(raw).__name__}")
 
     _check_unknown_fields(raw, _TRIAL_SPEC_KEYS, str(filepath))
-    _check_required(raw, ["version", "id", "instruction_de", "criticality"], str(filepath))
+    _check_required(
+        raw,
+        ["version", "id", "instruction_de", "criticality", "trigger"],
+        str(filepath),
+    )
+
+    trigger = _parse_trigger(raw["trigger"], f"{filepath}.trigger")
 
     # Criticality
     try:
@@ -476,6 +565,7 @@ def load_trial_spec(filepath: pathlib.Path | str) -> TrialSpec:
         id=str(raw["id"]),
         instruction_de=instruction_de,
         criticality=criticality,
+        trigger=trigger,
         required_packages=required_packages,
         seeded_artifacts=seeded_artifacts,
         reset_checklist=reset_checklist,
