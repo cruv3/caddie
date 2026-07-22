@@ -316,7 +316,12 @@ def _handler_factory(
                     participant, trial_index, condition, specs_dir, data_dir,
                 )
             except SpecError as exc:
-                self._send_json({"ok": False, "error": str(exc)}, status=400)
+                logger.warning("invalid study specification: %s", exc)
+                self._send_json({
+                    "ok": False,
+                    "error": "invalid_study_spec",
+                    "message": "Study specification is invalid",
+                }, status=400)
                 return
             except OSError:
                 logger.exception("study trial preparation failed")

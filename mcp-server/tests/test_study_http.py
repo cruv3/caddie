@@ -745,12 +745,13 @@ def test_arm_preparation_failure_leaves_coordinator_idle(
     assert coordinator.status().state is None
 
 
-def test_arm_maps_spec_error_to_client_response_and_leaves_idle():
+def test_arm_maps_spec_error_to_path_safe_client_response_and_leaves_idle(caplog):
     from caddie.study.coordinator import ArmedTrialCoordinator
     from caddie.study.spec_loader import SpecError
 
     coordinator = ArmedTrialCoordinator()
-    prepare = MagicMock(side_effect=SpecError("invalid trigger contract"))
+    private_path = "C:/Users/researcher/private/specs/task.yaml"
+    prepare = MagicMock(side_effect=SpecError(f"{private_path}: invalid trigger contract"))
 
     status, body = _dispatch(
         _coordinator_handler(coordinator, prepare=prepare),
@@ -760,7 +761,13 @@ def test_arm_maps_spec_error_to_client_response_and_leaves_idle():
     )
 
     assert status == 400
-    assert body == {"ok": False, "error": "invalid trigger contract"}
+    assert body == {
+        "ok": False,
+        "error": "invalid_study_spec",
+        "message": "Study specification is invalid",
+    }
+    assert private_path not in json.dumps(body)
+    assert private_path in caplog.text
     assert coordinator.status().state is None
 
 
