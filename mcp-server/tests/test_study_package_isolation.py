@@ -114,6 +114,27 @@ def test_normal_open_app_rejects_study_package_before_backend(package_name):
     assert backend.calls == []
 
 
+@pytest.mark.parametrize(
+    "package_name",
+    ["studynotes", "  com.caddie.studynotes  "],
+)
+def test_normal_open_app_rejects_study_alias_without_launch(package_name):
+    backend = RecordingBackend()
+
+    with pytest.raises(ValueError, match="study-only"):
+        registered_app_tools(backend)["smartphone_open_app"](package_name)
+
+    assert not any(call[0] == "open_app" for call in backend.calls)
+
+
+def test_normal_open_app_preserves_non_study_alias():
+    backend = RecordingBackend()
+
+    registered_app_tools(backend)["smartphone_open_app"]("notes")
+
+    assert ("open_app", "notes") in backend.calls
+
+
 class AlwaysAllowOversight:
     def is_cancelled(self):
         return False
