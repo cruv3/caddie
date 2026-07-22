@@ -1,12 +1,13 @@
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
+$StudyCalendarResetResultCode = 1204
 
 function Invoke-Adb {
     param([string[]]$Arguments)
 
     $output = & adb @Arguments 2>&1
     if ($LASTEXITCODE -ne 0) {
-        throw "ADB command failed with exit code ${LASTEXITCODE}: adb $($Arguments -join ' ')"
+        throw "ADB command failed with exit code ${LASTEXITCODE}: adb $($Arguments -join ' ')`nOutput: $($output -join "`n")"
     }
 
     return $output
@@ -21,10 +22,15 @@ function Stop-StudyApp {
 function Invoke-StudyAppReset {
     param([string]$Package, [string]$Action)
 
+    $installedOutput = Invoke-Adb -Arguments @("shell", "pm", "path", $Package)
+    if (($installedOutput -join "`n") -notmatch "^package:") {
+        throw "ADB package validation failed for $Package.`nOutput: $($installedOutput -join "`n")"
+    }
+
     Stop-StudyApp -Package $Package
     $broadcastOutput = Invoke-Adb -Arguments @("shell", "am", "broadcast", "-p", $Package, "-a", $Action)
-    if (($broadcastOutput -join "`n") -notmatch "Broadcast completed") {
-        throw "ADB broadcast did not confirm completion for $Package"
+    if (($broadcastOutput -join "`n") -notmatch "Broadcast completed: result=$StudyCalendarResetResultCode") {
+        throw "ADB broadcast did not return the reset acknowledgement for $Package.`nOutput: $($broadcastOutput -join "`n")"
     }
 }
 

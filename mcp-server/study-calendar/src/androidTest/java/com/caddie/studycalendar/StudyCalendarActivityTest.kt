@@ -197,11 +197,15 @@ class StudyCalendarActivityTest {
 
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val resetReceived = CountDownLatch(1)
+        var resetResultCode: Int? = null
+        var resetResultData: String? = null
         context.sendOrderedBroadcast(
             Intent(StudyCalendarActivity.ACTION_RESET).setPackage(context.packageName),
             null,
             object : BroadcastReceiver() {
                 override fun onReceive(context: Context?, intent: Intent?) {
+                    resetResultCode = resultCode
+                    resetResultData = resultData
                     resetReceived.countDown()
                 }
             },
@@ -211,6 +215,8 @@ class StudyCalendarActivityTest {
             null,
         )
         assertTrue(resetReceived.await(5, TimeUnit.SECONDS))
+        assertEquals(StudyCalendarResetReceiver.RESET_SUCCESS_RESULT_CODE, resetResultCode)
+        assertEquals(StudyCalendarResetReceiver.RESET_SUCCESS_RESULT_DATA, resetResultData)
         rule.scenario.recreate()
 
         onView(withId(R.id.meeting_time)).check(matches(withText("14:00–15:00 Uhr")))
@@ -247,6 +253,8 @@ class StudyCalendarActivityTest {
 
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val broadcastFinished = CountDownLatch(1)
+        var wrongActionResultCode: Int? = null
+        var wrongActionResultData: String? = null
         val intent = Intent(
             context,
             StudyCalendarResetReceiver::class.java,
@@ -256,6 +264,8 @@ class StudyCalendarActivityTest {
             null,
             object : BroadcastReceiver() {
                 override fun onReceive(context: Context?, intent: Intent?) {
+                    wrongActionResultCode = resultCode
+                    wrongActionResultData = resultData
                     broadcastFinished.countDown()
                 }
             },
@@ -266,6 +276,8 @@ class StudyCalendarActivityTest {
         )
         assertTrue(broadcastFinished.await(5, TimeUnit.SECONDS))
 
+        assertEquals(0, wrongActionResultCode)
+        assertEquals(null, wrongActionResultData)
         assertEquals(16, storedMeetingHour())
     }
 

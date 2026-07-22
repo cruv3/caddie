@@ -49,6 +49,15 @@ def active_powershell_lines(text: str) -> set[str]:
     return active_lines(text, ("#",), r"<#.*?#>")
 
 
+def active_powershell_text(text: str) -> str:
+    text = re.sub(r"<#.*?#>", "", text, flags=re.DOTALL)
+    return "\n".join(
+        line
+        for raw_line in text.splitlines()
+        if (line := raw_line.strip()) and not line.startswith("#")
+    )
+
+
 def test_gradle_active_lines_exclude_block_comments():
     text = """/*
 include(\":mcp-server:study-calendar\")
@@ -187,10 +196,39 @@ def test_t5_uses_the_seeded_exam_rule_and_visible_exam_time():
 def test_device_reset_targets_fake_calendar_and_skips_google_provider_by_default():
     script = (MCP / "scripts/reset_study_device.ps1").read_text(encoding="utf-8")
     lines = active_powershell_lines(script)
-    assert 'Package = "com.caddie.studycalendar"' in lines
-    assert 'Action = "com.caddie.studycalendar.ACTION_RESET"' in lines
+    active_script = active_powershell_text(script)
+    expected_reset = (
+        '@{\nPackage = "com.caddie.studycalendar"\n'
+        'Action = "com.caddie.studycalendar.ACTION_RESET"\n}'
+    )
+    reset_entries = re.findall(
+        r'@\{\s*Package\s*=\s*"[^"]+"\s*Action\s*=\s*"[^"]+"\s*\}',
+        active_script,
+    )
+    assert reset_entries == [expected_reset]
     assert (
         "Invoke-StudyAppReset -Package $reset.Package -Action $reset.Action" in lines
     )
+    assert '$installedOutput = Invoke-Adb -Arguments @("shell", "pm", "path", $Package)' in lines
+    assert '$broadcastOutput = Invoke-Adb -Arguments @("shell", "am", "broadcast", "-p", $Package, "-a", $Action)' in lines
+    assert "Broadcast completed: result=$StudyCalendarResetResultCode" in script
+    assert 'Invoke-Adb -Arguments @("shell", "settings", "put", "global", "zen_mode", "0") | Out-Null' in lines
     assert 'Stop-StudyApp -Package "com.caddie.studycalendar"' in lines
-    assert "reset_study_calendar.ps1" not in script
+    assert "ADB command failed with exit code ${LASTEXITCODE}:" in script
+    forbidden = (
+        "content",
+        "pm clear",
+        "com.google.android.calendar",
+        "reset_study_calendar.ps1",
+    )
+    assert all(term not in script for term in forbidden)
+
+
+def test_reset_receiver_exposes_the_ordered_broadcast_success_acknowledgement():
+    receiver = (MODULE / "src/main/java/com/caddie/studycalendar/StudyCalendarResetReceiver.kt").read_text(
+        encoding="utf-8"
+    )
+    assert 'const val RESET_SUCCESS_RESULT_CODE = 1204' in receiver
+    assert 'const val RESET_SUCCESS_RESULT_DATA = "calendar_reset_ok"' in receiver
+    assert "setResultCode(RESET_SUCCESS_RESULT_CODE)" in receiver
+    assert "setResultData(RESET_SUCCESS_RESULT_DATA)" in receiver

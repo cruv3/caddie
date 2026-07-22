@@ -15,10 +15,19 @@ class StudyCalendarResetReceiver : BroadcastReceiver() {
                 StudyCalendarActivity.DEFAULT_MEETING_START_HOUR,
             )
             .commit()
-        if (!saved) Log.e(TAG, "Failed to persist the study calendar reset")
+        if (!saved) {
+            Log.e(TAG, "Failed to persist the study calendar reset")
+            return
+        }
+
+        setResultCode(RESET_SUCCESS_RESULT_CODE)
+        setResultData(RESET_SUCCESS_RESULT_DATA)
     }
 
-    private companion object {
+    companion object {
+        const val RESET_SUCCESS_RESULT_CODE = 1204
+        const val RESET_SUCCESS_RESULT_DATA = "calendar_reset_ok"
+
         const val TAG = "StudyCalendarReset"
     }
 }
