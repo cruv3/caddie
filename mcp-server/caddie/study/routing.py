@@ -1,0 +1,124 @@
+"""Pure deterministic matching for an armed study task."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from enum import StrEnum
+import re
+import unicodedata
+
+from caddie.study.model import TrialSpec, TriggerContract
+
+
+class RouteDecision(StrEnum):
+    PASS_THROUGH = "pass_through"
+    RETRY = "retry"
+    CLAIMED = "claimed"
+
+
+@dataclass(frozen=True, slots=True)
+class MatchResult:
+    matched: bool
+    normalized_input: str
+    matched_concepts: tuple[str, ...]
+    missing_concepts: tuple[tuple[str, ...], ...]
+    forbidden_matches: tuple[str, ...]
+    reason: str
+
+
+@dataclass(frozen=True, slots=True)
+class RouteResult:
+    decision: RouteDecision
+    match: MatchResult | None
+    spec: TrialSpec | None
+
+
+def normalize_text(text: object, wake_words: tuple[str, ...] = ()) -> str:
+    """Return canonical, token-oriented German text.
+
+    German umlauts and their ASCII spellings intentionally share the ASCII
+    expansion so that the trigger metadata may use either representation.
+    """
+    if not isinstance(text, str):
+        return ""
+    normalized = unicodedata.normalize("NFKC", text).casefold()
+    normalized = (
+        normalized.replace("ä", "ae")
+        .replace("ö", "oe")
+        .replace("ü", "ue")
+        .replace("ß", "ss")
+    )
+    normalized = re.sub(r"[\W_]+", " ", normalized, flags=re.UNICODE)
+    normalized = " ".join(normalized.split())
+    for wake in sorted(
+        (normalize_text(wake_word) for wake_word in wake_words),
+        key=len,
+        reverse=True,
+    ):
+        if wake and (normalized == wake or normalized.startswith(f"{wake} ")):
+            return normalized[len(wake) :].strip()
+    return normalized
+
+
+def _contains_phrase(text: str, phrase: str) -> bool:
+    return bool(phrase) and f" {phrase} " in f" {text} "
+
+
+def match_task(text: object, trigger: TriggerContract) -> MatchResult:
+    """Match text against one trigger contract without side effects."""
+    if not isinstance(text, str):
+        return MatchResult(False, "", (), (), (), "invalid_input")
+
+    normalized_input = normalize_text(text, trigger.wake_words)
+    if not normalized_input:
+        return MatchResult(False, "", (), (), (), "empty_input")
+
+    matched_concepts: list[str] = []
+    missing_concepts: list[tuple[str, ...]] = []
+    for group in trigger.required_concepts:
+        representative = next(
+            (
+                concept
+                for concept in group
+                if _contains_phrase(normalized_input, normalize_text(concept))
+            ),
+            None,
+        )
+        if representative is None:
+            missing_concepts.append(group)
+        else:
+            matched_concepts.append(representative)
+
+    forbidden_matches = tuple(
+        concept
+        for concept in trigger.forbidden_concepts
+        if _contains_phrase(normalized_input, normalize_text(concept))
+    )
+    if forbidden_matches:
+        reason = "forbidden_concept"
+    elif missing_concepts:
+        reason = "missing_required_concepts"
+    else:
+        reason = "matched"
+    return MatchResult(
+        matched=reason == "matched",
+        normalized_input=normalized_input,
+        matched_concepts=tuple(matched_concepts),
+        missing_concepts=tuple(missing_concepts),
+        forbidden_matches=forbidden_matches,
+        reason=reason,
+    )
+
+
+class StudyTaskRouter:
+    """Route text only to the supplied, currently armed task."""
+
+    def route(self, text: str, armed_spec: TrialSpec | None) -> RouteResult:
+        if armed_spec is None:
+            return RouteResult(RouteDecision.PASS_THROUGH, None, None)
+        if armed_spec.trigger is None:
+            return RouteResult(RouteDecision.RETRY, None, None)
+        match = match_task(text, armed_spec.trigger)
+        if not match.matched:
+            return RouteResult(RouteDecision.RETRY, match, None)
+        return RouteResult(RouteDecision.CLAIMED, match, armed_spec)
