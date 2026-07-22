@@ -31,7 +31,7 @@ function Test-StudyResetAcknowledgement {
 
     $expectedAcknowledgement = 'Broadcast completed: result={0}, data="{1}"' -f $StudyCalendarResetResultCode, $StudyCalendarResetResultData
     return [bool]($Output | Where-Object {
-        $_ -match "^\s*$([regex]::Escape($expectedAcknowledgement))\s*$"
+        $_ -cmatch "^\s*$([regex]::Escape($expectedAcknowledgement))\s*$"
     })
 }
 

@@ -264,6 +264,8 @@ def test_device_reset_targets_fake_calendar_and_skips_google_provider_by_default
         'Broadcast completed: result=1204, data="wrong"',
         'prefix Broadcast completed: result=1204, data="calendar_reset_ok"',
         'Broadcast completed: result=1204, data="calendar_reset_ok" suffix',
+        'broadcast completed: result=1204, data="calendar_reset_ok"',
+        'Broadcast completed: result=1204, data="CALENDAR_RESET_OK"',
         "Broadcast completed: result=0",
     ):
         assert not invoke_reset_predicate("Test-StudyResetAcknowledgement", [near_miss])
