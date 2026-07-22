@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import time
+from pathlib import Path
+from subprocess import CompletedProcess
+from unittest.mock import patch
 
 import pytest
 
@@ -14,6 +17,13 @@ from caddie.study.preflight import (
     PreflightCheck,
     PreflightResult,
     PreflightSuite,
+    _check_network_connectivity,
+    check_banking_app_installed,
+    check_device_connected,
+    check_notification_permission,
+    check_server_health,
+    check_storage_space,
+    check_study_materials,
     default_suite,
 )
 
@@ -189,3 +199,38 @@ def test_default_suite_run():
     # At least storage check should pass on most systems
     assert summary.total == len(suite.checks)
     assert summary.total >= 5
+
+
+def test_device_check_accepts_adb_long_listing():
+    output = (
+        "List of devices attached\n"
+        "35091FDH2002ZN device product:panther model:Pixel_7 transport_id:1\n"
+    )
+    with patch("subprocess.run", return_value=CompletedProcess([], 0, output, "")):
+        assert check_device_connected()().passed
+
+
+def test_adb_preflight_checks_use_defined_executable_and_real_outputs(tmp_path: Path):
+    materials = tmp_path / "materials"
+    materials.mkdir()
+    (materials / "task.md").write_text("ready", encoding="utf-8")
+    outputs = iter([
+        CompletedProcess([], 0, "package:com.caddie.studybank\n", ""),
+        CompletedProcess([], 0, "android.permission.POST_NOTIFICATIONS: granted=true\n", ""),
+        CompletedProcess([], 0, "Filesystem 1K-blocks Used Available Use% Mounted on\n/dev/fuse 1000 1 900000 1% /sdcard\n", ""),
+        CompletedProcess([], 0, "1 packets transmitted, 1 received, 0% packet loss\n", ""),
+    ])
+    with patch("subprocess.run", side_effect=lambda *args, **kwargs: next(outputs)):
+        assert check_banking_app_installed()().passed
+        assert check_notification_permission()().passed
+        assert check_storage_space()().passed
+        assert _check_network_connectivity()().passed
+    assert check_study_materials(materials)().passed
+
+
+def test_server_health_defaults_to_agent_port():
+    with patch("urllib.request.urlopen") as urlopen:
+        urlopen.return_value.status = 200
+        assert check_server_health()().passed
+        request = urlopen.call_args.args[0]
+        assert request.full_url == "http://127.0.0.1:8787/study/health"

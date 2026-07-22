@@ -61,6 +61,7 @@ foreach ($reset in $resets) {
     Invoke-StudyAppReset -Package $reset.Package -Action $reset.Action
 }
 
-Invoke-Adb -Arguments @("shell", "settings", "put", "global", "zen_mode", "0") | Out-Null
+Invoke-Adb -Arguments @("shell", "cmd", "notification", "set_dnd", "off") | Out-Null
+Stop-StudyApp -Package "com.android.settings"
 Stop-StudyApp -Package "com.caddie.studycalendar"
 Write-Host "Study device reset complete."

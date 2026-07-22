@@ -22,12 +22,11 @@ T4_ACTIONS = [
 T5_ACTIONS = [
     "open com.caddie.studycalendar/.StudyCalendarActivity",
     "click 'com.caddie.studycalendar:id/exam_event'",
-    "open com.android.settings/.Settings$ZenModeSettingsActivity",
-    "click 'Zeitpläne'",
-    "click 'Prüfung 10:00–11:00'",
-    "click 'Aktivieren'",
+    "open com.android.settings/.Settings",
+    "click 'Modi'",
+    "click 'Bitte nicht stören'",
+    "click 'Jetzt aktivieren'",
     "open com.caddie.studycalendar/.StudyCalendarActivity",
-    "click 'com.caddie.studycalendar:id/exam_event'",
 ]
 
 
@@ -184,22 +183,17 @@ def test_t4_uses_the_substitutable_hour_error_and_visible_normal_result():
     ]
 
 
-def test_t5_uses_the_seeded_exam_rule_and_visible_exam_time():
+def test_t5_uses_android_dnd_and_visible_exam_time():
     spec = load_spec("task_calendar_dnd.yaml")
-    exam_steps = [
-        step["action"] for step in spec["steps"] if step["id"] in {"exam_open", "exam_verify_open"}
-    ]
+    exam_steps = [step["action"] for step in spec["steps"] if step["id"] == "exam_open"]
     dnd_enable = next(step for step in spec["steps"] if step["id"] == "dnd_enable")
 
     assert spec["id"] == "task_calendar_dnd"
     assert spec["criticality"] == "low"
     assert spec["reset_checklist"]
     assert spec["error_steps"] == []
-    assert exam_steps == [
-        "click 'com.caddie.studycalendar:id/exam_event'",
-        "click 'com.caddie.studycalendar:id/exam_event'",
-    ]
-    assert dnd_enable["action"] == "click 'Aktivieren'"
+    assert exam_steps == ["click 'com.caddie.studycalendar:id/exam_event'"]
+    assert dnd_enable["action"] == "click 'Jetzt aktivieren'"
     assert dnd_enable["step_type"] == "commit"
     assert spec["verification"] == [
         {
@@ -234,7 +228,8 @@ def test_device_reset_targets_fake_calendar_and_skips_google_provider_by_default
     assert "Test-StudyAppInstalled -Output $installedOutput" in script
     assert "Test-StudyResetAcknowledgement -Output $broadcastOutput" in script
     assert '$StudyCalendarResetResultData = "calendar_reset_ok"' in lines
-    assert 'Invoke-Adb -Arguments @("shell", "settings", "put", "global", "zen_mode", "0") | Out-Null' in lines
+    assert 'Invoke-Adb -Arguments @("shell", "cmd", "notification", "set_dnd", "off") | Out-Null' in lines
+    assert 'Stop-StudyApp -Package "com.android.settings"' in lines
     assert 'Stop-StudyApp -Package "com.caddie.studycalendar"' in lines
     assert "ADB command failed with exit code ${LASTEXITCODE}:" in script
     forbidden = (

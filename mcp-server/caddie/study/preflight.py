@@ -16,6 +16,7 @@ import logging
 import time
 from dataclasses import dataclass, field
 from enum import Enum
+from pathlib import Path
 from typing import Callable, Optional
 
 logger = logging.getLogger(__name__)
@@ -147,8 +148,9 @@ def check_device_connected(
             )
             elapsed_ms = int((time.monotonic() - start) * 1000)
             if result.returncode == 0 and any(
-                line.strip().endswith("\tdevice")
+                len(parts) >= 2 and parts[1] == "device"
                 for line in result.stdout.splitlines()
+                if (parts := line.split())
             ):
                 return CheckResult(check, CheckStatus.PASS, elapsed_ms, "Device connected")
             return CheckResult(check, CheckStatus.FAIL, elapsed_ms, "No device found")
@@ -212,7 +214,7 @@ def check_app_version(
 
 
 def check_server_health(
-    url: str = "http://127.0.0.1:5000",
+    url: str = "http://127.0.0.1:8787",
 ) -> CheckFn:
     """Return a check that verifies the study server is healthy.
 
@@ -247,6 +249,7 @@ def check_server_health(
 
 def check_storage_space(
     min_mb: int = 500,
+    adb_path: str = "adb",
 ) -> CheckFn:
     """Return a check that verifies sufficient storage.
 
@@ -299,7 +302,7 @@ def check_storage_space(
     return _run
 
 
-def _check_network_connectivity() -> CheckFn:
+def _check_network_connectivity(adb_path: str = "adb") -> CheckFn:
     """Return a network connectivity check."""
 
     def _run() -> CheckResult:
@@ -310,10 +313,17 @@ def _check_network_connectivity() -> CheckFn:
         )
         start = time.monotonic()
         try:
-            import urllib.request
-            urllib.request.urlopen("http://8.8.8.8", timeout=5)
+            import subprocess
+            result = subprocess.run(
+                [adb_path, "shell", "ping", "-c", "1", "-W", "2", "8.8.8.8"],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
             elapsed_ms = int((time.monotonic() - start) * 1000)
-            return CheckResult(check, CheckStatus.PASS, elapsed_ms, "Network OK")
+            if result.returncode == 0 and "1 received" in result.stdout:
+                return CheckResult(check, CheckStatus.PASS, elapsed_ms, "Network OK")
+            return CheckResult(check, CheckStatus.FAIL, elapsed_ms, "Phone network unavailable")
         except Exception as exc:
             elapsed_ms = int((time.monotonic() - start) * 1000)
             return CheckResult(check, CheckStatus.FAIL, elapsed_ms, str(exc))
@@ -497,7 +507,7 @@ class PreflightSuite:
 # ---------------------------------------------------------------------------
 
 
-def check_banking_app_installed() -> CheckFn:
+def check_banking_app_installed(adb_path: str = "adb") -> CheckFn:
     """Check that the study banking mock app is installed."""
     def _run() -> CheckResult:
         check = PreflightCheck(
@@ -509,7 +519,7 @@ def check_banking_app_installed() -> CheckFn:
         try:
             import subprocess
             result = subprocess.run(
-                [ADB_PATH, "shell", "pm", "list", "packages", "com.caddie.studybank"],
+                [adb_path, "shell", "pm", "list", "packages", "com.caddie.studybank"],
                 capture_output=True,
                 text=True,
                 timeout=10,
@@ -527,7 +537,7 @@ def check_banking_app_installed() -> CheckFn:
     return _run
 
 
-def check_notification_permission() -> CheckFn:
+def check_notification_permission(adb_path: str = "adb") -> CheckFn:
     """Check that notification permission is granted."""
     def _run() -> CheckResult:
         check = PreflightCheck(
@@ -539,15 +549,17 @@ def check_notification_permission() -> CheckFn:
         try:
             import subprocess
             result = subprocess.run(
-                [ADB_PATH, "shell", "dumpsys", "package", "com.caddie",
-                 "|", "grep", "com.caddie"] ,
+                [adb_path, "shell", "dumpsys", "package", "com.caddie"],
                 capture_output=True,
                 text=True,
                 timeout=10,
             )
             elapsed_ms = int((time.monotonic() - start) * 1000)
             # Check for notification permission
-            if "POST_NOTIFICATIONS" in result.stdout or " granted" in result.stdout:
+            if (
+                "android.permission.POST_NOTIFICATIONS: granted=true"
+                in result.stdout
+            ):
                 return CheckResult(check, CheckStatus.PASS, elapsed_ms, "Notification permission OK")
             return CheckResult(check, CheckStatus.FAIL, elapsed_ms, "Notification permission not granted")
         except subprocess.TimeoutExpired:
@@ -559,7 +571,7 @@ def check_notification_permission() -> CheckFn:
     return _run
 
 
-def check_study_materials() -> CheckFn:
+def check_study_materials(materials_dir: Path | None = None) -> CheckFn:
     """Check that study materials directory exists."""
     def _run() -> CheckResult:
         check = PreflightCheck(
@@ -569,9 +581,8 @@ def check_study_materials() -> CheckFn:
         )
         start = time.monotonic()
         try:
-            import os
-            materials_dir = pathlib.Path(__file__).parent.parent.parent / "study" / "materials"
-            if materials_dir.exists() and any(materials_dir.iterdir()):
+            resolved_dir = materials_dir or Path(__file__).parent.parent.parent / "study" / "materials"
+            if resolved_dir.exists() and any(resolved_dir.iterdir()):
                 elapsed_ms = int((time.monotonic() - start) * 1000)
                 return CheckResult(check, CheckStatus.PASS, elapsed_ms, "Materials present")
             elapsed_ms = int((time.monotonic() - start) * 1000)
