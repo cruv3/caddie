@@ -3,6 +3,7 @@ from fastmcp import FastMCP
 from caddie.agent.event_bus import publish_tool_call
 from caddie.android.settle import baseline_hash, settle_after
 from caddie.context import ServerContext
+from caddie.study.packages import is_study_package
 
 
 def register_app_tools(mcp: FastMCP, context: ServerContext) -> None:
@@ -17,7 +18,11 @@ def register_app_tools(mcp: FastMCP, context: ServerContext) -> None:
         with publish_tool_call(
             "smartphone_list_apps", bus=context.events, include_system=include_system, why=why
         ):
-            return context.backend.list_apps(include_system=include_system)
+            return [
+                package
+                for package in context.backend.list_apps(include_system=include_system)
+                if not is_study_package(package)
+            ]
 
     @mcp.tool()
     def smartphone_open_app(package_name: str, why: str = "") -> str:
@@ -32,6 +37,8 @@ def register_app_tools(mcp: FastMCP, context: ServerContext) -> None:
         with publish_tool_call(
             "smartphone_open_app", bus=context.events, package_name=package_name, why=why
         ):
+            if is_study_package(package_name):
+                raise ValueError("Study package is study-only and unavailable in normal mode")
             baseline = baseline_hash(context.backend)
             result = context.backend.open_app(package_name)
             settle_after(context.backend, baseline, "open_app")
