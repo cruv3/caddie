@@ -1,5 +1,7 @@
 """Tests for caddie.study.model — enums, frozen dataclasses, defaults."""
 
+import pytest
+
 from caddie.study.model import (
     CriticalityClass,
     ErrorVariant,
@@ -10,6 +12,7 @@ from caddie.study.model import (
     StudyCondition,
     StudyStep,
     TaskPair,
+    TriggerContract,
     TrialOutcome,
     TrialSpec,
     VerificationRule,
@@ -172,6 +175,72 @@ def test_verification_rule_defaults():
 
 
 # ── TrialSpec ───────────────────────────────────────────────────────────────
+
+
+def test_trigger_contract_defensively_freezes_mutable_inputs():
+    reference_phrases = ["Teste die App"]
+    required_concepts = [["testen", "test"]]
+    forbidden_concepts = ["abbrechen"]
+    wake_words = ["jarvis", "caddie"]
+
+    contract = TriggerContract(
+        reference_phrases=reference_phrases,
+        required_concepts=required_concepts,
+        forbidden_concepts=forbidden_concepts,
+        wake_words=wake_words,
+    )
+    reference_phrases.append("Geändert")
+    required_concepts[0].append("geändert")
+    required_concepts.append(["neu"])
+    forbidden_concepts.append("geändert")
+    wake_words.append("computer")
+
+    assert contract.reference_phrases == ("Teste die App",)
+    assert contract.required_concepts == (("testen", "test"),)
+    assert contract.forbidden_concepts == ("abbrechen",)
+    assert contract.wake_words == ("jarvis", "caddie")
+    assert isinstance(hash(contract), int)
+
+
+@pytest.mark.parametrize(
+    ("kwargs", "error_type", "message"),
+    [
+        ({"reference_phrases": [], "required_concepts": [["test"]]}, ValueError, "reference_phrases"),
+        ({"reference_phrases": ["test"], "required_concepts": []}, ValueError, "required_concepts"),
+        ({"reference_phrases": ["test"], "required_concepts": [[]]}, ValueError, "required_concepts"),
+        ({"reference_phrases": [1], "required_concepts": [["test"]]}, TypeError, "reference_phrases"),
+        ({"reference_phrases": ["test"], "required_concepts": ["test"]}, TypeError, "required_concepts"),
+        ({"reference_phrases": ["test"], "required_concepts": [[1]]}, TypeError, "required_concepts"),
+        (
+            {
+                "reference_phrases": ["test"],
+                "required_concepts": [["test"]],
+                "forbidden_concepts": ["   "],
+            },
+            ValueError,
+            "forbidden_concepts",
+        ),
+        (
+            {
+                "reference_phrases": ["test"],
+                "required_concepts": [["test"]],
+                "wake_words": [1],
+            },
+            TypeError,
+            "wake_words",
+        ),
+    ],
+)
+def test_trigger_contract_rejects_malformed_direct_values(kwargs, error_type, message):
+    with pytest.raises(error_type, match=message):
+        TriggerContract(**kwargs)
+
+
+def test_trigger_contract_is_exported_from_study_package():
+    import caddie.study as study
+
+    assert getattr(study, "TriggerContract", None) is TriggerContract
+    assert "TriggerContract" in study.__all__
 
 
 def test_trial_spec_minimal():

@@ -22,6 +22,7 @@ from caddie.study.model import (
     TrialOutcome,
     # Data classes
     StudyStep,
+    TriggerContract,
     TrialSpec,
     TaskPair,
     ErrorVariant,
@@ -68,6 +69,7 @@ __all__ = [
     "InitiationResult",
     "TrialOutcome",
     "StudyStep",
+    "TriggerContract",
     "TrialSpec",
     "TaskPair",
     "ErrorVariant",

@@ -207,6 +207,69 @@ class TriggerContract:
     forbidden_concepts: tuple[str, ...] = ()
     wake_words: tuple[str, ...] = ("jarvis", "caddie")
 
+    def __post_init__(self) -> None:
+        """Defensively freeze and validate every trigger entry."""
+
+        def freeze_strings(
+            values: object,
+            path: str,
+            *,
+            require_items: bool,
+        ) -> tuple[str, ...]:
+            if not isinstance(values, (list, tuple)):
+                raise TypeError(f"TriggerContract.{path} must be a list or tuple")
+            frozen = tuple(values)
+            if require_items and not frozen:
+                raise ValueError(f"TriggerContract.{path} must not be empty")
+            for index, value in enumerate(frozen):
+                if not isinstance(value, str):
+                    raise TypeError(
+                        f"TriggerContract.{path}[{index}] must be a string"
+                    )
+                if not value.strip():
+                    raise ValueError(
+                        f"TriggerContract.{path}[{index}] must not be empty"
+                    )
+            return frozen
+
+        reference_phrases = freeze_strings(
+            self.reference_phrases,
+            "reference_phrases",
+            require_items=True,
+        )
+
+        if not isinstance(self.required_concepts, (list, tuple)):
+            raise TypeError(
+                "TriggerContract.required_concepts must be a list or tuple"
+            )
+        raw_groups = tuple(self.required_concepts)
+        if not raw_groups:
+            raise ValueError("TriggerContract.required_concepts must not be empty")
+        required_concepts = tuple(
+            freeze_strings(
+                group,
+                f"required_concepts[{index}]",
+                require_items=True,
+            )
+            for index, group in enumerate(raw_groups)
+        )
+
+        forbidden_concepts = freeze_strings(
+            self.forbidden_concepts,
+            "forbidden_concepts",
+            require_items=False,
+        )
+        wake_words = freeze_strings(
+            self.wake_words,
+            "wake_words",
+            require_items=False,
+        )
+
+        object.__setattr__(self, "reference_phrases", reference_phrases)
+        object.__setattr__(self, "required_concepts", required_concepts)
+        object.__setattr__(self, "forbidden_concepts", forbidden_concepts)
+        object.__setattr__(self, "wake_words", wake_words)
+
 
 @dataclass(frozen=True, slots=True)
 class TrialSpec:

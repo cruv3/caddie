@@ -14,6 +14,59 @@ from caddie.study.spec_loader import (
 )
 
 
+_EXPECTED_ACTIVE_TRIGGER_GROUPS = {
+    "task_banking_transfer": (
+        ("rechnungsdaten", "rechnung"),
+        ("überweisung", "ueberweisung", "überweisungsformular", "ueberweisungsformular"),
+    ),
+    "task_calendar_dnd": (
+        ("prüfung", "pruefung", "exam"),
+        ("kalender", "termin"),
+        ("nicht stören", "nicht stoeren", "dnd"),
+    ),
+    "task_chat_notes": (
+        ("letzte nachricht", "nachricht"),
+        ("projektgruppe",),
+        ("checkliste", "notiz"),
+    ),
+    "task_email_calendar": (
+        ("projektsitzung", "sitzung"),
+        ("verschiebe", "verschieben", "verlege", "verlegen"),
+        ("15:00", "15 uhr"),
+        ("speichere", "speichern"),
+    ),
+    "task_gallery_messenger": (
+        ("drei fotos", "3 fotos", "fotos", "bilder"),
+        ("begrüßung", "begruessung", "gruß", "gruss"),
+        ("projektgruppe",),
+        ("sende", "senden", "schicke", "schicken"),
+    ),
+    "task_maps_messenger": (
+        ("ankunftszeit", "ankunft"),
+        (
+            "öffentlichen mitteln",
+            "oeffentlichen mitteln",
+            "öffentliche verkehrsmittel",
+            "oeffentliche verkehrsmittel",
+            "öpnv",
+            "oepnv",
+        ),
+        ("sende", "senden", "schicke", "schicken"),
+    ),
+    "task_music_playlist": (
+        ("drei lieder", "3 lieder", "drei songs", "3 songs"),
+        ("playlist", "wiedergabeliste"),
+        ("chat", "nachricht"),
+    ),
+    "task_rewe_shopping": (
+        ("drei produkte", "3 produkte", "produkte"),
+        ("mengenangaben", "mengen", "menge"),
+        ("warenkorb", "einkaufswagen"),
+        ("füge", "fuege", "hinzufügen", "hinzufuegen"),
+    ),
+}
+
+
 # ── Helper: create a minimal valid spec YAML ────────────────────────────────
 
 
@@ -90,14 +143,17 @@ def test_loaded_trigger_values_are_immutable_tuples():
     assert isinstance(spec.trigger.required_concepts[0], tuple)
 
 
-def test_calendar_dnd_trigger_contract_is_audited():
+@pytest.mark.parametrize(
+    ("task_id", "expected_groups"),
+    _EXPECTED_ACTIVE_TRIGGER_GROUPS.items(),
+)
+def test_active_spec_trigger_metadata_is_audited(task_id, expected_groups):
     base = pathlib.Path(__file__).resolve().parent.parent / "study" / "specs"
-    spec = load_trial_spec(base / "task_calendar_dnd.yaml")
+    spec = load_trial_spec(base / f"{task_id}.yaml")
 
     assert spec.trigger is not None
-    assert ("prüfung", "pruefung", "exam") in spec.trigger.required_concepts
-    assert ("kalender", "termin") in spec.trigger.required_concepts
-    assert ("nicht stören", "nicht stoeren", "dnd") in spec.trigger.required_concepts
+    assert spec.instruction_de in spec.trigger.reference_phrases
+    assert set(expected_groups) <= set(spec.trigger.required_concepts)
 
 
 def test_load_spec_with_error_variant_in_step():
