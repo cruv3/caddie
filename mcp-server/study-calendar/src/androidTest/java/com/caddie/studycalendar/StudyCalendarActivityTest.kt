@@ -247,8 +247,12 @@ class StudyCalendarActivityTest {
 
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val broadcastFinished = CountDownLatch(1)
+        val intent = Intent(
+            context,
+            StudyCalendarResetReceiver::class.java,
+        ).setAction("com.caddie.studycalendar.WRONG_ACTION")
         context.sendOrderedBroadcast(
-            Intent("com.caddie.studycalendar.WRONG_ACTION").setPackage(context.packageName),
+            intent,
             null,
             object : BroadcastReceiver() {
                 override fun onReceive(context: Context?, intent: Intent?) {
