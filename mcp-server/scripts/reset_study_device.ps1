@@ -6,7 +6,7 @@ function Invoke-Adb {
 
     $output = & adb @Arguments 2>&1
     if ($LASTEXITCODE -ne 0) {
-        throw "ADB command failed with exit code $LASTEXITCODE: adb $($Arguments -join ' ')"
+        throw "ADB command failed with exit code ${LASTEXITCODE}: adb $($Arguments -join ' ')"
     }
 
     return $output
