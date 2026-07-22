@@ -1,0 +1,50 @@
+version: "v1"
+id: "task_calendar_dnd"
+instruction_de: "Finde die Prüfung morgen im Kalender und aktiviere Nicht stören für diese Zeit."
+criticality: "low"
+required_packages: ["com.caddie.studycalendar", "com.android.settings"]
+seeded_artifacts: ["Prüfung morgen von 10:00–11:00 Uhr", "Nicht-stören-Regel Prüfung 10:00–11:00"]
+reset_checklist: ["Nicht stören deaktivieren und die seeded Prüfungsregel aktiviert lassen"]
+steps:
+  - id: "calendar_open"
+    action: "open com.caddie.studycalendar/.StudyCalendarActivity"
+    narration: "Kalender wird geöffnet..."
+    step_type: "normal"
+    min_narration_ms: 400
+  - id: "exam_open"
+    action: "click 'com.caddie.studycalendar:id/exam_event'"
+    narration: "Prüfungstermin wird geöffnet..."
+    step_type: "normal"
+  - id: "dnd_settings_open"
+    action: "open com.android.settings/.Settings$ZenModeSettingsActivity"
+    narration: "Nicht-stören-Einstellungen werden geöffnet..."
+    step_type: "normal"
+  - id: "dnd_schedule_open"
+    action: "click 'Zeitpläne'"
+    narration: "Zeitpläne werden geöffnet..."
+    step_type: "normal"
+  - id: "dnd_exam_rule"
+    action: "click 'Prüfung 10:00–11:00'"
+    narration: "Prüfungszeit wird ausgewählt..."
+    step_type: "consequential"
+  - id: "dnd_enable"
+    action: "click 'Aktivieren'"
+    narration: "Nicht stören wird für die Prüfungszeit aktiviert..."
+    step_type: "commit"
+  - id: "calendar_verify_open"
+    action: "open com.caddie.studycalendar/.StudyCalendarActivity"
+    narration: "Prüfungstermin wird abschließend geprüft..."
+    step_type: "normal"
+  - id: "exam_verify_open"
+    action: "click 'com.caddie.studycalendar:id/exam_event'"
+    narration: "Prüfungszeit wird angezeigt..."
+    step_type: "normal"
+error_steps: []
+verification:
+  - id: "exam_time_visible"
+    assertion: "Prüfungszeit ist 10 bis 11 Uhr"
+    check_type: "text_present"
+    parameters: { text: "10:00–11:00 Uhr" }
+    screenshot_evidence: true
+max_duration_s: 120
+per_gate_timeout_s: 30

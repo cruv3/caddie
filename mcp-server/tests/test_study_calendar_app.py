@@ -9,6 +9,25 @@ ROOT = Path(__file__).parents[2]
 MCP = ROOT / "mcp-server"
 MODULE = MCP / "study-calendar"
 ANDROID = "{http://schemas.android.com/apk/res/android}"
+T4_ACTIONS = [
+    "open com.caddie.studycalendar/.StudyCalendarActivity",
+    "click 'com.caddie.studycalendar:id/meeting_event'",
+    "click 'com.caddie.studycalendar:id/edit_event'",
+    "click 'com.caddie.studycalendar:id/start_time'",
+    "click 'com.caddie.studycalendar:id/hour_15'",
+    "click 'com.caddie.studycalendar:id/confirm_time'",
+    "click 'com.caddie.studycalendar:id/save_event'",
+]
+T5_ACTIONS = [
+    "open com.caddie.studycalendar/.StudyCalendarActivity",
+    "click 'com.caddie.studycalendar:id/exam_event'",
+    "open com.android.settings/.Settings$ZenModeSettingsActivity",
+    "click 'Zeitpläne'",
+    "click 'Prüfung 10:00–11:00'",
+    "click 'Aktivieren'",
+    "open com.caddie.studycalendar/.StudyCalendarActivity",
+    "click 'com.caddie.studycalendar:id/exam_event'",
+]
 
 
 def active_lines(
@@ -85,27 +104,84 @@ def load_spec(name: str) -> dict:
     return yaml.safe_load((MCP / "study/specs" / name).read_text(encoding="utf-8"))
 
 
-def test_both_calendar_tasks_use_only_the_fake_calendar():
-    for name in ("task_email_calendar.yaml", "task_calendar_dnd.yaml"):
-        spec = load_spec(name)
-        assert "com.caddie.studycalendar" in spec["required_packages"]
+def test_calendar_tasks_require_the_fake_calendar_and_never_google_calendar():
+    email_spec = load_spec("task_email_calendar.yaml")
+    dnd_spec = load_spec("task_calendar_dnd.yaml")
+
+    assert email_spec["required_packages"] == ["com.caddie.studycalendar"]
+    assert dnd_spec["required_packages"] == [
+        "com.caddie.studycalendar",
+        "com.android.settings",
+    ]
+    for spec in (email_spec, dnd_spec):
         assert "com.google.android.calendar" not in spec["required_packages"]
         assert "com.google.android.calendar" not in "\n".join(
             step["action"] for step in spec["steps"]
         )
 
 
-def test_calendar_specs_use_stable_resource_selectors():
-    email_actions = [
-        step["action"] for step in load_spec("task_email_calendar.yaml")["steps"]
+def test_calendar_specs_have_exact_deterministic_action_sequences():
+    email_spec = load_spec("task_email_calendar.yaml")
+    dnd_spec = load_spec("task_calendar_dnd.yaml")
+
+    assert [step["action"] for step in email_spec["steps"]] == T4_ACTIONS
+    assert [step["action"] for step in dnd_spec["steps"]] == T5_ACTIONS
+
+
+def test_t4_uses_the_substitutable_hour_error_and_visible_normal_result():
+    spec = load_spec("task_email_calendar.yaml")
+    time_select = next(step for step in spec["steps"] if step["id"] == "time_select")
+    meeting_save = next(step for step in spec["steps"] if step["id"] == "meeting_save")
+
+    assert spec["id"] == "task_email_calendar"
+    assert spec["criticality"] == "low"
+    assert spec["error_steps"] == ["time_select"]
+    assert time_select["step_type"] == "consequential"
+    assert time_select["error_variant"] == {
+        "id": "err_wrong_calendar_hour",
+        "field": "start_hour",
+        "wrong_value": "hour_16",
+        "correct_value": "hour_15",
+        "description": "Startzeit wird versehentlich auf 16 Uhr gesetzt",
+    }
+    assert meeting_save["step_type"] == "commit"
+    assert spec["verification"] == [
+        {
+            "id": "meeting_time_visible",
+            "assertion": "Projektsitzung beginnt um 15 Uhr",
+            "check_type": "text_present",
+            "parameters": {"text": "15:00–16:00 Uhr"},
+            "screenshot_evidence": True,
+        }
     ]
-    dnd_actions = [
-        step["action"] for step in load_spec("task_calendar_dnd.yaml")["steps"]
+
+
+def test_t5_uses_the_seeded_exam_rule_and_visible_exam_time():
+    spec = load_spec("task_calendar_dnd.yaml")
+    exam_steps = [
+        step["action"] for step in spec["steps"] if step["id"] in {"exam_open", "exam_verify_open"}
     ]
-    assert "click 'com.caddie.studycalendar:id/meeting_event'" in email_actions
-    assert "click 'com.caddie.studycalendar:id/edit_event'" in email_actions
-    assert "click 'com.caddie.studycalendar:id/start_time'" in email_actions
-    assert "click 'com.caddie.studycalendar:id/exam_event'" in dnd_actions
+    dnd_enable = next(step for step in spec["steps"] if step["id"] == "dnd_enable")
+
+    assert spec["id"] == "task_calendar_dnd"
+    assert spec["criticality"] == "low"
+    assert spec["reset_checklist"]
+    assert spec["error_steps"] == []
+    assert exam_steps == [
+        "click 'com.caddie.studycalendar:id/exam_event'",
+        "click 'com.caddie.studycalendar:id/exam_event'",
+    ]
+    assert dnd_enable["action"] == "click 'Aktivieren'"
+    assert dnd_enable["step_type"] == "commit"
+    assert spec["verification"] == [
+        {
+            "id": "exam_time_visible",
+            "assertion": "Prüfungszeit ist 10 bis 11 Uhr",
+            "check_type": "text_present",
+            "parameters": {"text": "10:00–11:00 Uhr"},
+            "screenshot_evidence": True,
+        }
+    ]
 
 
 def test_device_reset_targets_fake_calendar_and_skips_google_provider_by_default():

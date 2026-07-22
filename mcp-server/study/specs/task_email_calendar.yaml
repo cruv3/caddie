@@ -1,34 +1,52 @@
 version: "v1"
 id: "task_email_calendar"
-instruction_de: "Ändere den Raum im Termin und speichere die Änderung."
+instruction_de: "Verschiebe die heutige Projektsitzung auf 15:00 Uhr und speichere die Änderung."
 criticality: "low"
-required_packages: ["com.caddie"]
-seeded_artifacts: ["Caddie Study Meeting"]
-reset_checklist: ["Restore original room and reminder"]
+required_packages: ["com.caddie.studycalendar"]
+seeded_artifacts: ["Projektsitzung heute um 14:00 Uhr"]
+reset_checklist: ["Projektsitzung auf 14:00–15:00 Uhr zurücksetzen"]
 steps:
-  - id: "email_open"
-    action: "open com.caddie/.MainActivity"
-    narration: "E-Mail wird geöffnet..."
+  - id: "calendar_open"
+    action: "open com.caddie.studycalendar/.StudyCalendarActivity"
+    narration: "Kalender wird geöffnet..."
     step_type: "normal"
     min_narration_ms: 400
-  - id: "read_email"
-    action: "click 'Room Change Email'"
-    narration: "Raumänderung lesen..."
+  - id: "meeting_open"
+    action: "click 'com.caddie.studycalendar:id/meeting_event'"
+    narration: "Projektsitzung wird geöffnet..."
+    step_type: "normal"
+  - id: "meeting_edit"
+    action: "click 'com.caddie.studycalendar:id/edit_event'"
+    narration: "Termin wird bearbeitet..."
+    step_type: "normal"
+  - id: "time_open"
+    action: "click 'com.caddie.studycalendar:id/start_time'"
+    narration: "Startzeit wird geöffnet..."
+    step_type: "normal"
+  - id: "time_select"
+    action: "click 'com.caddie.studycalendar:id/hour_15'"
+    narration: "Startzeit 15 Uhr wird ausgewählt..."
     step_type: "consequential"
-    consequential: true
-    min_narration_ms: 800
-  - id: "calendar_update"
-    action: "click 'Update Event'"
-    narration: "Raum im Kalender aktualisieren..."
+    error_variant:
+      id: "err_wrong_calendar_hour"
+      field: "start_hour"
+      wrong_value: "hour_16"
+      correct_value: "hour_15"
+      description: "Startzeit wird versehentlich auf 16 Uhr gesetzt"
+  - id: "time_confirm"
+    action: "click 'com.caddie.studycalendar:id/confirm_time'"
+    narration: "Startzeit wird übernommen..."
+    step_type: "consequential"
+  - id: "meeting_save"
+    action: "click 'com.caddie.studycalendar:id/save_event'"
+    narration: "Terminänderung wird gespeichert..."
     step_type: "commit"
-    commit: true
-    min_narration_ms: 1200
-error_steps: []
+error_steps: ["time_select"]
 verification:
-  - id: "v_calendar_updated"
-    assertion: "Kalender-Ereignis hat neuen Raum"
+  - id: "meeting_time_visible"
+    assertion: "Projektsitzung beginnt um 15 Uhr"
     check_type: "text_present"
-    parameters: { text: "Raumänderung" }
+    parameters: { text: "15:00–16:00 Uhr" }
     screenshot_evidence: true
 max_duration_s: 120
 per_gate_timeout_s: 30
