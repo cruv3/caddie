@@ -20,6 +20,13 @@ class ArmedState(StrEnum):
     ABORTED = "aborted"
 
 
+class CoordinatorDecision(StrEnum):
+    PASS_THROUGH = "pass_through"
+    RETRY = "retry"
+    CLAIMED = "claimed"
+    RUNNING_INPUT = "running_input"
+
+
 @dataclass(frozen=True, slots=True)
 class ArmedTrialConfig:
     participant_id: str
@@ -57,10 +64,16 @@ class ArmedTrialConfig:
 
 
 @dataclass(frozen=True, slots=True)
+class ClaimToken:
+    generation: int
+
+
+@dataclass(frozen=True, slots=True)
 class ClaimedTrial:
     config: ArmedTrialConfig
     spec: TrialSpec
     participant_utterance: str
+    token: ClaimToken
 
 
 @dataclass(frozen=True, slots=True)
@@ -69,13 +82,13 @@ class RoutingAttempt:
     monotonic_time: float
     utterance: str
     match: MatchResult | None
-    decision: RouteDecision
+    decision: CoordinatorDecision
     reason: str
 
 
 @dataclass(frozen=True, slots=True)
 class CoordinatorRouteResult:
-    decision: RouteDecision
+    decision: CoordinatorDecision
     match: MatchResult | None
     claim: ClaimedTrial | None
     reason: str
@@ -115,6 +128,7 @@ class ArmedTrialCoordinator:
         self._config: ArmedTrialConfig | None = None
         self._spec: TrialSpec | None = None
         self._claim: ClaimedTrial | None = None
+        self._claim_generation = 0
         self._reason: str | None = None
         self._attempts: list[RoutingAttempt] = []
 
@@ -135,10 +149,12 @@ class ArmedTrialCoordinator:
             self._attempts = []
 
     def route_and_claim(self, text: str) -> CoordinatorRouteResult:
+        if type(text) is not str:
+            raise TypeError("utterance must be an exact string")
         with self._lock:
             if self._state is None:
                 return CoordinatorRouteResult(
-                    RouteDecision.PASS_THROUGH, None, None, "idle"
+                    CoordinatorDecision.PASS_THROUGH, None, None, "idle"
                 )
             if self._state in (
                 ArmedState.COMPLETED,
@@ -146,22 +162,33 @@ class ArmedTrialCoordinator:
                 ArmedState.ABORTED,
             ):
                 return CoordinatorRouteResult(
-                    RouteDecision.PASS_THROUGH,
+                    CoordinatorDecision.PASS_THROUGH,
                     None,
                     None,
                     f"trial_{self._state.value}",
                 )
             if self._state is ArmedState.RUNNING:
+                assert self._claim is not None
                 result = CoordinatorRouteResult(
-                    RouteDecision.RETRY, None, None, "trial_running"
+                    CoordinatorDecision.RUNNING_INPUT,
+                    None,
+                    self._claim,
+                    "trial_running",
                 )
                 self._record_attempt(text, result)
                 return result
             routed = self._router.route(text, self._spec)
+            decision = CoordinatorDecision(routed.decision.value)
             claim = None
             if routed.decision is RouteDecision.CLAIMED:
                 assert self._config is not None and self._spec is not None
-                claim = ClaimedTrial(self._config, self._spec, text)
+                self._claim_generation += 1
+                claim = ClaimedTrial(
+                    self._config,
+                    self._spec,
+                    text,
+                    ClaimToken(self._claim_generation),
+                )
                 self._claim = claim
                 self._state = ArmedState.RUNNING
             reason = (
@@ -171,30 +198,33 @@ class ArmedTrialCoordinator:
                 if routed.match is not None
                 else routed.decision.value
             )
-            result = CoordinatorRouteResult(routed.decision, routed.match, claim, reason)
+            result = CoordinatorRouteResult(decision, routed.match, claim, reason)
             self._record_attempt(text, result)
             return result
 
-    def finish_success(self) -> None:
+    def finish_success(self, claim: ClaimedTrial) -> None:
         with self._lock:
-            if self._state is not ArmedState.RUNNING:
-                raise InvalidTransitionError("finish_success requires a running trial")
+            self._require_active_claim(claim)
             self._state = ArmedState.COMPLETED
             self._reason = None
 
-    def finish_failure(self, reason: str) -> None:
+    def finish_failure(self, claim: ClaimedTrial, reason: str) -> None:
+        _validate_reason(reason)
         with self._lock:
-            if self._state is not ArmedState.RUNNING:
-                raise InvalidTransitionError("finish_failure requires a running trial")
+            self._require_active_claim(claim)
             self._state = ArmedState.FAILED
             self._reason = reason
 
-    def abort(self, reason: str) -> None:
+    def abort(self, reason: str) -> bool:
+        _validate_reason(reason)
         with self._lock:
+            if self._state is ArmedState.ABORTED:
+                return False
             if self._state not in (ArmedState.ARMED, ArmedState.RUNNING):
                 raise InvalidTransitionError("abort requires an armed or running trial")
             self._state = ArmedState.ABORTED
             self._reason = reason
+            return True
 
     def clear(self) -> None:
         with self._lock:
@@ -221,6 +251,12 @@ class ArmedTrialCoordinator:
             )
         )
 
+    def _require_active_claim(self, claim: ClaimedTrial) -> None:
+        if self._state is not ArmedState.RUNNING or self._claim is None:
+            raise InvalidTransitionError("completion requires a running claim")
+        if not isinstance(claim, ClaimedTrial) or claim.token is not self._claim.token:
+            raise InvalidTransitionError("claim does not own the running trial")
+
     def status(self) -> CoordinatorStatus:
         with self._lock:
             config = self._config
@@ -238,3 +274,10 @@ class ArmedTrialCoordinator:
     def attempts(self) -> tuple[RoutingAttempt, ...]:
         with self._lock:
             return tuple(self._attempts)
+
+
+def _validate_reason(reason: str) -> None:
+    if type(reason) is not str:
+        raise TypeError("reason must be an exact string")
+    if not reason.strip():
+        raise ValueError("reason must be non-empty")

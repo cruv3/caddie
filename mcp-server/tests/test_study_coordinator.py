@@ -11,7 +11,9 @@ from caddie.study.coordinator import (
     ArmedState,
     ArmedTrialConfig,
     ArmedTrialCoordinator,
+    ClaimedTrial,
     CoordinatorConflictError,
+    CoordinatorDecision,
     CoordinatorRouteResult,
     InvalidTransitionError,
 )
@@ -23,9 +25,6 @@ from caddie.study.model import (
     TrialSpec,
     TriggerContract,
 )
-from caddie.study.routing import RouteDecision
-
-
 def _spec(task_id: str = "task_calendar") -> TrialSpec:
     return TrialSpec(
         version="v1",
@@ -59,12 +58,18 @@ def _config(task_id: str = "task_calendar") -> ArmedTrialConfig:
     )
 
 
+def _claim(coordinator: ArmedTrialCoordinator, text: str = "Prüfung im Kalender") -> ClaimedTrial:
+    result = coordinator.route_and_claim(text)
+    assert result.claim is not None
+    return result.claim
+
+
 def test_new_coordinator_is_idle_and_passes_through_without_an_audit_attempt():
     coordinator = ArmedTrialCoordinator()
 
     result = coordinator.route_and_claim("Prüfung im Kalender")
 
-    assert result.decision is RouteDecision.PASS_THROUGH
+    assert result.decision is CoordinatorDecision.PASS_THROUGH
     assert result.claim is None
     assert result.match is None
     assert result.reason == "idle"
@@ -90,7 +95,7 @@ def test_arm_exposes_safe_status_and_matching_claim_transitions_to_running():
     assert armed.inject_error is True
     assert not hasattr(armed, "specs_dir")
     assert not hasattr(armed, "data_dir")
-    assert result.decision is RouteDecision.CLAIMED
+    assert result.decision is CoordinatorDecision.CLAIMED
     assert result.reason == "claimed"
     assert result.match is not None and result.match.matched
     assert result.claim is not None
@@ -199,7 +204,7 @@ def test_retry_preserves_armed_state_and_records_router_match():
 
     result = coordinator.route_and_claim("spiele Musik")
 
-    assert result.decision is RouteDecision.RETRY
+    assert result.decision is CoordinatorDecision.RETRY
     assert result.reason == "missing_required_concepts"
     assert result.claim is None
     assert result.match is not None
@@ -234,9 +239,9 @@ def test_running_input_does_not_retrigger_and_is_audited_for_intervention_routin
 
     second = coordinator.route_and_claim("Prüfung im Kalender")
 
-    assert first.decision is RouteDecision.CLAIMED
-    assert second.decision is RouteDecision.RETRY
-    assert second.claim is None
+    assert first.decision is CoordinatorDecision.CLAIMED
+    assert second.decision is CoordinatorDecision.RUNNING_INPUT
+    assert second.claim is first.claim
     assert second.match is None
     assert second.reason == "trial_running"
     assert coordinator.status().state is ArmedState.RUNNING
@@ -244,6 +249,7 @@ def test_running_input_does_not_retrigger_and_is_audited_for_intervention_routin
         "claimed",
         "trial_running",
     ]
+    assert coordinator.attempts()[1].decision is second.decision
 
 
 def test_concurrent_matching_calls_produce_exactly_one_claim():
@@ -261,10 +267,11 @@ def test_concurrent_matching_calls_produce_exactly_one_claim():
         results = [future.result(timeout=2) for future in futures]
 
     assert sorted(result.decision.value for result in results) == [
-        RouteDecision.CLAIMED.value,
-        RouteDecision.RETRY.value,
+        "claimed",
+        "running_input",
     ]
-    assert sum(result.claim is not None for result in results) == 1
+    assert results[0].claim is results[1].claim
+    assert results[0].claim is not None
     assert {result.reason for result in results} == {"claimed", "trial_running"}
     assert coordinator.status().state is ArmedState.RUNNING
     assert coordinator.status().attempt_count == 2
@@ -275,31 +282,31 @@ def test_finish_success_only_transitions_running_to_completed():
     coordinator.arm(_config(), _spec())
 
     with pytest.raises(InvalidTransitionError):
-        coordinator.finish_success()
+        coordinator.finish_success(None)  # type: ignore[arg-type]
     assert coordinator.status().state is ArmedState.ARMED
 
-    coordinator.route_and_claim("Prüfung im Kalender")
-    coordinator.finish_success()
+    claim = _claim(coordinator)
+    coordinator.finish_success(claim)
 
     assert coordinator.status().state is ArmedState.COMPLETED
     assert coordinator.status().reason is None
     with pytest.raises(InvalidTransitionError):
-        coordinator.finish_success()
+        coordinator.finish_success(claim)
     assert coordinator.status().state is ArmedState.COMPLETED
 
 
 def test_finish_failure_only_transitions_running_and_retains_reason():
     coordinator = ArmedTrialCoordinator()
     coordinator.arm(_config(), _spec())
-    coordinator.route_and_claim("Prüfung im Kalender")
+    claim = _claim(coordinator)
 
-    coordinator.finish_failure("executor_failed")
+    coordinator.finish_failure(claim, "executor_failed")
 
     status = coordinator.status()
     assert status.state is ArmedState.FAILED
     assert status.reason == "executor_failed"
     with pytest.raises(InvalidTransitionError):
-        coordinator.finish_failure("again")
+        coordinator.finish_failure(claim, "again")
     assert coordinator.status() == status
 
 
@@ -310,13 +317,12 @@ def test_abort_armed_or_running_retains_reason(running):
     if running:
         coordinator.route_and_claim("Prüfung im Kalender")
 
-    coordinator.abort("participant_stop")
+    assert coordinator.abort("participant_stop") is True
 
     status = coordinator.status()
     assert status.state is ArmedState.ABORTED
     assert status.reason == "participant_stop"
-    with pytest.raises(InvalidTransitionError):
-        coordinator.abort("again")
+    assert coordinator.abort("again") is False
     assert coordinator.status() == status
 
 
@@ -324,18 +330,18 @@ def test_abort_armed_or_running_retains_reason(running):
 def test_terminal_states_pass_through_without_adding_attempts(terminal):
     coordinator = ArmedTrialCoordinator()
     coordinator.arm(_config(), _spec())
-    coordinator.route_and_claim("Prüfung im Kalender")
+    claim = _claim(coordinator)
     if terminal == "success":
-        coordinator.finish_success()
+        coordinator.finish_success(claim)
     elif terminal == "failure":
-        coordinator.finish_failure("failed")
+        coordinator.finish_failure(claim, "failed")
     else:
         coordinator.abort("stopped")
     previous_attempts = coordinator.attempts()
 
     result = coordinator.route_and_claim("Prüfung im Kalender")
 
-    assert result.decision is RouteDecision.PASS_THROUGH
+    assert result.decision is CoordinatorDecision.PASS_THROUGH
     assert result.claim is None
     assert result.match is None
     assert result.reason == {
@@ -355,12 +361,12 @@ def test_clear_rejects_active_records_but_clears_terminal_record_completely():
 
     running = ArmedTrialCoordinator()
     running.arm(_config(), _spec())
-    running.route_and_claim("Prüfung im Kalender")
+    claim = _claim(running)
     with pytest.raises(InvalidTransitionError):
         running.clear()
     assert running.status().state is ArmedState.RUNNING
 
-    running.finish_success()
+    running.finish_success(claim)
     running.clear()
 
     status = running.status()
@@ -379,11 +385,11 @@ def test_clear_rejects_active_records_but_clears_terminal_record_completely():
 def test_rearming_after_terminal_replaces_old_state_attempts_and_claim(terminal):
     coordinator = ArmedTrialCoordinator()
     coordinator.arm(_config(), _spec())
-    coordinator.route_and_claim("Prüfung im Kalender")
+    claim = _claim(coordinator)
     if terminal is ArmedState.COMPLETED:
-        coordinator.finish_success()
+        coordinator.finish_success(claim)
     elif terminal is ArmedState.FAILED:
-        coordinator.finish_failure("failed")
+        coordinator.finish_failure(claim, "failed")
     else:
         coordinator.abort("stopped")
 
@@ -430,3 +436,142 @@ def test_new_instance_does_not_recover_another_instances_armed_record():
     assert first.status().state is ArmedState.ARMED
     assert restarted.status().state is None
     assert restarted.route_and_claim("Prüfung im Kalender").reason == "idle"
+
+
+@pytest.mark.parametrize("completion", ["success", "failure"])
+def test_stale_claim_cannot_finish_a_rearmed_running_trial(completion):
+    coordinator = ArmedTrialCoordinator()
+    coordinator.arm(_config(), _spec())
+    claim_a = _claim(coordinator)
+    coordinator.abort("replace trial A")
+
+    coordinator.arm(_config(), _spec())
+    claim_b = _claim(coordinator)
+
+    assert claim_b.token is not claim_a.token
+    assert claim_b.token.generation > claim_a.token.generation
+    if completion == "success":
+        with pytest.raises(InvalidTransitionError, match="claim"):
+            coordinator.finish_success(claim_a)
+    else:
+        with pytest.raises(InvalidTransitionError, match="claim"):
+            coordinator.finish_failure(claim_a, "late failure")
+    assert coordinator.status().state is ArmedState.RUNNING
+    assert coordinator.status().reason is None
+
+    coordinator.finish_success(claim_b)
+    assert coordinator.status().state is ArmedState.COMPLETED
+
+
+def test_abort_and_finish_race_has_exactly_one_terminal_owner():
+    coordinator = ArmedTrialCoordinator()
+    coordinator.arm(_config(), _spec())
+    claim = _claim(coordinator)
+    callers_ready = Barrier(3)
+
+    def abort() -> str:
+        callers_ready.wait()
+        try:
+            coordinator.abort("race abort")
+        except InvalidTransitionError:
+            return "rejected"
+        return "applied"
+
+    def finish() -> str:
+        callers_ready.wait()
+        try:
+            coordinator.finish_success(claim)
+        except InvalidTransitionError:
+            return "rejected"
+        return "applied"
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        abort_future = pool.submit(abort)
+        finish_future = pool.submit(finish)
+        callers_ready.wait()
+        outcomes = [abort_future.result(timeout=2), finish_future.result(timeout=2)]
+
+    assert sorted(outcomes) == ["applied", "rejected"]
+    assert coordinator.status().state in (ArmedState.ABORTED, ArmedState.COMPLETED)
+
+
+class _TextSubclass(str):
+    pass
+
+
+@pytest.mark.parametrize(
+    "utterance",
+    [None, True, 1, [], {}, _TextSubclass("Prüfung im Kalender")],
+)
+def test_route_rejects_non_exact_strings_without_state_or_audit_mutation(utterance):
+    coordinator = ArmedTrialCoordinator()
+    coordinator.arm(_config(), _spec())
+    before = coordinator.status()
+
+    with pytest.raises(TypeError, match="utterance"):
+        coordinator.route_and_claim(utterance)
+
+    assert coordinator.status() == before
+    assert coordinator.attempts() == ()
+
+
+def test_empty_utterance_is_an_audited_matcher_retry():
+    coordinator = ArmedTrialCoordinator()
+    coordinator.arm(_config(), _spec())
+
+    result = coordinator.route_and_claim("")
+
+    assert result.decision is CoordinatorDecision.RETRY
+    assert result.reason == "invalid_input"
+    assert coordinator.status().state is ArmedState.ARMED
+    assert coordinator.status().attempt_count == 1
+    assert coordinator.attempts()[0].utterance == ""
+
+
+@pytest.mark.parametrize(
+    ("reason", "error_type"),
+    [
+        (None, TypeError),
+        (True, TypeError),
+        (1, TypeError),
+        ([], TypeError),
+        ({}, TypeError),
+        (_TextSubclass("failure"), TypeError),
+        ("", ValueError),
+        ("   ", ValueError),
+    ],
+)
+def test_finish_failure_rejects_invalid_reason_without_mutation(reason, error_type):
+    coordinator = ArmedTrialCoordinator()
+    coordinator.arm(_config(), _spec())
+    claim = _claim(coordinator)
+    before = coordinator.status()
+
+    with pytest.raises(error_type, match="reason"):
+        coordinator.finish_failure(claim, reason)
+
+    assert coordinator.status() == before
+
+
+@pytest.mark.parametrize(
+    ("reason", "error_type"),
+    [
+        (None, TypeError),
+        (True, TypeError),
+        (1, TypeError),
+        ([], TypeError),
+        ({}, TypeError),
+        (_TextSubclass("abort"), TypeError),
+        ("", ValueError),
+        ("   ", ValueError),
+    ],
+)
+def test_abort_rejects_invalid_reason_without_mutation(reason, error_type):
+    coordinator = ArmedTrialCoordinator()
+    coordinator.arm(_config(), _spec())
+    before = coordinator.status()
+
+    with pytest.raises(error_type, match="reason"):
+        coordinator.abort(reason)
+
+    assert coordinator.status() == before
