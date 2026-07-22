@@ -18,6 +18,7 @@ from caddie.study.runtime import (
     prepare_trial,
 )
 from caddie.study.session import SessionManager
+from caddie.agent.run_control import RunControl
 
 
 @pytest.fixture(autouse=True)
@@ -142,6 +143,30 @@ def test_execute_logs_utterance_before_executor_run(specs_dir: Path, tmp_path: P
     with patch("caddie.study.runtime.TrialExecutor") as executor_type:
         executor_type.return_value.run.side_effect = inspect_log
         execute_claimed_trial(claim, object(), MagicMock())
+
+
+def test_execute_cancels_before_executor_when_control_was_stopped_during_startup(
+    specs_dir: Path, tmp_path: Path,
+) -> None:
+    claim = _prepared_claim(specs_dir, tmp_path / "data")
+    control = RunControl()
+    control.request_stop()
+
+    def inspect_cancelled_runtime() -> TrialResult:
+        oversight = executor_type.call_args.kwargs["oversight"]
+        assert oversight.is_cancelled()
+        return TrialResult(
+            outcome=TrialOutcome.ABORTED,
+            steps_done=0,
+            duration_ms=1,
+            reason="cancelled before first step",
+        )
+
+    with patch("caddie.study.runtime.TrialExecutor") as executor_type:
+        executor_type.return_value.run.side_effect = inspect_cancelled_runtime
+        result = execute_claimed_trial(claim, MagicMock(), control)
+
+    assert result.outcome is TrialOutcome.ABORTED
 
 
 def test_sequential_trials_clear_only_terminal_previous_session(specs_dir: Path, tmp_path: Path) -> None:

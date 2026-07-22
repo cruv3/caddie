@@ -112,6 +112,8 @@ def _handler_factory(
     preflight_fn = preflight_fn or _study_preflight_passes
     reset_fn = reset_fn or _reset_study_device
     session_manager = session_manager or SessionManager.instance()
+    study_worker_done = threading.Event()
+    study_worker_done.set()
 
     class AgentRequestHandler(BaseHTTPRequestHandler):
         def do_GET(self) -> None:
@@ -300,7 +302,10 @@ def _handler_factory(
             from caddie.study.model import StudyCondition
             from caddie.study.spec_loader import SpecError
 
-            if coordinator.status().state in (ArmedState.ARMED, ArmedState.RUNNING):
+            if (
+                coordinator.status().state in (ArmedState.ARMED, ArmedState.RUNNING)
+                or not study_worker_done.is_set()
+            ):
                 self._send_json(
                     {"ok": False, "error": "a study trial is already active"},
                     status=409,
@@ -536,6 +541,9 @@ def _handler_factory(
                 return
 
             if before.state is ArmedState.RUNNING:
+                control = getattr(agent_loop, "_active_control", None)
+                if control is not None:
+                    control.request_stop()
                 session = session_manager.session
                 if session is not None:
                     session.cancel()
@@ -608,6 +616,7 @@ def _handler_factory(
             from caddie.study.runtime import execute_claimed_trial
 
             EVENT_BUS.task_started(claim.participant_utterance)
+            study_worker_done.clear()
             control_ready = threading.Event()
 
             def _run() -> None:
@@ -618,14 +627,19 @@ def _handler_factory(
                     "participant": claim.config.participant_id,
                     "trial_index": claim.config.trial_index,
                     "task_id": claim.config.task_id,
+                    "study_claim_generation": claim.token.generation,
                 }
                 try:
                     acquired = bool(agent_loop.try_acquire_slot())
                     if not acquired:
                         raise RuntimeError("agent run slot is busy")
                     agent_loop._active_control = control
-                    control_ready.set()
-                    result = execute_claimed_trial(claim, context.backend, control)
+                    result = execute_claimed_trial(
+                        claim,
+                        context.backend,
+                        control,
+                        on_session_started=control_ready.set,
+                    )
                     terminal_payload.update({
                         "trial_id": result.session_id,
                         "outcome": result.outcome.value,
@@ -656,12 +670,13 @@ def _handler_factory(
                     if acquired:
                         agent_loop.release_slot()
                     EVENT_BUS.task_finished(ok=ok, payload=terminal_payload)
+                    study_worker_done.set()
 
             worker = threading.Thread(
                 target=_run, name="study-trial-worker", daemon=True,
             )
             worker.start()
-            control_ready.wait(timeout=1.0)
+            control_ready.wait()
             return worker
 
         def _handle_task_oneshot(self) -> None:
@@ -782,6 +797,12 @@ def _handler_factory(
                             event = queue_ref.get()
                             if event is None:
                                 break
+                            if event.type == "task_finished" and (
+                                not isinstance(event.payload, dict)
+                                or event.payload.get("study_claim_generation")
+                                != routed.claim.token.generation
+                            ):
+                                continue
                             try:
                                 self.wfile.write(
                                     f"data: {json.dumps(event.to_dict())}\n\n".encode("utf-8")

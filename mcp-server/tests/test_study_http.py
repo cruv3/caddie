@@ -1151,7 +1151,8 @@ def test_second_task_while_trial_runs_becomes_correction_not_second_trial(
     )
     _dispatch(handler, "POST", "/study/trials/arm", _arm_payload(study_specs_dir, study_data_dir))
 
-    def execute(*_args):
+    def execute(*_args, **_kwargs):
+        _kwargs["on_session_started"]()
         entered.set()
         assert release.wait(1.0)
         return RuntimeResult(TrialOutcome.SUCCESS, "sess-1", 2, 12.0, "done")
@@ -1210,7 +1211,8 @@ def test_claim_response_waits_until_running_input_control_is_ready(
     )
     _dispatch(handler, "POST", "/study/trials/arm", _arm_payload(study_specs_dir, study_data_dir))
 
-    def execute(*_args):
+    def execute(*_args, **_kwargs):
+        _kwargs["on_session_started"]()
         assert release.wait(1.0)
         return RuntimeResult(TrialOutcome.SUCCESS, "sess-ready", 2, 12.0, "done")
 
@@ -1225,6 +1227,57 @@ def test_claim_response_waits_until_running_input_control_is_ready(
 
     assert first_status == 202
     assert second_status == 200
+
+
+def test_abort_during_worker_startup_stops_control_before_trial_can_act(
+    study_specs_dir, study_data_dir,
+):
+    from caddie.study.coordinator import ArmedState, ArmedTrialCoordinator
+    from caddie.study.model import TrialOutcome
+    from caddie.study.runtime import RuntimeResult, prepare_trial
+
+    entered = threading.Event()
+    release = threading.Event()
+    captured_control = []
+    coordinator = ArmedTrialCoordinator()
+    agent_loop = MagicMock(_active_control=None)
+    agent_loop.try_acquire_slot.return_value = True
+    handler = _coordinator_handler(
+        coordinator,
+        context=_task_context(),
+        agent_loop=agent_loop,
+        prepare=prepare_trial,
+        session_manager=SimpleNamespace(session=None),
+    )
+    _dispatch(handler, "POST", "/study/trials/arm", _arm_payload(study_specs_dir, study_data_dir))
+
+    def execute(_claim, _backend, control, **_kwargs):
+        _kwargs["on_session_started"]()
+        captured_control.append(control)
+        entered.set()
+        assert release.wait(1.0)
+        assert control.stop_requested
+        return RuntimeResult(TrialOutcome.ABORTED, "sess-abort", 0, 1.0, "aborted")
+
+    with patch("caddie.study.runtime.execute_claimed_trial", side_effect=execute):
+        status, _ = _dispatch(handler, "POST", "/task", {"task": "Jarvis Testaufgabe"})
+        assert status == 202
+        assert entered.wait(1.0)
+        abort_status, _ = _dispatch(
+            handler, "POST", "/study/trials/abort", {"reason": "experimenter abort"},
+        )
+        rearm_status, _ = _dispatch(
+            handler,
+            "POST",
+            "/study/trials/arm",
+            _arm_payload(study_specs_dir, study_data_dir),
+        )
+        release.set()
+        _wait_for_state(coordinator, ArmedState.ABORTED)
+
+    assert abort_status == 200
+    assert rearm_status == 409
+    assert captured_control[0].stop_requested
 
 
 def test_trial_worker_failure_sets_failed_and_emits_one_terminal_event(
@@ -1331,3 +1384,59 @@ def test_task_stream_matching_trial_stays_open_through_terminal_event(
     assert coordinator.status().state is ArmedState.COMPLETED
     execute.assert_called_once()
     agent_loop.run.assert_not_called()
+
+
+def test_task_stream_ignores_unrelated_global_terminal_event(
+    study_specs_dir, study_data_dir,
+):
+    import time
+
+    from caddie.agent.event_bus import EVENT_BUS
+    from caddie.study.coordinator import ArmedState, ArmedTrialCoordinator
+    from caddie.study.model import TrialOutcome
+    from caddie.study.runtime import RuntimeResult, prepare_trial
+
+    entered = threading.Event()
+    release = threading.Event()
+    coordinator = ArmedTrialCoordinator()
+    agent_loop = MagicMock(_active_control=None)
+    agent_loop.try_acquire_slot.return_value = True
+    handler = _coordinator_handler(
+        coordinator,
+        context=_task_context(),
+        agent_loop=agent_loop,
+        prepare=prepare_trial,
+    )
+    _dispatch(handler, "POST", "/study/trials/arm", _arm_payload(study_specs_dir, study_data_dir))
+
+    def execute(*_args, **_kwargs):
+        _kwargs["on_session_started"]()
+        entered.set()
+        assert release.wait(1.0)
+        return RuntimeResult(TrialOutcome.SUCCESS, "sess-owned", 2, 12.0, "done")
+
+    dispatched = []
+    with patch("caddie.study.runtime.execute_claimed_trial", side_effect=execute):
+        stream_thread = threading.Thread(
+            target=lambda: dispatched.append(
+                _dispatch_stream(handler, {"task": "Jarvis Testaufgabe"})
+            ),
+        )
+        stream_thread.start()
+        assert entered.wait(1.0)
+        EVENT_BUS.task_finished(ok=True, payload={"outcome": "unrelated"})
+        time.sleep(0.02)
+        release.set()
+        stream_thread.join(timeout=1.0)
+
+    assert not stream_thread.is_alive()
+    _, _, stream = dispatched[0]
+    events = [
+        json.loads(line.removeprefix("data: "))
+        for line in stream.splitlines()
+        if line.startswith("data: ")
+    ]
+    terminal = [event for event in events if event["type"] == "task_finished"]
+    assert len(terminal) == 1
+    assert terminal[0]["payload"]["trial_id"] == "sess-owned"
+    assert coordinator.status().state is ArmedState.COMPLETED

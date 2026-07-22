@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 import uuid
 
 from caddie.study.coordinator import ArmedTrialConfig, ClaimedTrial
@@ -163,7 +163,13 @@ def _load_strict_specs(specs_dir: Path) -> dict[str, TrialSpec]:
     return specs
 
 
-def execute_claimed_trial(claim: ClaimedTrial, backend: Any, run_control: Any) -> RuntimeResult:
+def execute_claimed_trial(
+    claim: ClaimedTrial,
+    backend: Any,
+    run_control: Any,
+    *,
+    on_session_started: Callable[[], None] | None = None,
+) -> RuntimeResult:
     """Execute a claimed trial against the supplied real backend."""
     if not isinstance(claim, ClaimedTrial):
         raise TypeError("claim must be a ClaimedTrial")
@@ -215,6 +221,10 @@ def execute_claimed_trial(claim: ClaimedTrial, backend: Any, run_control: Any) -
             reservation=reservation,
         )
         session.start()
+        if on_session_started is not None:
+            on_session_started()
+        if getattr(run_control, "stop_requested", False) is True:
+            session.cancel()
         study_logger.participant_utterance(claim.participant_utterance)
 
         stage = "executor construction"
