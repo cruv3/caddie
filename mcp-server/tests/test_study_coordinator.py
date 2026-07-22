@@ -104,24 +104,75 @@ def test_arm_exposes_safe_status_and_matching_claim_transitions_to_running():
 
 
 @pytest.mark.parametrize(
-    "config",
+    ("field", "value", "error_type"),
     [
-        _config().__class__("", 0, "task_calendar", StudyCondition.STEPWISE, False, None, None),
-        _config().__class__("   ", 0, "task_calendar", StudyCondition.STEPWISE, False, None, None),
-        _config().__class__("P01", -1, "task_calendar", StudyCondition.STEPWISE, False, None, None),
-        _config().__class__("P01", "0", "task_calendar", StudyCondition.STEPWISE, False, None, None),
-        _config().__class__("P01", True, "task_calendar", StudyCondition.STEPWISE, False, None, None),
-        _config().__class__("P01", 0, "", StudyCondition.STEPWISE, False, None, None),
-        _config().__class__("P01", 0, "   ", StudyCondition.STEPWISE, False, None, None),
+        ("participant_id", "", ValueError),
+        ("participant_id", "   ", ValueError),
+        ("participant_id", None, TypeError),
+        ("trial_index", -1, ValueError),
+        ("trial_index", "0", TypeError),
+        ("trial_index", True, TypeError),
+        ("task_id", "", ValueError),
+        ("task_id", "   ", ValueError),
+        ("task_id", None, TypeError),
+        ("condition", StudyCondition.STEPWISE.value, TypeError),
+        ("condition", object(), TypeError),
+        ("inject_error", 1, TypeError),
+        ("inject_error", "false", TypeError),
+        ("specs_dir", "private/specs", TypeError),
+        ("specs_dir", 42, TypeError),
+        ("data_dir", "private/data", TypeError),
+        ("data_dir", 42, TypeError),
     ],
 )
-def test_arm_rejects_invalid_config_without_changing_idle_state(config):
+def test_invalid_config_fields_are_rejected_without_changing_idle_state(
+    field, value, error_type
+):
     coordinator = ArmedTrialCoordinator()
+    values = {
+        "participant_id": "P01",
+        "trial_index": 0,
+        "task_id": "task_calendar",
+        "condition": StudyCondition.STEPWISE,
+        "inject_error": False,
+        "specs_dir": Path("private/specs"),
+        "data_dir": Path("private/data"),
+    }
+    values[field] = value
 
-    with pytest.raises(ValueError):
+    with pytest.raises(error_type):
+        config = ArmedTrialConfig(**values)
         coordinator.arm(config, _spec())
 
     assert coordinator.status().state is None
+
+
+@pytest.mark.parametrize(
+    ("specs_dir", "data_dir"),
+    [
+        (Path("private/specs"), Path("private/data")),
+        (Path("private/specs"), None),
+        (None, Path("private/data")),
+        (None, None),
+    ],
+)
+def test_path_or_none_directory_fields_arm_successfully(specs_dir, data_dir):
+    coordinator = ArmedTrialCoordinator()
+    config = ArmedTrialConfig(
+        participant_id="P01",
+        trial_index=0,
+        task_id="task_calendar",
+        condition=StudyCondition.STEPWISE,
+        inject_error=False,
+        specs_dir=specs_dir,
+        data_dir=data_dir,
+    )
+
+    coordinator.arm(config, _spec())
+
+    assert coordinator.status().state is ArmedState.ARMED
+    assert not hasattr(coordinator.status(), "specs_dir")
+    assert not hasattr(coordinator.status(), "data_dir")
 
 
 def test_arm_rejects_task_mismatch_and_missing_trigger():

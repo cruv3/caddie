@@ -30,6 +30,31 @@ class ArmedTrialConfig:
     specs_dir: Path | None
     data_dir: Path | None
 
+    def __post_init__(self) -> None:
+        self._validate()
+
+    def _validate(self) -> None:
+        if not isinstance(self.participant_id, str):
+            raise TypeError("participant_id must be a string")
+        if not self.participant_id.strip():
+            raise ValueError("participant_id must be non-empty")
+        if not isinstance(self.trial_index, int) or isinstance(self.trial_index, bool):
+            raise TypeError("trial_index must be an integer")
+        if self.trial_index < 0:
+            raise ValueError("trial_index must be nonnegative")
+        if not isinstance(self.task_id, str):
+            raise TypeError("task_id must be a string")
+        if not self.task_id.strip():
+            raise ValueError("task_id must be non-empty")
+        if not isinstance(self.condition, StudyCondition):
+            raise TypeError("condition must be a StudyCondition")
+        if type(self.inject_error) is not bool:
+            raise TypeError("inject_error must be a bool")
+        if self.specs_dir is not None and not isinstance(self.specs_dir, Path):
+            raise TypeError("specs_dir must be a pathlib.Path or None")
+        if self.data_dir is not None and not isinstance(self.data_dir, Path):
+            raise TypeError("data_dir must be a pathlib.Path or None")
+
 
 @dataclass(frozen=True, slots=True)
 class ClaimedTrial:
@@ -94,16 +119,7 @@ class ArmedTrialCoordinator:
         self._attempts: list[RoutingAttempt] = []
 
     def arm(self, config: ArmedTrialConfig, spec: TrialSpec) -> None:
-        if not isinstance(config.participant_id, str) or not config.participant_id.strip():
-            raise ValueError("participant_id must be a non-empty string")
-        if (
-            not isinstance(config.trial_index, int)
-            or isinstance(config.trial_index, bool)
-            or config.trial_index < 0
-        ):
-            raise ValueError("trial_index must be a nonnegative integer")
-        if not isinstance(config.task_id, str) or not config.task_id.strip():
-            raise ValueError("task_id must be a non-empty string")
+        config._validate()
         if config.task_id != spec.id:
             raise ValueError("config task_id must equal spec.id")
         if spec.trigger is None:
