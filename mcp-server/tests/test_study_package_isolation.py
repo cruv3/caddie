@@ -1,3 +1,4 @@
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
@@ -16,6 +17,9 @@ from caddie.study.model import (
 from caddie.study.packages import STUDY_PACKAGES
 from caddie.study.oversight import OversightDecision
 from caddie.tools.apps import register_app_tools
+
+
+ROOT = Path(__file__).resolve().parents[2]
 
 
 class CapturingMcp:
@@ -70,6 +74,12 @@ class RecordingBackend:
     def type_text(self, text, submit=False):
         self.calls.append(("type_text", text, submit))
         return {"success": True}
+
+
+def test_main_app_does_not_embed_standalone_study_app_module():
+    app_build = (ROOT / "app" / "build.gradle.kts").read_text(encoding="utf-8")
+
+    assert 'implementation(project(":mcp-server:study-bank"))' not in app_build
 
 
 def registered_app_tools(backend):
