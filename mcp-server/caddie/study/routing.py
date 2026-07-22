@@ -60,6 +60,35 @@ def normalize_text(text: object, wake_words: tuple[str, ...] = ()) -> str:
     return normalized
 
 
+def _joined_intra_word_text(text: object) -> str:
+    """Canonicalize text while removing punctuation/format characters.
+
+    This deliberately preserves real whitespace boundaries.  It is only used
+    for forbidden concepts, so a hidden in-word separator cannot evade a
+    safety exclusion without broadening ordinary required-concept matching.
+    """
+    if not isinstance(text, str):
+        return ""
+    canonical = unicodedata.normalize("NFKC", text).casefold()
+    canonical = (
+        canonical.replace("ä", "ae")
+        .replace("ö", "oe")
+        .replace("ü", "ue")
+        .replace("ß", "ss")
+    )
+    characters: list[str] = []
+    for character in canonical:
+        if character.isspace():
+            characters.append(" ")
+        elif unicodedata.category(character).startswith("P") or unicodedata.category(
+            character
+        ) == "Cf":
+            continue
+        else:
+            characters.append(character)
+    return " ".join("".join(characters).split())
+
+
 def _contains_phrase(text: str, phrase: str) -> bool:
     return bool(phrase) and f" {phrase} " in f" {text} "
 
@@ -67,11 +96,15 @@ def _contains_phrase(text: str, phrase: str) -> bool:
 def match_task(text: object, trigger: TriggerContract) -> MatchResult:
     """Match text against one trigger contract without side effects."""
     if not isinstance(text, str):
-        return MatchResult(False, "", (), (), (), "invalid_input")
+        return MatchResult(
+            False, "", (), trigger.required_concepts, (), "invalid_input"
+        )
 
     normalized_input = normalize_text(text, trigger.wake_words)
     if not normalized_input:
-        return MatchResult(False, "", (), (), (), "empty_input")
+        return MatchResult(
+            False, "", (), trigger.required_concepts, (), "invalid_input"
+        )
 
     matched_concepts: list[str] = []
     missing_concepts: list[tuple[str, ...]] = []
@@ -89,11 +122,18 @@ def match_task(text: object, trigger: TriggerContract) -> MatchResult:
         else:
             matched_concepts.append(representative)
 
-    forbidden_matches = tuple(
-        concept
-        for concept in trigger.forbidden_concepts
-        if _contains_phrase(normalized_input, normalize_text(concept))
-    )
+    joined_input = _joined_intra_word_text(text)
+    forbidden_matches: list[str] = []
+    seen_forbidden: set[str] = set()
+    for concept in trigger.forbidden_concepts:
+        normalized_concept = normalize_text(concept)
+        joined_concept = _joined_intra_word_text(concept)
+        if (
+            _contains_phrase(normalized_input, normalized_concept)
+            or _contains_phrase(joined_input, joined_concept)
+        ) and normalized_concept not in seen_forbidden:
+            forbidden_matches.append(concept)
+            seen_forbidden.add(normalized_concept)
     if forbidden_matches:
         reason = "forbidden_concept"
     elif missing_concepts:
@@ -105,7 +145,7 @@ def match_task(text: object, trigger: TriggerContract) -> MatchResult:
         normalized_input=normalized_input,
         matched_concepts=tuple(matched_concepts),
         missing_concepts=tuple(missing_concepts),
-        forbidden_matches=forbidden_matches,
+        forbidden_matches=tuple(forbidden_matches),
         reason=reason,
     )
 
@@ -113,11 +153,22 @@ def match_task(text: object, trigger: TriggerContract) -> MatchResult:
 class StudyTaskRouter:
     """Route text only to the supplied, currently armed task."""
 
-    def route(self, text: str, armed_spec: TrialSpec | None) -> RouteResult:
+    def route(self, text: object, armed_spec: TrialSpec | None) -> RouteResult:
         if armed_spec is None:
             return RouteResult(RouteDecision.PASS_THROUGH, None, None)
         if armed_spec.trigger is None:
-            return RouteResult(RouteDecision.RETRY, None, None)
+            return RouteResult(
+                RouteDecision.RETRY,
+                MatchResult(
+                    False,
+                    normalize_text(text),
+                    (),
+                    (),
+                    (),
+                    "missing_trigger_contract",
+                ),
+                None,
+            )
         match = match_task(text, armed_spec.trigger)
         if not match.matched:
             return RouteResult(RouteDecision.RETRY, match, None)
