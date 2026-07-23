@@ -51,6 +51,8 @@ Auspraegungen von User Oversight.
   C1 gegen C2 wird keine feste Richtung angenommen.
 - **H4:** Die Leistung in der parallelen Reaktionsaufgabe ist bei geringerer
   verpflichtender Aufsicht besser (C3 vor C2 vor C1).
+  **NOT YET IMPLEMENTED** — H4 ist aktuell nicht überprüfbar, da die
+  Reaktionsaufgabe noch nicht implementiert ist.
 - **H5:** Kontrollierte Fehler werden bei staerkerer Aufsicht haeufiger
   beziehungsweise frueher erkannt. Aufgrund der kleinen Anzahl an
   Fehlerereignissen wird diese Hypothese sekundaer beziehungsweise explorativ
@@ -68,7 +70,7 @@ Ausfuehrung kontrolliert vorgegeben wird.
   aufzufangen.
 - Jede Person erlebt alle drei Bedingungen.
 - Bedingungsreihenfolge und Zuordnung der Aufgabenpaare zu den Bedingungen
-  werden mit einem balancierten Schema beziehungsweise Latin Square rotiert.
+  werden ueber 6 Condition Orders x 3 Pair Rotations (= 18 unique Schedules) rotiert.
 - Die Position im Versuchsablauf wird fuer die Analyse dokumentiert.
 
 ## Kontrollierte Wizard-of-Oz-/Replay-Ausfuehrung
@@ -101,10 +103,10 @@ abgestimmt werden.
 
 ## Kontrollierte Fehler
 
-Jede Person erlebt in **drei der sechs Hauptaufgaben** einen kontrollierten
-Fehler. Sechs vorbereitete Fehlerplaene werden bei N=18 jeweils dreimal
-verwendet. Dadurch tritt jede Kombination aus Bedingung und Kritikalitaet ueber
-die Stichprobe gleich oft mit Fehler auf.
+Jede Person erlebt in **genau drei der sechs Hauptaufgaben** einen kontrollierten
+Fehler. Sechs vorbereitete Fehlerplaene; jede davon wird im Koehort von N=18
+jeweils 9-mal als Fehleraufgabe assigned. Dadurch wird jede Aufgabe über die
+Stichprobe gleich oft mit Fehler getroffen.
 
 Die Fehler liegen bewusst nicht immer genau einmal pro Block. Ein Block kann
 null, einen oder zwei Fehler enthalten. So kann nach einem erkannten Fehler
@@ -115,14 +117,14 @@ der restliche Ablauf bleibt korrekt. Dadurch wird nicht die generelle
 Agentenfaehigkeit, sondern das Erkennen und Behandeln einer klar definierten
 Abweichung untersucht.
 
-| Aufgabe | Kontrollierte Abweichung |
+| Aufgabe | Kontrollierter Fehler |
 |---|---|
-| Musik | Falsche Version eines Liedes oder nur zwei von drei Liedern. |
-| Fotos | Falsches Foto oder aehnlich benannte, aber falsche Messenger-Gruppe. |
-| Kalender | Falsche Uhrzeit oder falscher Erinnerungszeitpunkt. |
-| Navigation/Messenger | Falsches Verkehrsmittel, falsche Zeit oder aehnlich benannter Kontakt. |
-| Supermarkt | Falsches Produkt oder falsche Menge. |
-| Banking | Zahlendreher beim Betrag, aehnlicher Empfaenger oder falscher Verwendungszweck. |
+| T1 – Maps → Messenger | Ankunftszeit 10 Min. falsch (17:50 statt 18:00) |
+| T2 – Galerie → Notizen | Whiteboard-Eintrag liest „Dienstag" statt „Donnerstag" |
+| T3 – Chat → Spotify | Falscher Liedtitel gesucht |
+| T4 – E-Mail → Kalender | Termin eine Stunde zu spaet (16:00 statt 15:00) |
+| T5 – Kalender → DND | DND-Modus endet eine Stunde zu spaet (12:00 statt 11:00) |
+| T6 – E-Mail → Banking | Betrag 80,00 EUR statt 30,00 EUR |
 
 Der fehlerhafte Wert erscheint in C1 in der betreffenden Schrittbestaetigung,
 in C2 im finalen Checkpoint und in C3 in der laufenden Aktionsanzeige. Fuer C3
@@ -145,45 +147,52 @@ ist, ohne direkt nach einem Fehler zu fragen.
 ## Hauptaufgaben
 
 Sechs Cross-App-Aufgaben bilden drei Paare aus jeweils einer weniger kritischen
-und einer kritischeren Aufgabe. Jede Bedingung enthaelt genau ein Aufgabenpaar.
-Die Paar-Bedingungs-Zuordnung wird zwischen den Personen rotiert.
+und einer kritischeren Aufgabe. Jede Bedingung (C1, C2, C3) enthält genau ein
+Aufgabenpaar. Die Paar-Bedingungs-Zuordnung wird zwischen den Personen rotiert
+(Counterbalancing-Matrix, `matrix.py`). Jede Person erlebt alle sechs Aufgaben
+genau einmal.
 
 ### Paar A
 
-1. **Weniger kritisch - Chat -> Musik-App:** Drei in einem Chat genannte Lieder
-   zu einer Playlist hinzufuegen.
-2. **Kritischer - Galerie -> Messenger:** Drei vorbereitete private
-   Geburtstagsfotos mit einem Gruss an eine bestimmte Gruppe senden.
+1. **Weniger kritisch – T1: Maps → Messenger** – Öffentliche Route von
+   Campus Gummersbach nach Campus Deutz finden und Anna die ungefähre
+   Ankunftszeit per Messenger mitteilen.
+2. **Kritischer – T2: Galerie → Notizen** – Das neueste Whiteboard-Foto der
+   letzten Projektsitzung finden und die auf dem Whiteboard stehenden Aufgaben
+   in eine neue Notiz übertragen.
 
 ### Paar B
 
-3. **Weniger kritisch - E-Mail -> Kalender:** Eine mitgeteilte
-   Terminverschiebung uebertragen und eine Erinnerung einrichten.
-4. **Kritischer - Karten-App -> Messenger:** Die Ankunftszeit mit oeffentlichen
-   Verkehrsmitteln bestimmen und an einen vorgegebenen Kontakt senden.
+3. **Weniger kritisch – T3: Chat → Spotify** – Das Lied finden, das Anna
+   zuletzt im Chat empfohlen hat, und es zu den Favoriten in Spotify
+   hinzufügen.
+4. **Kritischer – T4: E-Mail → Kalender** – Die neueste E-Mail mit einer
+   Terminänderung der Projektsitzung finden und den Kalendereintrag mit der
+   neuen Zeit aktualisieren.
 
 ### Paar C
 
-5. **Weniger kritisch - Chat -> Supermarkt-App:** Produkte und Mengen in eine
-   vorbereitete Einkaufsliste uebertragen. Welche konkrete Supermarkt- oder
-   Einkaufslisten-App verwendet wird, kann spaeter festgelegt werden.
-6. **Kritischer - E-Mail -> Banking-Mock:** Rechnungsdaten uebernehmen und eine
-   Ueberweisung vorbereiten.
+5. **Weniger kritisch – T5: Kalender → Den-Nicht-Stören** – Die morgen
+   stattfindende Prüfung im Kalender finden und den Den-Nicht-Stören-Modus
+   genau während der Prüfungszeit aktivieren.
+6. **Kritischer – T6: E-Mail → Banking** – Die offene Rechnung im E-Mail-
+   Posteingang finden und die Zahlung in der Studien-Banking-App vorbereiten.
 
 Es werden ausschliesslich vorbereitete Studienkonten und simulierte Daten
-verwendet. Die Banking-Aufgabe nutzt weder echtes Geld noch persoenliche
-Finanzdaten. Nach jeder Aufgabe wird auf einer 7-Punkt-Skala gefragt: **Wie
-schwerwiegend waeren die Folgen eines Fehlers bei dieser Aufgabe?** Damit wird
-die vorgesehene Kritikalitaetsabstufung als Manipulationscheck geprueft.
+verwendet. Die Banking-Aufgabe nutzt weder echtes Geld noch persönliche
+Finanzdaten.
 
-Nicht mehr Teil des Kerns sind die frueheren Aufgaben Booking-Mail ->
-Kalender/Notiz/Chat, Pruefung -> Wecker/Nicht-stoeren, Rezept-Checkliste und
-Flyer-OCR. Sie hatten zu viele Endpunkte, vermischten mehrere Systemzustaende,
-waren zu repetitiv oder brachten einen OCR-Confound ein. Einfache
-Systemeinstellungen koennen als technische Demo dienen, aber nicht als
-Hauptaufgabe.
+Nicht mehr Teil des Kerns sind die früheren Aufgaben Booking-Mail →
+Kalender/Notiz/Chat, Prüfung → Wecker/DND, Rezept-Checkliste, Flyer-OCR,
+Wetter → Einkaufsliste, Projektgruppe → Notizen und Raumänderung → Kalender.
+Sie hatten zu viele Endpunkte, vermischten mehrere Systemzustände, waren zu
+repetitiv oder brachten einen OCR-Confound ein.
 
-## Parallele Reaktionsaufgabe
+## Parallele Reaktionsaufgabe (DRT / PARAT)
+
+> **NOT YET IMPLEMENTED** — Die Reaktionsaufgabe ist aktuell nicht umgesetzt
+> und daher vom aktuellen Pilot ausgeschlossen, bis sie tatsächlich implementiert
+> ist. Sie wird nicht als aktive Studiennass genommen, solange sie fehlt.
 
 Waehrend der Agent arbeitet, bearbeiten die Teilnehmenden eine einfache
 Reaktionsaufgabe. Erfasst werden Reaktionszeit und ausgelassene Signale. Damit
@@ -223,13 +232,16 @@ Aufmerksamkeit fuer eine parallele Taetigkeit freisetzt.
    - Der Umfang der notwendigen Bestaetigungen war angemessen.
    Die Items werden einzeln und explorativ ausgewertet, nicht als validierte
    Skala.
+4. **TAM PU + PEOU:** Technology Acceptance Measure – Perceived Usefulness
+   (5 Items) und Perceived Ease of Use (5 Items). Der Systembezug („Computer")
+   wurde auf „Caddie-Agent
 
 ### Einmalig am Studienende
 
-- Vollstaendige TAM-Subskalen **Perceived Usefulness** und **Perceived Ease of
-  Use** (je sechs Items). Nur der Systembezug wird auf Caddie angepasst und die
-  Anpassung dokumentiert.
+- TAM PU/PEOU wurden bereits nach jeder Bedingung erhoben (siehe oben).
+  Keine separate End-TAM-Messung.
 - Praeferenz-Ranking der Aufsichtsbedingungen.
+- Demografische Angaben (falls noch nicht zuvor erhoben).
 - Kurzes semistrukturiertes Abschlussinterview.
 
 ### Bewusst entfernt
@@ -251,15 +263,15 @@ ausgewertet. Eigene Items sind sichtbar gekennzeichnet. Originalfassungen und
 eine Zuordnungstabelle zwischen Quelle und Studienfassung werden fuer Betreuer
 und Anhang aufbewahrt.
 
-## Explorative Erweiterung: zeitversetzte Initiierung bei ausgeschaltetem Bildschirm
+## Explorative Erweiterung: zeitversetzte Initiierung bei ausgeschaltetem Bildschirm (C4)
 
 Ziel ist die Untersuchung, wie eine bereits beauftragte Agentenaktion
 wahrgenommen wird, wenn das Smartphone nicht mehr aktiv genutzt wird. Nach der
 Aufgabenvergabe wird das Geraet abgelegt und der Bildschirm schaltet sich aus.
-Nach einer Minute wird die Aktion initiiert. Der ausgeschaltete Bildschirm wird
+Nach zwei Minuten wird die Aktion initiiert. Der ausgeschaltete Bildschirm wird
 in der Aufgabenanweisung selbst nicht ausdruecklich erwaehnt.
 
-Jede Person erlebt alle drei Initiierungsformen:
+Jede Person erlebt **genau einen** der drei Initiierungsformen (between-participant):
 
 1. **Notify only:** Nur eine Benachrichtigung mit der vorgeschlagenen Aktion;
    keine automatische Ausfuehrung.
@@ -268,35 +280,23 @@ Jede Person erlebt alle drei Initiierungsformen:
 3. **Wake and execute:** Bildschirm aktivieren und die Aktion selbststaendig
    ausfuehren.
 
-Die drei kurzen Aufgaben werden zwischen den Initiierungsformen rotiert, damit
-Aufgabe und Modus nicht konfundiert sind:
+C4 umfasst **eine einzige Aufgabe**: Bahn-E-Mail → Verspätungsabfrage. Die
+Anweisung lautet: „Jarvis, prüfe in zwei Minuten, ob der Zug aus meiner
+neuesten Bahn-E-Mail Verspätung hat, und informiere mich über das Ergebnis."
 
-1. **Wetter -> Einkaufsliste:** In einer Minute die Wettervorhersage fuer morgen
-   pruefen und die Einkaufsliste um einen passenden Gegenstand ergaenzen.
-2. **Projektgruppe -> Notizen:** In einer Minute die letzte Nachricht der
-   Projektgruppe pruefen und die darin genannten Aufgaben als Checkliste in die
-   Notizen-App uebertragen. **Dieser Task ist bereits umgesetzt.**
-3. **E-Mail -> Kalender:** In einer Minute pruefen, ob sich der Raum der
-   morgigen Veranstaltung in der letzten E-Mail geaendert hat, und den
-   Kalendereintrag gegebenenfalls aktualisieren.
-
-Nach jedem Durchlauf werden Komfort, wahrgenommene Kontrolle und empfundene
-Aufdringlichkeit erhoben. Am Ende wird die bevorzugte Initiierungsform
-abgefragt. Nur wenn alle drei Formen erlebt werden, koennen tatsaechliche
-Erfahrungen verglichen werden; eine einzelne Aufgabe mit drei beschriebenen
-Optionen wuerde lediglich hypothetische Praeferenzen messen.
-
-Dieser Teil ist explorativ und nicht Bestandteil der Haupthypothesen. Wenn der
-Pilot eine zu hohe Gesamtdauer zeigt, wird er als erster entfernt und nur als
-Ausblick diskutiert.
+Nach der C4-Aufgabe werden Komfort, wahrgenommene Kontrolle und Modus-Präferenz
+erhoben. Dieser Teil ist explorativ und nicht Bestandteil der Haupthypothesen.
+Wenn der Pilot eine zu hohe Gesamtdauer zeigt, wird er als erster entfernt und
+nur als Ausblick diskutiert.
 
 ## Technische Abgrenzung
 
 - Direkte ADB-Aktionen koennen Navigationsschritte unsichtbar machen. Die
   Zustandsaenderung selbst, beispielsweise Lautstaerke, Helligkeit oder
   Medienwiedergabe, bleibt jedoch wahrnehmbar.
-- Einfache Systemeinstellungen sind deshalb keine Hauptaufgaben. Die konstante
-  Aktionsanzeige soll jederzeit sichtbar machen, was geaendert wird.
+- Auch bei der Hauptaufgabe Kalender → Nicht stören bleibt die sichtbare
+  Zustandsänderung Teil der Nutzererfahrung. Die konstante Aktionsanzeige macht
+  transparent, welche Einstellung und welcher Zeitraum geändert werden.
 - Ein virtueller Bildschirm ist wegen des Implementierungsaufwands keine
   Voraussetzung fuer die Studie. Er bleibt technischer Ausblick und wuerde
   globale Effekte wie Ton oder Nicht-stoeren ohnehin nicht vollstaendig
@@ -304,12 +304,13 @@ Ausblick diskutiert.
 
 ## Geplanter Ablauf und Dauer
 
-1. Einwilligung, Einfuehrung und demografische Angaben: ca. 5-8 Minuten.
+1. Einwilligung, Einfuehrung: ca. 5-8 Minuten.
 2. Freies Kennenlernen und standardisiertes Training: ca. 8-10 Minuten.
-3. Drei Hauptbloecke mit je zwei Aufgaben, Reaktionsaufgabe und
-   Blockfragebogen.
-4. Optional: drei kurze Bildschirm-aus-Mikroaufgaben.
-5. TAM, Praeferenzabfrage, Abschlussinterview und Debriefing: ca. 8-10 Minuten.
+3. Drei Hauptbloecke mit je zwei Aufgaben, Blockfragebogen:
+   ca. 45-60 Minuten.
+4. Optional: C4 – eine kurze Bildschirm-aus-Aufgabe: ca. 5-7 Minuten.
+5. Praeferenzabfrage, Abschlussinterview und Debriefing: ca. 8-10 Minuten.
+   TAM PU/PEOU wurden bereits nach jeder Bedingung erhoben.
 
 Gesamtdauer: geplant **60-75 Minuten**, harte Obergrenze nach Pilot maximal 90
 Minuten.

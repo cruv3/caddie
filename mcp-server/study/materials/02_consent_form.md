@@ -4,7 +4,7 @@
 
 ### Hauptuntersuchende:
 Andreas [Nachname]
-Karlsruher Institut für Technologie (KIT)
+Technische Hochschule Köln (TH Köln)
 
 ### Beschreibung:
 Sie nehmen an einer Studie teil, die die Zusammenarbeit zwischen einem
@@ -13,7 +13,7 @@ Der Agent führt Aufgaben auf Ihrem Smartphone aus, während Sie die
 Ausführung visuell überwachen und eingreifen können.
 
 ### Dauer:
-ca. 45–60 Minuten
+ca. 60–75 Minuten
 
 ### procedures:
 1. Sie führen 18 verschiedene Aufgaben auf Ihrem Smartphone aus
