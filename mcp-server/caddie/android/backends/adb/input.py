@@ -111,6 +111,5 @@ class InputCommands(DeviceCommands):
 
     @staticmethod
     def _escape_input_text(text: str) -> str:
-        # Android's `input text` uses %s for spaces. Keep the first version simple.
-        return text.replace("%", r"\%").replace(" ", "%s")
-
+        escaped = text.replace("%", r"\%").replace(" ", "%s")
+        return "'" + escaped.replace("'", r"'\''") + "'"

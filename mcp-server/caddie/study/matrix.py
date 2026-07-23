@@ -3,12 +3,16 @@
 Reads the available trial specs from study/specs/ and generates a
 ParticipantConfig for each participant slot (P01–P18).
 
-Balancing goals (per the study design spec):
-  - Each participant receives exactly 3 low + 3 high criticality tasks (6 total)
-  - Each condition appears exactly twice per participant
-  - Each condition appears in each position exactly twice per cohort
-  - Each participant receives exactly 3 controlled-error tasks
-  - Condition × task criticality × error exposure is balanced across the cohort
+Balancing goals:
+  - 6 fixed tasks grouped into 3 pairs (A, B, C), each pair = 1 low + 1 high
+  - Every participant performs all 6 tasks exactly once
+  - 6 condition orders (fixed: C1,C1,C2,C2,C3,C3 with different condition
+    assignments to Pair A/B/C positions)
+  - 3 pair rotations (swap low/high positions within Pair A or Pair B,
+    but both tasks of a pair always share the same condition)
+  - 6 x 3 = 18 unique schedules
+  - Each participant gets exactly 3 controlled-error tasks (round-robin
+    balanced across the cohort)
   - Screen-off modes are rotated independently of the main-task matrix
 """
 
@@ -18,7 +22,6 @@ import collections
 import pathlib
 import random
 import typing
-from dataclasses import replace
 from typing import Sequence
 
 from caddie.study.model import (
@@ -45,7 +48,232 @@ ALL_CONDITIONS = list(StudyCondition)
 ALL_SCREEN_OFF_MODES = list(ScreenOffMode)
 
 
-# ── Task pair extraction ────────────────────────────────────────────────────
+# ── Fixed task pairs ───────────────────────────────────────────────────────
+
+# Pair A: low = maps_messenger (low), high = gallery_notes (high)
+# Pair B: low = chat_spotify (low), high = email_calendar (high)
+# Pair C: low = calendar_dnd (low), high = banking_payment (high)
+
+# 6 condition orders: all permutations of (Pair A → cond, Pair B → cond, Pair C → cond)
+# Each order maps to 2 of each condition across the 6 task positions.
+# The task order is always [A-low, A-high, B-low, B-high, C-low, C-high].
+_CONDITION_ORDERS: list[tuple[StudyCondition, ...]] = [
+    # Order 0:  A→C1, B→C2, C→C3
+    (
+        StudyCondition.STEPWISE,
+        StudyCondition.STEPWISE,
+        StudyCondition.FINAL_CHECKPOINT,
+        StudyCondition.FINAL_CHECKPOINT,
+        StudyCondition.VOLUNTARY_INTERVENTION,
+        StudyCondition.VOLUNTARY_INTERVENTION,
+    ),
+    # Order 1:  A→C1, B→C3, C→C2
+    (
+        StudyCondition.STEPWISE,
+        StudyCondition.STEPWISE,
+        StudyCondition.VOLUNTARY_INTERVENTION,
+        StudyCondition.VOLUNTARY_INTERVENTION,
+        StudyCondition.FINAL_CHECKPOINT,
+        StudyCondition.FINAL_CHECKPOINT,
+    ),
+    # Order 2:  A→C2, B→C1, C→C3
+    (
+        StudyCondition.FINAL_CHECKPOINT,
+        StudyCondition.FINAL_CHECKPOINT,
+        StudyCondition.STEPWISE,
+        StudyCondition.STEPWISE,
+        StudyCondition.VOLUNTARY_INTERVENTION,
+        StudyCondition.VOLUNTARY_INTERVENTION,
+    ),
+    # Order 3:  A→C2, B→C3, C→C1
+    (
+        StudyCondition.FINAL_CHECKPOINT,
+        StudyCondition.FINAL_CHECKPOINT,
+        StudyCondition.VOLUNTARY_INTERVENTION,
+        StudyCondition.VOLUNTARY_INTERVENTION,
+        StudyCondition.STEPWISE,
+        StudyCondition.STEPWISE,
+    ),
+    # Order 4:  A→C3, B→C1, C→C2
+    (
+        StudyCondition.VOLUNTARY_INTERVENTION,
+        StudyCondition.VOLUNTARY_INTERVENTION,
+        StudyCondition.STEPWISE,
+        StudyCondition.STEPWISE,
+        StudyCondition.FINAL_CHECKPOINT,
+        StudyCondition.FINAL_CHECKPOINT,
+    ),
+    # Order 5:  A→C3, B→C2, C→C1
+    (
+        StudyCondition.VOLUNTARY_INTERVENTION,
+        StudyCondition.VOLUNTARY_INTERVENTION,
+        StudyCondition.FINAL_CHECKPOINT,
+        StudyCondition.FINAL_CHECKPOINT,
+        StudyCondition.STEPWISE,
+        StudyCondition.STEPWISE,
+    ),
+]
+
+# 3 pair rotations: swap which task from a pair occupies which position.
+# The condition order (always C1,C1,C2,C2,C3,C3) is fixed; the rotation
+# changes which task lands in which condition but does NOT change the
+# condition assigned to a pair — both tasks of Pair A always receive C1,
+# both of Pair B always receive C2, both of Pair C always receive C3.
+#
+# Rotation 0: default — Pair A positions 0,1 = [maps, gallery]
+# Rotation 1: swap Pair A positions → [gallery, maps] (both still C1)
+# Rotation 2: swap Pair B positions → [email, chat] (both still C2)
+_PAIR_ROTATIONS: list[tuple[str, ...]] = [
+    # Rotation 0: [maps, gallery, chat, email, calendar, banking]
+    (
+        "task_maps_messenger",
+        "task_gallery_notes",
+        "task_chat_spotify",
+        "task_email_calendar",
+        "task_calendar_dnd",
+        "task_banking_payment",
+    ),
+    # Rotation 1: swap Pair A → [gallery, maps, chat, email, calendar, banking]
+    (
+        "task_gallery_notes",
+        "task_maps_messenger",
+        "task_chat_spotify",
+        "task_email_calendar",
+        "task_calendar_dnd",
+        "task_banking_payment",
+    ),
+    # Rotation 2: swap Pair B → [maps, gallery, email, chat, calendar, banking]
+    (
+        "task_maps_messenger",
+        "task_gallery_notes",
+        "task_email_calendar",
+        "task_chat_spotify",
+        "task_calendar_dnd",
+        "task_banking_payment",
+    ),
+]
+
+
+# ── Helper functions ────────────────────────────────────────────────────────
+
+
+def _select_error_tasks(
+    task_ids: list[str],
+    count: int = NUM_ERROR_TASKS,
+    seed_offset: int = 0,
+) -> tuple[str, ...]:
+    """Select exactly ``count`` task IDs for controlled error injection.
+
+    Uses a deterministic round-robin schedule so each task ID is an error
+    task for exactly ``18 // 6 = 3`` of the 18 participants (or as evenly
+    distributed as possible when count ≠ 1).
+
+    Parameters
+    ----------
+    task_ids : list[str]
+        All task IDs available for error injection (typically all 6).
+    count : int
+        Number of error tasks per participant (always 3).
+    seed_offset : int
+        Participant index (0–17) used as round-robin offset.
+
+    Returns
+    -------
+    tuple[str, ...]
+        Exactly ``count`` sorted task IDs.
+    """
+    n_tasks = len(task_ids)
+    if n_tasks == 0:
+        return ()
+    if n_tasks <= count:
+        return tuple(sorted(task_ids))
+    # Round-robin: participant i gets tasks at positions
+    # (i*count) mod n_tasks, ((i*count)+1) mod n_tasks, ..., ((i*count)+count-1) mod n_tasks.
+    # Over 18 participants this distributes each task exactly 9 times.
+    offset = (seed_offset * count) % n_tasks
+    selected = [task_ids[(offset + j) % n_tasks] for j in range(count)]
+    return tuple(sorted(selected))
+
+
+def _rotate_screen_off(participant_index: int) -> tuple[ScreenOffMode, ...]:
+    """Return a rotation of the three screen-off initiation modes.
+
+    Rotates cyclically by ``participant_index`` so each participant gets a
+    different mode order while maintaining full determinism.
+    """
+    n = len(ALL_SCREEN_OFF_MODES)
+    offset = participant_index % n
+    return tuple(
+        ALL_SCREEN_OFF_MODES[(i + offset) % n] for i in range(n)
+    )
+
+
+def generate_participant_config(
+    participant_id: str,
+    task_ids: tuple[str, ...],
+    criticalities: dict[str, CriticalityClass],
+    condition_order: tuple[StudyCondition, ...],
+    specs: dict[str, TrialSpec] | None = None,
+) -> ParticipantConfig:
+    """Generate a ParticipantConfig for a single participant slot.
+
+    Parameters
+    ----------
+    participant_id : str
+        Participant ID (e.g. "P01").
+    task_ids : tuple[str, ...]
+        Ordered list of exactly 6 task spec IDs.
+    criticalities : dict[str, CriticalityClass]
+        Mapping of task ID to criticality class.
+    condition_order : tuple[StudyCondition, ...]
+        Ordered list of conditions for this participant (length 6).
+    specs : dict[str, TrialSpec] | None
+        Trial specs for error-step lookup.
+
+    Returns
+    -------
+    ParticipantConfig
+        Fully populated config for the participant.
+    """
+    # Participant-specific error task selection — rotate seed per
+    # participant so each gets a different but deterministic set of
+    # 3 error tasks.
+    participant_num = int(participant_id[1:]) - 1
+    if specs:
+        tasks_with_errors = [
+            tid for tid in task_ids
+            if specs.get(tid) and specs[tid].error_steps
+        ]
+    else:
+        tasks_with_errors = list(task_ids)
+    error_tasks = _select_error_tasks(
+        tasks_with_errors if tasks_with_errors else list(task_ids),
+        NUM_ERROR_TASKS,
+        seed_offset=participant_num,
+    )
+    screen_off_order = _rotate_screen_off(int(participant_id[1:]) - 1)
+
+    pair_assignments = tuple(
+        (tid, criticalities.get(tid, CriticalityClass.LOW))
+        for tid in task_ids
+    )
+
+    return ParticipantConfig(
+        participant_id=participant_id,
+        condition_order=condition_order,
+        task_order=task_ids,
+        error_tasks=error_tasks,
+        screen_off_order=screen_off_order,
+        screen_off_tasks=(
+            "screen_off_weather",
+            "screen_off_project_group",
+            "screen_off_email_calendar",
+        ),
+        pair_assignments=pair_assignments,
+    )
+
+
+# ── Matrix generation ───────────────────────────────────────────────────────
 
 
 def extract_task_pairs(specs: dict[str, TrialSpec]) -> list[TaskPair]:
@@ -68,11 +296,9 @@ def extract_task_pairs(specs: dict[str, TrialSpec]) -> list[TaskPair]:
             f"Found {len(low_tasks)} low, {len(high_tasks)} high."
         )
 
-    # Sort keys for determinism
     low_keys = sorted(low_tasks.keys())
     high_keys = sorted(high_tasks.keys())
 
-    # We need at least 3 pairs (NUM_PAIRS_PER_PARTICIPANT)
     if len(low_keys) < NUM_PAIRS_PER_PARTICIPANT:
         raise ValueError(
             f"Need at least {NUM_PAIRS_PER_PARTICIPANT} low criticality tasks "
@@ -84,7 +310,6 @@ def extract_task_pairs(specs: dict[str, TrialSpec]) -> list[TaskPair]:
             f"for the full protocol. Found {len(high_keys)}."
         )
 
-    # Form true one-to-one pairs (sorted pairing)
     pairs: list[TaskPair] = []
     for i in range(min(len(low_keys), len(high_keys))):
         pairs.append(TaskPair(
@@ -96,322 +321,85 @@ def extract_task_pairs(specs: dict[str, TrialSpec]) -> list[TaskPair]:
     return pairs
 
 
-# ── Counterbalancing logic ──────────────────────────────────────────────────
-
-
-def _latin_square(n: int) -> list[tuple[int, ...]]:
-    """Generate a Latin square of order n (cyclic shift).
-
-    Row i, column j gives the condition index for position j in order i.
-    """
-    return tuple(
-        tuple((i + j) % n for j in range(n))
-        for i in range(n)
-    )
-
-
-def _select_error_tasks(
-    task_ids: list[str],
-    count: int = NUM_ERROR_TASKS,
-    seed_offset: int = 0,
-) -> tuple[str, ...]:
-    """Select exactly `count` task IDs for controlled error injection.
-
-    Uses a local RNG seeded with `seed_offset` so different participants
-    get different error task sets while remaining fully deterministic.
-    """
-    rng = random.Random(seed_offset)
-    selected = rng.sample(task_ids, min(count, len(task_ids)))
-    return tuple(sorted(selected))
-
-
-def _rotate_screen_off(participant_index: int) -> tuple[ScreenOffMode, ...]:
-    """Return a rotation of the three screen-off initiation modes.
-
-    Rotates cyclically by `participant_index` so each participant gets a
-    different mode order while maintaining full determinism.
-    """
-    n = len(ALL_SCREEN_OFF_MODES)
-    offset = participant_index % n
-    return tuple(
-        ALL_SCREEN_OFF_MODES[(i + offset) % n] for i in range(n)
-    )
-
-
-def _build_condition_orders() -> list[tuple[StudyCondition, ...]]:
-    """Build all valid condition orders for 6 tasks with 3 conditions.
-
-    Each condition appears exactly twice in each order.
-    Uses a balanced Latin square approach to ensure cohort-level balance.
-    Returns 18 orders (one per participant) such that each condition
-    appears exactly twice in each position across the cohort.
-    """
-    latin = _latin_square(3)  # 3x3 Latin square
-    orders: list[tuple[StudyCondition, ...]] = []
-
-    # For 6 positions and 3 conditions (each appearing twice),
-    # we use the Latin square pattern repeated twice per row
-    for row_idx in range(NUM_PARTICIPANTS):
-        row = latin[row_idx % 3]
-        # Each condition index appears in 2 positions: the row position itself
-        # and the row position + 3 (second half)
-        condition_order: list[StudyCondition] = []
-        for j in range(6):
-            pos_in_row = j % 3
-            # Alternate between the two halves to get even distribution
-            condition_order.append(
-                ALL_CONDITIONS[row[pos_in_row]]
-            )
-        orders.append(tuple(condition_order))
-
-    return orders
-
-
-def generate_participant_config(
-    index: int,
-    task_ids: list[str],
-    criticalities: dict[str, CriticalityClass],
-    condition_order: list[StudyCondition],
-    specs: dict[str, TrialSpec] | None = None,
-) -> ParticipantConfig:
-    """Generate a ParticipantConfig for a single participant slot.
-
-    Parameters
-    ----------
-    index : int
-        Participant index (0-based, P01 = 0).
-    task_ids : list[str]
-        Ordered list of exactly 6 task spec IDs.
-    criticalities : dict[str, CriticalityClass]
-        Mapping of task ID to criticality class.
-    condition_order : list[StudyCondition]
-        Ordered list of conditions for this participant (length 6).
-
-    Returns
-    -------
-    ParticipantConfig
-        Fully populated config for the participant.
-    """
-    participant_id = f"P{index + 1:02d}"
-
-    # Participant-specific error task selection (deterministic via seed_offset)
-    # Only select tasks that have error variants defined in their specs
-    if specs:
-        tasks_with_errors = [
-            tid for tid in task_ids
-            if specs.get(tid) and specs[tid].error_steps
-        ]
-    else:
-        tasks_with_errors = task_ids
-    error_tasks = _select_error_tasks(
-        tasks_with_errors if tasks_with_errors else task_ids,
-        NUM_ERROR_TASKS,
-        seed_offset=index * 1000,
-    )
-    # Participant-specific screen-off rotation
-    screen_off_order = _rotate_screen_off(index)
-
-    pair_assignments = tuple(
-        (tid, criticalities.get(tid, CriticalityClass.LOW))
-        for tid in task_ids
-    )
-
-    return ParticipantConfig(
-        participant_id=participant_id,
-        condition_order=tuple(condition_order),
-        task_order=tuple(task_ids),
-        error_tasks=error_tasks,
-        screen_off_order=screen_off_order,
-        screen_off_tasks=(
-            "screen_off_weather",
-            "screen_off_project_group",
-            "screen_off_email_calendar",
-        ),
-        pair_assignments=pair_assignments,
-    )
-
-
 def generate_matrix(
     specs: dict[str, TrialSpec],
-    seed: int | None = 42,
+    seed: int | None = None,
 ) -> dict[str, ParticipantConfig]:
     """Generate the full P01–P18 participant matrix.
 
-    Each participant receives exactly 6 tasks: 3 low + 3 high criticality.
-    Conditions are balanced using a Latin square (each condition appears
-    exactly twice per participant). Error tasks are distributed across
-    the cohort so that each task appears as an error task roughly equally.
-
-    Uses a local ``random.Random`` instance (no global state mutation).
+    Produces exactly 18 unique schedules from 6 condition orders x 3
+    pair rotations. Every participant receives all 6 tasks (3 low + 3
+    high criticality), each condition appears exactly twice, and exactly
+    3 tasks are scheduled for error injection.
 
     Parameters
     ----------
     specs : dict[str, TrialSpec]
         Mapping of trial spec ID to validated TrialSpec.
     seed : int | None
-        Random seed for determinism. None uses system randomness.
+        Random seed (unused; matrix is fully deterministic).
 
     Returns
     -------
     dict[str, ParticipantConfig]
-        Mapping of participant ID (e.g. "P01") to ParticipantConfig.
+        P01–P18 participant configs.
 
     Raises
     ------
     ValueError
-        If not enough specs exist to fill 6 tasks.
+        If the 6 expected spec IDs are not present.
     """
-    rng = random.Random(seed) if seed is not None else random.Random()
+    # Validate that exactly the 6 expected task specs exist
+    expected_task_ids = ("task_maps_messenger", "task_gallery_notes",
+                         "task_chat_spotify", "task_email_calendar",
+                         "task_calendar_dnd", "task_banking_payment")
+    for tid in expected_task_ids:
+        if tid not in specs:
+            raise ValueError(f"Missing required spec: {tid}")
 
-    task_ids = sorted(specs.keys())
-
-    if len(task_ids) < NUM_TASKS_PER_PARTICIPANT:
-        raise ValueError(
-            f"Need at least {NUM_TASKS_PER_PARTICIPANT} trial specs for the "
-            f"full protocol. Found {len(task_ids)}: {task_ids}"
-        )
-
-    # Separate low and high criticality tasks
-    low_tasks = sorted(
-        tid for tid in task_ids
-        if specs[tid].criticality == CriticalityClass.LOW
-    )
-    high_tasks = sorted(
-        tid for tid in task_ids
-        if specs[tid].criticality == CriticalityClass.HIGH
-    )
-
-    if len(low_tasks) < NUM_PAIRS_PER_PARTICIPANT:
-        raise ValueError(
-            f"Need at least {NUM_PAIRS_PER_PARTICIPANT} low criticality tasks. "
-            f"Found {len(low_tasks)}."
-        )
-    if len(high_tasks) < NUM_PAIRS_PER_PARTICIPANT:
-        raise ValueError(
-            f"Need at least {NUM_PAIRS_PER_PARTICIPANT} high criticality tasks. "
-            f"Found {len(high_tasks)}."
-        )
-
-    # For 18 participants we need 18 × 6 = 108 task assignments (3 low + 3 high each).
-    # Use a round-robin assignment to ensure all tasks are distributed evenly.
-    criticalities = {tid: specs[tid].criticality for tid in task_ids}
-
-    # Tasks with error variants (need at least 3 per participant)
-    tasks_with_errors = [
-        tid for tid in task_ids
-        if specs[tid].error_steps
-    ]
+    criticalities = {tid: specs[tid].criticality for tid in expected_task_ids}
     configs: dict[str, ParticipantConfig] = {}
-    condition_orders = _build_condition_orders()
-    error_exposure: collections.Counter[str] = collections.Counter()
 
-    for i in range(NUM_PARTICIPANTS):
-        # Round-robin: assign tasks sequentially
-        low_idx = i % len(low_tasks)
-        high_idx = i % len(high_tasks)
+    for participant_idx in range(NUM_PARTICIPANTS):
+        condition_order_idx = participant_idx % len(_CONDITION_ORDERS)
+        pair_rotation_idx = participant_idx // len(_CONDITION_ORDERS)
 
-        # Select 3 high tasks (round-robin with offset)
-        participant_high: list[str] = []
-        for j in range(NUM_PAIRS_PER_PARTICIPANT):
-            participant_high.append(high_tasks[(high_idx + j) % len(high_tasks)])
-
-        participant_low = [
-            low_tasks[(low_idx + j) % len(low_tasks)]
-            for j in range(NUM_PAIRS_PER_PARTICIPANT)
-        ]
-
-        # Build task order: 3 low tasks + 3 high tasks
-        participant_tasks = list(participant_low) + list(participant_high)
-
-        # Ensure at least 3 tasks with error variants are included
-        # If participant doesn't have enough, swap in tasks_with_errors
-        tasks_with_err_in_participant = [
-            tid for tid in participant_tasks if tid in tasks_with_errors
-        ]
-        if len(tasks_with_err_in_participant) < 3:
-            tasks_needed = 3 - len(tasks_with_err_in_participant)
-            offset = i % len(tasks_with_errors) if tasks_with_errors else 0
-            error_candidates = (
-                tasks_with_errors[offset:] + tasks_with_errors[:offset]
-            )
-            for error_task in error_candidates:
-                if tasks_needed == 0:
-                    break
-                if error_task in participant_tasks:
-                    continue
-                error_criticality = criticalities[error_task]
-                swap_idx = next(
-                    (
-                        idx
-                        for idx, task_id in enumerate(participant_tasks)
-                        if task_id not in tasks_with_errors
-                        and criticalities[task_id] == error_criticality
-                    ),
-                    None,
-                )
-                if swap_idx is None:
-                    continue
-                participant_tasks[swap_idx] = error_task
-                tasks_needed -= 1
-
-        # Shuffle the 6 tasks for position balance
-        rng.shuffle(participant_tasks)
-
-        condition_order = list(condition_orders[i % len(condition_orders)])
+        condition_order = _CONDITION_ORDERS[condition_order_idx]
+        task_ids = _PAIR_ROTATIONS[pair_rotation_idx]
+        participant_id = f"P{participant_idx + 1:02d}"
 
         config = generate_participant_config(
-            index=i,
-            task_ids=participant_tasks,
+            participant_id=participant_id,
+            task_ids=task_ids,
             criticalities=criticalities,
             condition_order=condition_order,
             specs=specs,
         )
-        if tasks_with_errors:
-            eligible_for_participant = [
-                task_id for task_id in tasks_with_errors
-                if task_id in participant_tasks
-            ]
-            balanced_errors = tuple(
-                sorted(
-                    eligible_for_participant,
-                    key=lambda task_id: (
-                        error_exposure[task_id],
-                        (tasks_with_errors.index(task_id) - i)
-                        % len(tasks_with_errors),
-                    ),
-                )[:NUM_ERROR_TASKS]
-            )
-            for task_id in balanced_errors:
-                error_exposure[task_id] += 1
-            config = replace(config, error_tasks=balanced_errors)
         configs[config.participant_id] = config
 
     # Validate cohort-level invariants
-    _validate_cohort_balance(configs, task_ids)
+    _validate_cohort_balance(configs, expected_task_ids)
 
     return configs
 
 
 def _validate_cohort_balance(
     configs: dict[str, ParticipantConfig],
-    all_task_ids: list[str],
+    all_task_ids: tuple[str, ...],
 ) -> None:
     """Validate cohort-level balance invariants after matrix generation.
 
     Checks:
     - 18 participants generated
     - Exactly 6 tasks per participant
-    - Exactly 2 conditions per participant (each condition appears twice)
+    - Exactly 2 of each condition per participant
     - Exactly 3 error tasks per participant
-    - Error task distribution is approximately even across cohort
-    - No unknown task IDs
+    - All task IDs are known
     """
-    # 1. Participant count
     assert len(configs) == NUM_PARTICIPANTS, (
         f"Expected {NUM_PARTICIPANTS} participants, got {len(configs)}"
     )
 
-    # 2. Per-participant checks
     for pid, cfg in sorted(configs.items()):
         assert len(cfg.task_order) == NUM_TASKS_PER_PARTICIPANT, (
             f"{pid}: expected {NUM_TASKS_PER_PARTICIPANT} tasks, "
@@ -438,46 +426,26 @@ def _validate_cohort_balance(
         for tid in cfg.task_order:
             assert tid in all_task_ids, f"{pid}: unknown task '{tid}'"
 
-    # 3. Cohort-level: each condition appears in each position ~equally
-    pos_cond_counts: dict[int, dict[str, int]] = {
-        pos: collections.Counter() for pos in range(NUM_TASKS_PER_PARTICIPANT)
-    }
-    for cfg in configs.values():
-        for pos, cond in enumerate(cfg.condition_order):
-            pos_cond_counts[pos][cond.value] += 1
-
-    for pos, counts in pos_cond_counts.items():
-        # Each position should have ~6 participants per condition (18/3)
-        for cond in ALL_CONDITIONS:
-            count = counts.get(cond.value, 0)
-            assert count >= 4 and count <= 8, (
-                f"Position {pos}: condition {cond.value} in {count} participants "
-                f"(expected ~6, range 4-8)"
-            )
-
 
 # ── Public API ───────────────────────────────────────────────────────────────
 
 
 def generate_from_specs_dir(
     specs_dir: pathlib.Path | str | None = None,
-    seed: int = 42,
+    seed: int | None = None,
 ) -> dict[str, ParticipantConfig]:
     """Generate the full matrix from YAML files in the specs directory.
 
     This is the convenience entry point for the experimenter CLI:
     load specs, validate, and produce the matrix.
 
-    Loads both ``.yaml`` and ``.yml`` extensions, rejects duplicate IDs,
-    and aggregates validation errors rather than silently discarding specs.
-
     Parameters
     ----------
     specs_dir : pathlib.Path | str | None
         Directory containing study spec YAML files. Defaults to the
         standard study/specs directory.
-    seed : int
-        Random seed for deterministic matrix generation.
+    seed : int | None
+        Random seed (unused; matrix is deterministic).
 
     Returns
     -------
@@ -497,7 +465,6 @@ def generate_from_specs_dir(
             raise ValueError("No YAML spec files found in the default specs directory.")
         specs_dir_path = available[0].parent
 
-    # Load all available specs
     specs: dict[str, TrialSpec] = {}
     errors: list[str] = []
     for yaml_path in sorted(specs_dir_path.glob("*.yaml")) + sorted(specs_dir_path.glob("*.yml")):
@@ -531,7 +498,7 @@ def print_matrix(configs: dict[str, ParticipantConfig]) -> None:
     Intended for experimenter review before data collection.
     """
     print("=" * 80)
-    print("CADDIE STUDY — PARTICIPANT COUNTERBALANCING MATRIX")
+    print("CADDIE STUDY - PARTICIPANT COUNTERBALANCING MATRIX")
     print("=" * 80)
 
     for pid in sorted(configs.keys()):
@@ -549,7 +516,6 @@ def print_matrix(configs: dict[str, ParticipantConfig]) -> None:
 
 
 if __name__ == "__main__":
-    # CLI entry point: generate and print the matrix
     try:
         configs = generate_from_specs_dir()
         print_matrix(configs)

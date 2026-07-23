@@ -5,6 +5,7 @@ import org.json.JSONObject
 sealed class ThoughtEvent {
     data class TaskStarted(val task: String) : ThoughtEvent()
     data class ToolCallStarted(val tool: String, val argsSummary: String) : ThoughtEvent()
+    data class CurrentAction(val narration: String) : ThoughtEvent()
     data class ToolCallFinished(val tool: String, val error: String?) : ThoughtEvent()
     data class TaskFinished(val ok: Boolean, val payload: JSONObject?) : ThoughtEvent()
     object TaskPaused : ThoughtEvent()
@@ -28,6 +29,10 @@ sealed class ThoughtEvent {
                     "tool_call_finished" -> ToolCallFinished(
                         tool = json.optString("tool", "unknown"),
                         error = json.takeIf { it.has("error") }?.optString("error")?.takeIf { it.isNotBlank() }
+                    )
+                    "current_action" -> CurrentAction(
+                        narration = json.optJSONObject("payload")
+                            ?.optString("narration", "").orEmpty()
                     )
                     "task_finished" -> TaskFinished(
                         ok = json.optBoolean("ok", false),

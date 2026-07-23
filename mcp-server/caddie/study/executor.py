@@ -37,10 +37,12 @@ Directory structure
 from __future__ import annotations
 
 import abc
+import re
 import time
 from dataclasses import asdict, dataclass, field, replace
 from typing import Any, Callable, Optional
 
+from caddie.agent.event_bus import EVENT_BUS
 from caddie.study.model import (
     StepType,
     StudyCondition,
@@ -154,10 +156,12 @@ def _parse_action(action: str) -> tuple[str, ...]:
     Supported formats:
     - ``"open <package>"``  → ("open_app", "<package>")
     - ``"open_url <url>"``  → ("open_url", "<url>")
+    - ``"click first '<label>'"`` → ("tap_first", "<label>")
     - ``"click '<label>'"`` → ("tap", "<label>")
     - ``"click <label>"``   → ("tap", "<label>")
     - ``"input text '<text>'"`` → ("type", "<text>")
     - ``"input text '<text>' (submit)"`` → ("type", "<text>", "submit")
+    - ``"capture transit arrival as '<name>'"`` → ("capture_transit_arrival", "<name>")
     - ``"scroll <direction>"`` → ("scroll", "<direction>")
     - ``"press <button>"`` → ("press", "<button>")
 
@@ -165,19 +169,49 @@ def _parse_action(action: str) -> tuple[str, ...]:
     """
     action = action.strip()
 
+    def invalid() -> ValueError:
+        return ValueError(f"Unrecognised action format: {action!r}")
+
     # open_app
     if action.startswith("open "):
-        return ("open_app", action[5:])
+        target = action[5:].strip()
+        if not target:
+            raise invalid()
+        return ("open_app", target)
 
     # open_url
     if action.startswith("open_url "):
-        return ("open_url", action[9:])
+        url = action[9:].strip()
+        if not url:
+            raise invalid()
+        return ("open_url", url)
+
+    # tap first matching element with quoted label
+    if action.startswith(("click first '", "click first \"")):
+        quote = action[12]
+        try:
+            end = action.index(quote, 13)
+        except ValueError as error:
+            raise invalid() from error
+        if end != len(action) - 1:
+            raise invalid()
+        label = action[13:end]
+        if not label:
+            raise invalid()
+        return ("tap_first", label)
 
     # tap with quoted label
     if action.startswith(("click '", "click \"")):
         quote = action[6]
-        end = action.index(quote, 7)
+        try:
+            end = action.index(quote, 7)
+        except ValueError as error:
+            raise invalid() from error
+        if end != len(action) - 1:
+            raise invalid()
         label = action[7:end]
+        if not label:
+            raise invalid()
         return ("tap", label)
 
     if action.startswith("click "):
@@ -188,11 +222,16 @@ def _parse_action(action: str) -> tuple[str, ...]:
     if action.startswith(("input text '", "input text \"")):
         quote = action[11]
         rest = action[12:]
-        end = rest.index(quote)
+        try:
+            end = rest.index(quote)
+        except ValueError as error:
+            raise invalid() from error
         text = rest[:end]
-        extra = rest[end + 1:]
+        extra = rest[end + 1:].strip()
+        if extra not in ("", "(submit)"):
+            raise invalid()
         parts = ("type", text)
-        if "(submit)" in extra:
+        if extra == "(submit)":
             parts += ("submit",)
         return parts
 
@@ -205,17 +244,34 @@ def _parse_action(action: str) -> tuple[str, ...]:
             result += ("submit",)
         return result
 
+    if action.startswith(("capture transit arrival as '", "capture transit arrival as \"")):
+        quote = action[27]
+        try:
+            end = action.index(quote, 28)
+        except ValueError as error:
+            raise invalid() from error
+        if end != len(action) - 1:
+            raise invalid()
+        name = action[28:end]
+        if not name:
+            raise invalid()
+        return ("capture_transit_arrival", name)
+
     # scroll
     if action.startswith("scroll "):
         direction = action[7:].strip()
+        if direction not in {"up", "down", "left", "right"}:
+            raise invalid()
         return ("scroll", direction)
 
     # press
     if action.startswith("press "):
         button = action[6:].strip()
+        if button not in {"BACK", "HOME", "RECENT"}:
+            raise invalid()
         return ("press", button)
 
-    raise ValueError(f"Unrecognised action format: {action!r}")
+    raise invalid()
 
 
 def _find_element(
@@ -231,7 +287,11 @@ def _find_element(
 
     Returns ``None`` if zero or multiple ambiguous matches. (MAJOR: #37)
     """
+    def normalize(value: object) -> str:
+        return " ".join(str(value or "").casefold().split())
+
     label_lower = label.casefold()
+    normalized_label = normalize(label)
 
     # 1. Exact resource_id
     for el in elements:
@@ -241,22 +301,51 @@ def _find_element(
 
     # 2. Exact text/content_description
     for el in elements:
-        text = (el.get("text") or "").casefold()
-        desc = (el.get("content_description") or "").casefold()
-        if text == label_lower or desc == label_lower:
+        text = normalize(el.get("text"))
+        desc = normalize(el.get("content_description"))
+        if text == normalized_label or desc == normalized_label:
             return el
 
     # 3. Substring match — check for ambiguity
     matches: list[dict] = []
     for el in elements:
-        text = (el.get("text") or "").casefold()
-        desc = (el.get("content_description") or "").casefold()
+        text = normalize(el.get("text"))
+        desc = normalize(el.get("content_description"))
         rid = (el.get("resource_id") or "").casefold()
-        if label_lower in text or label_lower in desc or label_lower in rid:
+        if normalized_label in text or normalized_label in desc or label_lower in rid:
             matches.append(el)
     if len(matches) == 1:
         return matches[0]
     return None  # zero or ambiguous matches
+
+
+def _find_first_element(
+    elements: list[dict],
+    label: str,
+) -> Optional[dict]:
+    """Find the first element matching label text, description, or resource ID."""
+
+    def normalize(value: object) -> str:
+        return " ".join(str(value or "").casefold().split())
+
+    label_lower = label.casefold()
+    normalized_label = normalize(label)
+
+    for el in elements:
+        text = normalize(el.get("text"))
+        desc = normalize(el.get("content_description"))
+        rid = (el.get("resource_id") or "").casefold()
+        if normalized_label in text or normalized_label in desc or label_lower in rid:
+            return el
+    return None
+
+
+def _shift_time_minutes(value: str, delta_minutes: int) -> str:
+    """Shift an HH:MM clock time without attaching a date."""
+    hours_raw, minutes_raw = value.split(":", 1)
+    minutes_total = (int(hours_raw) * 60 + int(minutes_raw) + delta_minutes) % (24 * 60)
+    hours, minutes = divmod(minutes_total, 60)
+    return f"{hours:02d}:{minutes:02d}"
 
 
 # ---------------------------------------------------------------------------
@@ -407,6 +496,7 @@ class TrialExecutor:
         self._steps_executed: list[ExecutionResult] = []
         self._start_mono: float = 0.0
         self._screenshots: list[str] = []
+        self._variables: dict[str, str] = {}
 
     # ------------------------------------------------------------------
     # Public API
@@ -445,11 +535,7 @@ class TrialExecutor:
                 self._logger.screenshot_captured("pre_trial", trial_id=self._trial_id)
             )
 
-            # Pre-resolve all consequential steps
             resolved_map: dict[str, ResolvedStep] = {}
-            for step in self._spec.steps:
-                resolved = self._resolve_step(step)
-                resolved_map[step.id] = resolved
 
             # Execute steps
             steps = self._spec.steps
@@ -484,14 +570,19 @@ class TrialExecutor:
 
                 # C2: first consequential step triggers gate, then continue normally
                 if step.consequential and self._condition == StudyCondition.FINAL_CHECKPOINT:
-                    resolved = resolved_map[step.id]
+                    resolved = resolved_map.setdefault(step.id, self._resolve_step(step))
                     c2_pending.append(resolved)
                     if not c2_gate_shown:
                         c2_gate_shown = True
                         # Collect remaining consequential steps for the same batch
                         for later_step in steps[step_idx + 1:]:
                             if later_step.consequential:
-                                c2_pending.append(resolved_map[later_step.id])
+                                c2_pending.append(
+                                    resolved_map.setdefault(
+                                        later_step.id,
+                                        self._resolve_step(later_step),
+                                    )
+                                )
                         # Gate the batch — pass effective narrations for C2 display (BLOCKER B5)
                         c2_steps = [r.source for r in c2_pending]
                         c2_narrations = [r.narration for r in c2_pending]
@@ -519,7 +610,7 @@ class TrialExecutor:
 
                 # C1: individual gate for consequential steps
                 if step.consequential and self._condition == StudyCondition.STEPWISE:
-                    resolved = resolved_map[step.id]
+                    resolved = resolved_map.setdefault(step.id, self._resolve_step(step))
                     # BLOCKER B3: per-step gate timeout enforcement
                     deadline = time.monotonic() + self._spec.per_gate_timeout_s
                     decision = self._oversight.confirm_consequential_step(
@@ -538,7 +629,7 @@ class TrialExecutor:
                         return self._abort_trial(step_idx, _outcome, _reason)
 
                 # Execute the step (single resolution, single STEP_START)
-                resolved = resolved_map[step.id]
+                resolved = resolved_map.setdefault(step.id, self._resolve_step(step))
                 result = self._execute_step(step, resolved, step_idx)
                 self._steps_executed.append(result)
 
@@ -691,32 +782,45 @@ class TrialExecutor:
         Returns a ``ResolvedStep`` containing the effective action,
         narration, and whether error was actually substituted.
         """
+        action = self._expand_variables(step.action)
+        narration = self._expand_variables(step.narration or step.action)
+
         if (
             step.id in self._spec.error_steps
             and step.error_variant
             and self._spec.id in self._error_tasks
         ):
             ev = step.error_variant
-            effective_action, actually_injected = self._inject_error(step.action, ev)
-            narration = (
-                f"{step.narration or step.action} ({ev.description})"
+            effective_action, actually_injected = self._inject_error(action, ev)
+            effective_narration = (
+                f"{narration} ({ev.description})"
                 if actually_injected
-                else step.narration or step.action
+                else narration
             )
             return ResolvedStep(
                 source=step,
                 effective_action=effective_action,
-                narration=narration,
+                narration=effective_narration,
                 error_injected=actually_injected,
                 error_variant_id=ev.id,
             )
         return ResolvedStep(
             source=step,
-            effective_action=step.action,
-            narration=step.narration or step.action,
+            effective_action=action,
+            narration=narration,
             error_injected=False,
             error_variant_id=None,
         )
+
+    def _expand_variables(self, text: str) -> str:
+        """Replace ``{name}`` placeholders with captured study variables."""
+        def replace_var(match: re.Match[str]) -> str:
+            name = match.group(1)
+            if name not in self._variables:
+                raise KeyError(f"Unknown study variable: {name}")
+            return self._variables[name]
+
+        return re.sub(r"\{([a-zA-Z_][a-zA-Z0-9_]*)\}", replace_var, text)
 
     def _inject_error(
         self, action: str, error_variant: "ErrorVariant"
@@ -738,11 +842,29 @@ class TrialExecutor:
         tuple[str, bool]
             (action string with substitution, whether substitution occurred)
         """
-        cv = error_variant.correct_value
-        wv = error_variant.wrong_value
+        cv = self._expand_variables(error_variant.correct_value)
+        wv = self._expand_variables(error_variant.wrong_value)
         if cv in action:
             return action.replace(cv, wv, 1), True
         return action, False
+
+    def _remember_transit_arrival(self, name: str) -> bool:
+        """Capture the first visible Maps route arrival time into variables."""
+        elements_result = self._backend.list_elements()
+        elements = elements_result.get("elements", [])
+        pattern = re.compile(r"\b\d{1,2}:\d{2}\s*[–-]\s*(\d{1,2}:\d{2})\b")
+
+        for element in elements:
+            for field in ("text", "content_description"):
+                value = str(element.get(field) or "")
+                match = pattern.search(value)
+                if match:
+                    arrival = match.group(1)
+                    self._variables[name] = arrival
+                    self._variables[f"{name}_minus_10"] = _shift_time_minutes(arrival, -10)
+                    self._variables[f"{name}_plus_10"] = _shift_time_minutes(arrival, 10)
+                    return True
+        return False
 
     # ------------------------------------------------------------------
     # Step execution
@@ -772,6 +894,16 @@ class TrialExecutor:
         # Single STEP_START per step (BLOCKER 4: no duplicate logging)
         self._logger.step_start(
             step.id, resolved.narration, trial_id=self._trial_id
+        )
+
+        # Publish current-action narration to EventBus so the Android
+        # overlay sees each visible step. Payload carries participant,
+        # task, condition plus the narration text.
+        EVENT_BUS.current_action(
+            narration=resolved.narration,
+            participant=self._logger.participant_id,
+            task=step.id,
+            condition=self._condition.value,
         )
 
         # Log error exactly once, right before execution (BLOCKER 3)
@@ -883,6 +1015,20 @@ class TrialExecutor:
                     return None
                 return ("tap", f"Auf '{desc}' tippen (index={el['index']})", el["index"])
 
+            if action_type == "tap_first":
+                elements_result = self._backend.list_elements()
+                elements = elements_result.get("elements", [])
+                el = _find_first_element(elements, desc)
+                if el is None:
+                    return None
+                result = self._backend.tap_element(el["index"])
+                if isinstance(result, dict) and result.get("success") is False:
+                    self._logger.technical_failure(
+                        error=result.get("error", "tap_element returned success=False")
+                    )
+                    return None
+                return ("tap", f"Auf erstes '{desc}' tippen (index={el['index']})", el["index"])
+
             if action_type == "type":
                 submit = "submit" in rest
                 result = self._backend.type_text(desc, submit=submit)
@@ -892,6 +1038,11 @@ class TrialExecutor:
                     )
                     return None
                 return ("type", f"Text eingeben: '{desc}'", None)
+
+            if action_type == "capture_transit_arrival":
+                if not self._remember_transit_arrival(desc):
+                    return None
+                return ("capture_transit_arrival", f"Ankunftszeit merken ({desc})", None)
 
             if action_type == "scroll":
                 direction = desc

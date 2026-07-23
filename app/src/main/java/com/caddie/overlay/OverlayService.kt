@@ -235,6 +235,11 @@ class OverlayService : LifecycleService(), ViewModelStoreOwner, SavedStateRegist
                 val label = ToolNarration.humanLabel(event.tool, args)
                 setState { it.copy(state = RunState.Acting, currentStepLabel = label) }
             }
+            is ThoughtEvent.CurrentAction -> {
+                AgentActivityTracker.markRunActivity()
+                val label = event.narration.ifBlank { "arbeite…" }
+                setState { it.copy(state = RunState.Acting, currentStepLabel = label) }
+            }
             is ThoughtEvent.ToolCallFinished -> {
                 AgentActivityTracker.markRunActivity()
                 // Don't auto-hide between tool calls — the pill should stay

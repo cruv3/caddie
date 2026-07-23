@@ -13,10 +13,10 @@ from __future__ import annotations
 
 import dataclasses
 import logging
+import pathlib
 import time
 from dataclasses import dataclass, field
 from enum import Enum
-from pathlib import Path
 from typing import Callable, Optional
 
 logger = logging.getLogger(__name__)
@@ -302,7 +302,7 @@ def check_storage_space(
     return _run
 
 
-def _check_network_connectivity(adb_path: str = "adb") -> CheckFn:
+def _check_network_connectivity() -> CheckFn:
     """Return a network connectivity check."""
 
     def _run() -> CheckResult:
@@ -315,15 +315,15 @@ def _check_network_connectivity(adb_path: str = "adb") -> CheckFn:
         try:
             import subprocess
             result = subprocess.run(
-                [adb_path, "shell", "ping", "-c", "1", "-W", "2", "8.8.8.8"],
+                ["adb", "shell", "ping", "-c", "1", "-W", "3", "8.8.8.8"],
                 capture_output=True,
                 text=True,
-                timeout=5,
+                timeout=10,
             )
             elapsed_ms = int((time.monotonic() - start) * 1000)
             if result.returncode == 0 and "1 received" in result.stdout:
-                return CheckResult(check, CheckStatus.PASS, elapsed_ms, "Network OK")
-            return CheckResult(check, CheckStatus.FAIL, elapsed_ms, "Phone network unavailable")
+                return CheckResult(check, CheckStatus.PASS, elapsed_ms, "Phone network OK")
+            return CheckResult(check, CheckStatus.FAIL, elapsed_ms, "Phone cannot reach network")
         except Exception as exc:
             elapsed_ms = int((time.monotonic() - start) * 1000)
             return CheckResult(check, CheckStatus.FAIL, elapsed_ms, str(exc))
@@ -537,6 +537,36 @@ def check_banking_app_installed(adb_path: str = "adb") -> CheckFn:
     return _run
 
 
+def check_study_mail_app_installed(adb_path: str = "adb") -> CheckFn:
+    """Check that the offline study mail app is installed."""
+    def _run() -> CheckResult:
+        check = PreflightCheck(
+            id="study_mail_app",
+            category=CheckCategory.APP_VERSION,
+            description="Study mail mock app installed",
+        )
+        start = time.monotonic()
+        try:
+            import subprocess
+            result = subprocess.run(
+                [adb_path, "shell", "pm", "list", "packages", "com.caddie.studymail"],
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+            elapsed_ms = int((time.monotonic() - start) * 1000)
+            if "com.caddie.studymail" in result.stdout:
+                return CheckResult(check, CheckStatus.PASS, elapsed_ms, "Study mail app installed")
+            return CheckResult(check, CheckStatus.FAIL, elapsed_ms, "Study mail app not installed")
+        except subprocess.TimeoutExpired:
+            elapsed_ms = int((time.monotonic() - start) * 1000)
+            return CheckResult(check, CheckStatus.TIMEOUT, elapsed_ms, "ADB timed out")
+        except Exception as exc:
+            elapsed_ms = int((time.monotonic() - start) * 1000)
+            return CheckResult(check, CheckStatus.FAIL, elapsed_ms, str(exc))
+    return _run
+
+
 def check_notification_permission(adb_path: str = "adb") -> CheckFn:
     """Check that notification permission is granted."""
     def _run() -> CheckResult:
@@ -549,17 +579,17 @@ def check_notification_permission(adb_path: str = "adb") -> CheckFn:
         try:
             import subprocess
             result = subprocess.run(
-                [adb_path, "shell", "dumpsys", "package", "com.caddie"],
+                [adb_path, "shell", "cmd", "appops", "get", "com.caddie", "POST_NOTIFICATION"],
                 capture_output=True,
                 text=True,
                 timeout=10,
             )
             elapsed_ms = int((time.monotonic() - start) * 1000)
-            # Check for notification permission
-            if (
-                "android.permission.POST_NOTIFICATIONS: granted=true"
-                in result.stdout
-            ):
+            allowed = (
+                "POST_NOTIFICATION: allow" in result.stdout
+                or "Default mode: allow" in result.stdout
+            )
+            if result.returncode == 0 and allowed:
                 return CheckResult(check, CheckStatus.PASS, elapsed_ms, "Notification permission OK")
             return CheckResult(check, CheckStatus.FAIL, elapsed_ms, "Notification permission not granted")
         except subprocess.TimeoutExpired:
@@ -571,7 +601,7 @@ def check_notification_permission(adb_path: str = "adb") -> CheckFn:
     return _run
 
 
-def check_study_materials(materials_dir: Path | None = None) -> CheckFn:
+def check_study_materials() -> CheckFn:
     """Check that study materials directory exists."""
     def _run() -> CheckResult:
         check = PreflightCheck(
@@ -581,8 +611,8 @@ def check_study_materials(materials_dir: Path | None = None) -> CheckFn:
         )
         start = time.monotonic()
         try:
-            resolved_dir = materials_dir or Path(__file__).parent.parent.parent / "study" / "materials"
-            if resolved_dir.exists() and any(resolved_dir.iterdir()):
+            materials_dir = pathlib.Path(__file__).parent.parent.parent / "study" / "materials"
+            if materials_dir.exists() and any(materials_dir.iterdir()):
                 elapsed_ms = int((time.monotonic() - start) * 1000)
                 return CheckResult(check, CheckStatus.PASS, elapsed_ms, "Materials present")
             elapsed_ms = int((time.monotonic() - start) * 1000)
@@ -615,6 +645,11 @@ def default_suite() -> PreflightSuite:
         category=CheckCategory.APP_VERSION,
         description="Study banking mock app installed",
     ), check_banking_app_installed())
+    suite.add(PreflightCheck(
+        id="study_mail_app",
+        category=CheckCategory.APP_VERSION,
+        description="Study mail mock app installed",
+    ), check_study_mail_app_installed())
     suite.add(PreflightCheck(
         id="notification_permission",
         category=CheckCategory.NOTIFICATION,

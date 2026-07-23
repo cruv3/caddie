@@ -3,9 +3,7 @@
 from __future__ import annotations
 
 import time
-from pathlib import Path
-from subprocess import CompletedProcess
-from unittest.mock import patch
+import subprocess
 
 import pytest
 
@@ -17,7 +15,6 @@ from caddie.study.preflight import (
     PreflightCheck,
     PreflightResult,
     PreflightSuite,
-    _check_network_connectivity,
     check_banking_app_installed,
     check_device_connected,
     check_notification_permission,
@@ -25,6 +22,7 @@ from caddie.study.preflight import (
     check_storage_space,
     check_study_materials,
     default_suite,
+    _check_network_connectivity,
 )
 
 
@@ -193,6 +191,12 @@ def test_default_suite_has_checks():
     assert len(suite.checks) >= 5
 
 
+def test_default_suite_requires_study_mail_app():
+    suite = default_suite()
+    check_ids = {check.id for check, _ in suite.checks}
+    assert "study_mail_app" in check_ids
+
+
 def test_default_suite_run():
     suite = default_suite()
     results, summary = suite.run_and_summary()
@@ -201,36 +205,98 @@ def test_default_suite_run():
     assert summary.total >= 5
 
 
-def test_device_check_accepts_adb_long_listing():
+def test_device_check_accepts_detailed_adb_device_line(monkeypatch):
     output = (
         "List of devices attached\n"
-        "35091FDH2002ZN device product:panther model:Pixel_7 transport_id:1\n"
+        "35091FDH2002ZN device product:panther model:Pixel_7 device:panther transport_id:2\n"
     )
-    with patch("subprocess.run", return_value=CompletedProcess([], 0, output, "")):
-        assert check_device_connected()().passed
+    monkeypatch.setattr(
+        subprocess,
+        "run",
+        lambda *args, **kwargs: subprocess.CompletedProcess(args[0], 0, output, ""),
+    )
+
+    assert check_device_connected()().status is CheckStatus.PASS
 
 
-def test_adb_preflight_checks_use_defined_executable_and_real_outputs(tmp_path: Path):
-    materials = tmp_path / "materials"
-    materials.mkdir()
-    (materials / "task.md").write_text("ready", encoding="utf-8")
-    outputs = iter([
-        CompletedProcess([], 0, "package:com.caddie.studybank\n", ""),
-        CompletedProcess([], 0, "android.permission.POST_NOTIFICATIONS: granted=true\n", ""),
-        CompletedProcess([], 0, "Filesystem 1K-blocks Used Available Use% Mounted on\n/dev/fuse 1000 1 900000 1% /sdcard\n", ""),
-        CompletedProcess([], 0, "1 packets transmitted, 1 received, 0% packet loss\n", ""),
-    ])
-    with patch("subprocess.run", side_effect=lambda *args, **kwargs: next(outputs)):
-        assert check_banking_app_installed()().passed
-        assert check_notification_permission()().passed
-        assert check_storage_space()().passed
-        assert _check_network_connectivity()().passed
-    assert check_study_materials(materials)().passed
+def test_banking_check_uses_adb_and_detects_installed_package(monkeypatch):
+    monkeypatch.setattr(
+        subprocess,
+        "run",
+        lambda *args, **kwargs: subprocess.CompletedProcess(
+            args[0], 0, "package:com.caddie.studybank\n", ""
+        ),
+    )
+
+    assert check_banking_app_installed()().status is CheckStatus.PASS
 
 
-def test_server_health_defaults_to_agent_port():
-    with patch("urllib.request.urlopen") as urlopen:
-        urlopen.return_value.status = 200
-        assert check_server_health()().passed
-        request = urlopen.call_args.args[0]
-        assert request.full_url == "http://127.0.0.1:8787/study/health"
+def test_notification_check_requires_appops_allow(monkeypatch):
+    monkeypatch.setattr(
+        subprocess,
+        "run",
+        lambda *args, **kwargs: subprocess.CompletedProcess(
+            args[0], 0, "Uid mode: POST_NOTIFICATION: allow\n", ""
+        ),
+    )
+
+    assert check_notification_permission()().status is CheckStatus.PASS
+
+
+def test_notification_check_accepts_android_default_allow(monkeypatch):
+    monkeypatch.setattr(
+        subprocess,
+        "run",
+        lambda *args, **kwargs: subprocess.CompletedProcess(
+            args[0], 0, "No operations.\nDefault mode: allow\n", ""
+        ),
+    )
+
+    assert check_notification_permission()().status is CheckStatus.PASS
+
+
+def test_server_health_defaults_to_running_agent_port(monkeypatch):
+    requested_urls = []
+
+    class Response:
+        status = 200
+
+    def fake_urlopen(request, timeout):
+        requested_urls.append(request.full_url)
+        return Response()
+
+    monkeypatch.setattr("urllib.request.urlopen", fake_urlopen)
+
+    assert check_server_health()().status is CheckStatus.PASS
+    assert requested_urls == ["http://127.0.0.1:8787/study/health"]
+
+
+def test_storage_check_parses_phone_free_space(monkeypatch):
+    output = (
+        "Filesystem 1K-blocks Used Available Use% Mounted on\n"
+        "/dev/fuse 115249236 75029672 40088492 66% /storage/emulated\n"
+    )
+    monkeypatch.setattr(
+        subprocess,
+        "run",
+        lambda *args, **kwargs: subprocess.CompletedProcess(args[0], 0, output, ""),
+    )
+
+    assert check_storage_space()().status is CheckStatus.PASS
+
+
+def test_network_check_uses_phone_connectivity(monkeypatch):
+    commands = []
+
+    def fake_run(command, **kwargs):
+        commands.append(command)
+        return subprocess.CompletedProcess(command, 0, "1 packets transmitted, 1 received", "")
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+
+    assert _check_network_connectivity()().status is CheckStatus.PASS
+    assert commands == [["adb", "shell", "ping", "-c", "1", "-W", "3", "8.8.8.8"]]
+
+
+def test_study_materials_check_finds_repository_materials():
+    assert check_study_materials()().status is CheckStatus.PASS

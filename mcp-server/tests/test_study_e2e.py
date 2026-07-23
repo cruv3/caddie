@@ -1037,8 +1037,13 @@ class TestMatrixIntegration:
     def test_generate_matrix_returns_participants(self, tmp_path):
         """generate_matrix returns ParticipantConfigs for all participants."""
         from caddie.study.model import TrialSpec as TS
+        task_ids = [
+            "task_maps_messenger", "task_gallery_notes",
+            "task_chat_spotify", "task_email_calendar",
+            "task_calendar_dnd", "task_banking_payment",
+        ]
         specs = {}
-        for i in range(8):
+        for i, tid in enumerate(task_ids):
             steps = [
                 StudyStep(
                     id=f"step_{i}_1",
@@ -1048,10 +1053,10 @@ class TestMatrixIntegration:
                     min_narration_ms=100,
                 ),
             ]
-            specs[f"task_{i}"] = TrialSpec(
-                version="v1", id=f"task_{i}", instruction_de=f"Task {i}",
+            specs[tid] = TrialSpec(
+                version="v1", id=tid, instruction_de=f"Task {tid}",
                 criticality=CriticalityClass.LOW if i % 2 == 0 else CriticalityClass.HIGH,
-                steps=tuple(steps), error_steps=(f"task_{i}",) if i < 3 else (),
+                steps=tuple(steps), error_steps=(f"step_{i}_1",) if i < 3 else (),
                 verification=(), max_duration_s=30, per_gate_timeout_s=10,
             )
 
@@ -1065,8 +1070,13 @@ class TestMatrixIntegration:
 
     def test_matrix_all_conditions_represented(self, tmp_path):
         """Matrix for 3+ participants covers all 3 conditions."""
+        task_ids = [
+            "task_maps_messenger", "task_gallery_notes",
+            "task_chat_spotify", "task_email_calendar",
+            "task_calendar_dnd", "task_banking_payment",
+        ]
         specs = {}
-        for i in range(8):
+        for i, tid in enumerate(task_ids):
             steps = [
                 StudyStep(
                     id=f"step_{i}_1",
@@ -1076,10 +1086,10 @@ class TestMatrixIntegration:
                     min_narration_ms=100,
                 ),
             ]
-            specs[f"task_{i}"] = TrialSpec(
-                version="v1", id=f"task_{i}", instruction_de=f"Task {i}",
+            specs[tid] = TrialSpec(
+                version="v1", id=tid, instruction_de=f"Task {tid}",
                 criticality=CriticalityClass.LOW if i % 2 == 0 else CriticalityClass.HIGH,
-                steps=tuple(steps), error_steps=(f"task_{i}",) if i < 3 else (),
+                steps=tuple(steps), error_steps=(f"step_{i}_1",) if i < 3 else (),
                 verification=(), max_duration_s=30, per_gate_timeout_s=10,
             )
 
@@ -1091,8 +1101,13 @@ class TestMatrixIntegration:
 
     def test_matrix_deterministic_with_seed(self, tmp_path):
         """Two runs with the same seed produce identical assignments."""
+        task_ids = [
+            "task_maps_messenger", "task_gallery_notes",
+            "task_chat_spotify", "task_email_calendar",
+            "task_calendar_dnd", "task_banking_payment",
+        ]
         specs = {}
-        for i in range(8):
+        for i, tid in enumerate(task_ids):
             steps = [
                 StudyStep(
                     id=f"step_{i}_1",
@@ -1102,10 +1117,10 @@ class TestMatrixIntegration:
                     min_narration_ms=100,
                 ),
             ]
-            specs[f"task_{i}"] = TrialSpec(
-                version="v1", id=f"task_{i}", instruction_de=f"Task {i}",
+            specs[tid] = TrialSpec(
+                version="v1", id=tid, instruction_de=f"Task {tid}",
                 criticality=CriticalityClass.LOW if i % 2 == 0 else CriticalityClass.HIGH,
-                steps=tuple(steps), error_steps=(f"task_{i}",) if i < 3 else (),
+                steps=tuple(steps), error_steps=(f"step_{i}_1",) if i < 3 else (),
                 verification=(), max_duration_s=30, per_gate_timeout_s=10,
             )
 
@@ -1477,3 +1492,13 @@ class TestParseAction:
     def test_parse_unrecognized_raises(self):
         with pytest.raises(ValueError, match="Unrecognised action"):
             _parse_action("unknown 'foo'")
+
+    @pytest.mark.parametrize("action", [
+        "click 'Weiter' and verify '30,00 EUR'",
+        "open ",
+        "scroll sideways",
+        "press ENTER",
+    ])
+    def test_parse_rejects_actions_executor_cannot_run_deterministically(self, action):
+        with pytest.raises(ValueError, match="Unrecognised action"):
+            _parse_action(action)

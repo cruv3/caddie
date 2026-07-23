@@ -30,13 +30,18 @@ Directory structure
 
 from __future__ import annotations
 
+import logging
 import threading
+import time
 
 from dataclasses import dataclass, field
 from typing import Callable, Optional, Protocol, Sequence
 
+from caddie.agent.event_bus import EVENT_BUS
 from caddie.study.logger import StudyLogger
 from caddie.study.model import StudyCondition, StudyStep
+
+log = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
@@ -242,13 +247,28 @@ class OversightManager:
     def _gate_stepwise(
         self, step: StudyStep, narration: str
     ) -> OversightDecision:
-        """Execute a C1 stepwise confirmation gate."""
+        """Execute a C1 stepwise confirmation gate.
+
+        Publishes confirmation_required to EventBus BEFORE the blocking
+        callback, so the Android overlay sees the event before waiting.
+        """
         display_narration = narration or step.narration or f"Step {step.id}"
 
         # Log the confirmation prompt (outside lock to avoid deadlocks)
         self._logger.confirmation_shown(
             step_id=step.id,
             narration=display_narration,
+        )
+
+        # Publish to EventBus so the Android overlay sees it before
+        # the callback blocks on await_confirmation.
+        EVENT_BUS.confirmation_required(
+            description=display_narration,
+            tool="study_confirm",
+            participant=self._logger.participant_id,
+            step_id=step.id,
+            condition=self._condition.value,
+            task=getattr(step, "task_id", None),
         )
 
         decision = self._prompt_user(step, display_narration)
@@ -261,6 +281,7 @@ class OversightManager:
                     accepted=False,
                     details={"decision": "cancelled", "reason": "cancelled during callback", "condition": self._condition.value},
                 )
+                EVENT_BUS.confirmation_resolved(False, step_id=step.id, decision="cancelled")
                 return OversightDecision(cancelled=True)
 
             if decision.cancelled:
@@ -270,6 +291,7 @@ class OversightManager:
                     accepted=False,
                     details={"decision": "cancelled", "reason": decision.reason, "condition": self._condition.value},
                 )
+                EVENT_BUS.confirmation_resolved(False, step_id=step.id, decision="cancelled")
                 return decision
 
             if decision.declined:
@@ -279,14 +301,16 @@ class OversightManager:
                     accepted=False,
                     details={"decision": "declined", "reason": decision.reason, "condition": self._condition.value},
                 )
+                EVENT_BUS.confirmation_resolved(False, step_id=step.id, decision="declined")
                 return decision
 
-        # Confirmed — log outside lock
+        # Confirmed — log and publish to EventBus
         self._logger.confirmation_resolved(
             step_id=step.id,
             accepted=True,
             details={"decision": "confirmed", "condition": self._condition.value},
         )
+        EVENT_BUS.confirmation_resolved(True, step_id=step.id, decision="confirmed")
         return OversightDecision(confirmed=True)
 
     def _gate_batch(
@@ -341,6 +365,11 @@ class OversightManager:
             details={"decision": "declined" if decision.declined else "confirmed", "condition": self._condition.value, "num_steps": len(steps)},
         )
 
+        EVENT_BUS.confirmation_resolved(
+            not decision.declined,
+            step_id="<batch>",
+            decision="declined" if decision.declined else "confirmed",
+        )
         return decision
 
     def _prompt_user(self, step: StudyStep, narration: str) -> OversightDecision:

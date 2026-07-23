@@ -87,23 +87,22 @@ def _make_specs(*ids_and_crits) -> dict[str, TrialSpec]:
 
 
 def test_generate_matrix_raises_with_too_few_specs():
-    specs = _make_specs("t1", "t2")
+    specs = _make_specs("t1", "low")
     try:
         generate_matrix(specs)
         assert False, "Should raise ValueError"
     except ValueError as e:
-        assert "6" in str(e)
+        assert "task_maps_messenger" in str(e)
 
 
 def test_generate_matrix_creates_18_participants():
     specs = _make_specs(
-        "t_music", "high",
-        "t_gallery", "high",
-        "t_email", "low",
-        "t_maps", "low",
-        "t_rewe", "high",
-        "t_banking", "high",
-        "t_notes", "low",
+        ("task_maps_messenger", "low"),
+        ("task_gallery_notes", "high"),
+        ("task_chat_spotify", "low"),
+        ("task_email_calendar", "high"),
+        ("task_calendar_dnd", "low"),
+        ("task_banking_payment", "high"),
     )
     configs = generate_matrix(specs, seed=42)
     assert len(configs) == 18
@@ -113,8 +112,12 @@ def test_generate_matrix_creates_18_participants():
 
 def test_each_participant_has_6_tasks():
     specs = _make_specs(
-        "t1", "high", "t2", "low", "t3", "high",
-        "t4", "low", "t5", "high", "t6", "low",
+        ("task_maps_messenger", "low"),
+        ("task_gallery_notes", "high"),
+        ("task_chat_spotify", "low"),
+        ("task_email_calendar", "high"),
+        ("task_calendar_dnd", "low"),
+        ("task_banking_payment", "high"),
     )
     assert len(specs) == 6
     configs = generate_matrix(specs, seed=42)
@@ -124,8 +127,12 @@ def test_each_participant_has_6_tasks():
 
 def test_each_participant_has_6_conditions():
     specs = _make_specs(
-        "t1", "high", "t2", "low", "t3", "high",
-        "t4", "low", "t5", "high", "t6", "low",
+        ("task_maps_messenger", "low"),
+        ("task_gallery_notes", "high"),
+        ("task_chat_spotify", "low"),
+        ("task_email_calendar", "high"),
+        ("task_calendar_dnd", "low"),
+        ("task_banking_payment", "high"),
     )
     configs = generate_matrix(specs, seed=42)
     for cfg in configs.values():
@@ -138,8 +145,12 @@ def test_each_participant_has_6_conditions():
 
 def test_each_participant_has_3_error_tasks():
     specs = _make_specs(
-        "t1", "high", "t2", "high", "t3", "low",
-        "t4", "low", "t5", "high", "t6", "low",
+        ("task_maps_messenger", "low"),
+        ("task_gallery_notes", "high"),
+        ("task_chat_spotify", "low"),
+        ("task_email_calendar", "high"),
+        ("task_calendar_dnd", "low"),
+        ("task_banking_payment", "high"),
     )
     configs = generate_matrix(specs, seed=42)
     for cfg in configs.values():
@@ -147,10 +158,14 @@ def test_each_participant_has_3_error_tasks():
 
 
 def test_condition_balance_across_cohort():
-    """Each condition should appear roughly equally across all participants."""
+    """Each condition should appear exactly twice per participant."""
     specs = _make_specs(
-        "t1", "high", "t2", "low", "t3", "high",
-        "t4", "low", "t5", "high", "t6", "low",
+        ("task_maps_messenger", "low"),
+        ("task_gallery_notes", "high"),
+        ("task_chat_spotify", "low"),
+        ("task_email_calendar", "high"),
+        ("task_calendar_dnd", "low"),
+        ("task_banking_payment", "high"),
     )
     configs = generate_matrix(specs, seed=42)
 
@@ -163,18 +178,22 @@ def test_condition_balance_across_cohort():
         for cond in cfg.condition_order:
             counts[cond] += 1
 
-    # With 8 specs (6 task IDs + 'high'/'low' as task names) and 3 conditions:
-    # 18 participants × ~2.67 conditions each ≈ 48 per condition
-    # Allow wider tolerance for uneven division
-    total_slots = sum(counts.values())
-    expected = total_slots // len(counts)
-    for cond, count in counts.items():
-        assert abs(count - expected) <= 10, f"Condition {cond} has {count} occurrences, expected ~{expected}"
+    # 18 participants × 6 tasks = 108 condition slots
+    # 3 conditions × 36 each
+    expected = 108 // 3
+    for cond in counts:
+        assert counts[cond] == expected, f"Condition {cond}: {counts[cond]} != {expected}"
 
 
 def test_screen_off_modes_present():
-    specs = _make_specs("t1", "low", "t2", "high", "t3", "low",
-                        "t4", "high", "t5", "low", "t6", "high")
+    specs = _make_specs(
+        ("task_maps_messenger", "low"),
+        ("task_gallery_notes", "high"),
+        ("task_chat_spotify", "low"),
+        ("task_email_calendar", "high"),
+        ("task_calendar_dnd", "low"),
+        ("task_banking_payment", "high"),
+    )
     configs = generate_matrix(specs, seed=42)
     for cfg in configs.values():
         assert len(cfg.screen_off_order) == 3
@@ -187,11 +206,15 @@ def test_screen_off_modes_present():
 def test_matrix_deterministic_with_seed():
     """Same seed produces identical configs."""
     specs = _make_specs(
-        "t1", "high", "t2", "low", "t3", "high",
-        "t4", "low", "t5", "high", "t6", "low",
+        ("task_maps_messenger", "low"),
+        ("task_gallery_notes", "high"),
+        ("task_chat_spotify", "low"),
+        ("task_email_calendar", "high"),
+        ("task_calendar_dnd", "low"),
+        ("task_banking_payment", "high"),
     )
-    configs1 = generate_matrix(specs, seed=123)
-    configs2 = generate_matrix(specs, seed=123)
+    configs1 = generate_matrix(specs, seed=42)
+    configs2 = generate_matrix(specs, seed=42)
 
     for pid in configs1:
         assert configs1[pid].condition_order == configs2[pid].condition_order
@@ -201,7 +224,7 @@ def test_matrix_deterministic_with_seed():
 
 def test_generate_from_specs_dir_works():
     """Integration test: load from actual YAML files."""
-    configs = generate_from_specs_dir(seed=42)
+    configs = generate_from_specs_dir()
     assert len(configs) == 18
     assert "P01" in configs
 
@@ -282,8 +305,14 @@ def test_real_specs_balance_eligible_error_exposure_across_the_cohort():
 
 def test_print_matrix_does_not_raise():
     """print_matrix should produce output without exceptions."""
-    specs = _make_specs("t1", "low", "t2", "high", "t3", "low",
-                        "t4", "high", "t5", "low", "t6", "high")
+    specs = _make_specs(
+        ("task_maps_messenger", "low"),
+        ("task_gallery_notes", "high"),
+        ("task_chat_spotify", "low"),
+        ("task_email_calendar", "high"),
+        ("task_calendar_dnd", "low"),
+        ("task_banking_payment", "high"),
+    )
     configs = generate_matrix(specs, seed=42)
     # Should not raise
     print_matrix({k: v for k, v in list(configs.items())[:3]})
@@ -295,17 +324,15 @@ def test_print_matrix_does_not_raise():
 
 
 def test_cohort_condition_distribution():
-    """Conditions are roughly balanced across the cohort."""
-    specs = {
-        f"task_{i}": TrialSpec(
-            version="v1",
-            id=f"task_{i}",
-            instruction_de=f"Task {i}",
-            criticality=CriticalityClass.LOW if i % 2 == 0 else CriticalityClass.HIGH,
-            steps=(StudyStep(id="s1", action="open com.example", narration="Test", step_type=StepType.NORMAL),),
-        )
-        for i in range(6)
-    }
+    """Conditions are exactly balanced across the cohort."""
+    specs = _make_specs(
+        ("task_maps_messenger", "low"),
+        ("task_gallery_notes", "high"),
+        ("task_chat_spotify", "low"),
+        ("task_email_calendar", "high"),
+        ("task_calendar_dnd", "low"),
+        ("task_banking_payment", "high"),
+    )
     configs = generate_matrix(specs)
 
     # Each participant should have 6 conditions (one per task)
@@ -320,60 +347,46 @@ def test_cohort_condition_distribution():
 
     counts = Counter(all_conditions)
     # With 18 participants × 6 tasks = 108 condition slots
-    # Each of 3 conditions should appear roughly 36 times
+    # Each of 3 conditions should appear exactly 36 times
     total = sum(counts.values())
     assert total == 18 * 6
     for cond in ALL_CONDITIONS:
         expected = total // len(ALL_CONDITIONS)
-        # Allow ±15% deviation
-        tolerance = int(expected * 0.15)
-        actual = counts.get(cond, 0)
-        assert abs(actual - expected) <= tolerance, (
-            f"Condition {cond}: {actual} vs expected ~{expected} "
-            f"(±{tolerance})"
+        assert counts[cond] == expected, (
+            f"Condition {cond}: {counts[cond]} vs expected {expected}"
         )
 
 
 def test_cohort_task_criticality_balance():
-    """Each participant receives roughly equal low/high task exposure."""
-    specs = {
-        f"task_{i}": TrialSpec(
-            version="v1",
-            id=f"task_{i}",
-            instruction_de=f"Task {i}",
-            criticality=CriticalityClass.LOW if i % 2 == 0 else CriticalityClass.HIGH,
-            steps=(StudyStep(id="s1", action="open com.example", narration="Test", step_type=StepType.NORMAL),),
-        )
-        for i in range(6)
-    }
+    """Each participant receives exactly 3 low + 3 high criticality tasks."""
+    specs = _make_specs(
+        ("task_maps_messenger", "low"),
+        ("task_gallery_notes", "high"),
+        ("task_chat_spotify", "low"),
+        ("task_email_calendar", "high"),
+        ("task_calendar_dnd", "low"),
+        ("task_banking_payment", "high"),
+    )
     configs = generate_matrix(specs)
 
     # Count criticality assignments per participant
-    low_counts = []
-    high_counts = []
-    for cfg in configs.values():
+    for pid, cfg in configs.items():
         low = sum(1 for _, c in cfg.pair_assignments if c == CriticalityClass.LOW)
         high = sum(1 for _, c in cfg.pair_assignments if c == CriticalityClass.HIGH)
-        low_counts.append(low)
-        high_counts.append(high)
-
-    # With 6 tasks, 3 low + 3 high expected per participant
-    for low, high in zip(low_counts, high_counts):
-        assert low == 3, f"Expected 3 low tasks, got {low}"
-        assert high == 3, f"Expected 3 high tasks, got {high}"
+        assert low == 3, f"{pid}: Expected 3 low tasks, got {low}"
+        assert high == 3, f"{pid}: Expected 3 high tasks, got {high}"
 
 
 def test_criticality_class_not_string():
     """pair_assignments contains CriticalityClass enums, not strings."""
-    specs = {}
-    for i in range(6):
-        specs[f"task_{i}"] = TrialSpec(
-            version="v1",
-            id=f"task_{i}",
-            instruction_de=f"Task {i}",
-            criticality=CriticalityClass.LOW if i % 2 == 0 else CriticalityClass.HIGH,
-            steps=(StudyStep(id="s1", action="open com.example", narration="Test", step_type=StepType.NORMAL),),
-        )
+    specs = _make_specs(
+        ("task_maps_messenger", "low"),
+        ("task_gallery_notes", "high"),
+        ("task_chat_spotify", "low"),
+        ("task_email_calendar", "high"),
+        ("task_calendar_dnd", "low"),
+        ("task_banking_payment", "high"),
+    )
     configs = generate_matrix(specs)
 
     for pid, cfg in configs.items():
@@ -388,62 +401,66 @@ def test_criticality_class_not_string():
 
 
 def test_cross_factor_condition_criticality_balance():
-    """Condition distribution should be balanced regardless of task criticality."""
-    # Use tuple args so criticality is set correctly
+    """Condition distribution should be exactly balanced."""
     specs = _make_specs(
-        ("t1", "low"), ("t2", "low"), ("t3", "low"),
-        ("t4", "high"), ("t5", "high"), ("t6", "high"),
-        ("t7", "low"), ("t8", "high"),
+        ("task_maps_messenger", "low"),
+        ("task_gallery_notes", "high"),
+        ("task_chat_spotify", "low"),
+        ("task_email_calendar", "high"),
+        ("task_calendar_dnd", "low"),
+        ("task_banking_payment", "high"),
     )
-    assert len(specs) == 8
-    configs = generate_matrix(specs, seed=42)
+    assert len(specs) == 6
+    configs = generate_matrix(specs)
 
-    # Each participant gets 2 of each condition (18 participants × 2 = 36 each)
+    # Each participant gets 2 of each condition (18 × 2 = 36 each)
     counts = {c: 0 for c in StudyCondition}
     for cfg in configs.values():
         for cond in cfg.condition_order:
             counts[cond] += 1
 
-    total = sum(counts.values())
-    expected = total // len(StudyCondition)
+    expected = 18 * 2
     for cond, count in counts.items():
-        assert abs(count - expected) <= 10, (
-            f"Condition {cond}: {count} (expected ~{expected}, "
-            f"tolerance 10, total slots {total})"
+        assert count == expected, (
+            f"Condition {cond}: {count} (expected {expected})"
         )
 
 
 def test_cross_factor_error_exposure_balance():
-    """Error tasks should be evenly distributed across participants."""
+    """Error tasks: each participant has exactly 3 error tasks."""
     specs = _make_specs(
-        ("t1", "low"), ("t2", "high"), ("t3", "low"),
-        ("t4", "high"), ("t5", "low"), ("t6", "high"),
-        ("t7", "low"), ("t8", "high"),
+        ("task_maps_messenger", "low"),
+        ("task_gallery_notes", "high"),
+        ("task_chat_spotify", "low"),
+        ("task_email_calendar", "high"),
+        ("task_calendar_dnd", "low"),
+        ("task_banking_payment", "high"),
     )
-    configs = generate_matrix(specs, seed=42)
+    configs = generate_matrix(specs)
 
-    # Each participant has exactly 3 error tasks (from _select_error_tasks)
-    error_counts = [len(cfg.error_tasks) for cfg in configs.values()]
-    assert all(c == 3 for c in error_counts), (
-        f"Error tasks per participant: {error_counts}, expected all 3"
-    )
+    for pid, cfg in configs.items():
+        assert len(cfg.error_tasks) == 3, (
+            f"{pid}: expected 3 error tasks, got {len(cfg.error_tasks)}"
+        )
 
 
 def test_screen_off_rotation_balance():
-    """Screen-off modes should be evenly rotated across all participants."""
+    """Screen-off modes are rotated cyclically across participants."""
     specs = _make_specs(
-        ("t1", "low"), ("t2", "high"), ("t3", "low"),
-        ("t4", "high"), ("t5", "low"), ("t6", "high"),
+        ("task_maps_messenger", "low"),
+        ("task_gallery_notes", "high"),
+        ("task_chat_spotify", "low"),
+        ("task_email_calendar", "high"),
+        ("task_calendar_dnd", "low"),
+        ("task_banking_payment", "high"),
     )
-    configs = generate_matrix(specs, seed=42)
+    configs = generate_matrix(specs)
 
     # Collect all screen-off mode assignments
     all_modes = []
     for cfg in configs.values():
         all_modes.extend(cfg.screen_off_order)
 
-    # With 18 participants and 3 screen-off modes, each mode should appear
-    # approximately 6 times per participant position (but we check presence)
     for mode in (ScreenOffMode.NOTIFY_ONLY, ScreenOffMode.WAKE_ASK, ScreenOffMode.WAKE_EXECUTE):
         count = sum(1 for m in all_modes if m == mode)
         assert count > 0, f"Mode {mode} not found in any participant"
@@ -452,11 +469,14 @@ def test_screen_off_rotation_balance():
 def test_cohort_has_all_three_high():
     """Each participant should have exactly 3 low and 3 high criticality tasks."""
     specs = _make_specs(
-        ("t1", "low"), ("t2", "high"), ("t3", "low"),
-        ("t4", "high"), ("t5", "low"), ("t6", "high"),
-        ("t7", "low"), ("t8", "high"),
+        ("task_maps_messenger", "low"),
+        ("task_gallery_notes", "high"),
+        ("task_chat_spotify", "low"),
+        ("task_email_calendar", "high"),
+        ("task_calendar_dnd", "low"),
+        ("task_banking_payment", "high"),
     )
-    configs = generate_matrix(specs, seed=42)
+    configs = generate_matrix(specs)
 
     for cfg in configs.values():
         low_count = sum(

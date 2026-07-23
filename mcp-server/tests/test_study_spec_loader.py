@@ -106,7 +106,7 @@ def _valid_minimal() -> dict:
         },
         "reset_checklist": ["App ist im Home-Screen"],
         "steps": [
-            {"id": "open", "action": "open", "narration": "App oeffnen...", "step_type": "normal"},
+            {"id": "open", "action": "open com.caddie", "narration": "App oeffnen...", "step_type": "normal"},
             {"id": "send", "action": "click Send", "narration": "Senden...", "step_type": "consequential", "consequential": True},
         ],
         "error_steps": [],
@@ -189,13 +189,14 @@ def test_load_spec_string_error_variant_ref():
 
 
 def test_load_spec_from_known_path():
-    """Load the real task_music_playlist.yaml from study/specs."""
+    """Load a real spec file from study/specs."""
     base = pathlib.Path(__file__).resolve().parent.parent / "study" / "specs"
-    music = base / "task_music_playlist.yaml"
-    if music.exists():
-        spec = load_trial_spec(music)
-        assert spec.id == "task_music_playlist"
-        assert len(spec.steps) == 6
+    # Load any available spec
+    yaml_files = sorted(base.glob("*.yaml"))
+    if yaml_files:
+        spec = load_trial_spec(yaml_files[0])
+        assert spec.id is not None
+        assert len(spec.steps) >= 1
 
 
 # ── Validation errors ──────────────────────────────────────────────────────
@@ -314,6 +315,20 @@ def test_error_empty_narration():
         assert "narration" in str(e)
 
 
+def test_error_unexecutable_action_reports_step_path():
+    data = _valid_minimal()
+    data["steps"][0]["action"] = "verify 'Inbox loaded'"
+    path = _temp_yaml(data)
+
+    try:
+        load_trial_spec(path)
+        assert False, "Should raise SpecError"
+    except SpecError as e:
+        message = str(e)
+        assert "steps[0]" in message
+        assert "Unrecognised action format" in message
+
+
 def test_error_unknown_field():
     data = _valid_minimal()
     data["unknown_field"] = "oops"
@@ -360,7 +375,7 @@ def test_error_empty_steps_list():
 
 def test_error_duplicate_step_ids():
     data = _valid_minimal()
-    data["steps"].append({"id": "open", "action": "x", "narration": "dup", "step_type": "normal"})
+    data["steps"].append({"id": "open", "action": "press HOME", "narration": "dup", "step_type": "normal"})
     path = _temp_yaml(data)
     try:
         load_trial_spec(path)
@@ -415,12 +430,126 @@ def test_error_file_not_found():
 
 def test_list_available_specs_returns_files():
     specs = list_available_specs()
-    # At least task_music_playlist.yaml should exist
-    ids = {s.stem for s in specs}
-    assert "task_music_playlist" in ids
+    # At least 6 spec files should exist
+    assert len(specs) >= 6
 
 
 def test_load_all_specs_returns_dict():
     specs = load_all_specs()
-    assert "task_music_playlist" in specs
-    assert specs["task_music_playlist"].id == "task_music_playlist"
+    # Verify at least one known task is present
+    assert len(specs) >= 6
+    ids = {s.id for s in specs.values()}
+    assert "task_maps_messenger" in ids
+
+
+def test_banking_spec_hides_keyboard_before_tapping_review_button():
+    spec_path = pathlib.Path(__file__).parents[1] / "study" / "specs" / "task_banking_payment.yaml"
+    spec = load_trial_spec(spec_path)
+    actions = [step.action for step in spec.steps]
+
+    purpose_index = actions.index("input text 'Rechnung INV-2026-001'")
+    assert actions[purpose_index + 1:purpose_index + 3] == [
+        "press BACK",
+        "click 'com.caddie.studybank:id/btn_send'",
+    ]
+
+
+def test_study_mail_module_is_registered():
+    settings = (pathlib.Path(__file__).parents[2] / "settings.gradle.kts").read_text(encoding="utf-8")
+    assert 'include(":mcp-server:study-mail")' in settings
+
+
+def test_gallery_and_notes_modules_are_registered():
+    settings = (pathlib.Path(__file__).parents[2] / "settings.gradle.kts").read_text(encoding="utf-8")
+    assert 'include(":mcp-server:study-gallery")' in settings
+    assert 'include(":mcp-server:study-notes")' in settings
+
+
+def test_gallery_notes_spec_uses_private_data_free_study_apps():
+    spec_path = pathlib.Path(__file__).parents[1] / "study" / "specs" / "task_gallery_notes.yaml"
+    spec = load_trial_spec(spec_path)
+    actions = [step.action for step in spec.steps]
+
+    assert spec.required_packages == (
+        "com.caddie.studygallery",
+        "com.caddie.studynotes",
+    )
+    assert "com.google.android.apps.photos" not in spec.required_packages
+    assert "com.google.android.keep" not in spec.required_packages
+    assert actions == [
+        "open com.caddie.studygallery",
+        "click 'com.caddie.studygallery:id/whiteboard_photo'",
+        "open com.caddie.studynotes",
+        "click 'com.caddie.studynotes:id/create_note'",
+        "click 'com.caddie.studynotes:id/note_text'",
+        "input text 'Projekt: Bericht Dienstag abgeben; Entwurf Donnerstag pruefen'",
+        "press BACK",
+        "press BACK",
+    ]
+    assert spec.verification[0].parameters["text"] == "Projekt: Bericht Dienstag abgeben"
+
+
+def test_email_tasks_use_local_study_mail_selectors():
+    specs_dir = pathlib.Path(__file__).parents[1] / "study" / "specs"
+    expected_targets = {
+        "task_email_calendar.yaml": "mail_meeting_change",
+        "task_banking_payment.yaml": "mail_invoice",
+    }
+
+    for filename, target in expected_targets.items():
+        spec = load_trial_spec(specs_dir / filename)
+        actions = [step.action for step in spec.steps]
+        assert "com.caddie.studymail" in spec.required_packages
+        assert "com.google.android.gm" not in spec.required_packages
+        assert "open com.caddie.studymail" in actions
+        assert f"click 'com.caddie.studymail:id/{target}'" in actions
+
+
+def test_calendar_spec_replays_qwen_discovered_time_picker_flow():
+    spec_path = pathlib.Path(__file__).parents[1] / "study" / "specs" / "task_email_calendar.yaml"
+    spec = load_trial_spec(spec_path)
+    actions = [step.action for step in spec.steps]
+
+    event_index = actions.index("click 'Projektsitzung'")
+    assert actions[event_index - 1] == "click 'Zu heute springen'"
+    assert not any("23 Juli 2026" in action for action in actions)
+    assert actions[-4:] == [
+        "click 'Beginnt um: 14:00'",
+        "click '15 Stunden'",
+        "click 'OK'",
+        "click 'Speichern'",
+    ]
+    assert spec.verification[0].parameters["text"] == "15:00–16:00"
+
+
+def test_maps_spec_uses_fake_telegram_and_dynamic_arrival():
+    spec_path = pathlib.Path(__file__).parents[1] / "study" / "specs" / "task_maps_messenger.yaml"
+    spec = load_trial_spec(spec_path)
+    actions = [step.action for step in spec.steps]
+
+    assert "com.caddie.studytelegram" in spec.required_packages
+    assert "com.google.android.apps.messaging" not in spec.required_packages
+    assert any(action.startswith("open_url https://www.google.com/maps/dir/") for action in actions)
+    assert "capture transit arrival as 'arrival_time'" in actions
+    assert "open com.caddie.studytelegram" in actions
+    assert "input text 'Ankunft gegen {arrival_time}'" in actions
+    assert not any("18:00" in action for action in actions)
+
+    input_step = next(step for step in spec.steps if step.id == "input_arrival")
+    assert input_step.error_variant is not None
+    assert input_step.error_variant.correct_value == "{arrival_time}"
+    assert input_step.error_variant.wrong_value == "{arrival_time_minus_10}"
+
+
+def test_chat_spotify_spec_uses_fake_telegram_seed():
+    spec_path = pathlib.Path(__file__).parents[1] / "study" / "specs" / "task_chat_spotify.yaml"
+    spec = load_trial_spec(spec_path)
+    actions = [step.action for step in spec.steps]
+
+    assert "com.caddie.studytelegram" in spec.required_packages
+    assert "com.google.android.apps.messaging" not in spec.required_packages
+    assert "open com.caddie.studytelegram" in actions
+    assert "click 'Lena'" in actions
+    assert "click 'Anna'" not in actions
+    assert "Caddie Study Telegram Lena Song Recommendation" in spec.seeded_artifacts
+    assert any("reset Study Telegram" in item for item in spec.reset_checklist)

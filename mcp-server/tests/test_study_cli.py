@@ -10,6 +10,9 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from caddie.study.cli import (
+    DEFAULT_MATRIX_PATH,
+    DEFAULT_SPECS_DIR,
+    cmd_audit,
     cmd_dry_run,
     cmd_export,
     cmd_inspect,
@@ -18,12 +21,29 @@ from caddie.study.cli import (
     cmd_status,
     cmd_repeat,
     main,
+    _select_trial_spec,
+)
+from caddie.study.model import (
+    CriticalityClass,
+    ParticipantConfig,
+    ScreenOffMode,
+    StepType,
+    StudyCondition,
+    StudyStep,
+    TrialSpec,
 )
 
 
 # ---------------------------------------------------------------------------
 # Argument parsing
 # ---------------------------------------------------------------------------
+
+
+def test_default_cli_paths_point_to_mcp_server_artifacts():
+    root = Path(__file__).parents[1]
+
+    assert DEFAULT_SPECS_DIR == root / "study" / "specs"
+    assert DEFAULT_MATRIX_PATH == root / "experiments" / "trial_matrix.yaml"
 
 
 def test_main_no_args_exits():
@@ -37,6 +57,28 @@ def test_main_preflight_help():
     with patch("caddie.study.cli.cmd_preflight") as mock:
         main(["preflight", "-p", "P01"])
     mock.assert_called_once()
+
+
+def test_cmd_audit_runs_all_six_participant_trials(tmp_path, capsys):
+    args = argparse.Namespace(
+        participant="P01",
+        spec_dir=Path("specs"),
+        data_dir=tmp_path / "audit",
+    )
+    seen_trials = []
+
+    def fake_dry_run(dry_run_args):
+        seen_trials.append(dry_run_args.trial)
+        raise SystemExit(0)
+
+    with patch("caddie.study.cli.cmd_dry_run", side_effect=fake_dry_run):
+        with pytest.raises(SystemExit) as exc_info:
+            cmd_audit(args)
+
+    assert exc_info.value.code == 0
+    assert seen_trials == [0, 1, 2, 3, 4, 5]
+    captured = capsys.readouterr()
+    assert "Audit passed: 6/6 trials" in captured.out
 
 
 # ---------------------------------------------------------------------------
@@ -107,6 +149,24 @@ def test_cmd_dry_run_no_specs(tmp_path, capsys):
     assert exc_info.value.code == 1
     captured = capsys.readouterr()
     assert "No specs found" in captured.out
+
+
+def test_cmd_dry_run_audits_all_real_specs_without_missing_tap_targets(tmp_path, capsys):
+    specs_dir = Path(__file__).parents[1] / "study" / "specs"
+
+    for trial_index in range(6):
+        args = argparse.Namespace(
+            participant="P01",
+            trial=trial_index,
+            spec_dir=specs_dir,
+            data_dir=tmp_path / f"data_{trial_index}",
+        )
+        with pytest.raises(SystemExit) as exc_info:
+            cmd_dry_run(args)
+
+        assert exc_info.value.code == 0
+        captured = capsys.readouterr()
+        assert "Outcome: technical_failure" not in captured.out
 
 
 # ---------------------------------------------------------------------------
@@ -186,14 +246,63 @@ def test_cmd_export_creates_file(tmp_path):
 # ---------------------------------------------------------------------------
 
 
+def test_select_trial_spec_uses_participant_task_order_index():
+    step = StudyStep(
+        id="open",
+        action="open com.example",
+        narration="Open app",
+        step_type=StepType.NORMAL,
+    )
+    specs = {
+        task_id: TrialSpec(
+            version="v1",
+            id=task_id,
+            instruction_de=f"Instruction {task_id}",
+            criticality=CriticalityClass.LOW,
+            steps=(step,),
+        )
+        for task_id in ("task_a", "task_b", "task_c", "task_d", "task_e", "task_f")
+    }
+    config = ParticipantConfig(
+        participant_id="P01",
+        condition_order=(
+            StudyCondition.STEPWISE,
+            StudyCondition.FINAL_CHECKPOINT,
+            StudyCondition.VOLUNTARY_INTERVENTION,
+            StudyCondition.STEPWISE,
+            StudyCondition.FINAL_CHECKPOINT,
+            StudyCondition.VOLUNTARY_INTERVENTION,
+        ),
+        task_order=("task_c", "task_a", "task_f", "task_b", "task_e", "task_d"),
+        error_tasks=("task_a", "task_b", "task_c"),
+        screen_off_order=(
+            ScreenOffMode.NOTIFY_ONLY,
+            ScreenOffMode.WAKE_ASK,
+            ScreenOffMode.WAKE_EXECUTE,
+        ),
+        screen_off_tasks=(
+            "screen_off_weather",
+            "screen_off_project_group",
+            "screen_off_email_calendar",
+        ),
+    )
+
+    assert _select_trial_spec(specs, config, 2).id == "task_f"
+
+
 def test_cmd_run_full_trial_success(tmp_path, capsys):
     """CLI run executes a trial successfully end-to-end."""
-    # Create 6 minimal specs (matrix needs at least 6)
-    for i in range(6):
-        spec_yaml = tmp_path / f"task_{i}.yaml"
+    # Create 6 required specs for the matrix
+    task_ids = [
+        "task_maps_messenger", "task_gallery_notes",
+        "task_chat_spotify", "task_email_calendar",
+        "task_calendar_dnd", "task_banking_payment",
+    ]
+    for i, tid in enumerate(task_ids):
+        spec_yaml = tmp_path / f"{tid}.yaml"
         spec_yaml.write_text(f"""
 version: v1
-id: task_{i}
+id: {tid}
 instruction_de: Test instruction {i}
 criticality: {'low' if i % 2 == 0 else 'high'}
 trigger:
@@ -221,7 +330,7 @@ per_gate_timeout_s: 30
     data_dir = tmp_path / "data"
     args = argparse.Namespace(
         participant="P01",
-        trial="task_test",
+        trial=0,
         spec_dir=tmp_path,
         data_dir=data_dir,
         oversight="stepwise",
@@ -242,9 +351,14 @@ per_gate_timeout_s: 30
 
 def test_cmd_run_verification_failed(tmp_path, capsys):
     """CLI run reports VERIFICATION_FAILED when backend denies verification."""
-    # Create 6 specs, with task_0 having failing verification
-    for i in range(6):
-        spec_yaml = tmp_path / f"task_{i}.yaml"
+    # Create 6 required specs, with task_0 having failing verification
+    task_ids = [
+        "task_maps_messenger", "task_gallery_notes",
+        "task_chat_spotify", "task_email_calendar",
+        "task_calendar_dnd", "task_banking_payment",
+    ]
+    for i, tid in enumerate(task_ids):
+        spec_yaml = tmp_path / f"{tid}.yaml"
         if i == 0:
             verification_block = """
 verification:
@@ -258,7 +372,7 @@ verification:
             verification_block = "verification: []"
         spec_yaml.write_text(f"""
 version: v1
-id: task_{i}
+id: {tid}
 instruction_de: Test instruction {i}
 criticality: {'low' if i % 2 == 0 else 'high'}
 trigger:
@@ -281,7 +395,7 @@ per_gate_timeout_s: 30
     data_dir = tmp_path / "data"
     args = argparse.Namespace(
         participant="P01",
-        trial="task_test",
+        trial=0,
         spec_dir=tmp_path,
         data_dir=data_dir,
         oversight="stepwise",

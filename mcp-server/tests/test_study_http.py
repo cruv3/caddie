@@ -20,6 +20,17 @@ import pytest
 pytest.importorskip("caddie.study")
 
 
+def test_study_verification_matches_accessibility_descriptions():
+    from caddie.agent.http_api import _element_contains_text
+
+    element = {
+        "text": "",
+        "content_description": "Projektsitzung, 15:00–16:00 Uhr",
+    }
+
+    assert _element_contains_text(element, "15:00–16:00")
+
+
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -51,16 +62,19 @@ def study_specs_dir(tmp_path: Path) -> Path:
     specs_dir = tmp_path / "specs"
     specs_dir.mkdir()
 
-    # Matrix needs 6 specs (3 low + 3 high criticality)
-    for name, crit in [
-        ("task_low_a", "low"), ("task_low_b", "low"), ("task_low_c", "low"),
-        ("task_high_a", "high"), ("task_high_b", "high"), ("task_high_c", "high"),
-    ]:
+    # Matrix needs 6 required specs
+    task_ids = [
+        "task_maps_messenger", "task_gallery_notes",
+        "task_chat_spotify", "task_email_calendar",
+        "task_calendar_dnd", "task_banking_payment",
+    ]
+    for i, name in enumerate(task_ids):
+        crit = "low" if i % 2 == 0 else "high"
         (specs_dir / f"{name}.yaml").write_text(
             f"""\
 version: "1.0"
 id: {name}
-instruction_de: Testaufgabe
+instruction_de: Testaufgabe {i}
 criticality: {crit}
 trigger:
   reference_phrases: [Testaufgabe]
@@ -68,11 +82,11 @@ trigger:
     - [testaufgabe]
 steps:
   - id: step1
-    action: tap "Send"
+    action: click 'Send'
     narration: "Sende Nachricht"
     step_type: consequential
   - id: step2
-    action: tap "Confirm"
+    action: click 'Confirm'
     narration: "Bestaetigen"
     step_type: normal
 error_steps: []

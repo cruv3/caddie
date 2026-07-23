@@ -193,9 +193,23 @@ def test_parse_action_tap_label():
     assert _parse_action("click Send") == ("tap", "Send")
 
 
+def test_parse_action_tap_first_label():
+    assert _parse_action("click first 'Foto wurde aufgenommen am'") == (
+        "tap_first",
+        "Foto wurde aufgenommen am",
+    )
+
+
 def test_parse_action_type_text():
     assert _parse_action("input text 'Hello'") == ("type", "Hello")
     assert _parse_action("input text 'Hello' (submit)") == ("type", "Hello", "submit")
+
+
+def test_parse_action_capture_transit_arrival():
+    assert _parse_action("capture transit arrival as 'arrival_time'") == (
+        "capture_transit_arrival",
+        "arrival_time",
+    )
 
 
 def test_parse_action_scroll():
@@ -246,10 +260,35 @@ def test_find_element_case_insensitive():
     assert el is not None
 
 
+def test_find_element_normalizes_unicode_whitespace():
+    elements = [{"content_description": "15\u00a0Stunden", "index": 8}]
+    el = _find_element(elements, "15 Stunden")
+    assert el is not None
+
+
 def test_find_element_not_found():
     elements = [{"text": "Send", "index": 5}]
     el = _find_element(elements, "Cancel")
     assert el is None
+
+
+def test_executor_tap_first_matching_element():
+    backend = FakeBackend(
+        elements=[
+            {"content_description": "Foto wurde aufgenommen am 21.07.2026 13:11", "index": 12},
+            {"content_description": "Foto wurde aufgenommen am 20.07.2026 22:54", "index": 13},
+        ]
+    )
+    executor = _make_executor(
+        backend=backend,
+        steps=[_step("click first 'Foto wurde aufgenommen am'", step_type=StepType.NORMAL)],
+        condition=StudyCondition.VOLUNTARY_INTERVENTION,
+    )
+
+    result = executor.run()
+
+    assert result.outcome.value == "success"
+    assert ("tap_element", 12) in backend.calls
 
 
 # ---------------------------------------------------------------------------
@@ -288,6 +327,37 @@ def test_executor_type_text():
     result = executor.run()
     assert result.outcome.value == "success"
     assert result.steps_done == 1
+
+
+def test_executor_captures_transit_arrival_and_types_message():
+    backend = FakeBackend(
+        elements=[
+            {"text": "1\u00a0h 43\u00a0min", "index": 1},
+            {"text": "11:28 \u2013 13:10", "index": 2},
+        ]
+    )
+    steps = [
+        StudyStep(
+            id="capture_arrival",
+            action="capture transit arrival as 'arrival_time'",
+            narration="Ankunft aus Maps lesen...",
+            step_type=StepType.NORMAL,
+        ),
+        StudyStep(
+            id="input_arrival",
+            action="input text 'Ankunft gegen {arrival_time}'",
+            narration="Ankunftszeit eingeben...",
+            step_type=StepType.NORMAL,
+        ),
+    ]
+    executor = _make_executor(
+        backend=backend,
+        steps=steps,
+        condition=StudyCondition.VOLUNTARY_INTERVENTION,
+    )
+    result = executor.run()
+    assert result.outcome.value == "success"
+    assert ("type", "Ankunft gegen 13:10", False) in backend.calls
 
 
 def test_executor_scroll():
@@ -545,6 +615,48 @@ def test_error_injection_replaces_correct_value():
     type_calls = [c for c in backend.calls if c[0] == "type"]
     assert len(type_calls) == 1
     assert type_calls[0][1] == "anna@example.com"
+
+
+def test_error_injection_uses_captured_arrival_minus_ten_minutes():
+    ev = ErrorVariant(
+        id="err_arrival_time",
+        field="arrival_time",
+        wrong_value="{arrival_time_minus_10}",
+        correct_value="{arrival_time}",
+        description="Ankunftszeit ist 10 Minuten falsch angegeben",
+    )
+    backend = FakeBackend(
+        elements=[
+            {"text": "1\u00a0h 43\u00a0min", "index": 1},
+            {"text": "11:28 \u2013 13:10", "index": 2},
+        ]
+    )
+    steps = [
+        StudyStep(
+            id="capture_arrival",
+            action="capture transit arrival as 'arrival_time'",
+            narration="Ankunft aus Maps lesen...",
+            step_type=StepType.NORMAL,
+        ),
+        StudyStep(
+            id="input_arrival",
+            action="input text 'Ankunft gegen {arrival_time}'",
+            narration="Ankunftszeit eingeben...",
+            step_type=StepType.COMMIT,
+            error_variant=ev,
+        ),
+    ]
+    executor = _make_executor(
+        backend=backend,
+        steps=steps,
+        error_steps={"input_arrival"},
+        condition=StudyCondition.VOLUNTARY_INTERVENTION,
+        error_tasks=frozenset({"task_test"}),
+    )
+    result = executor.run()
+    assert result.outcome.value == "success"
+    type_calls = [call for call in backend.calls if call[0] == "type"]
+    assert type_calls[0][1] == "Ankunft gegen 13:00"
 
 
 def test_error_not_injected_when_task_not_in_error_tasks():

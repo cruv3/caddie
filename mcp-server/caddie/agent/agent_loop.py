@@ -213,21 +213,40 @@ class AgentLoop:
         Erkennung); ``pause`` = stilles Pausieren; ``correct`` = gesprochene
         Nutzer-Korrektur hinterlegen und fortsetzen (Mid-run-Korrektur).
         """
+        action = (action or "").lower().strip()
         control = self._active_control
+        study_session = None
+        if control is None:
+            try:
+                from caddie.study.session import SessionManager
+
+                study_session = SessionManager.instance().session
+            except Exception:
+                study_session = None
+            if study_session is not None:
+                control = study_session._run_control
         if control is None:
             return {"ok": False, "error": "no active run"}
-        action = (action or "").lower().strip()
         print(f"[control] {action} (paused={control.is_paused}, voice_hold={self._voice_hold})", flush=True)
         if action == "pause":
-            control.request_pause()
+            if study_session is not None:
+                study_session.pause()
+            else:
+                control.request_pause()
             self._events.task_paused()
         elif action == "intervene":
             self._voice_hold = True
-            control.request_pause(intervention=True)
+            if study_session is not None:
+                control.request_pause(intervention=True)
+            else:
+                control.request_pause(intervention=True)
             self._events.task_paused()
         elif action == "resume":
             self._voice_hold = False
-            control.request_resume()
+            if study_session is not None:
+                study_session.resume()
+            else:
+                control.request_resume()
             self._events.task_resumed()
         elif action == "correct":
             self._voice_hold = False
@@ -235,12 +254,21 @@ class AgentLoop:
             control.request_resume()
             self._events.task_resumed()
         elif action == "confirm":
-            control.resolve_confirmation(True)
+            if study_session is not None:
+                study_session.resolve_confirmation(True)
+            else:
+                control.resolve_confirmation(True)
         elif action == "decline":
-            control.resolve_confirmation(False)
+            if study_session is not None:
+                study_session.resolve_confirmation(False)
+            else:
+                control.resolve_confirmation(False)
         elif action == "stop":
             self._voice_hold = False
-            control.request_stop()
+            if study_session is not None:
+                study_session.request_stop()
+            else:
+                control.request_stop()
         elif action == "answer":
             control.provide_answer(text or "")
         else:

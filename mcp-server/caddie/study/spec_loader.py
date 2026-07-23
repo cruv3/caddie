@@ -16,6 +16,7 @@ from typing import Any
 
 import yaml
 
+from caddie.study.executor import _parse_action
 from caddie.study.model import (
     CriticalityClass,
     ErrorVariant,
@@ -280,6 +281,12 @@ def _parse_study_step(step: dict[str, Any], path: str) -> StudyStep:
     if not narration.strip():
         raise SpecError(f"{path}: narration must not be empty")
 
+    action = str(step["action"])
+    try:
+        _parse_action(action)
+    except (ValueError, IndexError) as error:
+        raise SpecError(f"{path}: {error}") from error
+
     step_type_str = str(step["step_type"])
     try:
         step_type = StepType(step_type_str)
@@ -335,7 +342,7 @@ def _parse_study_step(step: dict[str, Any], path: str) -> StudyStep:
 
     return StudyStep(
         id=str(step["id"]),
-        action=str(step["action"]),
+        action=action,
         narration=narration,
         step_type=step_type,
         consequential=consequential,

@@ -76,20 +76,73 @@ class EventBus:
     def task_resumed(self) -> None:
         self.publish(ToolEvent(type="task_resumed"))
 
-    def confirmation_required(self, description: str, tool: str) -> None:
+    def confirmation_required(
+        self, description: str, tool: str,
+        participant: str | None = None,
+        step_id: str | None = None,
+        condition: str | None = None,
+        task: str | None = None,
+        **_extra: Any,
+    ) -> None:
+        payload: dict[str, Any] = {"description": description}
+        if participant:
+            payload["participant"] = participant
+        if step_id:
+            payload["step_id"] = step_id
+        if condition:
+            payload["condition"] = condition
+        if task:
+            payload["task"] = task
+        for k, v in _extra.items():
+            if k not in payload:
+                payload[k] = v
         self.publish(ToolEvent(
-            type="confirmation_required", tool=tool,
-            payload={"description": description},
+            type="confirmation_required", tool=tool, payload=payload,
         ))
 
-    def confirmation_resolved(self, approved: bool) -> None:
-        self.publish(ToolEvent(type="confirmation_resolved", ok=approved))
+    def confirmation_resolved(
+        self, approved: bool,
+        step_id: str | None = None,
+        decision: str | None = None,
+        **_extra: Any,
+    ) -> None:
+        payload: dict[str, Any] = {"approved": approved, "decision": decision}
+        if step_id:
+            payload["step_id"] = step_id
+        for k, v in _extra.items():
+            if k not in payload:
+                payload[k] = v
+        self.publish(ToolEvent(type="confirmation_resolved", ok=approved, payload=payload))
 
     def question_asked(self, question: str) -> None:
         self.publish(ToolEvent(type="question_asked", payload={"question": question}))
 
     def question_resolved(self) -> None:
         self.publish(ToolEvent(type="question_resolved"))
+
+    def current_action(
+        self, narration: str,
+        participant: str | None = None,
+        task: str | None = None,
+        condition: str | None = None,
+        **_extra: Any,
+    ) -> None:
+        """Publish a current-action narration event.
+
+        Emitted for each visible study step so the Android overlay
+        can display what the agent is about to do.
+        """
+        payload: dict[str, Any] = {"narration": narration}
+        if participant:
+            payload["participant"] = participant
+        if task:
+            payload["task"] = task
+        if condition:
+            payload["condition"] = condition
+        for k, v in _extra.items():
+            if k not in payload:
+                payload[k] = v
+        self.publish(ToolEvent(type="current_action", payload=payload))
 
     def verification_result(self, verified: bool, reason: str) -> None:
         self.publish(ToolEvent(
@@ -147,20 +200,73 @@ class RemoteEventBus:
     def task_resumed(self) -> None:
         self.publish(ToolEvent(type="task_resumed"))
 
-    def confirmation_required(self, description: str, tool: str) -> None:
+    def confirmation_required(
+        self, description: str, tool: str,
+        participant: str | None = None,
+        step_id: str | None = None,
+        condition: str | None = None,
+        task: str | None = None,
+        **_extra: Any,
+    ) -> None:
+        payload: dict[str, Any] = {"description": description}
+        if participant:
+            payload["participant"] = participant
+        if step_id:
+            payload["step_id"] = step_id
+        if condition:
+            payload["condition"] = condition
+        if task:
+            payload["task"] = task
+        for k, v in _extra.items():
+            if k not in payload:
+                payload[k] = v
         self.publish(ToolEvent(
-            type="confirmation_required", tool=tool,
-            payload={"description": description},
+            type="confirmation_required", tool=tool, payload=payload,
         ))
 
-    def confirmation_resolved(self, approved: bool) -> None:
-        self.publish(ToolEvent(type="confirmation_resolved", ok=approved))
+    def confirmation_resolved(
+        self, approved: bool,
+        step_id: str | None = None,
+        decision: str | None = None,
+        **_extra: Any,
+    ) -> None:
+        payload: dict[str, Any] = {"approved": approved, "decision": decision}
+        if step_id:
+            payload["step_id"] = step_id
+        for k, v in _extra.items():
+            if k not in payload:
+                payload[k] = v
+        self.publish(ToolEvent(type="confirmation_resolved", ok=approved, payload=payload))
 
     def question_asked(self, question: str) -> None:
         self.publish(ToolEvent(type="question_asked", payload={"question": question}))
 
     def question_resolved(self) -> None:
         self.publish(ToolEvent(type="question_resolved"))
+
+    def current_action(
+        self, narration: str,
+        participant: str | None = None,
+        task: str | None = None,
+        condition: str | None = None,
+        **_extra: Any,
+    ) -> None:
+        """Publish a current-action narration event.
+
+        Emitted for each visible study step so the Android overlay
+        can display what the agent is about to do.
+        """
+        payload: dict[str, Any] = {"narration": narration}
+        if participant:
+            payload["participant"] = participant
+        if task:
+            payload["task"] = task
+        if condition:
+            payload["condition"] = condition
+        for k, v in _extra.items():
+            if k not in payload:
+                payload[k] = v
+        self.publish(ToolEvent(type="current_action", payload=payload))
 
     def verification_result(self, verified: bool, reason: str) -> None:
         self.publish(ToolEvent(
