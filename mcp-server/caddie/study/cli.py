@@ -100,6 +100,24 @@ class _DryRunAuditBackend:
                 "clickable": True,
             })
             next_index += 1
+            error_variant = step.error_variant
+            if (
+                error_variant is not None
+                and error_variant.correct_value in label
+            ):
+                error_label = label.replace(
+                    error_variant.correct_value,
+                    error_variant.wrong_value,
+                    1,
+                )
+                self._elements.append({
+                    "index": next_index,
+                    "text": error_label,
+                    "content_description": error_label,
+                    "resource_id": error_label,
+                    "clickable": True,
+                })
+                next_index += 1
 
     def list_elements(self):
         return {"elements": list(self._elements)}

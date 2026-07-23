@@ -31,6 +31,14 @@ _STUDY_RETRY_MESSAGE = (
 )
 
 
+def _element_contains_text(element: dict, expected: str) -> bool:
+    needle = expected.lower()
+    return any(
+        needle in str(element.get(key, "")).lower()
+        for key in ("text", "content_description", "content_desc")
+    )
+
+
 class _ExclusiveThreadingHTTPServer(ThreadingHTTPServer):
     allow_reuse_address = False
 

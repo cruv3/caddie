@@ -270,7 +270,7 @@ def test_real_specs_balance_task_exposure_across_the_cohort():
     )
 
     assert set(exposure) == set(specs)
-    assert all(count in {13, 14} for count in exposure.values()), exposure
+    assert all(count == 18 for count in exposure.values()), exposure
     for criticality in (CriticalityClass.LOW, CriticalityClass.HIGH):
         pool = {
             task_id
@@ -279,7 +279,7 @@ def test_real_specs_balance_task_exposure_across_the_cohort():
         }
         pool_exposure = {task_id: exposure[task_id] for task_id in pool}
         assert sum(pool_exposure.values()) == 54
-        assert all(count in {13, 14} for count in pool_exposure.values()), (
+        assert all(count == 18 for count in pool_exposure.values()), (
             criticality,
             pool_exposure,
         )

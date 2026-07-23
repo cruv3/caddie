@@ -2,6 +2,16 @@ version: "v1"
 id: "task_banking_payment"
 instruction_de: "Finde die neueste offene Rechnung im E-Mail-Posteingang und bezahle sie in der Banking-App."
 criticality: "high"
+trigger:
+  reference_phrases:
+    - "Finde die neueste offene Rechnung im E-Mail-Posteingang und bezahle sie in der Banking-App."
+  required_concepts:
+    - ["offene rechnung", "rechnung"]
+    - ["e-mail", "email", "posteingang"]
+    - ["bezahle", "bezahlen", "zahlung"]
+    - ["banking", "banking-app"]
+  forbidden_concepts: ["kalender", "prüfung", "pruefung", "whiteboard", "spotify"]
+  wake_words: ["jarvis", "caddie"]
 required_packages:
   - "com.caddie.studymail"
   - "com.caddie.studybank"

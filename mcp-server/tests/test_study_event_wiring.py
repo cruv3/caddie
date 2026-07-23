@@ -63,6 +63,10 @@ version: "1.0"
 id: {tid}
 instruction_de: Test task {i}
 criticality: {crit}
+trigger:
+  reference_phrases: [Test task {i}]
+  required_concepts:
+    - [test]
 steps:
   - id: step1
     action: click "Send"
@@ -111,6 +115,7 @@ def _start_test_server(specs_dir: pathlib.Path, data_dir: pathlib.Path, port: in
         _elements: list[dict] = [
             {"text": "Send", "index": 5},
             {"text": "Confirm", "index": 10},
+            {"text": "OK", "index": 15},
         ]
 
         def list_elements(self):
@@ -209,6 +214,9 @@ def _http_get(host: str, port: int, path: str) -> tuple[int, dict]:
 @pytest.fixture
 def server_and_dirs(tmp_path):
     """Start a test HTTP server with study specs and data dir."""
+    import caddie.study.spec_loader as spec_loader
+
+    original_specs_dir = spec_loader.STUDY_SPECS_DIR
     specs_dir = _make_specs_dir(tmp_path / "specs")
     data_dir = tmp_path / "data"
     server, host, port, specs, data = _start_test_server(specs_dir, data_dir)
@@ -216,6 +224,7 @@ def server_and_dirs(tmp_path):
         yield host, port, specs, data
     finally:
         server.shutdown()
+        spec_loader.STUDY_SPECS_DIR = original_specs_dir
 
 
 # ---------------------------------------------------------------------------
@@ -278,7 +287,7 @@ def test_session_cleared_after_trial(server_and_dirs):
     # Second trial should also work (session was cleared)
     status2, _ = _http_post(host, port, "/study/trials/run", {
         "participant": "P01",
-        "trial_index": 0,
+        "trial_index": 2,
         "condition": "c2_final_checkpoint",
         "specs_dir": str(specs_dir),
         "data_dir": str(data_dir),
@@ -302,8 +311,8 @@ def test_abort_clears_session(server_and_dirs):
 
     # Abort
     status_abort, body_abort = _http_post(host, port, "/study/trials/abort", {})
-    assert status_abort == 200
-    assert body_abort.get("aborted") is True
+    assert status_abort == 404
+    assert body_abort.get("error") == "No armed trial"
 
     # Session should be idle
     status_h, body_h = _http_get(host, port, "/study/health")
@@ -337,7 +346,7 @@ def test_c2_summary_events_logged(server_and_dirs):
 
     status, body = _http_post(host, port, "/study/trials/run", {
         "participant": "P01",
-        "trial_index": 0,
+        "trial_index": 2,
         "condition": "c2_final_checkpoint",
         "specs_dir": str(specs_dir),
         "data_dir": str(data_dir),
@@ -376,5 +385,5 @@ def test_session_status_during_run(server_and_dirs):
     # Status endpoint — after terminal cleanup, has_session may be False
     status_s, body_s = _http_get(host, port, "/study/trials/status")
     assert status_s == 200
-    # State should reflect terminal completion (key is 'session' in status endpoint)
-    assert body_s.get("session") in ("completed", "idle")
+    # Direct runs do not leave an armed coordinator trial behind.
+    assert body_s.get("state") == "idle"

@@ -32,8 +32,15 @@ def clear_session_manager() -> None:
 def specs_dir(tmp_path: Path) -> Path:
     directory = tmp_path / "specs"
     directory.mkdir()
-    for index, criticality in enumerate(("low", "low", "low", "high", "high", "high")):
-        task_id = f"task_{index}"
+    tasks = (
+        ("task_maps_messenger", "low"),
+        ("task_gallery_notes", "high"),
+        ("task_chat_spotify", "low"),
+        ("task_email_calendar", "high"),
+        ("task_calendar_dnd", "low"),
+        ("task_banking_payment", "high"),
+    )
+    for index, (task_id, criticality) in enumerate(tasks):
         error = index % 2 == 0
         error_variant = (
             "\n    error_variant:\n"

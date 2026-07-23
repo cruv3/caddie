@@ -2,6 +2,18 @@ version: "v1"
 id: "task_maps_messenger"
 instruction_de: "Ermittle die Ankunftszeit mit öffentlichen Verkehrsmitteln von Campus Gummersbach nach Campus Deutz und teile Anna die ungefähre Ankunftszeit."
 criticality: "low"
+trigger:
+  reference_phrases:
+    - "Ermittle die Ankunftszeit mit öffentlichen Verkehrsmitteln von Campus Gummersbach nach Campus Deutz und teile Anna die ungefähre Ankunftszeit."
+  required_concepts:
+    - ["ankunftszeit", "ankunft"]
+    - ["öffentlichen verkehrsmitteln", "oeffentlichen verkehrsmitteln", "öpnv", "oepnv"]
+    - ["gummersbach"]
+    - ["deutz"]
+    - ["anna"]
+    - ["teile", "sende", "schicke"]
+  forbidden_concepts: ["kalender", "rechnung", "überweisung", "ueberweisung", "whiteboard", "spotify"]
+  wake_words: ["jarvis", "caddie"]
 required_packages:
   - "com.google.android.apps.maps"
   - "com.caddie.studytelegram"

@@ -214,6 +214,20 @@ def _parse_action(action: str) -> tuple[str, ...]:
             raise invalid()
         return ("tap", label)
 
+    # Backward-compatible alias used by older deterministic study fixtures.
+    if action.startswith(("tap '", "tap \"")):
+        quote = action[4]
+        try:
+            end = action.index(quote, 5)
+        except ValueError as error:
+            raise invalid() from error
+        if end != len(action) - 1:
+            raise invalid()
+        label = action[5:end]
+        if not label:
+            raise invalid()
+        return ("tap", label)
+
     if action.startswith("click "):
         label = action[6:].strip().strip("'\"")
         return ("tap", label)

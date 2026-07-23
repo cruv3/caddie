@@ -15,25 +15,28 @@ from caddie.study.spec_loader import (
 
 
 _EXPECTED_ACTIVE_TRIGGER_GROUPS = {
-    "task_banking_transfer": (
-        ("rechnungsdaten", "rechnung"),
-        ("überweisung", "ueberweisung", "überweisungsformular", "ueberweisungsformular"),
+    "task_banking_payment": (
+        ("offene rechnung", "rechnung"),
+        ("e-mail", "email", "posteingang"),
+        ("bezahle", "bezahlen", "zahlung"),
+        ("banking", "banking-app"),
     ),
     "task_calendar_dnd": (
         ("prüfung", "pruefung", "exam"),
         ("kalender", "termin"),
         ("nicht stören", "nicht stoeren", "dnd"),
     ),
-    "task_chat_notes": (
-        ("letzte nachricht", "nachricht"),
-        ("projektgruppe",),
-        ("checkliste", "notiz"),
+    "task_chat_spotify": (
+        ("lied", "song"),
+        ("lena",),
+        ("chat", "nachricht"),
+        ("favoriten", "favorit"),
     ),
     "task_email_calendar": (
-        ("projektsitzung", "sitzung"),
-        ("verschiebe", "verschieben", "verlege", "verlegen"),
-        ("15:00", "15 uhr"),
-        ("speichere", "speichern"),
+        ("e-mail", "email"),
+        ("terminänderung", "terminaenderung", "projektsitzung"),
+        ("kalendereintrag", "kalender"),
+        ("aktualisiere", "aktualisieren"),
     ),
     "task_gallery_notes": (
         ("whiteboard", "foto", "bild"),
@@ -44,25 +47,15 @@ _EXPECTED_ACTIVE_TRIGGER_GROUPS = {
     "task_maps_messenger": (
         ("ankunftszeit", "ankunft"),
         (
-            "öffentlichen mitteln",
-            "oeffentlichen mitteln",
-            "öffentliche verkehrsmittel",
-            "oeffentliche verkehrsmittel",
+            "öffentlichen verkehrsmitteln",
+            "oeffentlichen verkehrsmitteln",
             "öpnv",
             "oepnv",
         ),
-        ("sende", "senden", "schicke", "schicken"),
-    ),
-    "task_music_playlist": (
-        ("drei lieder", "3 lieder", "drei songs", "3 songs"),
-        ("playlist", "wiedergabeliste"),
-        ("chat", "nachricht"),
-    ),
-    "task_rewe_shopping": (
-        ("drei produkte", "3 produkte", "produkte"),
-        ("mengenangaben", "mengen", "menge"),
-        ("warenkorb", "einkaufswagen"),
-        ("füge", "fuege", "hinzufügen", "hinzufuegen"),
+        ("gummersbach",),
+        ("deutz",),
+        ("anna",),
+        ("teile", "sende", "schicke"),
     ),
 }
 
@@ -505,21 +498,21 @@ def test_email_tasks_use_local_study_mail_selectors():
         assert f"click 'com.caddie.studymail:id/{target}'" in actions
 
 
-def test_calendar_spec_replays_qwen_discovered_time_picker_flow():
+def test_calendar_spec_replays_fake_calendar_time_picker_flow():
     spec_path = pathlib.Path(__file__).parents[1] / "study" / "specs" / "task_email_calendar.yaml"
     spec = load_trial_spec(spec_path)
     actions = [step.action for step in spec.steps]
 
-    event_index = actions.index("click 'Projektsitzung'")
-    assert actions[event_index - 1] == "click 'Zu heute springen'"
-    assert not any("23 Juli 2026" in action for action in actions)
-    assert actions[-4:] == [
-        "click 'Beginnt um: 14:00'",
-        "click '15 Stunden'",
-        "click 'OK'",
-        "click 'Speichern'",
+    assert "com.caddie.studycalendar" in spec.required_packages
+    assert "com.google.android.calendar" not in spec.required_packages
+    assert actions[-5:] == [
+        "click 'com.caddie.studycalendar:id/edit_event'",
+        "click 'com.caddie.studycalendar:id/start_time'",
+        "click 'com.caddie.studycalendar:id/hour_15'",
+        "click 'com.caddie.studycalendar:id/confirm_time'",
+        "click 'com.caddie.studycalendar:id/save_event'",
     ]
-    assert spec.verification[0].parameters["text"] == "15:00–16:00"
+    assert spec.verification[0].parameters["text"] == "15:00–16:00 Uhr"
 
 
 def test_maps_spec_uses_fake_telegram_and_dynamic_arrival():

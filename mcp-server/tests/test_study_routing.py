@@ -13,37 +13,29 @@ from caddie.study.spec_loader import load_all_specs
 
 
 TASK_UTTERANCES = {
-    "task_banking_transfer": (
-        "Bitte trage die Rechnungsdaten in das Ueberweisungsformular ein.",
-        "Trage die Rechnungsdaten in das Ueberweisungsformular ein, nicht in den Kalender.",
+    "task_banking_payment": (
+        "Finde die offene Rechnung im E-Mail-Posteingang und bezahle sie in der Banking-App.",
+        "Finde die offene Rechnung im E-Mail-Posteingang und bezahle sie in der Banking-App, nicht im Kalender.",
     ),
     "task_calendar_dnd": (
         "Finde die Pruefung morgen im Kalender und schalte Nicht stoeren fuer diese Zeit ein.",
         "Finde die Pruefung im Kalender und aktiviere Nicht stoeren, nicht die Projektsitzung.",
     ),
-    "task_chat_notes": (
-        "Uebernimm die letzte Nachricht aus der Projektgruppe als Notiz.",
-        "Uebernimm die letzte Nachricht aus der Projektgruppe als Checkliste, ohne Fotos.",
+    "task_chat_spotify": (
+        "Finde das Lied von Lena im Chat und fuege es zu Favoriten hinzu.",
+        "Finde das Lied von Lena im Chat und fuege es zu Favoriten hinzu, nicht in den Kalender.",
     ),
     "task_email_calendar": (
-        "Verlege die heutige Sitzung auf 15 Uhr und speichere sie.",
-        "Verschiebe die heutige Projektsitzung auf 15 Uhr und speichere, aber aktiviere kein DND.",
+        "Finde die E-Mail mit der Terminaenderung der Projektsitzung und aktualisiere den Kalendereintrag.",
+        "Finde die E-Mail mit der Terminaenderung der Projektsitzung und aktualisiere den Kalendereintrag, aber aktiviere kein DND.",
     ),
     "task_gallery_notes": (
         "Uebertrage das Whiteboard-Foto der Projektsitzung in eine neue Notiz.",
         "Uebertrage das Whiteboard-Bild des Projekts in die Notizen, nicht in eine Playlist.",
     ),
     "task_maps_messenger": (
-        "Sende die Ankunft mit dem OePNV.",
-        "Sende die Ankunftszeit mit oeffentlichen Mitteln, aber keine Fotos.",
-    ),
-    "task_music_playlist": (
-        "Schreibe drei Songs als Nachricht in die Wiedergabeliste.",
-        "Schreibe drei Lieder als Chat-Nachricht in die Playlist, nicht in den Warenkorb.",
-    ),
-    "task_rewe_shopping": (
-        "Fuege drei Produkte mit Menge in den Einkaufswagen.",
-        "Fuege drei Produkte mit Mengenangaben in den Warenkorb, nicht in den Kalender.",
+        "Ermittle die Ankunft mit oeffentlichen Verkehrsmitteln von Gummersbach nach Deutz und sende sie Anna.",
+        "Ermittle die Ankunftszeit mit dem OePNV von Gummersbach nach Deutz und teile sie Anna, aber nicht im Kalender.",
     ),
 }
 
@@ -167,7 +159,7 @@ def test_all_active_specs_match_their_exact_instruction_with_or_without_wake_wor
     router = StudyTaskRouter()
     specs = load_all_specs()
 
-    assert len(specs) == 8
+    assert len(specs) == 6
     for spec in specs.values():
         for utterance in (
             spec.instruction_de,
@@ -229,7 +221,7 @@ def test_router_considers_only_the_supplied_armed_spec():
     specs = load_all_specs()
 
     result = StudyTaskRouter().route(
-        specs["task_banking_transfer"].instruction_de,
+        specs["task_banking_payment"].instruction_de,
         specs["task_calendar_dnd"],
     )
 
@@ -296,7 +288,7 @@ def test_joined_forbidden_detection_keeps_an_ordinary_allowed_calendar_request_c
 def test_router_rejects_obfuscated_multiword_forbidden_concepts(obfuscated_forbidden):
     spec = load_all_specs()["task_email_calendar"]
     utterance = (
-        "Verschiebe die heutige Projektsitzung auf 15 Uhr und speichere die Änderung; "
+        "Finde die E-Mail mit der Terminaenderung der Projektsitzung und aktualisiere den Kalendereintrag; "
         f"aktiviere {obfuscated_forbidden}."
     )
 
@@ -312,7 +304,7 @@ def test_compact_multiword_forbidden_detection_keeps_legitimate_email_request_cl
     spec = load_all_specs()["task_email_calendar"]
 
     result = StudyTaskRouter().route(
-        "Verschiebe die heutige Projektsitzung auf 15 Uhr und speichere die Änderung.",
+        "Finde die E-Mail mit der Terminaenderung der Projektsitzung und aktualisiere den Kalendereintrag.",
         spec,
     )
 
@@ -323,7 +315,7 @@ def test_compact_forbidden_detection_does_not_join_short_single_token_concepts()
     spec = load_all_specs()["task_email_calendar"]
 
     result = StudyTaskRouter().route(
-        "Verschiebe die heutige Projektsitzung auf 15 Uhr und speichere die Änderung; "
+        "Finde die E-Mail mit der Terminaenderung der Projektsitzung und aktualisiere den Kalendereintrag; "
         "die Buchstaben D N D gehören nur zu einer Notiz.",
         spec,
     )

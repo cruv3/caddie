@@ -679,7 +679,14 @@ def _dispatch_stream(handler_type, payload: dict):
 
 
 def _arm_payload(specs_dir: Path, data_dir: Path, trial_index: int = 0) -> dict:
-    conditions = ("c1_stepwise", "c2_final_checkpoint", "c3_voluntary_intervention")
+    conditions = (
+        "c1_stepwise",
+        "c1_stepwise",
+        "c2_final_checkpoint",
+        "c2_final_checkpoint",
+        "c3_voluntary_intervention",
+        "c3_voluntary_intervention",
+    )
     return {
         "participant": "P01",
         "trial_index": trial_index,
@@ -906,7 +913,7 @@ def test_terminal_trial_can_prepare_and_rearm_next_sequential_trial(
     assert coordinator.status().state is ArmedState.ARMED
     assert first["task_id"] != second["task_id"]
     assert second["trial_index"] == 1
-    assert second["condition"] == "c2_final_checkpoint"
+    assert second["condition"] == "c1_stepwise"
 
 
 def test_status_uses_coordinator_and_never_exposes_paths_or_utterance(

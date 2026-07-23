@@ -11,6 +11,8 @@ MCP = ROOT / "mcp-server"
 MODULE = MCP / "study-calendar"
 ANDROID = "{http://schemas.android.com/apk/res/android}"
 T4_ACTIONS = [
+    "open com.caddie.studymail",
+    "click 'com.caddie.studymail:id/mail_meeting_change'",
     "open com.caddie.studycalendar/.StudyCalendarActivity",
     "click 'com.caddie.studycalendar:id/meeting_event'",
     "click 'com.caddie.studycalendar:id/edit_event'",
@@ -142,7 +144,10 @@ def test_calendar_tasks_require_the_fake_calendar_and_never_google_calendar():
     email_spec = load_spec("task_email_calendar.yaml")
     dnd_spec = load_spec("task_calendar_dnd.yaml")
 
-    assert email_spec["required_packages"] == ["com.caddie.studycalendar"]
+    assert email_spec["required_packages"] == [
+        "com.caddie.studymail",
+        "com.caddie.studycalendar",
+    ]
     assert dnd_spec["required_packages"] == [
         "com.caddie.studycalendar",
         "com.android.settings",
@@ -168,7 +173,7 @@ def test_t4_uses_the_substitutable_hour_error_and_visible_normal_result():
     meeting_save = next(step for step in spec["steps"] if step["id"] == "meeting_save")
 
     assert spec["id"] == "task_email_calendar"
-    assert spec["criticality"] == "low"
+    assert spec["criticality"] == "high"
     assert spec["error_steps"] == ["time_select"]
     assert time_select["step_type"] == "consequential"
     assert time_select["error_variant"] == {
@@ -181,8 +186,8 @@ def test_t4_uses_the_substitutable_hour_error_and_visible_normal_result():
     assert meeting_save["step_type"] == "commit"
     assert spec["verification"] == [
         {
-            "id": "meeting_time_visible",
-            "assertion": "Projektsitzung beginnt um 15 Uhr",
+            "id": "v_calendar_updated",
+            "assertion": "Kalendereintrag beginnt um 15:00 und endet um 16:00",
             "check_type": "text_present",
             "parameters": {"text": "15:00–16:00 Uhr"},
             "screenshot_evidence": True,

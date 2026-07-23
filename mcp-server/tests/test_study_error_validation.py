@@ -20,6 +20,11 @@ def _valid_minimal() -> dict:
         "id": "task_test",
         "instruction_de": "Teste die App.",
         "criticality": "high",
+        "trigger": {
+            "reference_phrases": ["Teste die App."],
+            "required_concepts": [["teste", "test"]],
+            "wake_words": ["jarvis", "caddie"],
+        },
         "reset_checklist": ["App ist im Home-Screen"],
         "steps": [
             {

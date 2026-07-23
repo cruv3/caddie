@@ -240,10 +240,10 @@ def generate_participant_config(
     # 3 error tasks.
     participant_num = int(participant_id[1:]) - 1
     if specs:
-        tasks_with_errors = [
+        tasks_with_errors = sorted(
             tid for tid in task_ids
             if specs.get(tid) and specs[tid].error_steps
-        ]
+        )
     else:
         tasks_with_errors = list(task_ids)
     error_tasks = _select_error_tasks(
