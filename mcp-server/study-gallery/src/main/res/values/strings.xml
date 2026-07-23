@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Study Fotos</string>
+    <string name="photos">Fotos</string>
+    <string name="search_photos">In Fotos suchen</string>
+    <string name="today">Heute</string>
+    <string name="yesterday">Gestern</string>
+    <string name="whiteboard_selector">Caddie Whiteboard Photo Project Meeting</string>
+    <string name="whiteboard_title">Whiteboard – Projektsitzung</string>
+    <string name="task_tuesday">Tuesday = Submit Report</string>
+    <string name="task_thursday">Thursday = Review Draft</string>
+    <string name="back">Zurück</string>
+    <string name="detail_time">Heute, 18:42</string>
+    <string name="share">Teilen</string>
+    <string name="edit">Bearbeiten</string>
+    <string name="delete">Löschen</string>
+</resources>

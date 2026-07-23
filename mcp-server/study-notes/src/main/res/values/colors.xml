@@ -1,0 +1,11 @@
+<resources>
+    <color name="notes_background">#FFFFFF</color>
+    <color name="notes_card">#FFF1A8</color>
+    <color name="notes_text">#202124</color>
+    <color name="notes_muted">#5F6368</color>
+    <color name="notes_search">#F1F3F4</color>
+    <color name="notes_blue">#D7E9FF</color>
+    <color name="notes_lilac">#E9DEFF</color>
+    <color name="notes_green">#DDF3E4</color>
+    <color name="notes_border">#DADCE0</color>
+</resources>
