@@ -35,11 +35,11 @@ _EXPECTED_ACTIVE_TRIGGER_GROUPS = {
         ("15:00", "15 uhr"),
         ("speichere", "speichern"),
     ),
-    "task_gallery_messenger": (
-        ("drei fotos", "3 fotos", "fotos", "bilder"),
-        ("begrüßung", "begruessung", "gruß", "gruss"),
-        ("projektgruppe",),
-        ("sende", "senden", "schicke", "schicken"),
+    "task_gallery_notes": (
+        ("whiteboard", "foto", "bild"),
+        ("projektsitzung", "projekt"),
+        ("notiz", "notizen"),
+        ("übertrage", "uebertrage", "übertragen", "uebertragen"),
     ),
     "task_maps_messenger": (
         ("ankunftszeit", "ankunft"),

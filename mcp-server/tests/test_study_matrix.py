@@ -271,8 +271,13 @@ def test_real_specs_balance_eligible_error_exposure_across_the_cohort():
     )
 
     assert set(exposure) == eligible
-    assert all(count in {13, 14} for count in exposure.values()), exposure
     assert sum(exposure.values()) == 54
+    expected_floor = 54 // len(eligible)
+    expected_ceil = expected_floor + bool(54 % len(eligible))
+    assert all(
+        count in {expected_floor, expected_ceil}
+        for count in exposure.values()
+    ), exposure
 
 
 def test_print_matrix_does_not_raise():

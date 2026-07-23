@@ -26,3 +26,5 @@ rootProject.name = "Caddie"
 include(":app")
 include(":mcp-server:study-bank")
 include(":mcp-server:study-calendar")
+include(":mcp-server:study-gallery")
+include(":mcp-server:study-notes")

@@ -58,14 +58,21 @@ def active_powershell_text(text: str) -> str:
     )
 
 
-def invoke_reset_predicate(predicate: str, output: list[str]) -> bool:
+def invoke_reset_predicate(
+    predicate: str,
+    output: list[str],
+    result_code: int = 1204,
+    result_data: str = "calendar_reset_ok",
+) -> bool:
     script = (MCP / "scripts/reset_study_device.ps1").read_text(encoding="utf-8")
     definitions = script.split("$resets = @(\n", maxsplit=1)[0]
     arguments = ", ".join("'" + line.replace("'", "''") + "'" for line in output)
-    command = (
-        definitions
-        + f"\nif ({predicate} -Output @({arguments})) {{ exit 0 }} else {{ exit 1 }}"
-    )
+    predicate_arguments = f"{predicate} -Output @({arguments})"
+    if predicate == "Test-StudyResetAcknowledgement":
+        predicate_arguments += (
+            f" -ResultCode {result_code} -ResultData '{result_data}'"
+        )
+    command = definitions + f"\nif ({predicate_arguments}) {{ exit 0 }} else {{ exit 1 }}"
     completed = subprocess.run(
         ["powershell", "-NoProfile", "-NonInteractive", "-Command", command],
         cwd=ROOT,
@@ -212,22 +219,32 @@ def test_device_reset_targets_fake_calendar_and_skips_google_provider_by_default
     active_script = active_powershell_text(script)
     expected_reset = (
         '@{\nPackage = "com.caddie.studycalendar"\n'
-        'Action = "com.caddie.studycalendar.ACTION_RESET"\n}'
+        'Action = "com.caddie.studycalendar.ACTION_RESET"\n'
+        "ResultCode = 1204\n"
+        'ResultData = "calendar_reset_ok"\n}'
     )
     reset_entries = re.findall(
-        r'@\{\s*Package\s*=\s*"[^"]+"\s*Action\s*=\s*"[^"]+"\s*\}',
+        (
+            r'@\{\s*Package\s*=\s*"[^"]+"\s*Action\s*=\s*"[^"]+"'
+            r"\s*ResultCode\s*=\s*\d+\s*ResultData\s*=\s*\"[^\"]+\"\s*\}"
+        ),
         active_script,
     )
-    assert reset_entries == [expected_reset]
+    assert expected_reset in reset_entries
+    assert len(reset_entries) == 3
     assert (
-        "Invoke-StudyAppReset -Package $reset.Package -Action $reset.Action" in lines
+        "Invoke-StudyAppReset -Package $reset.Package -Action $reset.Action "
+        "-ResultCode $reset.ResultCode -ResultData $reset.ResultData" in lines
     )
     assert '$installedOutput = Invoke-Adb -Arguments @("shell", "pm", "path", $Package)' in lines
     assert '$broadcastOutput = Invoke-Adb -Arguments @("shell", "am", "broadcast", "--include-stopped-packages", "-p", $Package, "-a", $Action)' in lines
     assert '$broadcastOutput = Invoke-Adb -Arguments @("shell", "am", "broadcast", "-p", $Package, "-a", $Action)' not in lines
     assert "Test-StudyAppInstalled -Output $installedOutput" in script
-    assert "Test-StudyResetAcknowledgement -Output $broadcastOutput" in script
-    assert '$StudyCalendarResetResultData = "calendar_reset_ok"' in lines
+    assert (
+        "Test-StudyResetAcknowledgement -Output $broadcastOutput "
+        "-ResultCode $ResultCode -ResultData $ResultData" in script
+    )
+    assert 'ResultData = "calendar_reset_ok"' in lines
     assert 'Invoke-Adb -Arguments @("shell", "cmd", "notification", "set_dnd", "off") | Out-Null' in lines
     assert 'Stop-StudyApp -Package "com.android.settings"' in lines
     assert 'Stop-StudyApp -Package "com.caddie.studycalendar"' in lines

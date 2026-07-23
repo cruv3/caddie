@@ -18,6 +18,7 @@ import collections
 import pathlib
 import random
 import typing
+from dataclasses import replace
 from typing import Sequence
 
 from caddie.study.model import (
@@ -300,14 +301,9 @@ def generate_matrix(
         tid for tid in task_ids
         if specs[tid].error_steps
     ]
-    tasks_without_errors = [
-        tid for tid in task_ids
-        if not specs[tid].error_steps
-    ]
-
     configs: dict[str, ParticipantConfig] = {}
     condition_orders = _build_condition_orders()
-    low_omission_counts: collections.Counter[str] = collections.Counter()
+    error_exposure: collections.Counter[str] = collections.Counter()
 
     for i in range(NUM_PARTICIPANTS):
         # Round-robin: assign tasks sequentially
@@ -319,50 +315,10 @@ def generate_matrix(
         for j in range(NUM_PAIRS_PER_PARTICIPANT):
             participant_high.append(high_tasks[(high_idx + j) % len(high_tasks)])
 
-        # With four tasks per criticality, each participant omits one task from
-        # each pool. Rotate the high omission, then balance low omissions among
-        # the choices that leave exactly three error-eligible tasks assigned.
-        # This preserves 3-low/3-high while distributing all eight real specs
-        # and their four error variants 13 or 14 times across 18 participants.
-        participant_low: list[str]
-        if (
-            len(low_tasks) == NUM_PAIRS_PER_PARTICIPANT + 1
-            and len(high_tasks) == NUM_PAIRS_PER_PARTICIPANT + 1
-        ):
-            high_error_count = sum(
-                task_id in tasks_with_errors for task_id in participant_high
-            )
-            required_low_errors = NUM_ERROR_TASKS - high_error_count
-            rotated_low = low_tasks[low_idx:] + low_tasks[:low_idx]
-            omission_candidates = [
-                omitted
-                for omitted in rotated_low
-                if sum(
-                    task_id in tasks_with_errors
-                    for task_id in low_tasks
-                    if task_id != omitted
-                )
-                == required_low_errors
-            ]
-            if omission_candidates:
-                omitted_low = min(
-                    omission_candidates,
-                    key=low_omission_counts.__getitem__,
-                )
-                low_omission_counts[omitted_low] += 1
-                participant_low = [
-                    task_id for task_id in low_tasks if task_id != omitted_low
-                ]
-            else:
-                participant_low = [
-                    low_tasks[(low_idx + j) % len(low_tasks)]
-                    for j in range(NUM_PAIRS_PER_PARTICIPANT)
-                ]
-        else:
-            participant_low = [
-                low_tasks[(low_idx + j) % len(low_tasks)]
-                for j in range(NUM_PAIRS_PER_PARTICIPANT)
-            ]
+        participant_low = [
+            low_tasks[(low_idx + j) % len(low_tasks)]
+            for j in range(NUM_PAIRS_PER_PARTICIPANT)
+        ]
 
         # Build task order: 3 low tasks + 3 high tasks
         participant_tasks = list(participant_low) + list(participant_high)
@@ -410,6 +366,24 @@ def generate_matrix(
             condition_order=condition_order,
             specs=specs,
         )
+        if tasks_with_errors:
+            eligible_for_participant = [
+                task_id for task_id in tasks_with_errors
+                if task_id in participant_tasks
+            ]
+            balanced_errors = tuple(
+                sorted(
+                    eligible_for_participant,
+                    key=lambda task_id: (
+                        error_exposure[task_id],
+                        (tasks_with_errors.index(task_id) - i)
+                        % len(tasks_with_errors),
+                    ),
+                )[:NUM_ERROR_TASKS]
+            )
+            for task_id in balanced_errors:
+                error_exposure[task_id] += 1
+            config = replace(config, error_tasks=balanced_errors)
         configs[config.participant_id] = config
 
     # Validate cohort-level invariants

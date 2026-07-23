@@ -29,9 +29,9 @@ TASK_UTTERANCES = {
         "Verlege die heutige Sitzung auf 15 Uhr und speichere sie.",
         "Verschiebe die heutige Projektsitzung auf 15 Uhr und speichere, aber aktiviere kein DND.",
     ),
-    "task_gallery_messenger": (
-        "Schicke drei Bilder mit einem Gruss an die Projektgruppe.",
-        "Sende drei Fotos mit einer Begruessung an die Projektgruppe, nicht in eine Playlist.",
+    "task_gallery_notes": (
+        "Uebertrage das Whiteboard-Foto der Projektsitzung in eine neue Notiz.",
+        "Uebertrage das Whiteboard-Bild des Projekts in die Notizen, nicht in eine Playlist.",
     ),
     "task_maps_messenger": (
         "Sende die Ankunft mit dem OePNV.",
