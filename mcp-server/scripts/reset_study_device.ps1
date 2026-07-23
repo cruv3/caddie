@@ -1,90 +1,157 @@
-Set-StrictMode -Version Latest
+[CmdletBinding()]
+param(
+    [string]$Serial,
+
+    [int]$CalendarId = 1,
+
+    [switch]$SkipCalendar,
+
+    [switch]$VerifyOnly
+)
+
 $ErrorActionPreference = "Stop"
+$script:AdbTarget = @()
+if ($Serial) {
+    $script:AdbTarget = @("-s", $Serial)
+}
+
+function Format-AdbCommand {
+    param([Parameter(Mandatory = $true)][string[]]$Arguments)
+
+    $target = ""
+    if ($script:AdbTarget.Count -gt 0) {
+        $target = " $($script:AdbTarget -join ' ')"
+    }
+    return "adb$target $($Arguments -join ' ')"
+}
 
 function Invoke-Adb {
-    param([string[]]$Arguments)
+    param([Parameter(Mandatory = $true)][string[]]$Arguments)
 
-    $output = & adb @Arguments 2>&1
-    if ($LASTEXITCODE -ne 0) {
-        throw "ADB command failed with exit code ${LASTEXITCODE}: adb $($Arguments -join ' ')`nOutput: $($output -join "`n")"
+    $command = Format-AdbCommand -Arguments $Arguments
+    Write-Host $command
+    if ($VerifyOnly) {
+        return @()
     }
 
+    $output = & adb @script:AdbTarget @Arguments 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        throw "ADB failed: $command`n$($output -join [Environment]::NewLine)"
+    }
     return $output
 }
 
-function Stop-StudyApp {
-    param([string]$Package)
+function Invoke-AdbBestEffort {
+    param([Parameter(Mandatory = $true)][string[]]$Arguments)
 
-    Invoke-Adb -Arguments @("shell", "am", "force-stop", $Package) | Out-Null
+    try {
+        Invoke-Adb -Arguments $Arguments | Out-Null
+    }
+    catch {
+        Write-Warning $_
+    }
 }
 
-function Test-StudyAppInstalled {
-    param([string[]]$Output)
+function Assert-AdbDevice {
+    $arguments = @("devices")
+    $command = Format-AdbCommand -Arguments $arguments
+    Write-Host $command
+    if ($VerifyOnly) {
+        return
+    }
 
-    return [bool]($Output | Where-Object { $_ -match "^package:" })
-}
-
-function Test-StudyResetAcknowledgement {
-    param(
-        [string[]]$Output,
-        [int]$ResultCode,
-        [string]$ResultData
-    )
-
-    $expectedAcknowledgement = 'Broadcast completed: result={0}, data="{1}"' -f $ResultCode, $ResultData
-    return [bool]($Output | Where-Object {
-        $_ -cmatch "^\s*$([regex]::Escape($expectedAcknowledgement))\s*$"
-    })
+    $output = & adb @script:AdbTarget devices 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        throw "ADB device check failed:`n$($output -join [Environment]::NewLine)"
+    }
+    $text = $output -join [Environment]::NewLine
+    if ($text -notmatch "\bdevice\b") {
+        throw "No active ADB device found:`n$text"
+    }
 }
 
 function Invoke-StudyAppReset {
     param(
-        [string]$Package,
-        [string]$Action,
-        [int]$ResultCode,
-        [string]$ResultData
+        [Parameter(Mandatory = $true)][string]$Package,
+        [Parameter(Mandatory = $true)][string]$Action
     )
 
-    $installedOutput = Invoke-Adb -Arguments @("shell", "pm", "path", $Package)
-    if (-not (Test-StudyAppInstalled -Output $installedOutput)) {
-        throw "ADB package validation failed for $Package.`nOutput: $($installedOutput -join "`n")"
-    }
-
-    Stop-StudyApp -Package $Package
-    $broadcastOutput = Invoke-Adb -Arguments @("shell", "am", "broadcast", "--include-stopped-packages", "-p", $Package, "-a", $Action)
-    if (-not (Test-StudyResetAcknowledgement -Output $broadcastOutput -ResultCode $ResultCode -ResultData $ResultData)) {
-        throw "ADB broadcast did not return the reset acknowledgement for $Package.`nOutput: $($broadcastOutput -join "`n")"
-    }
+    Invoke-Adb -Arguments @("shell", "am", "broadcast", "-a", $Action, "-p", $Package) | Out-Null
 }
 
-$resets = @(
+function Stop-StudyApp {
+    param([Parameter(Mandatory = $true)][string]$Package)
+
+    Invoke-AdbBestEffort -Arguments @("shell", "am", "force-stop", $Package)
+}
+
+Assert-AdbDevice
+
+Write-Host "adb reverse tcp:8787 tcp:8787"
+Invoke-Adb -Arguments @("reverse", "tcp:8787", "tcp:8787") | Out-Null
+
+$studyAppResets = @(
     @{
-        Package = "com.caddie.studycalendar"
-        Action = "com.caddie.studycalendar.ACTION_RESET"
-        ResultCode = 1204
-        ResultData = "calendar_reset_ok"
-    }
+        Package = "com.caddie.studybank"
+        Action = "com.caddie.studybank.ACTION_RESET"
+        Command = "am broadcast -a com.caddie.studybank.ACTION_RESET -p com.caddie.studybank"
+    },
+    @{
+        Package = "com.caddie.studymail"
+        Action = "com.caddie.studymail.ACTION_RESET"
+        Command = "am broadcast -a com.caddie.studymail.ACTION_RESET -p com.caddie.studymail"
+    },
+    @{
+        Package = "com.caddie.studytelegram"
+        Action = "com.caddie.studytelegram.ACTION_RESET"
+        Command = "am broadcast -a com.caddie.studytelegram.ACTION_RESET -p com.caddie.studytelegram"
+    },
     @{
         Package = "com.caddie.studygallery"
         Action = "com.caddie.studygallery.ACTION_RESET"
-        ResultCode = 1205
-        ResultData = "gallery_reset_ok"
-    }
+        Command = "am broadcast -a com.caddie.studygallery.ACTION_RESET -p com.caddie.studygallery"
+    },
     @{
         Package = "com.caddie.studynotes"
         Action = "com.caddie.studynotes.ACTION_RESET"
-        ResultCode = 1206
-        ResultData = "notes_reset_ok"
+        Command = "am broadcast -a com.caddie.studynotes.ACTION_RESET -p com.caddie.studynotes"
     }
 )
 
-foreach ($reset in $resets) {
-    Invoke-StudyAppReset -Package $reset.Package -Action $reset.Action -ResultCode $reset.ResultCode -ResultData $reset.ResultData
+foreach ($reset in $studyAppResets) {
+    Write-Host $reset.Command
+    Invoke-StudyAppReset -Package $reset.Package -Action $reset.Action
 }
 
-Invoke-Adb -Arguments @("shell", "cmd", "notification", "set_dnd", "off") | Out-Null
-Stop-StudyApp -Package "com.android.settings"
-Stop-StudyApp -Package "com.caddie.studycalendar"
+Write-Host "settings put global zen_mode 0"
+Invoke-AdbBestEffort -Arguments @("shell", "settings", "put", "global", "zen_mode", "0")
+Write-Host "settings put system screen_brightness 180"
+Invoke-AdbBestEffort -Arguments @("shell", "settings", "put", "system", "screen_brightness", "180")
+Write-Host "settings put system screen_off_timeout 600000"
+Invoke-AdbBestEffort -Arguments @("shell", "settings", "put", "system", "screen_off_timeout", "600000")
+Write-Host "cmd audio set-volume 3 7"
+Invoke-AdbBestEffort -Arguments @("shell", "cmd", "audio", "set-volume", "3", "7")
+
+Stop-StudyApp -Package "com.caddie"
+Stop-StudyApp -Package "com.caddie.studybank"
+Stop-StudyApp -Package "com.caddie.studymail"
+Stop-StudyApp -Package "com.caddie.studytelegram"
 Stop-StudyApp -Package "com.caddie.studygallery"
 Stop-StudyApp -Package "com.caddie.studynotes"
+
+if (-not $SkipCalendar) {
+    $calendarScript = Join-Path $PSScriptRoot "reset_study_calendar.ps1"
+    $calendarArgs = @("-CalendarId", $CalendarId)
+    if ($Serial) {
+        $calendarArgs += @("-Serial", $Serial)
+    }
+    if ($VerifyOnly) {
+        $calendarArgs += "-VerifyOnly"
+    }
+    & $calendarScript @calendarArgs
+    if ($LASTEXITCODE -ne 0) {
+        throw "Calendar reset failed"
+    }
+}
+
 Write-Host "Study device reset complete."

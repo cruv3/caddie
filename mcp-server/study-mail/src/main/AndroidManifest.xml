@@ -1,21 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-
     <application
         android:label="@string/app_name"
-        android:icon="@drawable/ic_sparkasse_mark"
         android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
-
         <activity
-            android:name=".BankingActivity"
-            android:exported="true"
-            android:windowSoftInputMode="adjustResize">
+            android:name=".StudyMailActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
+        <receiver
+            android:name=".StudyMailResetReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.caddie.studymail.ACTION_RESET" />
+            </intent-filter>
+        </receiver>
     </application>
-
 </manifest>

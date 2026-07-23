@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/mail_background">
+
+    <LinearLayout
+        android:id="@+id/mail_inbox"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingTop="12dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginHorizontal="12dp"
+            android:background="@drawable/bg_mail_search"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="18dp">
+
+            <TextView
+                android:layout_width="32dp"
+                android:layout_height="wrap_content"
+                android:text="☰"
+                android:textColor="@color/mail_text"
+                android:textSize="24sp" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/search_mail"
+                android:textColor="@color/mail_secondary"
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:background="@color/mail_blue"
+                android:gravity="center"
+                android:text="A"
+                android:textColor="@color/mail_surface"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="20dp"
+            android:paddingTop="22dp"
+            android:paddingBottom="10dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/primary_inbox"
+                android:textColor="@color/mail_text"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/unread_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/unread_count"
+                android:textColor="@color/mail_secondary"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:fillViewport="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <include android:id="@+id/mail_invoice" layout="@layout/item_mail_row" />
+                <include android:id="@+id/mail_meeting_change" layout="@layout/item_mail_row" />
+                <include android:id="@+id/mail_mensa" layout="@layout/item_mail_row" />
+                <include android:id="@+id/mail_sport" layout="@layout/item_mail_row" />
+                <include android:id="@+id/mail_library" layout="@layout/item_mail_row" />
+                <include android:id="@+id/mail_it" layout="@layout/item_mail_row" />
+                <include android:id="@+id/mail_fee" layout="@layout/item_mail_row" />
+                <include android:id="@+id/mail_project" layout="@layout/item_mail_row" />
+            </LinearLayout>
+        </ScrollView>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="52dp"
+            android:layout_gravity="end"
+            android:layout_margin="16dp"
+            android:background="@drawable/bg_compose"
+            android:gravity="center"
+            android:paddingHorizontal="22dp"
+            android:text="@string/compose"
+            android:textColor="@color/mail_text"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/mail_detail"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/mail_background"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_back_to_inbox"
+                android:layout_width="52dp"
+                android:layout_height="48dp"
+                android:backgroundTint="@color/mail_background"
+                android:contentDescription="@string/back"
+                android:text="←"
+                android:textColor="@color/mail_text"
+                android:textSize="24sp" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="▣   ⌫   ✉   ⋮"
+                android:textColor="@color/mail_secondary"
+                android:textSize="21sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/mail_subject"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="8dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="18dp"
+            android:textColor="@color/mail_text"
+            android:textSize="22sp" />
+
+        <TextView
+            android:id="@+id/mail_sender"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="8dp"
+            android:paddingBottom="18dp"
+            android:textColor="@color/mail_text"
+            android:textSize="15sp" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@color/mail_surface"
+            android:padding="20dp">
+
+            <TextView
+                android:id="@+id/mail_body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:lineSpacingExtra="4dp"
+                android:textColor="@color/mail_text"
+                android:textIsSelectable="true"
+                android:textSize="16sp" />
+        </ScrollView>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingTop="16dp"
+            android:text="@string/local_mail_note"
+            android:textColor="@color/mail_secondary"
+            android:textSize="12sp" />
+    </LinearLayout>
+</FrameLayout>

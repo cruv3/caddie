@@ -1,11 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Study Bank</string>
-    <string name="balance_label">Account Balance</string>
-    <string name="transfer_section">Transfer</string>
-    <string name="confirm_section">Confirm</string>
-    <string name="btn_send">Send</string>
-    <string name="btn_confirm">Confirm</string>
-    <string name="btn_reset">Reset</string>
-    <string name="no_pending">No pending transfer</string>
+    <string name="app_name">Sparkasse</string>
+    <string name="sparkasse">Sparkasse</string>
+    <string name="sparkasse_logo">Sparkasse Logo</string>
+    <string name="notifications">Benachrichtigungen</string>
+    <string name="mobile_payment">Mobiles\nBezahlen</string>
+    <string name="find_branch">Filiale\nsuchen</string>
+    <string name="cards">Karten</string>
+    <string name="total_balance">Gesamtsumme</string>
+    <string name="girokonto">Girokonto</string>
+    <string name="account_holder">Max Mustermann · DE02 1203 0000 0000 2020 51</string>
+    <string name="initial_balance">40,00 €</string>
+    <string name="transfer">Überweisung</string>
+    <string name="recent_transactions">Letzte Umsätze</string>
+    <string name="no_session_transfer">Noch keine Überweisung in dieser Sitzung</string>
+    <string name="back">Zurück</string>
+    <string name="new_transfer">Neue Überweisung</string>
+    <string name="transfer_subtitle">SEPA-Überweisung vorbereiten</string>
+    <string name="payment_details">Zahlungsdetails</string>
+    <string name="recipient">Empfänger</string>
+    <string name="recipient_hint">Name oder Firma</string>
+    <string name="iban_hint">DE00 0000 0000 0000 0000 00</string>
+    <string name="amount">Betrag in Euro</string>
+    <string name="amount_hint">0,00</string>
+    <string name="purpose">Verwendungszweck</string>
+    <string name="purpose_hint">Optionale Nachricht</string>
+    <string name="secure_demo">Sicher über die Sparkasse Demo</string>
+    <string name="continue_label">Weiter</string>
+    <string name="check_transfer">Überweisung prüfen</string>
+    <string name="send_transfer">Überweisung senden</string>
 </resources>

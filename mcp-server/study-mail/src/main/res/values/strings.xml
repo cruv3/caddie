@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Study Mail</string>
+    <string name="search_mail">In E-Mails suchen</string>
+    <string name="primary_inbox">Primär</string>
+    <string name="unread_count">2 ungelesen</string>
+    <string name="invoice_sender">Study Vendor GmbH</string>
+    <string name="invoice_subject">Offene Rechnung 30,00 EUR</string>
+    <string name="invoice_preview">Rechnung INV-2026-001 · Bitte bis Montag begleichen</string>
+    <string name="invoice_body">Hallo,\n\nfür die Studienbestellung ist folgende Rechnung noch offen:\n\n30,00 EUR\n\nEmpfänger: Study Vendor GmbH\nIBAN: DE02 1203 0000 0000 2020 51\nVerwendungszweck: Rechnung INV-2026-001\n\nViele Grüße\nStudy Vendor GmbH</string>
+    <string name="meeting_sender">Projektbüro Campus</string>
+    <string name="meeting_subject">Terminänderung Projektsitzung</string>
+    <string name="meeting_preview">Die Sitzung beginnt heute um 15:00 Uhr</string>
+    <string name="meeting_body">Hallo zusammen,\n\ndie Projektsitzung heute wird verschoben.\n\nBisherige Zeit: 14:00 Uhr\nNeue Zeit: 15:00 Uhr\nEnde: 16:00 Uhr\n\nBitte aktualisiert euren Kalendereintrag.\n\nViele Grüße\nProjektbüro Campus</string>
+    <string name="local_mail_note">Lokale Studienmail · kein echtes E-Mail-Konto</string>
+    <string name="compose">✎  Schreiben</string>
+    <string name="back">Zurück</string>
+</resources>

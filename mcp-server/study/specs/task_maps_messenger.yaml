@@ -1,43 +1,65 @@
 version: "v1"
 id: "task_maps_messenger"
-instruction_de: "Ermittle die Ankunftszeit mit öffentlichen Mitteln und sende sie."
+instruction_de: "Ermittle die Ankunftszeit mit öffentlichen Verkehrsmitteln von Campus Gummersbach nach Campus Deutz und teile Anna die ungefähre Ankunftszeit."
 criticality: "low"
-trigger:
-  reference_phrases:
-    - "Ermittle die Ankunftszeit mit öffentlichen Mitteln und sende sie."
-  required_concepts:
-    - ["ankunftszeit", "ankunft"]
-    - ["öffentlichen mitteln", "oeffentlichen mitteln", "öffentliche verkehrsmittel", "oeffentliche verkehrsmittel", "öpnv", "oepnv"]
-    - ["sende", "senden", "schicke", "schicken"]
-  forbidden_concepts: ["fotos", "playlist", "checkliste", "überweisung", "ueberweisung"]
-  wake_words: ["jarvis", "caddie"]
-required_packages: ["com.caddie"]
-seeded_artifacts: ["Caddie Study Contact"]
-reset_checklist: ["Clear study route"]
+required_packages:
+  - "com.google.android.apps.maps"
+  - "com.caddie.studytelegram"
+seeded_artifacts:
+  - "Caddie Study Contact Anna"
+  - "Caddie Study Route Gummersbach-Deutz"
+reset_checklist:
+  - "Close Maps route preview"
+  - "Reset Study Telegram via com.caddie.studytelegram.ACTION_RESET"
 steps:
-  - id: "maps_open"
-    action: "open com.caddie/.MainActivity"
-    narration: "Karte wird geöffnet..."
+  - id: "open_route"
+    action: "open_url https://www.google.com/maps/dir/TH+K%C3%B6ln+Campus+Gummersbach/TH+K%C3%B6ln+Campus+Deutz/data=!3m1!4b1!4m2!4m1!3e3"
+    narration: "Route mit öffentlichen Verkehrsmitteln suchen..."
+    step_type: "normal"
+    min_narration_ms: 1200
+  - id: "capture_arrival"
+    action: "capture transit arrival as 'arrival_time'"
+    narration: "Ankunftszeit aus der besten Verbindung lesen..."
     step_type: "normal"
     min_narration_ms: 400
-  - id: "search_route"
-    action: "input text 'Route to Station'"
-    narration: "Route suchen..."
-    step_type: "consequential"
-    consequential: true
+  - id: "open_telegram"
+    action: "open com.caddie.studytelegram"
+    narration: "Telegram-Chat öffnen..."
+    step_type: "normal"
     min_narration_ms: 800
-  - id: "share_time"
-    action: "click 'Share Arrival Time'"
-    narration: "Ankunftszeit senden..."
+  - id: "open_anna"
+    action: "click 'Anna'"
+    narration: "Chat mit Anna öffnen..."
+    step_type: "normal"
+  - id: "input_arrival"
+    action: "input text 'Ankunft gegen {arrival_time}'"
+    narration: "Ankunftszeit eingeben..."
     step_type: "commit"
     commit: true
-    min_narration_ms: 1200
-error_steps: []
+    error_variant:
+      id: "err_arrival_time"
+      field: "arrival_time"
+      wrong_value: "{arrival_time_minus_10}"
+      correct_value: "{arrival_time}"
+      description: "Ankunftszeit ist 10 Minuten falsch angegeben"
+  - id: "send_arrival"
+    action: "press BACK"
+    narration: "Tastatur schließen..."
+    step_type: "normal"
+  - id: "tap_send"
+    action: "click 'Senden'"
+    narration: "Ankunftszeit an Anna senden..."
+    step_type: "commit"
+    commit: true
+error_steps: ["input_arrival"]
+c2_summary_lines:
+  - "Ankunftszeit wird aus Maps gelesen und an Anna gesendet."
 verification:
-  - id: "v_time_shared"
-    assertion: "Ankunftszeit im Gespräch sichtbar"
+  - id: "v_arrival_shared"
+    assertion: "Ankunftszeit an Anna gesendet"
     check_type: "text_present"
-    parameters: { text: "Ankunft" }
+    parameters:
+      text: "Ankunft"
     screenshot_evidence: true
 max_duration_s: 120
 per_gate_timeout_s: 30
