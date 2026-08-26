@@ -1,0 +1,163 @@
+{
+  "trial_id": "123655__qwen_qwen36-35b-a3b__brightness_set_50__r0",
+  "timestamp_utc": "2026-05-13T10:42:02.984193Z",
+  "model": "qwen/qwen3.6-35b-a3b",
+  "task": "brightness_set_50",
+  "run": 0,
+  "outcome": "failed",
+  "timing": {
+    "load": 59.27,
+    "reset": 1.7,
+    "task": 300.4,
+    "total": 307.12
+  },
+  "screenshot": null,
+  "lmstudio_response": null,
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1778668619.5834744,
+      "task": "stelle die helligkeit auf 50 prozent",
+      "_received_at": 102579.1240676
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778668625.4200094,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 433,
+        "y": 925,
+        "why": "Tippe auf Verbundene Geräte"
+      },
+      "_received_at": 102584.9604802
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778668631.9151528,
+      "tool": "smartphone_get_skill_display_brightness_50_settings",
+      "args": {
+        "skill_id": "display.brightness_50_settings"
+      },
+      "_received_at": 102591.4556476
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778668631.9308069,
+      "tool": "smartphone_get_skill_display_brightness_50_settings",
+      "_received_at": 102591.4713551
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778668632.0176492,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 102591.5581542
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778668638.4395921,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Schaue mir den aktuellen Bildschirm an"
+      },
+      "_received_at": 102597.9800654
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778668640.6331978,
+      "tool": "smartphone_list_elements",
+      "_received_at": 102600.1736519
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778668692.0465965,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Suche nach Bluetooth-Toggle"
+      },
+      "_received_at": 102651.5870833
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778668694.2517266,
+      "tool": "smartphone_list_elements",
+      "_received_at": 102653.7927472
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778668722.956162,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.settings",
+        "why": "Öffne die Einstellungen"
+      },
+      "_received_at": 102682.4966513
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778668730.5375063,
+      "tool": "smartphone_open_app",
+      "_received_at": 102690.0779779
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778668801.975543,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.settings",
+        "why": "Öffne die Einstellungen erneut"
+      },
+      "_received_at": 102761.5160444
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778668813.5268083,
+      "tool": "smartphone_open_app",
+      "_received_at": 102773.0672969
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778668830.346773,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Schaue mir den Einstellungen-Bildschirm an"
+      },
+      "_received_at": 102789.8872911
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778668832.4657798,
+      "tool": "smartphone_list_elements",
+      "_received_at": 102792.0062632
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778668905.6944194,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Suche nach Bluetooth-Einstellungen"
+      },
+      "_received_at": 102865.2348997
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778668907.8291962,
+      "tool": "smartphone_list_elements",
+      "_received_at": 102867.3696488
+    },
+    {
+      "type": "task_finished",
+      "ts": 1778668912.5836754,
+      "ok": false,
+      "payload": {
+        "active_skills": [
+          "connectivity.bluetooth_on_settings"
+        ]
+      },
+      "_received_at": 102872.1241965
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Event subscription is kept tight. typeAllMask once flooded the service
+  during Settings interactions and seemed to correlate with the system
+  aggressively rebinding the AS, which tore down our overlay window each
+  cycle. typeWindowStateChanged + typeWindowContentChanged keep
+  getRootInActiveWindow fresh for the agent's screen reads.
+
+  TouchInteractionController classifies participant taps versus swipes while
+  an agent run is active. The passive accessibility events remain as a
+  fail-safe if precise touch routing cannot be registered.
+
+  notificationTimeout=50 keeps scroll classification responsive.
+-->
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeWindowStateChanged|typeWindowContentChanged|typeViewClicked|typeViewLongClicked|typeTouchInteractionStart|typeViewScrolled"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagReportViewIds|flagRetrieveInteractiveWindows"
+    android:canPerformGestures="true"
+    android:canRequestTouchExplorationMode="true"
+    android:canRetrieveWindowContent="true"
+    android:canTakeScreenshot="true"
+    android:description="@string/accessibility_service_description"
+    android:notificationTimeout="50" />

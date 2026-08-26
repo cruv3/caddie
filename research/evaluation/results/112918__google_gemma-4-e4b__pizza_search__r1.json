@@ -1,0 +1,258 @@
+{
+  "trial_id": "112918__google_gemma-4-e4b__pizza_search__r1",
+  "timestamp_utc": "2026-06-02T09:31:04.481334Z",
+  "model": "google/gemma-4-e4b",
+  "task": "pizza_search",
+  "run": 1,
+  "outcome": "failed",
+  "timing": {
+    "load": 0.0,
+    "reset": 1.96,
+    "task": 100.09,
+    "total": 105.89
+  },
+  "screenshot": "<user-home>\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\112918__google_gemma-4-e4b__pizza_search__r1.png",
+  "lmstudio_response": {
+    "ok": false,
+    "active_skills": [],
+    "follow_up_context": false,
+    "lmstudio": {
+      "ok": false,
+      "outcome": "failed",
+      "tool_calls": 12,
+      "turns": 12,
+      "final_text": "",
+      "error": null,
+      "vision_unsupported": false
+    },
+    "_http_status": 502
+  },
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1780392562.553657,
+      "task": "suche im browser ein pizza-restaurant in der nähe",
+      "_received_at": 10781.4454527
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780392564.1715443,
+      "tool": "smartphone_get_skill_search_pizza_restaurant_google",
+      "args": {
+        "skill_id": "search.pizza_restaurant_google"
+      },
+      "_received_at": 10783.0640391
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780392564.1715617,
+      "tool": "smartphone_get_skill_search_pizza_restaurant_google",
+      "_received_at": 10783.064364
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780392566.2556126,
+      "tool": "smartphone_open_url",
+      "args": {
+        "url": "https://www.google.com/search?q=pizza+restaurant+near+me",
+        "why": "Ich öffne Google und suche nach Pizza-Restaurants in meiner Nähe."
+      },
+      "_received_at": 10785.1470871
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780392587.8752635,
+      "tool": "smartphone_open_url",
+      "_received_at": 10806.766807
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780392589.6195781,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich schaue mir die Elemente auf der Suchergebnisseite an."
+      },
+      "_received_at": 10808.5110753
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780392591.7829802,
+      "tool": "smartphone_list_elements",
+      "_received_at": 10810.6745529
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780392595.5344865,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 2424,
+        "end_x": 540,
+        "end_y": 100,
+        "duration_ms": 300,
+        "why": "Ich scrolle nach unten, um die Restaurant-Ergebnisse zu sehen."
+      },
+      "_received_at": 10814.4261163
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780392601.0547962,
+      "tool": "smartphone_swipe",
+      "_received_at": 10819.9463074
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780392604.2058246,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 2424,
+        "end_x": 540,
+        "end_y": 100,
+        "duration_ms": 300,
+        "why": "Ich scrolle weiter nach unten, um die Restaurant-Ergebnisse zu finden."
+      },
+      "_received_at": 10823.0973461
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780392611.4125612,
+      "tool": "smartphone_swipe",
+      "_received_at": 10830.304117
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780392613.9960504,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 2424,
+        "end_x": 540,
+        "end_y": 100,
+        "duration_ms": 300,
+        "why": "Ich scrolle noch einmal nach unten, um die Restaurant-Details zu finden."
+      },
+      "_received_at": 10832.8875592
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780392618.9512486,
+      "tool": "smartphone_swipe",
+      "_received_at": 10837.8429434
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780392622.1902378,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 20,
+        "why": "Ich liste die Elemente auf der Suchergebnisseite erneut auf."
+      },
+      "_received_at": 10841.0817383
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780392624.3118186,
+      "tool": "smartphone_list_elements",
+      "_received_at": 10843.2033527
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780392627.8774061,
+      "tool": "smartphone_take_screenshot",
+      "args": {
+        "why": "Ich mache einen Screenshot, um zu sehen, ob die Suchergebnisse sichtbar sind."
+      },
+      "_received_at": 10846.7688647
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780392628.6115487,
+      "tool": "smartphone_take_screenshot",
+      "_received_at": 10847.5030588
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780392634.4924781,
+      "tool": "smartphone_open_url",
+      "args": {
+        "url": "https://www.google.com/search?q=pizza+restaurant+near+me",
+        "why": "Ich öffne Google erneut, um sicherzustellen, dass die Suchergebnisse richtig geladen werden."
+      },
+      "_received_at": 10853.3839862
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780392645.8547602,
+      "tool": "smartphone_open_url",
+      "_received_at": 10864.7462971
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780392649.4014156,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 20,
+        "why": "Ich liste die Elemente auf der Suchergebnisseite auf, um zu bestätigen, dass ich mich im Browser befinde und Ergebnisse sehe."
+      },
+      "_received_at": 10868.29304
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780392651.6886837,
+      "tool": "smartphone_list_elements",
+      "_received_at": 10870.5801837
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780392655.6316626,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 20,
+        "why": "Ich liste die Elemente auf der Suchergebnisseite ein letztes Mal auf, um einen Klick-Punkt zu finden."
+      },
+      "_received_at": 10874.5236065
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780392657.9590366,
+      "tool": "smartphone_list_elements",
+      "_received_at": 10876.8507689
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780392662.2374961,
+      "tool": "smartphone_failed",
+      "args": {
+        "reason": "Ich kann die einzelnen Restaurant-Ergebnisse auf der Webseite nicht anklicken, um zur Detailseite zu gelangen."
+      },
+      "_received_at": 10881.129192
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780392662.237511,
+      "ok": false,
+      "payload": {
+        "message": "Ich kann die einzelnen Restaurant-Ergebnisse auf der Webseite nicht anklicken, um zur Detailseite zu gelangen."
+      },
+      "_received_at": 10881.1292102
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780392662.2375145,
+      "tool": "smartphone_failed",
+      "_received_at": 10881.1292191
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780392662.2382615,
+      "ok": false,
+      "payload": {
+        "active_skills": [],
+        "outcome": "failed"
+      },
+      "_received_at": 10881.1299605
+    }
+  ]
+}

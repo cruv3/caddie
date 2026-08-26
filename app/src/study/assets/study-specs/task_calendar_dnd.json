@@ -1,0 +1,189 @@
+{
+  "version": "v1",
+  "id": "task_calendar_dnd",
+  "instruction_de": "Finde die Prüfung morgen im Kalender und aktiviere Nicht stören für diese Zeit.",
+  "participant_briefing": {
+    "situation_de": "Morgen schreibst du eine Prüfung. Damit du währenddessen nicht unterbrochen wirst, soll dein Smartphone genau für die Prüfungszeit stumm bleiben.",
+    "apps": [
+      { "name": "Kalender", "purpose_de": "Beginn und Ende der Prüfung nachsehen." },
+      { "name": "Modi", "purpose_de": "Den Modus „Nicht stören“ genau für diesen Zeitraum einrichten." }
+    ],
+    "goal_de": "Der Modus „Nicht stören“ ist für den vollständigen Prüfungszeitraum eingerichtet.",
+    "reference_values_de": ["Tag: morgen", "Prüfungszeit: 10:00–11:00 Uhr"],
+    "preparation_de": "Öffne auf dem Studien-Smartphone den Kalender und sieh dir den Prüfungstermin für morgen kurz an. Öffne danach die App „Modi“ kurz, damit du beide verwendeten Apps kennst. Verändere dabei nichts und lege das Smartphone anschließend wieder vor dir ab."
+  },
+  "criticality": "high",
+  "trigger": {
+    "reference_phrases": [
+      "Finde die Prüfung morgen im Kalender und aktiviere Nicht stören für diese Zeit."
+    ],
+    "required_concepts": [
+      [
+        "prüfung",
+        "pruefung",
+        "exam"
+      ],
+      [
+        "kalender",
+        "termin"
+      ],
+      [
+        "nicht stören",
+        "nicht stoeren",
+        "dnd"
+      ]
+    ],
+    "forbidden_concepts": [
+      "projektsitzung",
+      "überweisung",
+      "ueberweisung",
+      "fotos"
+    ],
+    "wake_words": [
+      "jarvis",
+      "caddie"
+    ]
+  },
+  "required_packages": [
+    "com.caddie.studycalendar"
+  ],
+  "seeded_artifacts": [
+    "Prüfung morgen von 10:00–11:00 Uhr"
+  ],
+  "reset_checklist": [
+    "Gespeicherte Prüfungsregel in der lokalen Modi-Ansicht entfernen"
+  ],
+  "steps": [
+    {
+      "id": "calendar_open",
+      "action": "open com.caddie.studycalendar/.StudyCalendarActivity",
+      "narration": "Kalender wird geöffnet...",
+      "confirmation_text": "Kalender öffnen",
+      "step_type": "normal",
+      "min_narration_ms": 400
+    },
+    {
+      "id": "exam_open",
+      "action": "click 'com.caddie.studycalendar:id/exam_event'",
+      "narration": "Prüfungstermin wird geöffnet...",
+      "confirmation_text": "Prüfungstermin öffnen",
+      "step_type": "normal",
+      "already_satisfied": {
+        "package_name": "com.caddie.studycalendar",
+        "resource_id": "com.caddie.studycalendar:id/detail_title",
+        "text": "Prüfung"
+      }
+    },
+    {
+      "id": "modes_open",
+      "action": "open com.caddie.studycalendar/.StudyModesActivity",
+      "narration": "Modi werden geöffnet...",
+      "confirmation_text": "Modi öffnen",
+      "step_type": "normal"
+    },
+    {
+      "id": "dnd_rule_create",
+      "action": "click 'Neue Regel'",
+      "narration": "Eine Prüfungsregel wird vorbereitet...",
+      "confirmation_text": "Neue Prüfungsregel anlegen",
+      "step_type": "normal"
+    },
+    {
+      "id": "dnd_time_open",
+      "action": "click 'com.caddie.studycalendar:id/dnd_start_time'",
+      "narration": "Das Feld für die Startzeit wird ausgewählt...",
+      "confirmation_text": "Startzeit der Prüfungsregel auswählen",
+      "step_type": "normal"
+    },
+    {
+      "id": "dnd_range_select",
+      "action": "replace text '10:00' (submit)",
+      "narration": "Die Startzeit der Prüfung wird eingetragen...",
+      "confirmation_text": "Startzeit 10:00 Uhr eintragen; das Ende wird auf 11:00 Uhr gesetzt",
+      "step_type": "consequential",
+      "error_variant": {
+        "id": "err_wrong_dnd_range",
+        "field": "dnd_range",
+        "wrong_value": "12:00",
+        "correct_value": "10:00",
+        "summary_wrong_value": "12:00–13:00 Uhr",
+        "summary_correct_value": "10:00–11:00 Uhr",
+        "description": "Nicht stören verpasst den vollständigen Prüfungszeitraum",
+        "correction": {
+          "after_commit": "compensate",
+          "rewind_to_step_id": "dnd_time_open",
+          "steps": [
+            {
+              "id": "modes_open",
+              "action": "open com.caddie.studycalendar/.StudyModesActivity",
+              "narration": "Modi öffnen",
+              "confirmation_text": "Modi öffnen"
+            },
+            {
+              "id": "dnd_rule_edit",
+              "action": "click 'Regel bearbeiten'",
+              "narration": "Prüfungsregel bearbeiten",
+              "confirmation_text": "Prüfungsregel bearbeiten"
+            },
+            {
+              "id": "dnd_time_open",
+              "action": "click 'com.caddie.studycalendar:id/dnd_start_time'",
+              "narration": "Startzeit auswählen",
+              "confirmation_text": "Startzeit der Prüfungsregel auswählen"
+            },
+            {
+              "id": "dnd_range_select_correct",
+              "action": "replace text '10:00' (submit)",
+              "narration": "Startzeit 10 Uhr eintragen",
+              "confirmation_text": "Startzeit 10:00 Uhr eintragen"
+            },
+            {
+              "id": "dnd_rule_save",
+              "action": "click 'Regel speichern'",
+              "narration": "Korrigierte Prüfungsregel speichern",
+              "confirmation_text": "Korrigierte Prüfungsregel speichern"
+            }
+          ],
+          "assertions": [
+            {
+              "check_type": "text_present",
+              "value": "Morgen · 10:00–11:00 Uhr"
+            },
+            {
+              "check_type": "text_absent",
+              "value": "Morgen · 12:00–13:00 Uhr"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "dnd_rule_save",
+      "action": "click 'Regel speichern'",
+      "narration": "Die Prüfungsregel wird gespeichert...",
+      "confirmation_text": "Prüfungsregel speichern",
+      "step_type": "commit"
+    }
+  ],
+  "error_steps": [
+    "dnd_range_select"
+  ],
+  "c2_summary_lines": [
+    "Nicht-stören-Regel für morgen: 10:00–11:00 Uhr"
+  ],
+  "verification": [
+    {
+      "id": "dnd_rule_matches_exam",
+      "assertion": "Nicht-stören-Regel deckt die Prüfung morgen vollständig ab",
+      "check_type": "ui_state_present",
+      "parameters": {
+        "package_name": "com.caddie.studycalendar",
+        "resource_id": "com.caddie.studycalendar:id/modes_rule_summary",
+        "text": "Morgen · 10:00–11:00 Uhr"
+      },
+      "screenshot_evidence": true
+    }
+  ],
+  "max_duration_s": 120,
+  "per_gate_timeout_s": 30
+}

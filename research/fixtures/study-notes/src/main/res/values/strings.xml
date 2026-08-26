@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Notizen</string>
+    <string name="notes">Notizen</string>
+    <string name="search_notes">Notizen durchsuchen</string>
+    <string name="all_notes">Alle Notizen</string>
+    <string name="create_note">Notiz erstellen</string>
+    <string name="note_hint">Notiztext</string>
+    <string name="exam_title">Klausur lernen</string>
+    <string name="exam_body">Algorithmen: Kapitel 4–6\nÜbungsblatt 8 wiederholen\nLerngruppe Mittwoch</string>
+    <string name="shopping_title">Einkaufsliste</string>
+    <string name="shopping_body">Hafermilch\nPasta\nTomaten\nKaffee</string>
+    <string name="literature_title">Literatur für die Hausarbeit</string>
+    <string name="literature_body">Norman – Design of Everyday Things\nShneiderman – Eight Golden Rules\nParasuraman – Automation</string>
+    <string name="weekend_title">Ideen fürs Wochenende</string>
+    <string name="weekend_body">Flohmarkt\nMuseum Ludwig\nFahrradtour am Rhein</string>
+</resources>

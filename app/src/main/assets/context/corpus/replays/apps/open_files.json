@@ -1,0 +1,1 @@
+{"classification":"GUIDANCE_ONLY","id":"apps.open_files@legacy","legacyContainsCoordinates":false,"skillId":"apps.open_files","sourcePath":"apps/open_files.steps.json","sourceSha256":"b6582b3286b453d094bc5e579c2e6456ed69a1e72db2f95e972bcb45bd7fb81e","steps":[{"action":"open_app","package":"com.google.android.documentsui"}]}

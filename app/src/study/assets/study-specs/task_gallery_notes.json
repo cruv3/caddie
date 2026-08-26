@@ -1,0 +1,209 @@
+{
+  "version": "v1",
+  "id": "task_gallery_notes",
+  "instruction_de": "Öffne das neueste Whiteboard-Foto und schreibe die beiden Aufgaben in eine neue Notiz.",
+  "participant_briefing": {
+    "situation_de": "Nach einer Projektsitzung wurden zwei nächste Aufgaben am Whiteboard festgehalten. Das aktuelle Foto liegt in deiner Galerie, und du möchtest die Punkte nicht vergessen.",
+    "apps": [
+      { "name": "Fotos", "purpose_de": "Das neueste Whiteboard-Foto öffnen und beide Aufgaben ablesen." },
+      { "name": "Notizen", "purpose_de": "Beide Aufgaben gemeinsam in einer neuen Notiz festhalten." }
+    ],
+    "goal_de": "Eine neue Notiz enthält beide Aufgaben vom neuesten Whiteboard-Foto vollständig und korrekt.",
+    "reference_values_de": ["Aufgabe 1: Bericht Dienstag abgeben", "Aufgabe 2: Entwurf Donnerstag prüfen"],
+    "preparation_de": "Öffne auf dem Studien-Smartphone Fotos und sieh dir das neueste Whiteboard-Foto kurz an. Öffne danach Notizen kurz, damit du beide verwendeten Apps kennst. Verändere oder lösche nichts und lege das Smartphone anschließend wieder vor dir ab."
+  },
+  "criticality": "low",
+  "trigger": {
+    "reference_phrases": [
+      "Öffne das neueste Whiteboard-Foto und schreibe die beiden Aufgaben in eine neue Notiz."
+    ],
+    "required_concepts": [
+      [
+        "whiteboard",
+        "foto",
+        "bild"
+      ],
+      [
+        "notiz",
+        "notizen"
+      ],
+      [
+        "schreibe",
+        "schreib",
+        "übertrage",
+        "uebertrage",
+        "übertragen",
+        "uebertragen",
+        "kopiere"
+      ]
+    ],
+    "forbidden_concepts": [
+      "kalender",
+      "prüfung",
+      "pruefung",
+      "überweisung",
+      "ueberweisung",
+      "playlist",
+      "lieder",
+      "projektgruppe",
+      "sende",
+      "schicke"
+    ],
+    "wake_words": [
+      "jarvis",
+      "caddie"
+    ]
+  },
+  "required_packages": [
+    "com.caddie.studygallery",
+    "com.caddie.studynotes"
+  ],
+  "seeded_artifacts": [
+    "Caddie Whiteboard Photo Project Meeting",
+    "Whiteboard Items: Tuesday = Submit Report, Thursday = Review Draft"
+  ],
+  "reset_checklist": [
+    "Broadcast reset Study Gallery to the photo grid",
+    "Broadcast reset Study Notes to the seeded note list"
+  ],
+  "steps": [
+    {
+      "id": "gallery_open",
+      "action": "open com.caddie.studygallery",
+      "narration": "Galerie wird geöffnet...",
+      "confirmation_text": "Galerie öffnen",
+      "step_type": "normal",
+      "min_narration_ms": 400
+    },
+    {
+      "id": "find_photo",
+      "action": "click 'com.caddie.studygallery:id/whiteboard_photo'",
+      "narration": "Neuestes Whiteboard-Foto finden...",
+      "confirmation_text": "Neuestes Whiteboard-Foto öffnen",
+      "step_type": "normal",
+      "already_satisfied": {
+        "package_name": "com.caddie.studygallery",
+        "text": "Whiteboard – Projektsitzung"
+      },
+      "min_narration_ms": 800
+    },
+    {
+      "id": "read_whiteboard",
+      "action": "open com.caddie.studynotes",
+      "narration": "Whiteboard-Inhalte lesen...",
+      "confirmation_text": "Notizen öffnen",
+      "step_type": "normal",
+      "min_narration_ms": 600
+    },
+    {
+      "id": "create_note",
+      "action": "click 'com.caddie.studynotes:id/create_note'",
+      "narration": "Neue Notiz erstellen und Aufgaben übertragen...",
+      "confirmation_text": "Neue Notiz erstellen",
+      "step_type": "normal",
+      "min_narration_ms": 800
+    },
+    {
+      "id": "focus_note",
+      "action": "click 'com.caddie.studynotes:id/note_text'",
+      "narration": "Notizfeld auswählen...",
+      "confirmation_text": "Notizfeld auswählen",
+      "step_type": "normal",
+      "confirm_in_c1": false,
+      "min_narration_ms": 300
+    },
+    {
+      "id": "input_note",
+      "action": "input text 'Projekt: Bericht Dienstag abgeben; Entwurf Donnerstag pruefen'",
+      "narration": "Whiteboard-Aufgaben in die Notiz übertragen...",
+      "confirmation_text": "Whiteboard-Aufgaben in die Notiz eintragen: „Projekt: Bericht Dienstag abgeben; Entwurf Donnerstag pruefen“",
+      "step_type": "consequential",
+      "error_variant": {
+        "id": "err_whiteboard_day",
+        "field": "whiteboard_item_day",
+        "wrong_value": "Dienstag",
+        "correct_value": "Donnerstag",
+        "description": "Whiteboard-Eintrag wird falsch gelesen: Dienstag statt Donnerstag",
+        "correction": {
+          "after_commit": "compensate",
+          "rewind_to_step_id": "focus_note",
+          "steps": [
+            {
+              "id": "notes_open",
+              "action": "open com.caddie.studynotes",
+              "narration": "Notizen öffnen",
+              "confirmation_text": "Notizen öffnen"
+            },
+            {
+              "id": "saved_note_open",
+              "action": "click 'com.caddie.studynotes:id/saved_note'",
+              "narration": "Gespeicherte Notiz öffnen",
+              "confirmation_text": "Die zuvor gespeicherte Notiz öffnen"
+            },
+            {
+              "id": "saved_note_replace",
+              "action": "replace text 'Projekt: Bericht Dienstag abgeben; Entwurf Donnerstag pruefen'",
+              "narration": "Notiztext korrigieren",
+              "confirmation_text": "Notiztext durch die korrekten Whiteboard-Aufgaben ersetzen"
+            },
+            {
+              "id": "saved_note_save",
+              "action": "press BACK",
+              "narration": "Korrigierte Notiz speichern",
+              "confirmation_text": "Korrigierte Notiz speichern"
+            }
+          ],
+          "assertions": [
+            {
+              "check_type": "text_present",
+              "value": "Entwurf Donnerstag pruefen"
+            },
+            {
+              "check_type": "text_absent",
+              "value": "Entwurf Dienstag pruefen"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "hide_keyboard",
+      "action": "press BACK",
+      "narration": "Tastatur schließen...",
+      "confirmation_text": "Tastatur schließen",
+      "step_type": "normal",
+      "confirm_in_c1": false,
+      "min_narration_ms": 300
+    },
+    {
+      "id": "save_note",
+      "action": "press BACK",
+      "narration": "Notiz speichern...",
+      "confirmation_text": "Neue Notiz speichern",
+      "step_type": "commit",
+      "commit": true,
+      "min_narration_ms": 500
+    }
+  ],
+  "error_steps": [
+    "input_note"
+  ],
+  "c2_summary_lines": [
+    "Notizinhalt: „Projekt: Bericht Dienstag abgeben; Entwurf Donnerstag pruefen“"
+  ],
+  "verification": [
+    {
+      "id": "v_note_created",
+      "assertion": "Notiz mit Whiteboard-Inhalten erstellt",
+      "check_type": "ui_state_present",
+      "parameters": {
+        "package_name": "com.caddie.studynotes",
+        "resource_id": "com.caddie.studynotes:id/saved_note",
+        "text": "Projekt: Bericht Dienstag abgeben; Entwurf Donnerstag pruefen"
+      },
+      "screenshot_evidence": true
+    }
+  ],
+  "max_duration_s": 120,
+  "per_gate_timeout_s": 30
+}

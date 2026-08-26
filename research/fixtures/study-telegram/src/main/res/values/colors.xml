@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="telegram_blue">#2AABEE</color>
+    <color name="telegram_on_blue">#FFFFFF</color>
+    <color name="telegram_background">#FFFFFF</color>
+    <color name="telegram_chat_background">#E7EDF2</color>
+    <color name="telegram_incoming">#FFFFFF</color>
+    <color name="telegram_outgoing">#D8F5C4</color>
+    <color name="telegram_text">#17212B</color>
+    <color name="telegram_secondary">#707579</color>
+</resources>

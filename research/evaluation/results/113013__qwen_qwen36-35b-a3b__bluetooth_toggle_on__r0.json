@@ -1,0 +1,100 @@
+{
+  "trial_id": "113013__qwen_qwen36-35b-a3b__bluetooth_toggle_on__r0",
+  "timestamp_utc": "2026-05-16T09:35:18.230573Z",
+  "model": "qwen/qwen3.6-35b-a3b",
+  "task": "bluetooth_toggle_on",
+  "run": 0,
+  "outcome": "failed",
+  "timing": {
+    "load": 52.57,
+    "reset": 1.43,
+    "task": 300.23,
+    "total": 304.93
+  },
+  "screenshot": "<user-home>\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\113013__qwen_qwen36-35b-a3b__bluetooth_toggle_on__r0.png",
+  "lmstudio_response": null,
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1778923816.733095,
+      "task": "schalte bluetooth an",
+      "_received_at": 88069.6234858
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778923820.783745,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 540,
+        "y": 2231,
+        "why": "Tippe auf die Google-Suchleiste"
+      },
+      "_received_at": 88073.6744899
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778923826.1780405,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 88079.0683736
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778923827.0368998,
+      "tool": "smartphone_get_skill_connectivity_bluetooth_on_settings",
+      "args": {
+        "skill_id": "connectivity.bluetooth_on_settings"
+      },
+      "_received_at": 88079.9272339
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778923827.0477638,
+      "tool": "smartphone_get_skill_connectivity_bluetooth_on_settings",
+      "_received_at": 88079.9388163
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778923981.1676323,
+      "tool": "smartphone_type_text",
+      "args": {
+        "text": "Taschenrechner",
+        "submit": false,
+        "why": "Gebe Taschenrechner in die Suche ein"
+      },
+      "_received_at": 88234.0580636
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778923987.9810846,
+      "tool": "smartphone_type_text",
+      "_received_at": 88240.8718741
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778923992.3558528,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.settings",
+        "why": "Öffne die Einstellungen"
+      },
+      "_received_at": 88245.2461931
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778924000.7510455,
+      "tool": "smartphone_open_app",
+      "_received_at": 88253.641337
+    },
+    {
+      "type": "task_finished",
+      "ts": 1778924106.3110452,
+      "ok": false,
+      "payload": {
+        "active_skills": [
+          "app_launcher.calculator_search_playstore"
+        ]
+      },
+      "_received_at": 88359.2016584
+    }
+  ]
+}

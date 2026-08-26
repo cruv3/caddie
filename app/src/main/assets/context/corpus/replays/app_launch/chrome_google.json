@@ -1,0 +1,1 @@
+{"classification":"GUIDANCE_ONLY","id":"app_launch.chrome_google@legacy","legacyContainsCoordinates":false,"skillId":"app_launch.chrome_google","sourcePath":"app_launch/chrome_google.steps.json","sourceSha256":"b622d46a8ed86380590f3bb4c51eaf66dffd2b3c6d04916c5fb158c4b6eba954","steps":[{"action":"open_app","package":"com.android.chrome"}]}

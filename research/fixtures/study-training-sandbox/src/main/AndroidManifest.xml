@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@drawable/ic_launcher"
+        android:theme="@style/Theme.TrainingSandbox">
+        <activity
+            android:name=".TrainingSandboxActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <receiver
+            android:name=".TrainingSandboxResetReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.caddie.trainingsandbox.ACTION_RESET" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

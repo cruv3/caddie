@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="training_background">#F3F5F8</color>
+    <color name="training_surface">#FFFFFF</color>
+    <color name="training_text">#172033</color>
+    <color name="training_muted">#667085</color>
+    <color name="training_primary">#3157D5</color>
+    <color name="training_border">#D9DEE8</color>
+    <color name="training_field">#F8F9FC</color>
+</resources>

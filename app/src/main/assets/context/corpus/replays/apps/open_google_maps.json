@@ -1,0 +1,1 @@
+{"classification":"GUIDANCE_ONLY","id":"apps.open_google_maps@legacy","legacyContainsCoordinates":false,"skillId":"apps.open_google_maps","sourcePath":"apps/open_google_maps.steps.json","sourceSha256":"ab799ef38ad77d5458ab31484e57403cf200aef2d9f20517f122627cc0cbb8ad","steps":[{"action":"open_app","package":"com.google.android.apps.maps"}]}

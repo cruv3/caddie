@@ -1,0 +1,146 @@
+version: "v1"
+id: "task_chat_spotify"
+instruction_de: "Finde das Lied, das Lena zuletzt im Chat empfohlen hat, und füge es zu Favoriten hinzu."
+participant_briefing:
+  situation_de: "Lena hat dir im Chat ein Lied empfohlen. Du möchtest ihre neueste Empfehlung später schnell wiederfinden und deshalb in deinen Favoriten speichern."
+  apps:
+    - name: "Telegram"
+      purpose_de: "Im Chat mit Lena die zuletzt genannte Musikempfehlung finden."
+    - name: "Spotify"
+      purpose_de: "Das passende Lied suchen und zu den Favoriten hinzufügen."
+  goal_de: "Das von Lena zuletzt empfohlene Lied ist in deinen Favoriten gespeichert."
+  preparation_de: "Öffne auf dem Studien-Smartphone Telegram und lies Lenas neueste Nachricht im Chat. Verändere dabei nichts und lege das Smartphone danach wieder vor dir ab."
+criticality: "low"
+trigger:
+  reference_phrases:
+    - "Finde das Lied, das Lena zuletzt im Chat empfohlen hat, und füge es zu Favoriten hinzu."
+  required_concepts:
+    - ["lied", "song"]
+    - ["lena"]
+    - ["chat", "nachricht"]
+    - ["favoriten", "favorit"]
+  forbidden_concepts: ["kalender", "rechnung", "überweisung", "ueberweisung", "whiteboard"]
+  wake_words: ["jarvis", "caddie"]
+required_packages:
+  - "com.caddie.studytelegram"
+  - "com.caddie.studymusic"
+seeded_artifacts:
+  - "Caddie Study Telegram Lena Song Recommendation"
+  - "Study Music tracks: As It Was; As It Was – Sped Up"
+reset_checklist:
+  - "Verify Lena song recommendation in Study Telegram"
+  - "Reset Study Music via com.caddie.studymusic.ACTION_RESET"
+  - "reset Study Telegram via com.caddie.studytelegram.ACTION_RESET"
+steps:
+  - id: "chat_open"
+    action: "open com.caddie.studytelegram"
+    narration: "Telegram öffnen..."
+    confirmation_text: "Telegram öffnen"
+    step_type: "normal"
+    min_narration_ms: 400
+  - id: "open_lena"
+    action: "click 'Lena'"
+    narration: "Chat mit Lena öffnen..."
+    confirmation_text: "Chat mit Lena öffnen"
+    step_type: "normal"
+    min_narration_ms: 400
+  - id: "read_recommendation"
+    action: "capture song recommendation as 'song_title'"
+    narration: "Letzte Liedempfehlung lesen..."
+    confirmation_text: "Letzte Liedempfehlung im geöffneten Lena-Chat lesen"
+    step_type: "normal"
+    min_narration_ms: 500
+  - id: "music_open"
+    action: "open com.caddie.studymusic"
+    narration: "Spotify öffnen..."
+    confirmation_text: "Spotify öffnen"
+    step_type: "normal"
+    min_narration_ms: 400
+  - id: "open_search"
+    action: "click 'Suchen'"
+    narration: "Spotify-Suche öffnen..."
+    confirmation_text: "Spotify-Suche öffnen"
+    step_type: "normal"
+  - id: "focus_search"
+    action: "click 'Was möchtest du hören?'"
+    narration: "Suchfeld auswählen..."
+    confirmation_text: "Suchfeld auswählen"
+    step_type: "normal"
+    confirm_in_c1: false
+  - id: "input_song"
+    action: "input text '{song_title}' (submit)"
+    narration: "Empfohlenes Lied suchen..."
+    confirmation_text: "Nach „{song_title}“ suchen"
+    step_type: "normal"
+  - id: "add_favoriten"
+    action: "click '{song_title} zu Meine Bibliothek hinzufügen'"
+    narration: "Lied zu Favoriten hinzufügen..."
+    confirmation_text: "„{song_title}“ zu Meine Bibliothek hinzufügen"
+    step_type: "commit"
+    commit: true
+    min_narration_ms: 800
+    error_variant:
+      id: "err_song_title"
+      field: "song_title"
+      wrong_value: "As It Was – Sped Up"
+      correct_value: "{song_title}"
+      description: "Falschen, ähnlich benannten Song zur Bibliothek hinzufügen"
+      correction:
+        after_commit: "compensate"
+        rewind_to_step_id: "add_favoriten"
+        steps:
+          - id: "music_open"
+            action: "open com.caddie.studymusic"
+            narration: "Spotify öffnen"
+            confirmation_text: "Spotify öffnen"
+          - id: "search_open"
+            action: "click 'Suchen'"
+            narration: "Spotify-Suche öffnen"
+            confirmation_text: "Spotify-Suche öffnen"
+          - id: "focus_sped_up_search"
+            action: "click 'Was möchtest du hören?'"
+            narration: "Suchfeld auswählen"
+            confirmation_text: "Suchfeld auswählen"
+          - id: "search_sped_up"
+            action: "replace text 'As It Was – Sped Up' (submit)"
+            narration: "Sped-Up-Version suchen"
+            confirmation_text: "Nach der Sped-Up-Version suchen"
+          - id: "remove_sped_up"
+            action: "click 'As It Was – Sped Up aus Meine Bibliothek entfernen'"
+            narration: "Sped-Up-Version aus der Bibliothek entfernen"
+            confirmation_text: "Sped-Up-Version aus Meine Bibliothek entfernen"
+            run_if_target_present: true
+          - id: "focus_original_search"
+            action: "click 'Was möchtest du hören?'"
+            narration: "Suchfeld erneut auswählen"
+            confirmation_text: "Suchfeld erneut auswählen"
+          - id: "search_original"
+            action: "replace text 'As It Was' (submit)"
+            narration: "Original suchen"
+            confirmation_text: "Nach dem Original „As It Was“ suchen"
+          - id: "add_original"
+            action: "click 'As It Was zu Meine Bibliothek hinzufügen'"
+            narration: "Original zur Bibliothek hinzufügen"
+            confirmation_text: "Original „As It Was“ zu Meine Bibliothek hinzufügen"
+            run_if_target_present: true
+          - id: "library_open"
+            action: "click 'Bibliothek'"
+            narration: "Bibliothek prüfen"
+            confirmation_text: "Meine Bibliothek öffnen und Ergebnis prüfen"
+        assertions:
+          - check_type: "accessibility_present"
+            value: "As It Was aus Meine Bibliothek entfernen"
+          - check_type: "accessibility_absent"
+            value: "As It Was – Sped Up aus Meine Bibliothek entfernen"
+error_steps: ["add_favoriten"]
+c2_summary_lines:
+  - "Lied zu Meine Bibliothek hinzufügen: {song_title}"
+verification:
+  - id: "v_song_added"
+    assertion: "Empfohlenes Lied wurde zu Meine Bibliothek hinzugefügt"
+    check_type: "accessibility_check"
+    parameters:
+      label: "aus Meine Bibliothek entfernen"
+    screenshot_evidence: true
+max_duration_s: 120
+per_gate_timeout_s: 30

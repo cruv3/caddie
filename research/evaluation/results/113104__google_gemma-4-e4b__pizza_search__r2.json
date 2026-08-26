@@ -1,0 +1,151 @@
+{
+  "trial_id": "113104__google_gemma-4-e4b__pizza_search__r2",
+  "timestamp_utc": "2026-06-02T09:31:47.480155Z",
+  "model": "google/gemma-4-e4b",
+  "task": "pizza_search",
+  "run": 2,
+  "outcome": "failed",
+  "timing": {
+    "load": 0.0,
+    "reset": 1.62,
+    "task": 37.58,
+    "total": 43.0
+  },
+  "screenshot": "<user-home>\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\113104__google_gemma-4-e4b__pizza_search__r2.png",
+  "lmstudio_response": {
+    "ok": false,
+    "active_skills": [],
+    "follow_up_context": false,
+    "lmstudio": {
+      "ok": false,
+      "outcome": "failed",
+      "tool_calls": 6,
+      "turns": 6,
+      "final_text": "",
+      "error": null,
+      "vision_unsupported": false
+    },
+    "_http_status": 502
+  },
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1780392668.124581,
+      "task": "suche im browser ein pizza-restaurant in der nähe",
+      "_received_at": 10887.0163198
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780392669.747205,
+      "tool": "smartphone_get_skill_search_pizza_restaurant_google",
+      "args": {
+        "skill_id": "search.pizza_restaurant_google"
+      },
+      "_received_at": 10888.6393917
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780392669.7472196,
+      "tool": "smartphone_get_skill_search_pizza_restaurant_google",
+      "_received_at": 10888.6394257
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780392671.6126409,
+      "tool": "smartphone_open_url",
+      "args": {
+        "url": "https://www.google.com/search?q=pizza+restaurant+near+me",
+        "why": "Ich suche nach einem Pizza-Restaurant in meiner Nähe bei Google."
+      },
+      "_received_at": 10890.5041437
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780392683.2625127,
+      "tool": "smartphone_open_url",
+      "_received_at": 10902.1540167
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780392685.1587927,
+      "tool": "smartphone_take_screenshot",
+      "args": {
+        "why": "Ich mache einen Screenshot, um die Suchergebnisse zu analysieren und ein Restaurant auszuwählen."
+      },
+      "_received_at": 10904.0502943
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780392685.6050718,
+      "tool": "smartphone_take_screenshot",
+      "_received_at": 10904.4966042
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780392688.8005154,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 500,
+        "y": 890,
+        "why": "Ich tippe auf ein Restaurant im Kartenbereich, um zur Detailseite zu gelangen."
+      },
+      "_received_at": 10907.6921479
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780392696.0359478,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 10914.9275029
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780392698.1488614,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich schaue mir die Elemente an, um zu bestätigen, dass ich auf einer Detailseite bin oder einen Link zur Detailseite sehe."
+      },
+      "_received_at": 10917.0403752
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780392700.2656887,
+      "tool": "smartphone_list_elements",
+      "_received_at": 10919.1571715
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780392705.456314,
+      "tool": "smartphone_failed",
+      "args": {
+        "reason": "Die Detailseite eines Restaurants ist nicht sichtbar; es wird ein Regionsauswahl-Dialog angezeigt."
+      },
+      "_received_at": 10924.347811
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780392705.4563277,
+      "ok": false,
+      "payload": {
+        "message": "Die Detailseite eines Restaurants ist nicht sichtbar; es wird ein Regionsauswahl-Dialog angezeigt."
+      },
+      "_received_at": 10924.3478292
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780392705.4563305,
+      "tool": "smartphone_failed",
+      "_received_at": 10924.3479157
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780392705.457018,
+      "ok": false,
+      "payload": {
+        "active_skills": [],
+        "outcome": "failed"
+      },
+      "_received_at": 10924.3486817
+    }
+  ]
+}

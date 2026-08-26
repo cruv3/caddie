@@ -1,0 +1,86 @@
+{
+  "trial_id": "133601__google_gemma-4-e4b__pizza_search__r0",
+  "timestamp_utc": "2026-06-01T11:36:47.754187Z",
+  "model": "google/gemma-4-e4b",
+  "task": "pizza_search",
+  "run": 0,
+  "outcome": "done",
+  "timing": {
+    "load": 0.0,
+    "reset": 3.58,
+    "task": 29.52,
+    "total": 46.11
+  },
+  "screenshot": null,
+  "lmstudio_response": {
+    "ok": true,
+    "active_skills": [],
+    "follow_up_context": false,
+    "lmstudio": {
+      "ok": true,
+      "outcome": "done",
+      "tool_calls": 5,
+      "turns": 5,
+      "final_text": "",
+      "error": null,
+      "vision_unsupported": false
+    }
+  },
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1780313767.2211623,
+      "task": "suche im browser ein pizza-restaurant in der nähe",
+      "_received_at": 1478048.0697025
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780313779.4840553,
+      "tool": "smartphone_open_url",
+      "args": {
+        "url": "https://www.google.com/search?q=pizza+restaurant+in+der+nähe",
+        "why": "Ich öffne Google und suche nach Pizza-Restaurants in meiner Nähe."
+      },
+      "_received_at": 1478060.3323754
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780313794.5953515,
+      "tool": "smartphone_open_url",
+      "_received_at": 1478075.443633
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780313796.609139,
+      "tool": "smartphone_done",
+      "args": {
+        "message": "Ich habe nach Pizza-Restaurants gesucht."
+      },
+      "_received_at": 1478077.457663
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780313796.6091533,
+      "ok": true,
+      "payload": {
+        "message": "Ich habe nach Pizza-Restaurants gesucht."
+      },
+      "_received_at": 1478077.457718
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780313796.6091564,
+      "tool": "smartphone_done",
+      "_received_at": 1478077.4577945
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780313796.6097791,
+      "ok": true,
+      "payload": {
+        "active_skills": []
+      },
+      "_received_at": 1478077.4580861
+    }
+  ]
+}

@@ -1,0 +1,248 @@
+{
+  "trial_id": "100020__google_gemma-4-e4b__dark_mode_off__r0",
+  "timestamp_utc": "2026-06-02T08:02:56.503409Z",
+  "model": "google/gemma-4-e4b",
+  "task": "dark_mode_off",
+  "run": 0,
+  "outcome": "failed",
+  "timing": {
+    "load": 6.07,
+    "reset": 1.64,
+    "task": 150.63,
+    "total": 156.02
+  },
+  "screenshot": "<user-home>\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\100020__google_gemma-4-e4b__dark_mode_off__r0.png",
+  "lmstudio_response": {
+    "ok": false,
+    "active_skills": [
+      "display.dark_mode_off_settings"
+    ],
+    "follow_up_context": false,
+    "lmstudio": {
+      "ok": false,
+      "outcome": "failed",
+      "tool_calls": 11,
+      "turns": 11,
+      "final_text": "",
+      "error": null,
+      "vision_unsupported": false
+    },
+    "_http_status": 502
+  },
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1780387224.1278768,
+      "task": "schalte den dark mode aus",
+      "_received_at": 5443.0196531
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387231.5215302,
+      "tool": "smartphone_get_skill_display_dark_mode_off_settings",
+      "args": {
+        "skill_id": "display.dark_mode_off_settings"
+      },
+      "_received_at": 5450.4130187
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387231.5215476,
+      "tool": "smartphone_get_skill_display_dark_mode_off_settings",
+      "_received_at": 5450.4131121
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387236.127208,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.settings",
+        "why": "Ich öffne die Einstellungen-App, um zum Display zu gelangen."
+      },
+      "_received_at": 5455.0187121
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387243.1678276,
+      "tool": "smartphone_open_app",
+      "_received_at": 5462.0593293
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387248.9663563,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich schaue mir die Elemente in den Einstellungen an, um zu Display & Touchbedienung zu navigieren."
+      },
+      "_received_at": 5467.8578556
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387251.087355,
+      "tool": "smartphone_list_elements",
+      "_received_at": 5469.9789082
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387259.0578597,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 600,
+        "end_x": 540,
+        "end_y": 1280,
+        "duration_ms": 300,
+        "why": "Ich scrolle nach unten, um die Einstellung \"Display & Touchbedienung\" zu finden."
+      },
+      "_received_at": 5477.949363
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387265.892493,
+      "tool": "smartphone_swipe",
+      "_received_at": 5484.7840814
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387272.89435,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich liste die Elemente erneut auf, um \"Display & Touchbedienung\" zu finden."
+      },
+      "_received_at": 5491.7858562
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387275.0287712,
+      "tool": "smartphone_list_elements",
+      "_received_at": 5493.9210788
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387281.9423692,
+      "tool": "smartphone_type_text",
+      "args": {
+        "text": "Display",
+        "submit": false,
+        "why": "Ich suche nach 'Display', um die richtige Einstellung zu finden."
+      },
+      "_received_at": 5500.833832
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387288.5170863,
+      "tool": "smartphone_type_text",
+      "_received_at": 5507.408584
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387314.629073,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich liste die Elemente nach der Suche auf, um den richtigen Link zu finden."
+      },
+      "_received_at": 5533.5205848
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387316.7571266,
+      "tool": "smartphone_list_elements",
+      "_received_at": 5535.648702
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387330.2243426,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 600,
+        "end_x": 540,
+        "end_y": 1280,
+        "duration_ms": 300,
+        "why": "Ich scrolle erneut nach unten, um die Suchergebnisse oder die Kategorie 'Display & Touchbedienung' zu sehen."
+      },
+      "_received_at": 5549.1158382
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387337.0682116,
+      "tool": "smartphone_swipe",
+      "_received_at": 5555.9597637
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387344.420572,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 600,
+        "end_x": 540,
+        "end_y": 1280,
+        "duration_ms": 300,
+        "why": "Ich scrolle ein letztes Mal nach unten, um die Einstellung \"Display & Touchbedienung\" zu finden."
+      },
+      "_received_at": 5563.3121245
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387351.1900606,
+      "tool": "smartphone_swipe",
+      "_received_at": 5570.0816071
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387363.2218935,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich überprüfe die Elemente erneut nach dem Scrollen, um \"Display & Touchbedienung\" zu finden und darauf zu tippen."
+      },
+      "_received_at": 5582.1133923
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387365.3313162,
+      "tool": "smartphone_list_elements",
+      "_received_at": 5584.222812
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780387374.5741458,
+      "tool": "smartphone_failed",
+      "args": {
+        "reason": "Ich konnte die Einstellung „Display & Touchbedienung“ in den Einstellungen nicht finden oder darauf zugreifen."
+      },
+      "_received_at": 5593.465639
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780387374.574163,
+      "ok": false,
+      "payload": {
+        "message": "Ich konnte die Einstellung „Display & Touchbedienung“ in den Einstellungen nicht finden oder darauf zugreifen."
+      },
+      "_received_at": 5593.4658992
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780387374.5741665,
+      "tool": "smartphone_failed",
+      "_received_at": 5593.4659134
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780387374.574862,
+      "ok": false,
+      "payload": {
+        "active_skills": [
+          "display.dark_mode_off_settings"
+        ],
+        "outcome": "failed"
+      },
+      "_received_at": 5593.4664321
+    }
+  ]
+}

@@ -1,0 +1,154 @@
+{
+  "trial_id": "085139__qwen_qwen36-35b-a3b__dark_mode_on__r1",
+  "timestamp_utc": "2026-06-02T07:01:49.849638Z",
+  "model": "qwen/qwen3.6-35b-a3b",
+  "task": "dark_mode_on",
+  "run": 1,
+  "outcome": "timeout",
+  "timing": {
+    "load": 0.0,
+    "reset": 1.55,
+    "task": 600.47,
+    "total": 610.76
+  },
+  "screenshot": "<user-home>\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\085139__qwen_qwen36-35b-a3b__dark_mode_on__r1.png",
+  "lmstudio_response": null,
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1780383102.6677616,
+      "task": "schalte den dark mode an",
+      "_received_at": 1321.559612
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780383156.7376027,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.settings",
+        "why": "Öffne die Einstellungen"
+      },
+      "_received_at": 1375.6290949
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780383163.7274156,
+      "tool": "smartphone_open_app",
+      "_received_at": 1382.6189811
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780383198.3966646,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Suche nach Display-Einstellungen"
+      },
+      "_received_at": 1417.2882175
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780383200.506881,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1419.3988985
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780383317.1887887,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 392,
+        "y": 1997,
+        "why": "Tippe auf Display & touch"
+      },
+      "_received_at": 1536.0803045
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780383323.6537688,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 1542.5453138
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780383348.160049,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Suche nach Dark theme Toggle"
+      },
+      "_received_at": 1567.0516571
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780383350.2276783,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1569.119167
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780383442.6921759,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 969,
+        "y": 1738,
+        "why": "Aktiviere Dunkles Design"
+      },
+      "_received_at": 1661.5836842
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780383449.1435316,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 1668.0351089
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780383490.0201724,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Prüfe ob Dark theme aktiviert ist"
+      },
+      "_received_at": 1708.9116741
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780383492.1066368,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1710.998203
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780383599.502421,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 969,
+        "y": 1738,
+        "why": "Aktiviere Dark theme"
+      },
+      "_received_at": 1818.3939572
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780383605.996001,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 1824.8876968
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780383705.6948056,
+      "tool": "smartphone_take_screenshot",
+      "args": {
+        "why": "Überprüfe ob Dark Mode aktiviert ist"
+      },
+      "_received_at": 1924.5863009
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780383705.9370122,
+      "tool": "smartphone_take_screenshot",
+      "_received_at": 1924.8285791
+    }
+  ]
+}

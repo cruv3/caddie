@@ -1,0 +1,81 @@
+{
+  "trial_id": "080506__qwen_qwen36-35b-a3b__brightness_set_50__r1",
+  "timestamp_utc": "2026-06-02T06:08:12.957947Z",
+  "model": "qwen/qwen3.6-35b-a3b",
+  "task": "brightness_set_50",
+  "run": 1,
+  "outcome": "failed",
+  "timing": {
+    "load": 0.0,
+    "reset": 2.39,
+    "task": 180.23,
+    "total": 186.49
+  },
+  "screenshot": "<user-home>\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\080506__qwen_qwen36-35b-a3b__brightness_set_50__r1.png",
+  "lmstudio_response": null,
+  "events": [
+    {
+      "type": "tool_call_finished",
+      "ts": 1780380307.0307927,
+      "tool": "smartphone_open_app",
+      "_received_at": 1544589.6216145
+    },
+    {
+      "type": "task_started",
+      "ts": 1780380310.899868,
+      "task": "stelle die helligkeit auf 50 prozent",
+      "_received_at": 1544593.4907746
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780380315.7349648,
+      "tool": "smartphone_open_app",
+      "_received_at": 1544598.3255772
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780380365.1078517,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Suche nach Bluetooth in den Einstellungen"
+      },
+      "_received_at": 1544647.6984411
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780380367.249393,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1544649.8400328
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780380467.0059404,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 320,
+        "y": 460,
+        "why": "Tippe auf Verbindungseinstellungen"
+      },
+      "_received_at": 1544749.5965416
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780380471.9433174,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 1544754.5339096
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780380490.926329,
+      "ok": false,
+      "payload": {
+        "active_skills": [
+          "display.brightness_50_settings",
+          "display.brightness_50_settings_display_touch"
+        ]
+      },
+      "_received_at": 1544773.5170559
+    }
+  ]
+}

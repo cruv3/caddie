@@ -1,0 +1,86 @@
+{
+  "trial_id": "141608__gemma-4-e2b-it__pizza_search__r1",
+  "timestamp_utc": "2026-05-13T12:16:25.686867Z",
+  "model": "gemma-4-e2b-it",
+  "task": "pizza_search",
+  "run": 1,
+  "outcome": "done",
+  "timing": {
+    "load": 25.82,
+    "reset": 1.75,
+    "task": 12.52,
+    "total": 17.62
+  },
+  "screenshot": "<user-home>\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\141608__gemma-4-e2b-it__pizza_search__r1.png",
+  "lmstudio_response": {
+    "ok": true,
+    "active_skills": [],
+    "lmstudio": {
+      "ok": true,
+      "status": 200,
+      "response": {
+        "model_instance_id": "gemma-4-e2b-it",
+        "output": [
+          {
+            "type": "tool_call",
+            "tool": "smartphone_open_url",
+            "arguments": {
+              "url": "https://www.google.com/search?q=pizza+restaurant",
+              "why": "Suche nach Pizza-Restaurants in der Nähe"
+            },
+            "output": "[{\"type\":\"text\",\"text\":\"Opened URL: https://www.google.com/search?q=pizza+restaurant\"}]",
+            "provider_info": {
+              "plugin_id": "mcp/llm-smartphone-tools",
+              "type": "plugin"
+            }
+          },
+          {
+            "type": "message",
+            "content": "smartphone_done(message=\"Suche nach Pizza-Restaurants gestartet.\")\nsmartphone_save_skill(id:<|\"|>search_pizza_restaurant_google<|\"|>,title:<|\"|>Search for pizza restaurants<|\"|>,description:<|\"|>Launches Google search for pizza restaurants nearby.<|\"|>,triggers:[<|\"|>suche ein pizza restaurant<|\"|>,<|\"|>pizza restaurant finden<|\"|>,<|\"|>wo gibt es pizza<|\"|>,<|\"|>führe mich zur nächsten pizzeria<|\"|>],tested_environments:[<|\"|>Android 12<|\"|>,<|\"|>Pixel 6<|\"|>],app_context:<|\"|>Google Chrome is the default browser.<|\"|>,starting_context:<|\"|>Start with a Google search for pizza restaurants.<|\"|>,rules:[<|\"|>Open Google and search for \"pizza restaurant\".<|\"|>],flow:[<|\"|>smartphone_open_url(url=\"https://www.google.com/search?q=pizza+restaurant\",why=\"Suche nach Pizza-Restaurants in der Nähe\")<|\"|>],device_variants:[<|\"|>Android 12<|\"|>,<|\"|>Pixel 6<|\"|>],verification:<|\"|>The browser is open to the Google search results page for pizza restaurants.<|\"|>,failure_modes:[<|\"|>URL could not be opened.<|\"|>]}<tool_call|>"
+          }
+        ],
+        "stats": {
+          "input_tokens": 4906,
+          "total_output_tokens": 287,
+          "reasoning_output_tokens": 0,
+          "tokens_per_second": 170.27406816099008,
+          "time_to_first_token_seconds": 0.042
+        },
+        "response_id": "resp_b61a5b370adeb05111f4d681e5505e881d3a8862128e66e2"
+      }
+    }
+  },
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1778674571.8103168,
+      "task": "suche im browser ein pizza-restaurant in der nähe",
+      "_received_at": 108531.3508808
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778674572.3472195,
+      "tool": "smartphone_open_url",
+      "args": {
+        "url": "https://www.google.com/search?q=pizza+restaurant",
+        "why": "Suche nach Pizza-Restaurants in der Nähe"
+      },
+      "_received_at": 108531.8877434
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778674582.0764232,
+      "tool": "smartphone_open_url",
+      "_received_at": 108541.6169508
+    },
+    {
+      "type": "task_finished",
+      "ts": 1778674584.0793548,
+      "ok": true,
+      "payload": {
+        "active_skills": []
+      },
+      "_received_at": 108543.6209789
+    }
+  ]
+}

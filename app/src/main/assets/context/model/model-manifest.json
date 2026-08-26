@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "modelId": "Teradata/multilingual-e5-small",
+  "tokenizerId": "intfloat/multilingual-e5-small",
+  "upstreamRevision": "26d0d6b003e8f5bde1f7dff0c6996c04cf73d675",
+  "quantization": "INT8",
+  "dimension": 384,
+  "maxTokens": 512,
+  "inputNames": [
+    "input_ids",
+    "attention_mask"
+  ],
+  "outputName": "sentence_embedding",
+  "normalizationRule": "L2",
+  "queryPrefix": "query: ",
+  "passagePrefix": "passage: ",
+  "assets": [
+    {
+      "path": "context/model/multilingual-e5-small-int8.onnx",
+      "sha256": "e93d9afb74c3eb314a264cde56f265c132f3775f5bacebe07d00ceb261d2eb72",
+      "sizeBytes": 118274312
+    },
+    {
+      "path": "context/model/sentencepiece.bpe.model",
+      "sha256": "cfc8146abe2a0488e9e2a0c56de7952f7c11ab059eca145a0a727afce0db2865",
+      "sizeBytes": 5069051
+    }
+  ]
+}

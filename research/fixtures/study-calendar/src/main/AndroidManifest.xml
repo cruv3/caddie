@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application android:label="@string/app_name" android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher_round" android:theme="@style/Theme.StudyCalendar">
+        <activity
+            android:name=".StudyModesActivity"
+            android:exported="true"
+            android:label="@string/modes_title">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".StudyCalendarActivity" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <!-- Intentionally exported: this synthetic study fixture is reset through package-scoped ADB broadcasts. -->
+        <receiver android:name=".StudyCalendarResetReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="com.caddie.studycalendar.ACTION_RESET" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Kalender</string>
+    <string name="meeting_title">Projektsitzung</string>
+    <string name="exam_title">Prüfung</string>
+    <string name="create_event">Termin erstellen</string>
+    <string name="plus_symbol" translatable="false">+</string>
+    <string name="calendar_name">Studienkalender</string>
+    <string name="edit_event">Bearbeiten</string>
+    <string name="edit_meeting">Projektsitzung bearbeiten</string>
+    <string name="edit_exam">Prüfung bearbeiten</string>
+    <string name="save_event">Speichern</string>
+    <string name="modes_title">Modi</string>
+    <string name="modes_description">Bitte nicht stören für wichtige Termine</string>
+    <string name="no_dnd_rule">Keine Regel eingerichtet</string>
+    <string name="create_dnd_rule">Neue Regel</string>
+    <string name="edit_dnd_rule">Regel bearbeiten</string>
+    <string name="edit_exam_rule">Prüfungsregel</string>
+    <string name="tomorrow_exam">Morgen · Prüfung</string>
+    <string name="save_dnd_rule">Regel speichern</string>
+</resources>

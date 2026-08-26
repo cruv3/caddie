@@ -1,0 +1,1 @@
+{"classification":"GUIDANCE_ONLY","id":"apps.open_google_calendar@legacy","legacyContainsCoordinates":false,"skillId":"apps.open_google_calendar","sourcePath":"apps/open_google_calendar.steps.json","sourceSha256":"167228514e22f08462d5584288d04bcd3f6619ae9c82a0a4b2512167ba873f0d","steps":[{"action":"open_app","package":"com.google.android.calendar"}]}

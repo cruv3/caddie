@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Telegram</string>
+    <string name="anna">Anna</string>
+    <string name="lena">Lena</string>
+    <string name="anna_seed_preview">Sag mir kurz, wann du in Deutz ankommst.</string>
+    <string name="anna_seed_message">Sag mir kurz, wann du in Deutz ankommst.</string>
+    <string name="lena_seed_preview">Hast du später kurz Zeit?</string>
+    <string name="lena_chat_first">Warst du schon in der neuen Cafeteria?</string>
+    <string name="lena_chat_reply">Ja, gestern kurz nach dem Seminar.</string>
+    <string name="lena_song_recommendation">Song-Tipp: As It Was von Harry Styles.</string>
+    <string name="anne">Anne</string>
+    <string name="anni">Anni</string>
+    <string name="read_chat_anne">Kaffee um 16 Uhr passt</string>
+    <string name="read_chat_anni">Ich schicke dir gleich die Folien</string>
+    <string name="preview_chat_anne">16 Uhr passt</string>
+    <string name="preview_chat_anni">Folien kommen gleich</string>
+    <string name="name_chat_project">Projektgruppe</string>
+    <string name="preview_chat_project">Protokoll ist hochgeladen</string>
+    <string name="name_chat_mila">Mila</string>
+    <string name="preview_chat_mila">Danke, bis später</string>
+    <string name="name_chat_jonas">Jonas</string>
+    <string name="preview_chat_jonas">Bin schon in der Bib</string>
+    <string name="message_hint">Nachricht</string>
+    <string name="send">Senden</string>
+    <string name="back">Zurück</string>
+    <string name="back_arrow">‹</string>
+</resources>

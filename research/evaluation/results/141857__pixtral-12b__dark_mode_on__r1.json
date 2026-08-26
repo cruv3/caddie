@@ -1,0 +1,479 @@
+{
+  "trial_id": "141857__pixtral-12b__dark_mode_on__r1",
+  "timestamp_utc": "2026-05-13T12:24:08.536959Z",
+  "model": "pixtral-12b",
+  "task": "dark_mode_on",
+  "run": 1,
+  "outcome": "timeout",
+  "timing": {
+    "load": 30.33,
+    "reset": 2.23,
+    "task": 300.36,
+    "total": 310.68
+  },
+  "screenshot": "<user-home>\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\141857__pixtral-12b__dark_mode_on__r1.png",
+  "lmstudio_response": null,
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1778674742.1037471,
+      "task": "schalte den dark mode an",
+      "_received_at": 108701.6443141
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778674747.4410834,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.settings",
+        "why": "Öffne die Einstellungen"
+      },
+      "_received_at": 108706.9816915
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778674755.2428954,
+      "tool": "smartphone_open_app",
+      "_received_at": 108714.7833543
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778674757.7388608,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Schaue mir den Bildschirm an"
+      },
+      "_received_at": 108717.2794621
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778674759.9597108,
+      "tool": "smartphone_list_elements",
+      "_received_at": 108719.5001714
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778674766.6388083,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 1212,
+        "end_x": 540,
+        "end_y": 2243,
+        "duration_ms": 300,
+        "why": "Scrolle nach unten zum Display & Touchbedienung"
+      },
+      "_received_at": 108726.1793189
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778674773.6555998,
+      "tool": "smartphone_swipe",
+      "_received_at": 108733.196059
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778674778.728433,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Schaue mir den Bildschirm an"
+      },
+      "_received_at": 108738.2690088
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778674780.9006708,
+      "tool": "smartphone_list_elements",
+      "_received_at": 108740.4411344
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778674787.3190129,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 540,
+        "y": 2033,
+        "why": "Tippe auf Display & touch"
+      },
+      "_received_at": 108746.8594797
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778674792.3452482,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 108751.8856884
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778674798.3949504,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Schaue mir den Bildschirm an"
+      },
+      "_received_at": 108757.9354155
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778674800.601272,
+      "tool": "smartphone_list_elements",
+      "_received_at": 108760.1417644
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778674805.8348322,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 969,
+        "y": 1738,
+        "why": "Tippe auf den Schalter für Dunkles Design"
+      },
+      "_received_at": 108765.3752977
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778674810.6720967,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 108770.2126181
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778674815.29954,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Schaue mir den Bildschirm an"
+      },
+      "_received_at": 108774.8400087
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778674817.4908843,
+      "tool": "smartphone_list_elements",
+      "_received_at": 108777.0313866
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778674822.8681922,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Schaue mir den Bildschirm an"
+      },
+      "_received_at": 108782.4086956
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778674825.009051,
+      "tool": "smartphone_list_elements",
+      "_received_at": 108784.5495122
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778674830.8505623,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 969,
+        "y": 1738,
+        "why": "Aktiviere Dark Mode"
+      },
+      "_received_at": 108790.3910567
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778674835.6456935,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 108795.1861721
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778674842.2137973,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Schaue mir den Bildschirm an"
+      },
+      "_received_at": 108801.7543106
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778674844.4816635,
+      "tool": "smartphone_list_elements",
+      "_received_at": 108804.0221135
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778674850.646731,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Schaue mir den Bildschirm an"
+      },
+      "_received_at": 108810.1872589
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778674852.822659,
+      "tool": "smartphone_list_elements",
+      "_received_at": 108812.3631322
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778674859.7311418,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 540,
+        "y": 1962,
+        "why": "Tippe auf Display & Touchbedienung"
+      },
+      "_received_at": 108819.2716183
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778674864.756362,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 108824.2968196
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778674870.9506004,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Schaue mir den Bildschirm an"
+      },
+      "_received_at": 108830.4912284
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778674873.0767057,
+      "tool": "smartphone_list_elements",
+      "_received_at": 108832.6171746
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778674880.0092914,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 969,
+        "y": 1738,
+        "why": "Tippe auf den Dark theme Schalter um ihn einzuschalten"
+      },
+      "_received_at": 108839.5497726
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778674886.6290665,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 108846.1695347
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778674892.7433002,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Schaue mir den Bildschirm an"
+      },
+      "_received_at": 108852.2837848
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778674894.9000602,
+      "tool": "smartphone_list_elements",
+      "_received_at": 108854.4405271
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778674901.8384745,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Schaue mir den Bildschirm an"
+      },
+      "_received_at": 108861.37895
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778674904.0109348,
+      "tool": "smartphone_list_elements",
+      "_received_at": 108863.5514171
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778674912.2732098,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 1212,
+        "end_x": 540,
+        "end_y": 2243,
+        "duration_ms": 300,
+        "why": "Scrolle nach unten zum Display & Touchbedienung"
+      },
+      "_received_at": 108871.813721
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778674919.3463745,
+      "tool": "smartphone_swipe",
+      "_received_at": 108878.886841
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778674929.0652733,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 1212,
+        "end_x": 540,
+        "end_y": 2243,
+        "duration_ms": 300,
+        "why": "Scrolle nach unten zum Display & Touchbedienung"
+      },
+      "_received_at": 108888.6058652
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778674936.4247093,
+      "tool": "smartphone_swipe",
+      "_received_at": 108895.9652019
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778674945.9961128,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 1212,
+        "end_x": 540,
+        "end_y": 2243,
+        "duration_ms": 300,
+        "why": "Scrolle nach unten zum Display & Touchbedienung"
+      },
+      "_received_at": 108905.5366675
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778674953.0603313,
+      "tool": "smartphone_swipe",
+      "_received_at": 108912.6007807
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778674962.8115811,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 1212,
+        "end_x": 540,
+        "end_y": 2243,
+        "duration_ms": 300,
+        "why": "Scrolle nach unten zum Display & Touchbedienung"
+      },
+      "_received_at": 108922.3526554
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778674970.3641694,
+      "tool": "smartphone_swipe",
+      "_received_at": 108929.9046349
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778674980.1832316,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 1212,
+        "end_x": 540,
+        "end_y": 2243,
+        "duration_ms": 300,
+        "why": "Scrolle nach unten zum Display & Touchbedienung"
+      },
+      "_received_at": 108939.7236891
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778674987.3227715,
+      "tool": "smartphone_swipe",
+      "_received_at": 108946.8632323
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778674997.1306374,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 1212,
+        "end_x": 540,
+        "end_y": 2243,
+        "duration_ms": 300,
+        "why": "Scrolle nach unten zum Display & Touchbedienung"
+      },
+      "_received_at": 108956.671756
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778675004.2031362,
+      "tool": "smartphone_swipe",
+      "_received_at": 108963.7435889
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778675013.6806202,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 1212,
+        "end_x": 540,
+        "end_y": 2243,
+        "duration_ms": 300,
+        "why": "Scrolle nach unten zum Display & Touchbedienung"
+      },
+      "_received_at": 108973.2212001
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778675020.6915414,
+      "tool": "smartphone_swipe",
+      "_received_at": 108980.232003
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778675030.7577538,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 1212,
+        "end_x": 540,
+        "end_y": 2243,
+        "duration_ms": 300,
+        "why": "Scrolle nach unten zum Display & Touchbedienung"
+      },
+      "_received_at": 108990.2982361
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778675037.7647772,
+      "tool": "smartphone_swipe",
+      "_received_at": 108997.305283
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778675047.3429184,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 1212,
+        "end_x": 540,
+        "end_y": 2243,
+        "duration_ms": 300,
+        "why": "Scrolle nach unten zum Display & Touchbedienung"
+      },
+      "_received_at": 109006.8835889
+    }
+  ]
+}

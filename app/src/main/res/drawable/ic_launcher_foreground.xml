@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#087F7A"
+        android:pathData="M65,20 C70.52,20 75,24.48 75,30 C75,35.52 70.52,40 65,40 C59.48,40 55,35.52 55,30 C55,24.48 59.48,20 65,20 Z" />
+    <path
+        android:fillColor="#087F7A"
+        android:pathData="M60,41 C66,39 71,42 73,48 L76,61 C77,66 73,70 68,70 L59,70 C54,70 51,66 52,61 L54,49 C55,45 57,43 60,41 Z" />
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M58,49 L47,61"
+        android:strokeColor="#087F7A"
+        android:strokeLineCap="round"
+        android:strokeWidth="8" />
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M70,48 L82,61"
+        android:strokeColor="#087F7A"
+        android:strokeLineCap="round"
+        android:strokeWidth="8" />
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M61,65 L51,86"
+        android:strokeColor="#087F7A"
+        android:strokeLineCap="round"
+        android:strokeWidth="10" />
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M67,65 L79,85"
+        android:strokeColor="#087F7A"
+        android:strokeLineCap="round"
+        android:strokeWidth="10" />
+    <group
+        android:pivotX="39"
+        android:pivotY="57"
+        android:rotation="12">
+        <path
+            android:fillColor="@android:color/transparent"
+            android:pathData="M39,44 L36,31 L30,29"
+            android:strokeColor="#087F7A"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:strokeWidth="4" />
+        <path
+            android:fillColor="#FFF9EA"
+            android:pathData="M29,43 Q26,43 26,47 L26,68 Q26,72 30,73 L43,75 Q47,75 48,71 L49,48 Q49,44 45,44 Z"
+            android:strokeColor="#D48A16"
+            android:strokeLineJoin="round"
+            android:strokeWidth="3.5" />
+    </group>
+</vector>

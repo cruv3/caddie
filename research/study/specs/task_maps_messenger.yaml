@@ -1,0 +1,141 @@
+version: "v1"
+id: "task_maps_messenger"
+instruction_de: "Ermittle die Ankunftszeit mit öffentlichen Verkehrsmitteln von Campus Gummersbach nach Campus Deutz und teile Anna die ungefähre Ankunftszeit."
+participant_briefing:
+  situation_de: "Anna möchte dich am Campus Deutz treffen und hat gefragt, wann du ungefähr da bist. Du startest am Campus Gummersbach und möchtest mit öffentlichen Verkehrsmitteln fahren."
+  apps:
+    - name: "Google Maps"
+      purpose_de: "Eine passende Verbindung und die voraussichtliche Ankunftszeit ermitteln."
+    - name: "Telegram"
+      purpose_de: "Anna die ungefähre Ankunftszeit mitteilen."
+  goal_de: "Anna weiß anhand einer passenden Verbindung, wann sie ungefähr mit dir am Campus Deutz rechnen kann."
+  preparation_de: "Öffne auf dem Studien-Smartphone Telegram und sieh dir Annas neueste Nachricht kurz an. Verändere dabei nichts und lege das Smartphone danach wieder vor dir ab."
+completion_message_de: "Nachricht wurde an Anna versendet."
+criticality: "low"
+trigger:
+  reference_phrases:
+    - "Ermittle die Ankunftszeit mit öffentlichen Verkehrsmitteln von Campus Gummersbach nach Campus Deutz und teile Anna die ungefähre Ankunftszeit."
+  required_concepts:
+    - ["ankunftszeit", "ankunft"]
+    - ["öffentlichen verkehrsmitteln", "oeffentlichen verkehrsmitteln", "öffentlichen verkehrsmittel", "oeffentlichen verkehrsmittel", "öpnv", "oepnv"]
+    - ["gummersbach"]
+    - ["deutz"]
+    - ["anna"]
+    - ["teile", "sende", "schicke"]
+  forbidden_concepts: ["kalender", "rechnung", "überweisung", "ueberweisung", "whiteboard", "spotify"]
+  wake_words: ["jarvis", "caddie"]
+required_packages:
+  - "com.google.android.apps.maps"
+  - "com.caddie.studytelegram"
+seeded_artifacts:
+  - "Caddie Study Contact Anna"
+  - "Caddie Study Route Gummersbach-Deutz"
+reset_checklist:
+  - "Close Maps route preview"
+  - "Reset Study Telegram via com.caddie.studytelegram.ACTION_RESET"
+steps:
+  - id: "open_route"
+    action: "open_url https://www.google.com/maps/dir/TH+K%C3%B6ln+Campus+Gummersbach/TH+K%C3%B6ln+Campus+Deutz/data=!3m1!4b1!4m2!4m1!3e3"
+    ready_package: "com.google.android.apps.maps"
+    narration: "Route mit öffentlichen Verkehrsmitteln suchen..."
+    confirmation_text: "ÖPNV-Route Campus Gummersbach → TH Köln Campus Deutz öffnen"
+    step_type: "normal"
+    min_narration_ms: 1200
+    error_variant:
+      id: "err_wrong_route_destination"
+      field: "route_destination"
+      wrong_value: "K%C3%B6ln+Hauptbahnhof"
+      correct_value: "TH+K%C3%B6ln+Campus+Deutz"
+      description: "Route führt zum Kölner Hauptbahnhof statt zum Campus Deutz"
+      correction:
+        after_commit: "compensate"
+        rewind_to_step_id: "open_route"
+        steps:
+          - id: "correct_route_open"
+            action: "open_url https://www.google.com/maps/dir/TH+K%C3%B6ln+Campus+Gummersbach/TH+K%C3%B6ln+Campus+Deutz/data=!3m1!4b1!4m2!4m1!3e3"
+            narration: "Korrekte Route zum Campus Deutz öffnen"
+            confirmation_text: "Korrekte ÖPNV-Route Campus Gummersbach → TH Köln Campus Deutz öffnen"
+            ready_package: "com.google.android.apps.maps"
+          - id: "correct_route_capture_duration"
+            action: "capture transit duration as 'travel_duration'"
+            narration: "Korrekte Reisedauer erfassen"
+            confirmation_text: "Reisedauer aus der korrekten ÖPNV-Route erfassen"
+          - id: "correct_route_open_telegram"
+            action: "open com.caddie.studytelegram"
+            narration: "Telegram öffnen"
+            confirmation_text: "Telegram öffnen"
+          - id: "correct_route_return_to_chats"
+            action: "click 'com.caddie.studytelegram:id/btn_back_to_chats'"
+            narration: "Zur Chatübersicht zurückkehren"
+            confirmation_text: "Zur Chatübersicht zurückkehren"
+            run_if_target_present: true
+          - id: "correct_route_open_anna"
+            action: "click 'Anna'"
+            narration: "Chat mit Anna öffnen"
+            confirmation_text: "Chat mit Anna öffnen"
+          - id: "correct_route_focus_message"
+            action: "click 'com.caddie.studytelegram:id/message_input'"
+            narration: "Nachrichtenfeld auswählen"
+            confirmation_text: "Nachrichtenfeld auswählen"
+          - id: "correct_route_input_message"
+            action: "input text 'Korrektur: Ich bin voraussichtlich in {travel_duration} am Campus Deutz.'"
+            narration: "Korrigierte Reisedauer eingeben"
+            confirmation_text: "Korrektur an Anna vorbereiten: „Ich bin voraussichtlich in {travel_duration} am Campus Deutz.“"
+          - id: "correct_route_hide_keyboard"
+            action: "press BACK"
+            narration: "Tastatur schließen"
+            confirmation_text: "Tastatur schließen; Korrektur bleibt ungesendet"
+          - id: "correct_route_send_message"
+            action: "click 'com.caddie.studytelegram:id/btn_send'"
+            narration: "Korrektur an Anna senden"
+            confirmation_text: "Korrektur an Anna senden"
+        assertions:
+          - check_type: "text_present"
+            value: "Korrektur: Ich bin voraussichtlich in"
+  - id: "capture_duration"
+    action: "capture transit duration as 'travel_duration'"
+    narration: "Reisedauer aus der geöffneten Verbindung lesen..."
+    confirmation_text: "Reisedauer aus der geöffneten ÖPNV-Route {route_origin} → {route_destination} lesen"
+    step_type: "normal"
+    min_narration_ms: 400
+  - id: "open_telegram"
+    action: "open com.caddie.studytelegram"
+    narration: "Telegram-Chat öffnen..."
+    confirmation_text: "Telegram öffnen"
+    step_type: "normal"
+    min_narration_ms: 800
+  - id: "open_anna"
+    action: "click 'Anna'"
+    narration: "Chat mit Anna öffnen..."
+    confirmation_text: "Chat mit Anna öffnen"
+    step_type: "normal"
+  - id: "input_arrival"
+    action: "input text 'Ich bin voraussichtlich in {travel_duration} am Campus Deutz.'"
+    narration: "Reisedauer und Ziel in die Nachricht eingeben..."
+    confirmation_text: "Nachricht an Anna vorbereiten: „Ich bin voraussichtlich in {travel_duration} am Campus Deutz.“"
+    step_type: "normal"
+  - id: "send_arrival"
+    action: "press BACK"
+    narration: "Tastatur schließen..."
+    confirmation_text: "Tastatur schließen; Nachricht an Anna bleibt ungesendet"
+    step_type: "normal"
+    confirm_in_c1: false
+  - id: "tap_send"
+    action: "click 'Senden'"
+    narration: "Ankunftszeit an Anna senden..."
+    confirmation_text: "Nachricht an Anna senden: „Ich bin voraussichtlich in {travel_duration} am Campus Deutz.“"
+    step_type: "commit"
+    commit: true
+error_steps: ["open_route"]
+c2_summary_lines:
+  - "Verwendete ÖPNV-Route: {route_origin} → {route_destination}"
+  - "Nachricht an Anna: „Ich bin voraussichtlich in {travel_duration} am Campus Deutz.“"
+verification:
+  - id: "v_arrival_shared"
+    assertion: "Relative Reisedauer und Campus Deutz an Anna gesendet"
+    check_type: "text_present"
+    parameters:
+      text: "Campus Deutz"
+    screenshot_evidence: true
+max_duration_s: 120
+per_gate_timeout_s: 30

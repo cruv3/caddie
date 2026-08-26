@@ -1,0 +1,22 @@
+[
+  {
+    "id": "demo_authored_battery_saver",
+    "app": "com.android.settings",
+    "intent_text": "turn on battery saver",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": ["open settings app", "Battery", "Battery Saver", "turn on the Battery Saver toggle"],
+      "source": "authored"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": ["energiesparmodus einschalten", "akku energiesparmodus", "battery saver mode on"]
+  }
+]

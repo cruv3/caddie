@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Caddie</string>
+    <string name="accessibility_service_description">
+        Caddie Agent: reads screen content and performs actions on your behalf.
+        Required for the native agent runtime to observe and control apps.
+    </string>
+</resources>

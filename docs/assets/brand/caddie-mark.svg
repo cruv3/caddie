@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108" role="img" aria-labelledby="title desc">
+  <title id="title">Caddie mark</title>
+  <desc id="desc">A person walking with a caddie bag.</desc>
+  <rect width="108" height="108" rx="24" fill="#faf5e6"/>
+  <g fill="#087f7a" stroke="#087f7a" stroke-linecap="round">
+    <circle cx="65" cy="30" r="10" stroke="none"/>
+    <path d="M60 41c6-2 11 1 13 7l3 13c1 5-3 9-8 9h-9c-5 0-8-4-7-9l2-12c1-4 3-6 6-8Z" stroke="none"/>
+    <path d="m58 49-11 12m23-13 12 13" fill="none" stroke-width="8"/>
+    <path d="M61 65 51 86m16-21 12 20" fill="none" stroke-width="10"/>
+  </g>
+  <g transform="rotate(12 39 57)" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m39 44-3-13-6-2" fill="none" stroke="#087f7a" stroke-width="4"/>
+    <path d="M29 43q-3 0-3 4v21q0 4 4 5l13 2q4 0 5-4l1-23q0-4-4-4Z" fill="#fff9ea" stroke="#d48a16" stroke-width="3.5"/>
+  </g>
+</svg>

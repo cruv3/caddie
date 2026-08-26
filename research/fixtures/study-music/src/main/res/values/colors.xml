@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="music_background">#121212</color>
+    <color name="music_primary">#FFFFFF</color>
+    <color name="music_secondary">#B3B3B3</color>
+    <color name="music_green">#1ED760</color>
+    <color name="music_magenta">#E8117F</color>
+    <color name="music_teal">#148A72</color>
+    <color name="music_surface">#282828</color>
+    <color name="music_surface_high">#333333</color>
+    <color name="music_surface_low">#1A1A1A</color>
+    <color name="music_divider">#3E3E3E</color>
+    <color name="music_active">#1ED760</color>
+</resources>

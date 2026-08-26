@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Editable vector source for Figure 3.2. -->
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+     width="1600" height="1260" viewBox="0 0 1600 1260"
+     role="img" aria-labelledby="title description">
+  <title id="title">Normal-mode sequence with alternative dispatch routes</title>
+  <desc id="description">Editable sequence diagram showing a task request, model request, structured tool call, optional confirmation, and alternative built-in Android or MCP dispatch routes.</desc>
+
+  <defs>
+    <style>
+      .participant { font-family: Arial, Helvetica, sans-serif; font-size: 32px; font-weight: 700; fill: #111827; text-anchor: middle; }
+      .message { font-family: Arial, Helvetica, sans-serif; font-size: 29px; font-weight: 600; fill: #111827; text-anchor: middle; }
+      .fragment-label { font-family: Arial, Helvetica, sans-serif; font-size: 28px; font-weight: 700; fill: #5F6368; letter-spacing: 0.4px; }
+      .lifeline { stroke: #B8BDC5; stroke-width: 2; stroke-dasharray: 8 8; vector-effect: non-scaling-stroke; }
+      .frame { fill: none; stroke: #C8CCD2; stroke-width: 2; vector-effect: non-scaling-stroke; }
+      .divider { stroke: #D7DADE; stroke-width: 2; vector-effect: non-scaling-stroke; }
+      .user-line { fill: none; stroke: #C96800; stroke-width: 3; vector-effect: non-scaling-stroke; }
+      .dispatch-line { fill: none; stroke: #1239B5; stroke-width: 3; vector-effect: non-scaling-stroke; }
+      .reply-line { fill: none; stroke: #6B7280; stroke-width: 2.5; stroke-dasharray: 9 8; vector-effect: non-scaling-stroke; }
+      .arrow-orange { fill: #C96800; }
+      .arrow-blue { fill: #1239B5; }
+      .arrow-gray { fill: #6B7280; }
+      .label-bg { fill: #FFFFFF; }
+    </style>
+  </defs>
+
+  <g id="background" inkscape:groupmode="layer" inkscape:label="Background">
+    <rect x="0" y="0" width="1600" height="1260" fill="#FFFFFF"/>
+  </g>
+
+  <g id="participants" inkscape:groupmode="layer" inkscape:label="Participants">
+    <g id="participant-user">
+      <text class="participant" x="100" y="58">User</text>
+      <line class="lifeline" x1="100" y1="82" x2="100" y2="1220"/>
+    </g>
+    <g id="participant-caddie">
+      <text class="participant" x="450" y="58">Caddie on phone</text>
+      <line class="lifeline" x1="450" y1="82" x2="450" y2="1220"/>
+    </g>
+    <g id="participant-model-service">
+      <text class="participant" x="800" y="58">Model service</text>
+      <line class="lifeline" x1="800" y1="82" x2="800" y2="1220"/>
+    </g>
+    <g id="participant-android-app">
+      <text class="participant" x="1150" y="58">Android or app</text>
+      <line class="lifeline" x1="1150" y1="82" x2="1150" y2="1220"/>
+    </g>
+    <g id="participant-optional-mcp">
+      <text class="participant" x="1470" y="58">Optional MCP</text>
+      <line class="lifeline" x1="1470" y1="82" x2="1470" y2="1220"/>
+    </g>
+  </g>
+
+  <g id="request-and-model-exchange" inkscape:groupmode="layer" inkscape:label="Request and model exchange">
+    <g id="message-task-request">
+      <line class="user-line" x1="100" y1="145" x2="432" y2="145"/>
+      <polygon class="arrow-orange" points="450,145 432,134 432,156"/>
+      <rect class="label-bg" x="190" y="104" width="170" height="35"/>
+      <text class="message" x="275" y="132">task request</text>
+    </g>
+    <g id="message-model-request">
+      <line class="reply-line" x1="450" y1="225" x2="782" y2="225"/>
+      <polygon class="arrow-gray" points="800,225 782,214 782,236"/>
+      <rect class="label-bg" x="535" y="184" width="180" height="35"/>
+      <text class="message" x="625" y="212">model request</text>
+    </g>
+    <g id="message-structured-tool-call">
+      <line class="reply-line" x1="800" y1="305" x2="468" y2="305"/>
+      <polygon class="arrow-gray" points="450,305 468,294 468,316"/>
+      <rect class="label-bg" x="490" y="264" width="270" height="35"/>
+      <text class="message" x="625" y="292">structured tool call</text>
+    </g>
+    <g id="message-confirmation-when-required">
+      <rect class="label-bg" x="105" y="326" width="340" height="38"/>
+      <line class="reply-line" x1="450" y1="385" x2="126" y2="385"/>
+      <rect class="label-bg" x="84" y="366" width="42" height="38"/>
+      <polygon class="arrow-gray" points="100,385 126,370 126,400"/>
+      <text class="message" x="275" y="357">confirmation when required</text>
+    </g>
+  </g>
+
+  <g id="participant-decision" inkscape:groupmode="layer" inkscape:label="Participant decision">
+    <rect class="frame" x="64" y="425" width="610" height="250" rx="4"/>
+    <g id="branch-approve">
+      <rect class="label-bg" x="82" y="438" width="160" height="38"/>
+      <text class="fragment-label" x="88" y="468">[APPROVE]</text>
+      <line class="user-line" x1="100" y1="515" x2="432" y2="515"/>
+      <polygon class="arrow-orange" points="450,515 432,504 432,526"/>
+      <rect class="label-bg" x="218" y="474" width="114" height="35"/>
+      <text class="message" x="275" y="502">approve</text>
+    </g>
+    <line class="divider" x1="64" y1="550" x2="674" y2="550"/>
+    <g id="branch-reject-intervene">
+      <rect class="label-bg" x="82" y="562" width="548" height="38"/>
+      <text class="fragment-label" x="88" y="592">[REJECT / INTERVENE - NO DISPATCH]</text>
+      <line class="user-line" x1="100" y1="640" x2="432" y2="640"/>
+      <polygon class="arrow-orange" points="450,640 432,629 432,651"/>
+      <rect class="label-bg" x="150" y="599" width="250" height="35"/>
+      <text class="message" x="275" y="627">reject or intervene</text>
+    </g>
+  </g>
+
+  <g id="alternative-dispatch-routes" inkscape:groupmode="layer" inkscape:label="Alternative dispatch routes">
+    <rect class="frame" x="300" y="730" width="1238" height="380" rx="4"/>
+    <g id="route-built-in-android-action">
+      <rect class="label-bg" x="320" y="743" width="455" height="38"/>
+      <text class="fragment-label" x="326" y="773">[A] BUILT-IN ANDROID ACTION</text>
+      <line class="dispatch-line" x1="450" y1="825" x2="1132" y2="825"/>
+      <polygon class="arrow-blue" points="1150,825 1132,814 1132,836"/>
+      <rect class="label-bg" x="680" y="784" width="240" height="35"/>
+      <text class="message" x="800" y="812">built-in action</text>
+      <line class="reply-line" x1="1150" y1="890" x2="468" y2="890"/>
+      <polygon class="arrow-gray" points="450,890 468,879 468,901"/>
+      <rect class="label-bg" x="650" y="849" width="300" height="35"/>
+      <text class="message" x="800" y="877">fresh interface state</text>
+    </g>
+    <line class="divider" x1="300" y1="930" x2="1538" y2="930"/>
+    <g id="route-optional-mcp-call">
+      <rect class="label-bg" x="320" y="943" width="360" height="38"/>
+      <text class="fragment-label" x="326" y="973">[B] OPTIONAL MCP CALL</text>
+      <line class="dispatch-line" x1="450" y1="1025" x2="1452" y2="1025"/>
+      <polygon class="arrow-blue" points="1470,1025 1452,1014 1452,1036"/>
+      <rect class="label-bg" x="820" y="984" width="280" height="35"/>
+      <text class="message" x="960" y="1012">remote MCP call</text>
+      <line class="reply-line" x1="1470" y1="1080" x2="468" y2="1080"/>
+      <polygon class="arrow-gray" points="450,1080 468,1069 468,1091"/>
+      <rect class="label-bg" x="890" y="1039" width="140" height="35"/>
+      <text class="message" x="960" y="1067">tool result</text>
+    </g>
+  </g>
+
+  <g id="iteration-status" inkscape:groupmode="layer" inkscape:label="Iteration status">
+    <rect class="label-bg" x="95" y="1126" width="360" height="38"/>
+    <line class="user-line" x1="450" y1="1185" x2="126" y2="1185"/>
+    <rect class="label-bg" x="84" y="1166" width="42" height="38"/>
+    <polygon class="arrow-orange" points="100,1185 126,1170 126,1200"/>
+    <text class="message" x="275" y="1157">continue, complete, or pause</text>
+  </g>
+</svg>

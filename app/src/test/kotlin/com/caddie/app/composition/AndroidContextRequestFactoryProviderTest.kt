@@ -1,0 +1,168 @@
+package com.caddie.app.composition
+
+import com.caddie.agent.core.AgentMessage
+import com.caddie.agent.core.ConversationRequestFactory
+import com.caddie.agent.core.RequestFactory
+import com.caddie.agent.core.RunId
+import com.caddie.agent.core.RunSnapshot
+import com.caddie.agent.core.RunState
+import com.caddie.context.embedding.EmbeddingProvider
+import com.caddie.context.replay.ReplayGuidance
+import com.caddie.context.replay.ReplayGuidanceCatalog
+import com.caddie.context.skill.Skill
+import com.caddie.context.skill.SkillCatalog
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+class AndroidContextRequestFactoryProviderTest {
+    @Test
+    fun `warm up initializes semantic context before the first task`() = runTest {
+        val embedding = FakeEmbedding()
+        var factoryCalls = 0
+        val provider = AndroidContextRequestFactoryProvider(
+            catalogLoader = { catalog() },
+            embedderFactory = {
+                factoryCalls += 1
+                embedding
+            },
+        )
+
+        assertTrue(provider.warmUp())
+        provider.forTask("WLAN einschalten", baseFactory())
+
+        assertEquals(1, factoryCalls)
+        assertEquals(1, embedding.documentCalls)
+        assertEquals(1, embedding.queryCalls)
+    }
+
+    @Test
+    fun `semantic context is reused and closed once`() = runTest {
+        val embedding = FakeEmbedding()
+        var factoryCalls = 0
+        val provider = AndroidContextRequestFactoryProvider(
+            catalogLoader = { catalog() },
+            embedderFactory = {
+                factoryCalls += 1
+                embedding
+            },
+        )
+
+        val first = provider.forTask("WLAN einschalten", baseFactory())
+        val second = provider.forTask("WLAN öffnen", baseFactory())
+
+        assertTrue(contextMessage(first).contains("reference-only"))
+        assertTrue(contextMessage(first).contains("connectivity.wifi"))
+        assertTrue(contextMessage(second).contains("connectivity.wifi"))
+        assertEquals(1, factoryCalls)
+        assertEquals(1, embedding.documentCalls)
+        provider.close()
+        provider.close()
+        assertEquals(1, embedding.closeCalls)
+    }
+
+    @Test
+    fun `embedding failure falls back to lexical skills`() = runTest {
+        val provider = AndroidContextRequestFactoryProvider(
+            catalogLoader = { catalog() },
+            embedderFactory = { error("model unavailable") },
+            failureReporter = { _, _ -> },
+        )
+
+        val contextual = provider.forTask("WLAN einschalten", baseFactory())
+        val unrelated = provider.forTask("Erzähle einen Witz", baseFactory())
+
+        assertTrue(contextMessage(contextual).contains("connectivity.wifi"))
+        assertFalse(unrelated.create(snapshot(), emptyList()).messages.any {
+            "reference-only" in it.content
+        })
+    }
+
+    @Test(expected = CancellationException::class)
+    fun `initialization cancellation is not degraded`() = runTest {
+        AndroidContextRequestFactoryProvider(
+            catalogLoader = { catalog() },
+            embedderFactory = { throw CancellationException("cancelled") },
+            failureReporter = { _, _ -> },
+        ).forTask("WLAN einschalten", baseFactory())
+    }
+
+    @Test
+    fun `selected skill may add only its guidance replay`() = runTest {
+        val replaySkill = catalog().all.single().copy(replayId = "wifi@legacy")
+        val provider = AndroidContextRequestFactoryProvider(
+            catalogLoader = { SkillCatalog(listOf(replaySkill)) },
+            replayCatalogLoader = {
+                ReplayGuidanceCatalog(
+                    listOf(
+                        ReplayGuidance(
+                            id = "wifi@legacy",
+                            skillId = replaySkill.id,
+                            sourceSha256 = "b".repeat(64),
+                            guidance = "Open Quick Settings and resolve Internet semantically.",
+                        ),
+                    ),
+                )
+            },
+            embedderFactory = { FakeEmbedding() },
+        )
+
+        val message = contextMessage(provider.forTask("WLAN einschalten", baseFactory()))
+
+        assertTrue(message.contains("Replay guidance wifi@legacy"))
+        assertTrue(message.contains("resolve Internet semantically"))
+    }
+
+    private fun contextMessage(factory: RequestFactory): String =
+        factory.create(snapshot(), emptyList()).messages
+            .single { "reference-only" in it.content }
+            .content
+
+    private fun snapshot() = RunSnapshot(
+        runId = RunId("run"),
+        state = RunState.RUNNING,
+        messages = listOf(AgentMessage(AgentMessage.Role.USER, "task")),
+    )
+
+    private fun baseFactory(): RequestFactory = ConversationRequestFactory("normal prompt")
+
+    private fun catalog() = SkillCatalog(
+        listOf(
+            Skill(
+                id = "connectivity.wifi",
+                title = "Wi-Fi settings",
+                description = "Open or change wireless network settings.",
+                triggers = listOf("WLAN einschalten", "WLAN öffnen"),
+                body = "## Rules\nObserve before changing Wi-Fi.",
+                sourcePath = "skills/connectivity/wifi.md",
+                sourceSha256 = "a".repeat(64),
+                replayId = null,
+            ),
+        ),
+    )
+
+    private class FakeEmbedding : EmbeddingProvider {
+        override val modelId = "fake"
+        override val dimension = 2
+        var documentCalls = 0
+        var queryCalls = 0
+        var closeCalls = 0
+
+        override suspend fun embedQuery(text: String): FloatArray {
+            queryCalls += 1
+            return floatArrayOf(1f, 0f)
+        }
+
+        override suspend fun embedDocument(text: String): FloatArray {
+            documentCalls += 1
+            return floatArrayOf(1f, 0f)
+        }
+
+        override fun close() {
+            closeCalls += 1
+        }
+    }
+}

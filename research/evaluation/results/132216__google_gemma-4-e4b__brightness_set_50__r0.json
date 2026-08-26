@@ -1,0 +1,327 @@
+{
+  "trial_id": "132216__google_gemma-4-e4b__brightness_set_50__r0",
+  "timestamp_utc": "2026-06-01T11:24:50.881456Z",
+  "model": "google/gemma-4-e4b",
+  "task": "brightness_set_50",
+  "run": 0,
+  "outcome": "failed",
+  "timing": {
+    "load": 0.0,
+    "reset": 3.32,
+    "task": 147.1,
+    "total": 154.54
+  },
+  "screenshot": "<user-home>\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\132216__google_gemma-4-e4b__brightness_set_50__r0.png",
+  "lmstudio_response": {
+    "ok": false,
+    "active_skills": [
+      "display.brightness_50_settings",
+      "display.brightness_50_settings_display_touch"
+    ],
+    "follow_up_context": false,
+    "lmstudio": {
+      "ok": false,
+      "outcome": "failed",
+      "tool_calls": 16,
+      "turns": 16,
+      "final_text": "",
+      "error": null,
+      "vision_unsupported": false
+    },
+    "_http_status": 502
+  },
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1780312941.6785686,
+      "task": "stelle die helligkeit auf 50 prozent",
+      "_received_at": 1477222.5271172
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780312944.6773083,
+      "tool": "smartphone_get_skill_display_brightness_50_settings_display_touch",
+      "args": {
+        "skill_id": "display.brightness_50_settings_display_touch"
+      },
+      "_received_at": 1477225.525581
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780312944.6773233,
+      "tool": "smartphone_get_skill_display_brightness_50_settings_display_touch",
+      "_received_at": 1477225.5257772
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780312946.515958,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.settings",
+        "why": "Ich öffne die Einstellungen-App, um zur Helligkeitssteuerung zu gelangen."
+      },
+      "_received_at": 1477227.3642729
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780312962.153835,
+      "tool": "smartphone_open_app",
+      "_received_at": 1477243.0021749
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780312964.7551098,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich schaue mir die sichtbaren Einstellungen an, um 'Display & touch' zu finden."
+      },
+      "_received_at": 1477245.6034097
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780312968.113451,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1477248.961753
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780312970.2007968,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 20,
+        "why": "Ich liste die Elemente erneut auf, um die Hauptkategorien der Einstellungen zu sehen und 'Display' oder 'Anzeige' zu finden."
+      },
+      "_received_at": 1477251.0490879
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780312973.5313566,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1477254.3796213
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780312976.3118477,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 50,
+        "why": "Ich liste die Elemente erneut auf und suche gezielt nach Kategorien wie 'Anzeige' oder 'Display', um zum richtigen Menü zu gelangen."
+      },
+      "_received_at": 1477257.160147
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780312979.6804087,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1477260.5287612
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780312983.8134341,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 2316,
+        "end_x": 540,
+        "end_y": 100,
+        "duration_ms": 300,
+        "why": "Ich scrolle nach oben, um die Einstellungen durchzublättern und 'Anzeige' zu finden."
+      },
+      "_received_at": 1477264.6617292
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780312991.2479453,
+      "tool": "smartphone_swipe",
+      "_received_at": 1477272.0962923
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780312994.96862,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 50,
+        "why": "Ich suche nach der Kategorie 'Anzeige' oder 'Display', um zum Helligkeitsregler zu gelangen."
+      },
+      "_received_at": 1477275.8169112
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780312998.4158075,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1477279.2641336
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780313003.8745787,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 50,
+        "why": "Ich liste die Elemente noch einmal auf, um einen klickbaren Eintrag für 'Anzeige' oder 'Display' im Einstellungsmenü zu finden."
+      },
+      "_received_at": 1477284.7228711
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780313007.2559116,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1477288.104249
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780313014.8236144,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 50,
+        "why": "Ich suche nach dem Eintrag 'Anzeige' oder 'Display', um zur Helligkeitssteuerung zu gelangen."
+      },
+      "_received_at": 1477295.6719151
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780313018.248514,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1477299.0968137
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780313023.4977655,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 540,
+        "y": 300,
+        "why": "Ich tippe auf den Bereich 'Anzeige', um zu den Display-Einstellungen zu gelangen, wie im Skill beschrieben."
+      },
+      "_received_at": 1477304.3460769
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780313030.4577432,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 1477311.3060842
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780313033.5728164,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 50,
+        "why": "Ich überprüfe den aktuellen Bildschirminhalt nach dem Tippen auf 'Anzeige', um zu sehen, ob der Helligkeitsregler sichtbar ist."
+      },
+      "_received_at": 1477314.4211102
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780313036.8601394,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1477317.7084876
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780313043.7790926,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 50,
+        "why": "Ich liste die Elemente erneut auf, um nach dem Helligkeitsregler oder einer Kategorie wie 'Anzeige' zu suchen, da ich annehme, dass der vorherige Klick mich dorthin gebracht hat."
+      },
+      "_received_at": 1477324.6273836
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780313047.18301,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1477328.031689
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780313053.2077417,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 2400,
+        "end_x": 540,
+        "end_y": 100,
+        "duration_ms": 300,
+        "why": "Ich scrolle erneut nach oben in den Einstellungen, um die Hauptmenüs zu sehen und 'Anzeige' zu finden."
+      },
+      "_received_at": 1477334.0560532
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780313060.6667478,
+      "tool": "smartphone_swipe",
+      "_received_at": 1477341.5150379
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780313065.445899,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 540,
+        "y": 300,
+        "why": "Ich tippe erneut auf die erwartete Position für \"Anzeige\" oder \"Display\", um das Menü zu öffnen."
+      },
+      "_received_at": 1477346.2942033
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780313072.5501988,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 1477353.3985591
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780313076.8467815,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 50,
+        "why": "Ich suche nach einem anklickbaren Element mit dem Text 'Anzeige' oder 'Display', um die Einstellungen zu finden."
+      },
+      "_received_at": 1477357.6950804
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780313080.2418954,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1477361.090266
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780313088.6604018,
+      "tool": "smartphone_failed",
+      "args": {
+        "reason": "Ich kann das Menü 'Anzeige' nicht finden, da die System-UI-Elemente den eigentlichen Einstellungsbildschirm verdecken oder ich bin nicht im richtigen Bereich."
+      },
+      "_received_at": 1477369.5086968
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780313088.6604168,
+      "ok": false,
+      "payload": {
+        "message": "Ich kann das Menü 'Anzeige' nicht finden, da die System-UI-Elemente den eigentlichen Einstellungsbildschirm verdecken oder ich bin nicht im richtigen Bereich."
+      },
+      "_received_at": 1477369.5087545
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780313088.6604204,
+      "tool": "smartphone_failed",
+      "_received_at": 1477369.5087869
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780313088.6609838,
+      "ok": false,
+      "payload": {
+        "active_skills": [
+          "display.brightness_50_settings",
+          "display.brightness_50_settings_display_touch"
+        ],
+        "outcome": "failed"
+      },
+      "_received_at": 1477369.5093561
+    }
+  ]
+}

@@ -1,0 +1,166 @@
+{
+  "trial_id": "084352__qwen_qwen36-35b-a3b__dark_mode_on__r0",
+  "timestamp_utc": "2026-06-02T06:51:39.090247Z",
+  "model": "qwen/qwen3.6-35b-a3b",
+  "task": "dark_mode_on",
+  "run": 0,
+  "outcome": "done",
+  "timing": {
+    "load": 0.0,
+    "reset": 1.47,
+    "task": 461.83,
+    "total": 467.01
+  },
+  "screenshot": "<user-home>\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\084352__qwen_qwen36-35b-a3b__dark_mode_on__r0.png",
+  "lmstudio_response": {
+    "ok": true,
+    "active_skills": [
+      "display.dark_mode_on_settings"
+    ],
+    "follow_up_context": false,
+    "lmstudio": {
+      "ok": true,
+      "outcome": "done",
+      "tool_calls": 6,
+      "turns": 6,
+      "final_text": "",
+      "error": null,
+      "vision_unsupported": false
+    }
+  },
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1780382635.5753942,
+      "task": "schalte den dark mode an",
+      "_received_at": 854.4673076
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780382662.0415735,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.settings",
+        "why": "Öffne die Einstellungen"
+      },
+      "_received_at": 880.9330896
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780382669.2398193,
+      "tool": "smartphone_open_app",
+      "_received_at": 888.1315067
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780382691.460954,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Finde Display & Touch-Einstellungen"
+      },
+      "_received_at": 910.3524249
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780382693.5717826,
+      "tool": "smartphone_list_elements",
+      "_received_at": 912.4632778
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780382810.3337064,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 392,
+        "y": 1997,
+        "why": "Tippe auf Display & touch"
+      },
+      "_received_at": 1029.2252071
+    },
+    {
+      "type": "task_paused",
+      "ts": 1780382813.3819177,
+      "_received_at": 1032.2734157
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780382815.4991364,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 1034.3906694
+    },
+    {
+      "type": "task_resumed",
+      "ts": 1780382817.5281625,
+      "_received_at": 1036.4200387
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780382971.7540147,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Prüfe aktuellen Bildschirmstatus"
+      },
+      "_received_at": 1190.6455073
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780382973.9046,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1192.7961418
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780383065.551179,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 969,
+        "y": 1738,
+        "why": "Aktiviere Dark theme"
+      },
+      "_received_at": 1284.4426479
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780383072.250782,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 1291.1423431
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780383097.0185094,
+      "tool": "smartphone_done",
+      "args": {
+        "message": "Dunkles Design ist aktiviert."
+      },
+      "_received_at": 1315.9100238
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780383097.018527,
+      "ok": true,
+      "payload": {
+        "message": "Dunkles Design ist aktiviert."
+      },
+      "_received_at": 1315.910226
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780383097.0185306,
+      "tool": "smartphone_done",
+      "_received_at": 1315.9103929
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780383097.0191617,
+      "ok": true,
+      "payload": {
+        "active_skills": [
+          "display.dark_mode_on_settings"
+        ]
+      },
+      "_received_at": 1315.9107329
+    }
+  ]
+}

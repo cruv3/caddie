@@ -1,0 +1,1 @@
+{"classification":"GUIDANCE_ONLY","id":"apps.open_photos@legacy","legacyContainsCoordinates":false,"skillId":"apps.open_photos","sourcePath":"apps/open_photos.steps.json","sourceSha256":"901c1656fac9a966cd97eb20c243b83659c132762e0b5d4ecfc9762376777212","steps":[{"action":"open_app","package":"com.google.android.apps.photos"}]}

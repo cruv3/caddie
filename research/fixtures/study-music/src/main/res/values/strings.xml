@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Spotify</string>
+    <string name="home_title">Guten Abend</string>
+    <string name="home_subtitle">Musik für deine nächste Lerneinheit.</string>
+    <string name="featured_title">Focus Mix</string>
+    <string name="featured_subtitle">Deine lokale Lernmusik</string>
+    <string name="section_recent">Zuletzt gehört</string>
+    <string name="section_made_for_you">Für dich zusammengestellt</string>
+    <string name="section_popular">Beliebte Playlists</string>
+    <string name="search_heading">Suche</string>
+    <string name="search_hint">Was möchtest du hören?</string>
+    <string name="search_content_description">Was möchtest du hören?</string>
+    <string name="search_results">Suchergebnisse</string>
+    <string name="search_local_hint">Durchsuche deine lokale Musik nach Titel oder Künstler.</string>
+    <string name="empty_search_results">Keine Ergebnisse gefunden</string>
+    <string name="my_library">Meine Bibliothek</string>
+    <string name="empty_library">Deine Bibliothek ist noch leer.</string>
+    <string name="bottom_home">Start</string>
+    <string name="bottom_search">Suche</string>
+    <string name="bottom_library">Bibliothek</string>
+    <string name="open_home">Startseite öffnen</string>
+    <string name="open_search">Suchen</string>
+    <string name="open_library">Meine Bibliothek öffnen</string>
+    <string name="open_history">Wiedergabeverlauf öffnen</string>
+    <string name="open_profile">Profil öffnen</string>
+    <string name="open_devices">Geräteauswahl öffnen</string>
+    <string name="play">Wiedergabe starten</string>
+    <string name="pause">Wiedergabe pausieren</string>
+    <string name="add">Zur Bibliothek hinzufügen</string>
+    <string name="added">In deiner Bibliothek</string>
+    <string name="home_content_description">Startseite</string>
+    <string name="library_content_description">Bibliothek</string>
+    <string name="history_content_description">Wiedergabeverlauf</string>
+    <string name="profile_content_description">Profil</string>
+    <string name="devices_content_description">Verfügbare Geräte</string>
+    <string name="play_content_description">Titel abspielen</string>
+    <string name="add_content_description">Titel zur Bibliothek hinzufügen</string>
+    <string name="added_content_description">Titel ist in deiner Bibliothek</string>
+    <string name="add_to_library">%1$s zu Meine Bibliothek hinzufügen</string>
+    <string name="remove_from_library">%1$s aus Meine Bibliothek entfernen</string>
+</resources>

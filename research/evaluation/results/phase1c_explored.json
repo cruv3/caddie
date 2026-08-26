@@ -1,0 +1,832 @@
+[
+  {
+    "id": "explored.e8e1fee3ccc305829cc3b037",
+    "app": "com.android.settings",
+    "intent_text": "View and manage Google services.",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "73ee422869007e76",
+    "provenance": {
+      "app": "com.android.settings",
+      "source_sig": "f09c457c2d27958e",
+      "action": {
+        "kind": "tap",
+        "label": "Google",
+        "index": 18
+      },
+      "dest_sig": "73ee422869007e76",
+      "path": [
+        {
+          "kind": "tap",
+          "label": "Search Settings",
+          "index": 7
+        },
+        {
+          "kind": "tap",
+          "label": "Google",
+          "index": 18
+        }
+      ]
+    },
+    "confidence": 0.3,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": [
+      "Google-Dienste anzeigen und verwalten"
+    ]
+  },
+  {
+    "id": "explored.e67237da74e4383c914b8d60",
+    "app": "com.android.settings",
+    "intent_text": "Manage Google services and preferences",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "c7f8fe4e747afbc2",
+    "provenance": {
+      "app": "com.android.settings",
+      "source_sig": "f09c457c2d27958e",
+      "action": {
+        "kind": "tap",
+        "label": "",
+        "index": 1
+      },
+      "dest_sig": "c7f8fe4e747afbc2",
+      "path": [
+        {
+          "kind": "tap",
+          "label": "Search Settings",
+          "index": 7
+        },
+        {
+          "kind": "tap",
+          "label": "Google",
+          "index": 18
+        },
+        {
+          "kind": "tap",
+          "label": "Services & preferences",
+          "index": 19
+        },
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 1
+        }
+      ]
+    },
+    "confidence": 0.3,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": [
+      "Verwalte Google-Dienste und Einstellungen"
+    ]
+  },
+  {
+    "id": "explored.d32f6a67b874ae15e5954f03",
+    "app": "com.android.settings",
+    "intent_text": "View installed apps and manage default apps",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "c7f8fe4e747afbc2",
+    "provenance": {
+      "app": "com.android.settings",
+      "source_sig": "c7f8fe4e747afbc2",
+      "action": {
+        "kind": "tap",
+        "label": "Apps",
+        "index": 4
+      },
+      "dest_sig": "c7f8fe4e747afbc2",
+      "path": [
+        {
+          "kind": "tap",
+          "label": "Search Settings",
+          "index": 7
+        },
+        {
+          "kind": "tap",
+          "label": "Google",
+          "index": 18
+        },
+        {
+          "kind": "tap",
+          "label": "Services & preferences",
+          "index": 19
+        },
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 1
+        },
+        {
+          "kind": "tap",
+          "label": "Apps",
+          "index": 4
+        }
+      ]
+    },
+    "confidence": 0.3,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": [
+      "Installierte Apps anzeigen und Standard-Apps verwalten"
+    ]
+  },
+  {
+    "id": "explored.f3ada1e3069a9a42e37e8224",
+    "app": "com.android.settings",
+    "intent_text": "View installed apps and configure default apps",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "c7f8fe4e747afbc2",
+    "provenance": {
+      "app": "com.android.settings",
+      "source_sig": "f09c457c2d27958e",
+      "action": {
+        "kind": "tap",
+        "label": "",
+        "index": 2
+      },
+      "dest_sig": "c7f8fe4e747afbc2",
+      "path": [
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 2
+        }
+      ]
+    },
+    "confidence": 0.3,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": [
+      "Installierte Apps anzeigen und Standard-Apps konfigurieren"
+    ]
+  },
+  {
+    "id": "explored.ef25a93ee1e9eb4f6ff036a5",
+    "app": "com.android.settings",
+    "intent_text": "Tap to access settings options",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "e84fa0e7fe99d16b",
+    "provenance": {
+      "app": "com.android.settings",
+      "source_sig": "f09c457c2d27958e",
+      "action": {
+        "kind": "tap",
+        "label": "",
+        "index": 3
+      },
+      "dest_sig": "e84fa0e7fe99d16b",
+      "path": [
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 3
+        }
+      ]
+    },
+    "confidence": 0.3,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": [
+      "Tippe, um die Einstellungen zu öffnen"
+    ]
+  },
+  {
+    "id": "explored.f502ca0b7556167d570c80ed",
+    "app": "com.android.settings",
+    "intent_text": "Manage Bluetooth, display, and lock screen settings.",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "e84fa0e7fe99d16b",
+    "provenance": {
+      "app": "com.android.settings",
+      "source_sig": "f09c457c2d27958e",
+      "action": {
+        "kind": "tap",
+        "label": "",
+        "index": 5
+      },
+      "dest_sig": "e84fa0e7fe99d16b",
+      "path": [
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 3
+        },
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 4
+        },
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 5
+        }
+      ]
+    },
+    "confidence": 0.3,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": [
+      "Öffne Bluetooth-, Display- und Sperrbildschirm-Einstellungen."
+    ]
+  },
+  {
+    "id": "explored.7c88326bbf0fe86dfb8782d3",
+    "app": "com.android.settings",
+    "intent_text": "View display settings and lock screen options.",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "e84fa0e7fe99d16b",
+    "provenance": {
+      "app": "com.android.settings",
+      "source_sig": "f09c457c2d27958e",
+      "action": {
+        "kind": "tap",
+        "label": "",
+        "index": 6
+      },
+      "dest_sig": "e84fa0e7fe99d16b",
+      "path": [
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 3
+        },
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 4
+        },
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 5
+        },
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 6
+        }
+      ]
+    },
+    "confidence": 0.3,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": [
+      "Zeige Display- und Sperrbildschirmeinstellungen an."
+    ]
+  },
+  {
+    "id": "explored.8b7ff239698e3c7eabf89d0b",
+    "app": "com.android.settings",
+    "intent_text": "View and manage app notification history",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "2a41c2c16dacaa70",
+    "provenance": {
+      "app": "com.android.settings",
+      "source_sig": "f09c457c2d27958e",
+      "action": {
+        "kind": "tap",
+        "label": "",
+        "index": 8
+      },
+      "dest_sig": "2a41c2c16dacaa70",
+      "path": [
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 3
+        },
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 4
+        },
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 5
+        },
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 6
+        },
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 8
+        }
+      ]
+    },
+    "confidence": 0.3,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": [
+      "Zeige und verwalte die Benachrichtigungsverlauf"
+    ]
+  },
+  {
+    "id": "explored.41f566d7093faba74bdca106",
+    "app": "com.android.settings",
+    "intent_text": "Manage notifications for individual apps",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "2a41c2c16dacaa70",
+    "provenance": {
+      "app": "com.android.settings",
+      "source_sig": "f09c457c2d27958e",
+      "action": {
+        "kind": "tap",
+        "label": "",
+        "index": 9
+      },
+      "dest_sig": "2a41c2c16dacaa70",
+      "path": [
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 9
+        }
+      ]
+    },
+    "confidence": 0.3,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": [
+      "Benachrichtigungen für einzelne Apps verwalten"
+    ]
+  },
+  {
+    "id": "explored.4d5798a61e81e21a83540824",
+    "app": "com.android.settings",
+    "intent_text": "Manage notifications from individual apps",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "2a41c2c16dacaa70",
+    "provenance": {
+      "app": "com.android.settings",
+      "source_sig": "f09c457c2d27958e",
+      "action": {
+        "kind": "tap",
+        "label": "",
+        "index": 10
+      },
+      "dest_sig": "2a41c2c16dacaa70",
+      "path": [
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 10
+        }
+      ]
+    },
+    "confidence": 0.3,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": [
+      "Benachrichtigungen einzelner Apps verwalten"
+    ]
+  },
+  {
+    "id": "explored.a1bc0756c00e649cc94c6f1e",
+    "app": "com.android.settings",
+    "intent_text": "View recent and snoozed notifications",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "2a41c2c16dacaa70",
+    "provenance": {
+      "app": "com.android.settings",
+      "source_sig": "f09c457c2d27958e",
+      "action": {
+        "kind": "tap",
+        "label": "",
+        "index": 12
+      },
+      "dest_sig": "2a41c2c16dacaa70",
+      "path": [
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 12
+        }
+      ]
+    },
+    "confidence": 0.3,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": [
+      "Zeige aktuelle und unterdrückte Benachrichtigungen"
+    ]
+  },
+  {
+    "id": "explored.5cf3fdf8e57e3f71383a69ff",
+    "app": "com.android.settings",
+    "intent_text": "View recommended Google services",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "73ee422869007e76",
+    "provenance": {
+      "app": "com.android.settings",
+      "source_sig": "f09c457c2d27958e",
+      "action": {
+        "kind": "tap",
+        "label": "",
+        "index": 15
+      },
+      "dest_sig": "73ee422869007e76",
+      "path": [
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 15
+        }
+      ]
+    },
+    "confidence": 0.3,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": [
+      "Zeige empfohlene Google-Dienste"
+    ]
+  },
+  {
+    "id": "explored.17ce3819a5c693f999285b4b",
+    "app": "com.android.settings",
+    "intent_text": "Sign in to Google Account",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "73ee422869007e76",
+    "provenance": {
+      "app": "com.android.settings",
+      "source_sig": "f09c457c2d27958e",
+      "action": {
+        "kind": "tap",
+        "label": "",
+        "index": 16
+      },
+      "dest_sig": "73ee422869007e76",
+      "path": [
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 15
+        },
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 16
+        }
+      ]
+    },
+    "confidence": 0.3,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": [
+      "Melde dich bei deinem Google-Konto an"
+    ]
+  },
+  {
+    "id": "explored.cec46f27f585d3e182005d1d",
+    "app": "com.android.settings",
+    "intent_text": "Manage network and internet settings",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "cf45500dd0a933b4",
+    "provenance": {
+      "app": "com.android.settings",
+      "source_sig": "f09c457c2d27958e",
+      "action": {
+        "kind": "tap",
+        "label": "",
+        "index": 21
+      },
+      "dest_sig": "cf45500dd0a933b4",
+      "path": [
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 15
+        },
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 16
+        },
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 17
+        },
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 21
+        }
+      ]
+    },
+    "confidence": 0.3,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": [
+      "Netzwerk- und Internet-Einstellungen verwalten"
+    ]
+  },
+  {
+    "id": "explored.21a414ea3f4854594aef1c1f",
+    "app": "com.android.settings",
+    "intent_text": "Manage network settings and data usage",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "cf45500dd0a933b4",
+    "provenance": {
+      "app": "com.android.settings",
+      "source_sig": "cf45500dd0a933b4",
+      "action": {
+        "kind": "tap",
+        "label": "Network & internet",
+        "index": 4
+      },
+      "dest_sig": "cf45500dd0a933b4",
+      "path": [
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 15
+        },
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 16
+        },
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 17
+        },
+        {
+          "kind": "tap",
+          "label": "",
+          "index": 21
+        },
+        {
+          "kind": "tap",
+          "label": "Network & internet",
+          "index": 4
+        }
+      ]
+    },
+    "confidence": 0.3,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": [
+      "Netzwerkeinstellungen und Datenverbrauch verwalten"
+    ]
+  },
+  {
+    "id": "explored.bb54e14ddf46d52cd65ad70e",
+    "app": "com.android.settings",
+    "intent_text": "Adjust display size and text scaling",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "e72e5bf1f7b30bdf",
+    "provenance": {
+      "app": "com.android.settings",
+      "source_sig": "e84fa0e7fe99d16b",
+      "action": {
+        "kind": "tap",
+        "label": "Display size",
+        "index": 24
+      },
+      "dest_sig": "e72e5bf1f7b30bdf",
+      "path": [
+        {
+          "kind": "tap",
+          "label": "Search Settings",
+          "index": 7
+        },
+        {
+          "kind": "tap",
+          "label": "Back",
+          "index": 10
+        },
+        {
+          "kind": "tap",
+          "label": "Search Settings",
+          "index": 7
+        },
+        {
+          "kind": "tap",
+          "label": "Search settings",
+          "index": 11
+        },
+        {
+          "kind": "tap",
+          "label": "RECENT SEARCH RESULTS",
+          "index": 17
+        },
+        {
+          "kind": "tap",
+          "label": "Display size",
+          "index": 24
+        }
+      ]
+    },
+    "confidence": 0.3,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": [
+      "Pass auf Displaygröße und Textskalierung auf"
+    ]
+  },
+  {
+    "id": "explored.073d46c0f54c665fd32b2d64",
+    "app": "com.android.settings",
+    "intent_text": "Adjust display size and text scale",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "e72e5bf1f7b30bdf",
+    "provenance": {
+      "app": "com.android.settings",
+      "source_sig": "e84fa0e7fe99d16b",
+      "action": {
+        "kind": "tap",
+        "label": "Display size",
+        "index": 24
+      },
+      "dest_sig": "e72e5bf1f7b30bdf",
+      "path": [
+        {
+          "kind": "tap",
+          "label": "Display size",
+          "index": 24
+        }
+      ]
+    },
+    "confidence": 0.3,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": [
+      "Pass auf die Anzeige und Textgröße auf"
+    ]
+  },
+  {
+    "id": "explored.b123111bd95f402ec6717b42",
+    "app": "com.android.settings",
+    "intent_text": "Adjust display size and text",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "e72e5bf1f7b30bdf",
+    "provenance": {
+      "app": "com.android.settings",
+      "source_sig": "e72e5bf1f7b30bdf",
+      "action": {
+        "kind": "tap",
+        "label": "Display size and text",
+        "index": 4
+      },
+      "dest_sig": "e72e5bf1f7b30bdf",
+      "path": [
+        {
+          "kind": "tap",
+          "label": "Display size",
+          "index": 24
+        },
+        {
+          "kind": "tap",
+          "label": "Display size and text",
+          "index": 4
+        }
+      ]
+    },
+    "confidence": 0.3,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": [
+      "Passen Sie die Anzeige- und Textgröße an"
+    ]
+  },
+  {
+    "id": "explored.a748614f68c79a0812456b58",
+    "app": "com.android.settings",
+    "intent_text": "Preview home screen layout changes",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "e72e5bf1f7b30bdf",
+    "provenance": {
+      "app": "com.android.settings",
+      "source_sig": "e72e5bf1f7b30bdf",
+      "action": {
+        "kind": "tap",
+        "label": "Preview",
+        "index": 13
+      },
+      "dest_sig": "e72e5bf1f7b30bdf",
+      "path": [
+        {
+          "kind": "tap",
+          "label": "Display size",
+          "index": 24
+        },
+        {
+          "kind": "tap",
+          "label": "Display size and text",
+          "index": 4
+        },
+        {
+          "kind": "tap",
+          "label": "Preview",
+          "index": 13
+        }
+      ]
+    },
+    "confidence": 0.3,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": [
+      "Vorschau der Startbildschirm-Layoutänderungen anzeigen"
+    ]
+  }
+]

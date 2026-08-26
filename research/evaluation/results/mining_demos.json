@@ -1,0 +1,1134 @@
+[
+  {
+    "id": "demo_762516edd5ee",
+    "app": "",
+    "intent_text": "increase the font size",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Font size",
+        "Make larger"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_4127f779a82f",
+    "app": "",
+    "intent_text": "turn on dark mode",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "display size",
+        "Dark theme",
+        "Dark theme"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_80463cfc6856",
+    "app": "",
+    "intent_text": "turn off dark mode",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Dark theme",
+        "Dark theme"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_8b97b282c373",
+    "app": "",
+    "intent_text": "open the brightness settings",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Settings",
+        "displaydark mode size",
+        "Clear text"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_dbca0e4ac125",
+    "app": "",
+    "intent_text": "change the screen timeout duration",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "com.android.settings:id/search_action_bar",
+        "Screen timeout",
+        "5 minutes"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_4a4fc8f2665e",
+    "app": "",
+    "intent_text": "open the wallpaper and style settings",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Back",
+        "com.android.settings:id/search_action_bar",
+        "Wallpaper & style"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_4d50aae900fb",
+    "app": "",
+    "intent_text": "open sound and vibration settings",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "com.android.settings:id/search_action_bar",
+        "Sound & vibration"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_adcd7133168f",
+    "app": "",
+    "intent_text": "open the ring volume settings",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Sound & vibration"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_be9580a66a7e",
+    "app": "",
+    "intent_text": "open the do not disturb settings",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Sound & vibration",
+        "sound",
+        "Clear text"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_7e796584c3ea",
+    "app": "",
+    "intent_text": "show the notification history",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "do not disturb",
+        "do notnotification historyy disturb",
+        "Clear text"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_73e16e76f256",
+    "app": "",
+    "intent_text": "open the notification settings for a specific app",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Apps",
+        "See all 35 apps",
+        "Notifications"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_c746263f2888",
+    "app": "",
+    "intent_text": "open the conversation bubbles notification setting",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Apps",
+        "com.android.settings:id/action_bar",
+        "com.android.settings:id/search_action_bar",
+        "Search settings"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_655e064f4987",
+    "app": "",
+    "intent_text": "open the network and internet settings",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Network & internet"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_4015cb2003e2",
+    "app": "",
+    "intent_text": "show the mobile data usage",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Network & internet",
+        "SIMs",
+        "Internet",
+        "Settings"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_780eca7edb77",
+    "app": "",
+    "intent_text": "open the hotspot and tethering settings",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Hotspot & tethering"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_053cf9edc45b",
+    "app": "",
+    "intent_text": "show the battery percentage setting",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Search Settings",
+        "Battery percentage"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_568320e264fa",
+    "app": "",
+    "intent_text": "show how much storage is used",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Clear text",
+        "battery percentage",
+        "Clear text"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_50b7e9b2468d",
+    "app": "",
+    "intent_text": "open the default apps settings",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "storage",
+        "Clear text",
+        "Default apps"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_88b45ed9f045",
+    "app": "",
+    "intent_text": "open the accessibility settings",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "About phone",
+        "Clear text"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_22811c00d9d3",
+    "app": "",
+    "intent_text": "open the color correction accessibility setting",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Accessibility",
+        "Clear text",
+        "Color correction"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_74f84c429114",
+    "app": "",
+    "intent_text": "open the language settings",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "com.android.settings:id/search_action_bar"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_212996e04381",
+    "app": "",
+    "intent_text": "open the on-screen keyboard settings",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "language",
+        "Clear text",
+        "On-screen keyboard",
+        "On-screen keyboard",
+        "com.android.settings:id/search_action_bar",
+        "Keyboard",
+        "Keyboard",
+        "On-screen keyboard"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_4e777051cca4",
+    "app": "",
+    "intent_text": "open the date and time settings",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "on-screen keyboard",
+        "Clear text",
+        "on-screen kdate and timeeyboard",
+        "Date & time",
+        "Date & time"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_72d315bb2315",
+    "app": "",
+    "intent_text": "open the now playing setting",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "com.android.settings:id/search_action_bar",
+        "Now Playing"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_b351bf6b82ab",
+    "app": "",
+    "intent_text": "open the screen lock settings",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "com.android.settings:id/search_action_bar",
+        "android:id/content",
+        "com.android.settings:id/search_action_bar",
+        "Lock screen"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_a2a2cb636c0f",
+    "app": "",
+    "intent_text": "open the navigation mode settings",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "com.android.settings:id/search_action_bar",
+        "Navigation mode"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_23aac5fcd101",
+    "app": "",
+    "intent_text": "open the auto-rotate screen setting",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "navigation",
+        "Clear text",
+        "Auto-rotate screen"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_500c418ce780",
+    "app": "",
+    "intent_text": "set a timer for 5 minutes",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Clock",
+        "Clock",
+        "Clock"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_d92bba842772",
+    "app": "",
+    "intent_text": "open the stopwatch",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Clock",
+        "com.google.android.apps.nexuslauncher:id/scrim_view",
+        "com.google.android.apps.nexuslauncher:id/scrim_view",
+        "com.google.android.deskclock:id/app_bar_layout"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_c93c1135684e",
+    "app": "",
+    "intent_text": "open the world clock tab",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "World Clock"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_8d89eb0f3586",
+    "app": "",
+    "intent_text": "open the alarm tab in the clock app",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Alarms"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_ed74650b819b",
+    "app": "",
+    "intent_text": "open the files app",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Files"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_75415e049529",
+    "app": "",
+    "intent_text": "open the contacts app",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Contacts",
+        "android:id/content"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_e9da25a0ab8a",
+    "app": "",
+    "intent_text": "search the settings for wifi",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "rotation",
+        "Clear text",
+        "com.android.settings:id/search_action_bar"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_9df3fc0dbbcd",
+    "app": "",
+    "intent_text": "make the on-screen display size larger",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "com.android.settings:id/search_action_bar",
+        "Display size",
+        "Make larger"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_e14b3b8c136f",
+    "app": "",
+    "intent_text": "open the battery saver settings",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "com.android.settings:id/search_action_bar",
+        "Battery Saver"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_6c900e1ce736",
+    "app": "",
+    "intent_text": "open the default browser app setting",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Browser app"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_89e7da864ca4",
+    "app": "",
+    "intent_text": "open the device name setting",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Search settings"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_ec28d4033215",
+    "app": "",
+    "intent_text": "open the location settings",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Clear text"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_027bd736c562",
+    "app": "",
+    "intent_text": "open the system gestures settings",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "com.android.settings:id/search_action_bar",
+        "Gestures"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_f94915e105cb",
+    "app": "",
+    "intent_text": "open the calendar app",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "android:id/content",
+        "Not right now"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_c666ac2afb87",
+    "app": "",
+    "intent_text": "open the phone settings",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Settings",
+        "Settings",
+        "Settings"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_1b7ae1404534",
+    "app": "",
+    "intent_text": "set the font size back to default",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Font size",
+        "Make smaller"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_584cb8cf2a40",
+    "app": "",
+    "intent_text": "show the android version",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "About emulated device"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_305ba5a8072a",
+    "app": "",
+    "intent_text": "open the about phone screen",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "About emulated device"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_0c28ba46611b",
+    "app": "",
+    "intent_text": "open the bluetooth settings",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Connected devices",
+        "Connection preferences",
+        "Bluetooth"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_ddc5ca1c39b4",
+    "app": "",
+    "intent_text": "show the battery usage by app",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Battery",
+        "Battery usage",
+        "com.android.settings:id/spinner",
+        "View by apps",
+        "android:id/content",
+        "View by apps",
+        "com.android.settings:id/spinner",
+        "View by apps"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_4700972febc0",
+    "app": "",
+    "intent_text": "set the display size back to default",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "com.android.settings:id/search_action_bar",
+        "Display size",
+        "Make smaller"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  }
+]

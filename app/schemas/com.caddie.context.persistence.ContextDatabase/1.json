@@ -1,0 +1,415 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "8ada68bc605644f81e759a238d85e4c0",
+    "entities": [
+      {
+        "tableName": "context_content",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`content_id` TEXT NOT NULL, `generation_id` TEXT NOT NULL, `owner_id` TEXT NOT NULL, `source_hash` TEXT NOT NULL, `envelope_version` INTEGER NOT NULL, `nonce` BLOB NOT NULL, `ciphertext` BLOB NOT NULL, `active` INTEGER NOT NULL, PRIMARY KEY(`content_id`))",
+        "fields": [
+          {
+            "fieldPath": "contentId",
+            "columnName": "content_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "generationId",
+            "columnName": "generation_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ownerId",
+            "columnName": "owner_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourceHash",
+            "columnName": "source_hash",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "envelopeVersion",
+            "columnName": "envelope_version",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nonce",
+            "columnName": "nonce",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ciphertext",
+            "columnName": "ciphertext",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "active",
+            "columnName": "active",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "content_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_context_content_generation_id_owner_id_source_hash",
+            "unique": true,
+            "columnNames": [
+              "generation_id",
+              "owner_id",
+              "source_hash"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_context_content_generation_id_owner_id_source_hash` ON `${TABLE_NAME}` (`generation_id`, `owner_id`, `source_hash`)"
+          },
+          {
+            "name": "index_context_content_owner_id_active",
+            "unique": false,
+            "columnNames": [
+              "owner_id",
+              "active"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_context_content_owner_id_active` ON `${TABLE_NAME}` (`owner_id`, `active`)"
+          }
+        ]
+      },
+      {
+        "tableName": "context_vector",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`vector_id` TEXT NOT NULL, `content_id` TEXT NOT NULL, `generation_id` TEXT NOT NULL, `owner_id` TEXT NOT NULL, `source_hash` TEXT NOT NULL, `model_id` TEXT NOT NULL, `dimension` INTEGER NOT NULL, `envelope_version` INTEGER NOT NULL, `nonce` BLOB NOT NULL, `ciphertext` BLOB NOT NULL, `active` INTEGER NOT NULL, PRIMARY KEY(`vector_id`), FOREIGN KEY(`content_id`) REFERENCES `context_content`(`content_id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "vectorId",
+            "columnName": "vector_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "contentId",
+            "columnName": "content_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "generationId",
+            "columnName": "generation_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ownerId",
+            "columnName": "owner_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourceHash",
+            "columnName": "source_hash",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "modelId",
+            "columnName": "model_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dimension",
+            "columnName": "dimension",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "envelopeVersion",
+            "columnName": "envelope_version",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nonce",
+            "columnName": "nonce",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ciphertext",
+            "columnName": "ciphertext",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "active",
+            "columnName": "active",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "vector_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_context_vector_content_id",
+            "unique": false,
+            "columnNames": [
+              "content_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_context_vector_content_id` ON `${TABLE_NAME}` (`content_id`)"
+          },
+          {
+            "name": "index_context_vector_generation_id_owner_id_source_hash_model_id_dimension",
+            "unique": true,
+            "columnNames": [
+              "generation_id",
+              "owner_id",
+              "source_hash",
+              "model_id",
+              "dimension"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_context_vector_generation_id_owner_id_source_hash_model_id_dimension` ON `${TABLE_NAME}` (`generation_id`, `owner_id`, `source_hash`, `model_id`, `dimension`)"
+          },
+          {
+            "name": "index_context_vector_owner_id_model_id_dimension_active",
+            "unique": false,
+            "columnNames": [
+              "owner_id",
+              "model_id",
+              "dimension",
+              "active"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_context_vector_owner_id_model_id_dimension_active` ON `${TABLE_NAME}` (`owner_id`, `model_id`, `dimension`, `active`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "context_content",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "content_id"
+            ],
+            "referencedColumns": [
+              "content_id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "context_projection",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`projection_id` TEXT NOT NULL, `generation_id` TEXT NOT NULL, `owner_id` TEXT NOT NULL, `source_hash` TEXT NOT NULL, `frontier` TEXT NOT NULL, `envelope_version` INTEGER NOT NULL, `nonce` BLOB NOT NULL, `ciphertext` BLOB NOT NULL, `active` INTEGER NOT NULL, PRIMARY KEY(`projection_id`))",
+        "fields": [
+          {
+            "fieldPath": "projectionId",
+            "columnName": "projection_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "generationId",
+            "columnName": "generation_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ownerId",
+            "columnName": "owner_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourceHash",
+            "columnName": "source_hash",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "frontier",
+            "columnName": "frontier",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "envelopeVersion",
+            "columnName": "envelope_version",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nonce",
+            "columnName": "nonce",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ciphertext",
+            "columnName": "ciphertext",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "active",
+            "columnName": "active",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "projection_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_context_projection_generation_id_owner_id_source_hash_frontier",
+            "unique": true,
+            "columnNames": [
+              "generation_id",
+              "owner_id",
+              "source_hash",
+              "frontier"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_context_projection_generation_id_owner_id_source_hash_frontier` ON `${TABLE_NAME}` (`generation_id`, `owner_id`, `source_hash`, `frontier`)"
+          },
+          {
+            "name": "index_context_projection_owner_id_active",
+            "unique": false,
+            "columnNames": [
+              "owner_id",
+              "active"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_context_projection_owner_id_active` ON `${TABLE_NAME}` (`owner_id`, `active`)"
+          }
+        ]
+      },
+      {
+        "tableName": "context_replay",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`replay_id` TEXT NOT NULL, `generation_id` TEXT NOT NULL, `owner_id` TEXT NOT NULL, `trajectory_id` TEXT NOT NULL, `revision_id` TEXT NOT NULL, `classification` TEXT NOT NULL, `safety_state` TEXT NOT NULL, `envelope_version` INTEGER NOT NULL, `nonce` BLOB NOT NULL, `ciphertext` BLOB NOT NULL, `active` INTEGER NOT NULL, PRIMARY KEY(`replay_id`))",
+        "fields": [
+          {
+            "fieldPath": "replayId",
+            "columnName": "replay_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "generationId",
+            "columnName": "generation_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ownerId",
+            "columnName": "owner_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "trajectoryId",
+            "columnName": "trajectory_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "revisionId",
+            "columnName": "revision_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "classification",
+            "columnName": "classification",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "safetyState",
+            "columnName": "safety_state",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "envelopeVersion",
+            "columnName": "envelope_version",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nonce",
+            "columnName": "nonce",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ciphertext",
+            "columnName": "ciphertext",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "active",
+            "columnName": "active",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "replay_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_context_replay_generation_id_owner_id_trajectory_id_revision_id",
+            "unique": true,
+            "columnNames": [
+              "generation_id",
+              "owner_id",
+              "trajectory_id",
+              "revision_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_context_replay_generation_id_owner_id_trajectory_id_revision_id` ON `${TABLE_NAME}` (`generation_id`, `owner_id`, `trajectory_id`, `revision_id`)"
+          },
+          {
+            "name": "index_context_replay_owner_id_active",
+            "unique": false,
+            "columnNames": [
+              "owner_id",
+              "active"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_context_replay_owner_id_active` ON `${TABLE_NAME}` (`owner_id`, `active`)"
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8ada68bc605644f81e759a238d85e4c0')"
+    ]
+  }
+}

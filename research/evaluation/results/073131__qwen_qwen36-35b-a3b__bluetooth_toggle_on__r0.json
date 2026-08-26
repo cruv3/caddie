@@ -1,0 +1,236 @@
+{
+  "trial_id": "073131__qwen_qwen36-35b-a3b__bluetooth_toggle_on__r0",
+  "timestamp_utc": "2026-06-02T05:41:42.953790Z",
+  "model": "qwen/qwen3.6-35b-a3b",
+  "task": "bluetooth_toggle_on",
+  "run": 0,
+  "outcome": "timeout",
+  "timing": {
+    "load": 0.0,
+    "reset": 2.2,
+    "task": 600.47,
+    "total": 611.55
+  },
+  "screenshot": "<user-home>\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\073131__qwen_qwen36-35b-a3b__bluetooth_toggle_on__r0.png",
+  "lmstudio_response": null,
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1780378295.6136563,
+      "task": "schalte bluetooth an",
+      "_received_at": 1542578.2052101
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780378319.8427198,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.settings",
+        "why": "Öffne die Einstellungen"
+      },
+      "_received_at": 1542602.4332991
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780378327.0857494,
+      "tool": "smartphone_open_app",
+      "_received_at": 1542609.6766188
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780378334.9674654,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Suche nach Bluetooth-Einstellungen"
+      },
+      "_received_at": 1542617.5580604
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780378337.0369828,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1542619.6275698
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780378402.7876177,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.settings",
+        "why": "Öffne die Einstellungen"
+      },
+      "_received_at": 1542685.3782195
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780378409.6240554,
+      "tool": "smartphone_open_app",
+      "_received_at": 1542692.2148548
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780378417.9076054,
+      "tool": "smartphone_take_screenshot",
+      "args": {
+        "why": "Prüfe ob Einstellungen geöffnet sind"
+      },
+      "_received_at": 1542700.4984263
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780378418.1877015,
+      "tool": "smartphone_take_screenshot",
+      "_received_at": 1542700.7783319
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780378526.578768,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 400,
+        "y": 380,
+        "why": "Tippe auf Verbundene Geräte"
+      },
+      "_received_at": 1542809.1693794
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780378533.0026317,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 1542815.5934362
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780378537.766361,
+      "tool": "smartphone_take_screenshot",
+      "args": {
+        "why": "Prüfe Bluetooth-Einstellungen"
+      },
+      "_received_at": 1542820.3569126
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780378538.0496063,
+      "tool": "smartphone_take_screenshot",
+      "_received_at": 1542820.6402542
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780378606.4017854,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 400,
+        "y": 380,
+        "why": "Tippe erneut auf Verbundene Geräte"
+      },
+      "_received_at": 1542888.9923765
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780378612.8510995,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 1542895.4417168
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780378619.0754166,
+      "tool": "smartphone_take_screenshot",
+      "args": {
+        "why": "Prüfe ob Bluetooth-Einstellungen geöffnet sind"
+      },
+      "_received_at": 1542901.6659946
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780378619.3414702,
+      "tool": "smartphone_take_screenshot",
+      "_received_at": 1542901.9320753
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780378691.6604805,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 400,
+        "y": 100,
+        "why": "Tippe auf die Suchleiste"
+      },
+      "_received_at": 1542974.2510666
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780378698.0915031,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 1542980.6821571
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780378709.7414784,
+      "tool": "smartphone_type_text",
+      "args": {
+        "text": "Bluetooth",
+        "submit": false,
+        "why": "Suche nach Bluetooth in den Einstellungen"
+      },
+      "_received_at": 1542992.3322297
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780378716.2509866,
+      "tool": "smartphone_type_text",
+      "_received_at": 1542998.8417861
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780378726.1161761,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Suche nach Bluetooth-Ergebnis"
+      },
+      "_received_at": 1543008.7068014
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780378728.2457078,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1543010.8362795
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780378812.1678238,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 100,
+        "end_x": 540,
+        "end_y": 1500,
+        "duration_ms": 300,
+        "why": "Öffne die Schnell Einstellungen"
+      },
+      "_received_at": 1543094.7586541
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780378819.1168184,
+      "tool": "smartphone_swipe",
+      "_received_at": 1543101.7074559
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780378828.7399848,
+      "tool": "smartphone_take_screenshot",
+      "args": {
+        "why": "Prüfe ob Schnell Einstellungen sichtbar sind"
+      },
+      "_received_at": 1543111.3305705
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780378829.0166967,
+      "tool": "smartphone_take_screenshot",
+      "_received_at": 1543111.6073503
+    }
+  ]
+}

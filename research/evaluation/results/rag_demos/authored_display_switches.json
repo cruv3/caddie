@@ -1,0 +1,42 @@
+[
+  {
+    "id": "demo_aod",
+    "app": "com.android.settings",
+    "intent_text": "turn on always-on display",
+    "triggers": [], "body": "", "kind": "explored", "complete_trajectory": false,
+    "steps": [], "source_path": "", "state_sig": "",
+    "provenance": { "path": ["open settings app", "Display & Touchbedienung", "Always-on-Display"], "source": "authored" },
+    "confidence": 0.5, "fingerprint": null, "schema_version": 1,
+    "intent_aliases": ["always-on-display einschalten", "schalte always-on-display ein"]
+  },
+  {
+    "id": "demo_autobright",
+    "app": "com.android.settings",
+    "intent_text": "turn off automatic brightness",
+    "triggers": [], "body": "", "kind": "explored", "complete_trajectory": false,
+    "steps": [], "source_path": "", "state_sig": "",
+    "provenance": { "path": ["open settings app", "Display & Touchbedienung", "Automatische Helligkeit"], "source": "authored" },
+    "confidence": 0.5, "fingerprint": null, "schema_version": 1,
+    "intent_aliases": ["automatische helligkeit ausschalten", "adaptive brightness off"]
+  },
+  {
+    "id": "demo_vibrate",
+    "app": "com.android.settings",
+    "intent_text": "turn on vibrate when ringing",
+    "triggers": [], "body": "", "kind": "explored", "complete_trajectory": false,
+    "steps": [], "source_path": "", "state_sig": "",
+    "provenance": { "path": ["open settings app", "Ton & Vibration", "Vibration und haptisches Feedback", "Bei Anrufen vibrieren"], "source": "authored" },
+    "confidence": 0.5, "fingerprint": null, "schema_version": 1,
+    "intent_aliases": ["bei anrufen vibrieren einschalten", "vibrate on ring"]
+  },
+  {
+    "id": "demo_colorinv",
+    "app": "com.android.settings",
+    "intent_text": "turn on color inversion",
+    "triggers": [], "body": "", "kind": "explored", "complete_trajectory": false,
+    "steps": [], "source_path": "", "state_sig": "",
+    "provenance": { "path": ["open settings app", "Bedienungshilfen", "Farbe & Bewegung", "Farbumkehr"], "source": "authored" },
+    "confidence": 0.5, "fingerprint": null, "schema_version": 1,
+    "intent_aliases": ["farbumkehr einschalten", "invert colors on"]
+  }
+]

@@ -1,0 +1,641 @@
+[
+  {
+    "id": "demo_44722fb216c9",
+    "app": "",
+    "intent_text": "switch to another open tab in chrome",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Ask AI Mode",
+        "See 13 tabs"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_706da60b7b0f",
+    "app": "",
+    "intent_text": "open my bookmarks in chrome",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Customize and control Google Chrome",
+        "com.android.chrome:id/all_bookmarks_menu_id"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_f489d74ade35",
+    "app": "",
+    "intent_text": "open downloads in chrome",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Customize and control Google Chrome",
+        "Downloads"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_99dfeb5e1a8b",
+    "app": "",
+    "intent_text": "reload the current page in chrome",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Customize and control Google Chrome",
+        "Refresh"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_03d8bc772170",
+    "app": "",
+    "intent_text": "open the search engine setting in chrome",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Customize and control Google Chrome",
+        "Settings",
+        "Search engine"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_2f69c4a70468",
+    "app": "",
+    "intent_text": "go to en.wikipedia.org, search for Berlin and open the article",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Search",
+        "Berlin Capital and largest city of Germany"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_0d3f7e28d096",
+    "app": "",
+    "intent_text": "go to youtube.com in chrome, search for lofi music and open the first video",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Search YouTube",
+        "Best of lofi hip hop 2021 ✨ [beats to relax/study to] - 6 hours, 10 minutes, 58 seconds -  - Lofi Girl - 55 million views - 4y ago - play video"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_63871964a67c",
+    "app": "",
+    "intent_text": "find a pharmacy nearby in maps and open the nearest one",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Save",
+        "Search here"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_371a9c7dfdea",
+    "app": "",
+    "intent_text": "get directions to the nearest train station in maps",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Search here",
+        "nearest train station",
+        "Directions"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_64079ec7a205",
+    "app": "",
+    "intent_text": "find the highest-rated cafe near me in maps and open it",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Search here",
+        "Relevance",
+        "com.google.android.apps.maps:id/touch_outside",
+        "Top rated"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_7b322d46285b",
+    "app": "",
+    "intent_text": "find a 10 minute yoga video on youtube and play it",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Search",
+        "10 Minute Yoga Full Body Stretch for Stiff Bodies - 10 minutes, 17 seconds - Go to channel Yoga With Bird - Yoga With Bird - 9.5 million views - 5y ago - play video"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_6c5ca6459e10",
+    "app": "",
+    "intent_text": "set the screen timeout to 1 minute",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "1 minute"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_204c4d08e535",
+    "app": "",
+    "intent_text": "set the font size to the largest",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Clear text",
+        "Font size",
+        "Make larger"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_b15ffc6528d8",
+    "app": "",
+    "intent_text": "turn on do not disturb",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Battery",
+        "Clear text",
+        "BatteryDo Not Disturb",
+        "Clear text",
+        "Turn on now"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_0c28ba46611b",
+    "app": "",
+    "intent_text": "open the bluetooth settings",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Clear text",
+        "auto-rotateBluetooth"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_aa65aacad859",
+    "app": "",
+    "intent_text": "open chrome and go to wikipedia.org",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "example.com"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_c2bba51514e5",
+    "app": "",
+    "intent_text": "in chrome, search google for best pizza recipe and open the first result",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "android:id/content",
+        "main-menu-input"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_3618517e2d7b",
+    "app": "",
+    "intent_text": "close the current tab in chrome",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "See 16 tabs",
+        "Close best pizza recipe - Google Suche tab"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_8a8a945b73ee",
+    "app": "",
+    "intent_text": "bookmark the current page in chrome",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Chrome",
+        "Hauptmenü",
+        "Schließen",
+        "Hauptmenü",
+        "New tab",
+        "Hauptmenü",
+        "Schließen",
+        "Customize and control Google Chrome",
+        "Bookmark"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_085e2a534952",
+    "app": "",
+    "intent_text": "show my browsing history in chrome",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Customize and control Google Chrome",
+        "com.android.chrome:id/open_history_menu_id"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_560fb31f7b89",
+    "app": "",
+    "intent_text": "open chrome settings",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Customize and control Google Chrome",
+        "Settings"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_fbd1d9db9b0c",
+    "app": "",
+    "intent_text": "open trending on youtube and play the first video",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Explore Menu",
+        "Hype",
+        "PREPARE YOURSELF NOW 🚨 Krone-Schmalz in great danger for revealing THIS publicly! - 29 minutes, 24 seconds - Go to channel - MEINUNG-SPEZIAL! - 378 thousand views - 6d ago - #1 hyped - play video"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_15d96f7e07cd",
+    "app": "",
+    "intent_text": "turn on battery saver",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "com.android.settings:id/search_action_bar",
+        "Use Battery Saver"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_6e6bf0a68d50",
+    "app": "",
+    "intent_text": "turn off auto-rotate",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "com.android.settings:id/action_bar",
+        "Auto-rotate, On / folded"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_63d87e789ce0",
+    "app": "",
+    "intent_text": "find an italian restaurant nearby in maps and open one rated 4.5 stars or higher",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Search here",
+        "Enter compass mode",
+        "Close",
+        "com.google.android.apps.maps:id/custom_slider_container"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_5212b6bdcd23",
+    "app": "",
+    "intent_text": "find the word android on the current page in chrome",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "com.android.chrome:id/app_menu_list",
+        "com.android.chrome:id/button_wrapper_one",
+        "Forward",
+        "Wikipedia: wikipedia.org"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  },
+  {
+    "id": "demo_f8952e600619",
+    "app": "",
+    "intent_text": "request the desktop version of this site in chrome",
+    "triggers": [],
+    "body": "",
+    "kind": "explored",
+    "complete_trajectory": false,
+    "steps": [],
+    "source_path": "",
+    "state_sig": "",
+    "provenance": {
+      "path": [
+        "Customize and control Google Chrome",
+        "com.android.chrome:id/checkbox"
+      ],
+      "source": "demonstration"
+    },
+    "confidence": 0.5,
+    "fingerprint": null,
+    "schema_version": 1,
+    "intent_aliases": []
+  }
+]

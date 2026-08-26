@@ -1,0 +1,114 @@
+{
+  "trial_id": "145320__pixtral-12b__pizza_search__r0",
+  "timestamp_utc": "2026-05-13T12:53:45.792724Z",
+  "model": "pixtral-12b",
+  "task": "pizza_search",
+  "run": 0,
+  "outcome": "done",
+  "timing": {
+    "load": 30.33,
+    "reset": 2.15,
+    "task": 19.62,
+    "total": 25.09
+  },
+  "screenshot": "<user-home>\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\145320__pixtral-12b__pizza_search__r0.png",
+  "lmstudio_response": {
+    "ok": true,
+    "active_skills": [],
+    "lmstudio": {
+      "ok": true,
+      "status": 200,
+      "response": {
+        "model_instance_id": "pixtral-12b",
+        "output": [
+          {
+            "type": "tool_call",
+            "tool": "smartphone_open_url",
+            "arguments": {
+              "url": "https://www.google.com/search?q=pizza+restaurant+near+me"
+            },
+            "output": "[{\"type\":\"text\",\"text\":\"Opened URL: https://www.google.com/search?q=pizza+restaurant+near+me\"}]",
+            "provider_info": {
+              "plugin_id": "mcp/llm-smartphone-tools",
+              "type": "plugin"
+            }
+          },
+          {
+            "type": "message",
+            "content": "Ich habe nach einem Pizza-Restaurant in Ihrer Nähe gesucht."
+          }
+        ],
+        "stats": {
+          "input_tokens": 6888,
+          "total_output_tokens": 61,
+          "reasoning_output_tokens": 0,
+          "tokens_per_second": 55.89477903340716,
+          "time_to_first_token_seconds": 3.181
+        },
+        "response_id": "resp_a3e62cb1e9422fb50689b908c5108928692103acfd525c45"
+      }
+    }
+  },
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1778676804.8544815,
+      "task": "suche im browser ein pizza-restaurant in der nähe",
+      "_received_at": 110764.3953205
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778676805.3867686,
+      "tool": "smartphone_save_skill",
+      "args": {
+        "id": "timer.start_5min_deskclock",
+        "title": "Start a 5-minute timer in Android Clock app",
+        "replace": true
+      },
+      "_received_at": 110764.9286969
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778676805.4134305,
+      "tool": "smartphone_save_skill",
+      "_received_at": 110764.9542432
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778676809.387295,
+      "tool": "smartphone_open_url",
+      "args": {
+        "url": "https://www.google.com/search?q=pizza+restaurant+near+me",
+        "why": ""
+      },
+      "_received_at": 110768.9278885
+    },
+    {
+      "type": "task_finished",
+      "ts": 1778676817.0875008,
+      "ok": true,
+      "payload": {
+        "active_skills": [
+          "deskclock.timer_5min_start",
+          "timer.start_5min_deskclock"
+        ]
+      },
+      "_received_at": 110776.6285438
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778676820.6352828,
+      "tool": "smartphone_open_url",
+      "_received_at": 110780.1757565
+    },
+    {
+      "type": "task_finished",
+      "ts": 1778676824.1627529,
+      "ok": true,
+      "payload": {
+        "active_skills": []
+      },
+      "_received_at": 110783.7033782
+    }
+  ]
+}

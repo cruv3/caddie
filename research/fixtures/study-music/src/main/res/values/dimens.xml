@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="music_quick_height">56dp</dimen>
+    <dimen name="music_quick_spacing">4dp</dimen>
+</resources>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Training Sandbox</string>
+    <string name="screen_title">Packlisten-Training</string>
+    <string name="screen_subtitle">Nur zum Üben – keine Daten aus der Hauptstudie</string>
+    <string name="empty_message">Noch keine Packliste gespeichert</string>
+    <string name="empty_help">Beginne mit einer leeren Liste und übe Pausieren, Ändern und Abbrechen.</string>
+    <string name="new_list">Neue Packliste</string>
+    <string name="editor_title">Packliste bearbeiten</string>
+    <string name="list_title_hint">Name der Liste</string>
+    <string name="list_items_hint">Ein Gegenstand pro Zeile</string>
+    <string name="save_list">Packliste speichern</string>
+    <string name="discard_draft">Entwurf verwerfen</string>
+    <string name="saved_label">Gespeicherte Packliste</string>
+    <string name="edit_saved_list">Gespeicherte Liste bearbeiten</string>
+    <string name="title_required">Bitte einen Namen eingeben</string>
+    <string name="items_required">Bitte mindestens einen Gegenstand eingeben</string>
+    <string name="save_failed">Speichern fehlgeschlagen</string>
+</resources>

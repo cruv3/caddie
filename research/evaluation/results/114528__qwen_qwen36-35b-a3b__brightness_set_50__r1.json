@@ -1,0 +1,153 @@
+{
+  "trial_id": "114528__qwen_qwen36-35b-a3b__brightness_set_50__r1",
+  "timestamp_utc": "2026-05-16T09:50:33.553863Z",
+  "model": "qwen/qwen3.6-35b-a3b",
+  "task": "brightness_set_50",
+  "run": 1,
+  "outcome": "failed",
+  "timing": {
+    "load": 52.57,
+    "reset": 1.48,
+    "task": 300.27,
+    "total": 305.0
+  },
+  "screenshot": "<user-home>\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\114528__qwen_qwen36-35b-a3b__brightness_set_50__r1.png",
+  "lmstudio_response": null,
+  "events": [
+    {
+      "type": "tool_call_finished",
+      "ts": 1778924729.2823906,
+      "tool": "smartphone_list_elements",
+      "_received_at": 88982.1727214
+    },
+    {
+      "type": "task_started",
+      "ts": 1778924732.0304134,
+      "task": "stelle die helligkeit auf 50 prozent",
+      "_received_at": 88984.920806
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778924761.5957062,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 249,
+        "y": 824,
+        "why": "Tippe auf Brightness level"
+      },
+      "_received_at": 89014.4860694
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778924767.2086072,
+      "tool": "smartphone_get_skill_display_brightness_50_settings",
+      "args": {
+        "skill_id": "display.brightness_50_settings"
+      },
+      "_received_at": 89020.0989436
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778924767.2244663,
+      "tool": "smartphone_get_skill_display_brightness_50_settings",
+      "_received_at": 89020.1148827
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778924768.1056077,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 89020.9959295
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778924773.5431318,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Schaue mir den aktuellen Bildschirm an"
+      },
+      "_received_at": 89026.4335049
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778924775.7041843,
+      "tool": "smartphone_list_elements",
+      "_received_at": 89028.5945195
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778924842.7734282,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Überprüfe ob der Helligkeitsregler sichtbar ist"
+      },
+      "_received_at": 89095.6637683
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778924844.893886,
+      "tool": "smartphone_list_elements",
+      "_received_at": 89097.7842011
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778924866.4779532,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.settings",
+        "why": "Öffne die Einstellungen"
+      },
+      "_received_at": 89119.3682889
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778924873.9543467,
+      "tool": "smartphone_open_app",
+      "_received_at": 89126.8446796
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778924960.6136189,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.settings",
+        "why": "Öffne die Einstellungen erneut"
+      },
+      "_received_at": 89213.5042455
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778924972.1941097,
+      "tool": "smartphone_open_app",
+      "_received_at": 89225.0844558
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778924981.8532946,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Schaue mir den Einstellungen-Bildschirm an"
+      },
+      "_received_at": 89234.743843
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778924984.0279891,
+      "tool": "smartphone_list_elements",
+      "_received_at": 89236.9183101
+    },
+    {
+      "type": "task_finished",
+      "ts": 1778925026.9919138,
+      "ok": false,
+      "payload": {
+        "active_skills": [
+          "display.brightness_50_settings"
+        ]
+      },
+      "_received_at": 89279.8823212
+    }
+  ]
+}

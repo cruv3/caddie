@@ -1,0 +1,226 @@
+{
+  "trial_id": "061943__google_gemma-4-e4b__brightness_set_50__r2",
+  "timestamp_utc": "2026-06-02T04:20:55.966149Z",
+  "model": "google/gemma-4-e4b",
+  "task": "brightness_set_50",
+  "run": 2,
+  "outcome": "failed",
+  "timing": {
+    "load": 4.15,
+    "reset": 1.44,
+    "task": 67.05,
+    "total": 72.66
+  },
+  "screenshot": "<user-home>\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\061943__google_gemma-4-e4b__brightness_set_50__r2.png",
+  "lmstudio_response": {
+    "ok": false,
+    "active_skills": [
+      "display.brightness_50_settings",
+      "display.brightness_50_settings_display_touch"
+    ],
+    "follow_up_context": false,
+    "lmstudio": {
+      "ok": false,
+      "outcome": "failed",
+      "tool_calls": 10,
+      "turns": 10,
+      "final_text": "",
+      "error": null,
+      "vision_unsupported": false
+    },
+    "_http_status": 502
+  },
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1780373986.7540867,
+      "task": "stelle die helligkeit auf 50 prozent",
+      "_received_at": 1538269.3449721
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780373988.9871428,
+      "tool": "smartphone_get_skill_display_brightness_50_settings_display_touch",
+      "args": {
+        "skill_id": "display.brightness_50_settings_display_touch"
+      },
+      "_received_at": 1538271.5777534
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780373988.987162,
+      "tool": "smartphone_get_skill_display_brightness_50_settings_display_touch",
+      "_received_at": 1538271.5780013
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780373990.5505083,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.settings",
+        "why": "Ich öffne die Einstellungen-App, um zum Display-Menü zu gelangen."
+      },
+      "_received_at": 1538273.141066
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780373997.6810398,
+      "tool": "smartphone_open_app",
+      "_received_at": 1538280.271648
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780374000.273227,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich suche nach dem Eintrag für 'Display & touch' in den Einstellungen."
+      },
+      "_received_at": 1538282.8637788
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780374002.4472744,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1538285.0379865
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780374007.736195,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 540,
+        "y": 1377,
+        "why": "Ich tippe auf den Bereich für 'Display & touch', um zu den Helligkeitseinstellungen zu gelangen."
+      },
+      "_received_at": 1538290.3267891
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780374014.5648391,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 1538297.1554975
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780374016.9282665,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich überprüfe die Elemente im Display-Menü, um den Helligkeitsregler zu lokalisieren."
+      },
+      "_received_at": 1538299.5188462
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780374019.0561776,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1538301.646811
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780374021.8977947,
+      "tool": "smartphone_swipe",
+      "args": {
+        "start_x": 540,
+        "start_y": 2361,
+        "end_x": 540,
+        "end_y": 100,
+        "duration_ms": 300,
+        "why": "Ich scrolle nach oben, um alle Display-Einstellungen sichtbar zu machen."
+      },
+      "_received_at": 1538304.4884235
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780374027.3211727,
+      "tool": "smartphone_swipe",
+      "_received_at": 1538309.911796
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780374030.2642834,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich überprüfe erneut die Elemente nach dem Scrollen, um den Helligkeitsregler zu finden."
+      },
+      "_received_at": 1538312.8548657
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780374032.4197202,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1538315.010365
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780374037.568531,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich liste die Elemente erneut auf, um sicherzustellen, dass ich mich noch im Einstellungsmenü befinde und den Helligkeitsregler finde."
+      },
+      "_received_at": 1538320.1591248
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780374039.6982343,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1538322.2888745
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780374045.0342786,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 10,
+        "why": "Ich liste die Elemente ein letztes Mal auf, um zu bestätigen, ob ich im richtigen Einstellungsbildschirm bin und den Regler sehe."
+      },
+      "_received_at": 1538327.6248392
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780374047.1409414,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1538329.7315827
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780374053.426526,
+      "tool": "smartphone_failed",
+      "args": {
+        "reason": "Ich konnte den Helligkeitsregler nicht finden, da die Navigation zu den Display-Einstellungen fehlgeschlagen ist und ich mich auf dem Startbildschirm befinde."
+      },
+      "_received_at": 1538336.0174647
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780374053.426546,
+      "ok": false,
+      "payload": {
+        "message": "Ich konnte den Helligkeitsregler nicht finden, da die Navigation zu den Display-Einstellungen fehlgeschlagen ist und ich mich auf dem Startbildschirm befinde."
+      },
+      "_received_at": 1538336.0175458
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780374053.4265497,
+      "tool": "smartphone_failed",
+      "_received_at": 1538336.0176021
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780374053.427264,
+      "ok": false,
+      "payload": {
+        "active_skills": [
+          "display.brightness_50_settings",
+          "display.brightness_50_settings_display_touch"
+        ],
+        "outcome": "failed"
+      },
+      "_received_at": 1538336.0179171
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="sparkasse_red">#0F766E</color>
+    <color name="sparkasse_red_pressed">#115E59</color>
+    <color name="page_background">#F4F5F6</color>
+    <color name="card_background">#FFFFFF</color>
+    <color name="text_primary">#202124</color>
+    <color name="text_secondary">#6B6F76</color>
+    <color name="divider">#E3E5E8</color>
+</resources>

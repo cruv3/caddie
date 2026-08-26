@@ -1,0 +1,9 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <path
+        android:fillColor="@color/sparkasse_red"
+        android:pathData="M24,4L42,14V19H6V14L24,4ZM9,23H15V37H9ZM21,23H27V37H21ZM33,23H39V37H33ZM5,40H43V45H5Z" />
+</vector>

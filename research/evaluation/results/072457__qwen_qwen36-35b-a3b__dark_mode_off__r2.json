@@ -1,0 +1,117 @@
+{
+  "trial_id": "072457__qwen_qwen36-35b-a3b__dark_mode_off__r2",
+  "timestamp_utc": "2026-06-02T05:31:31.403899Z",
+  "model": "qwen/qwen3.6-35b-a3b",
+  "task": "dark_mode_off",
+  "run": 2,
+  "outcome": "failed",
+  "timing": {
+    "load": 0.0,
+    "reset": 2.05,
+    "task": 387.87,
+    "total": 393.62
+  },
+  "screenshot": "<user-home>\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\072457__qwen_qwen36-35b-a3b__dark_mode_off__r2.png",
+  "lmstudio_response": null,
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1780377901.8345995,
+      "task": "schalte den dark mode aus",
+      "_received_at": 1542184.4255112
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780377931.107718,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.settings",
+        "why": "Ich öffne die Einstellungen"
+      },
+      "_received_at": 1542213.6983385
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780377938.1012523,
+      "tool": "smartphone_open_app",
+      "_received_at": 1542220.6918611
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780377955.9376376,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Suche nach Display-Einstellungen"
+      },
+      "_received_at": 1542238.5282086
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780377958.0522895,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1542240.6428675
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780378034.8660433,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 392,
+        "y": 1997,
+        "why": "Tippe auf Display & touch"
+      },
+      "_received_at": 1542317.4566335
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780378041.416844,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 1542324.0074603
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780378049.8332186,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Suche nach Dark theme Toggle"
+      },
+      "_received_at": 1542332.4238092
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780378051.9085531,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1542334.4995551
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780378102.8693845,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 969,
+        "y": 1738,
+        "why": "Deaktiviere Dark theme"
+      },
+      "_received_at": 1542385.459977
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780378109.3651705,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 1542391.9559797
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780378289.4028237,
+      "ok": false,
+      "payload": {
+        "active_skills": [
+          "display.dark_mode_off_settings"
+        ]
+      },
+      "_received_at": 1542571.9934774
+    }
+  ]
+}

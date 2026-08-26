@@ -1,0 +1,141 @@
+{
+  "trial_id": "114023__qwen_qwen36-35b-a3b__brightness_set_50__r0",
+  "timestamp_utc": "2026-05-16T09:45:28.549055Z",
+  "model": "qwen/qwen3.6-35b-a3b",
+  "task": "brightness_set_50",
+  "run": 0,
+  "outcome": "failed",
+  "timing": {
+    "load": 52.57,
+    "reset": 1.63,
+    "task": 300.27,
+    "total": 305.19
+  },
+  "screenshot": "<user-home>\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\114023__qwen_qwen36-35b-a3b__brightness_set_50__r0.png",
+  "lmstudio_response": null,
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1778924426.9898434,
+      "task": "stelle die helligkeit auf 50 prozent",
+      "_received_at": 88679.8802135
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778924462.1704533,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Suche nach Bluetooth-Toggle"
+      },
+      "_received_at": 88715.0607645
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778924464.2791739,
+      "tool": "smartphone_list_elements",
+      "_received_at": 88717.1695094
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778924467.8330805,
+      "tool": "smartphone_get_skill_display_brightness_50_settings",
+      "args": {
+        "skill_id": "display.brightness_50_settings"
+      },
+      "_received_at": 88720.7233937
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778924467.834923,
+      "tool": "smartphone_get_skill_display_brightness_50_settings",
+      "_received_at": 88720.7251631
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778924542.520936,
+      "tool": "smartphone_open_app",
+      "args": {
+        "package_name": "com.android.settings",
+        "why": "Öffne die Einstellungen erneut"
+      },
+      "_received_at": 88795.4112482
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778924549.9301622,
+      "tool": "smartphone_open_app",
+      "_received_at": 88802.8211845
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778924551.973045,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Schaue mir den aktuellen Bildschirm an"
+      },
+      "_received_at": 88804.8633624
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778924554.1787024,
+      "tool": "smartphone_list_elements",
+      "_received_at": 88807.0691375
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778924621.4527314,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Suche nach Bluetooth in den Einstellungen"
+      },
+      "_received_at": 88874.3430756
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778924623.6439357,
+      "tool": "smartphone_list_elements",
+      "_received_at": 88876.5343423
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778924674.1187963,
+      "tool": "smartphone_tap_coordinates",
+      "args": {
+        "x": 392,
+        "y": 1997,
+        "why": "Tippe auf Display & touch"
+      },
+      "_received_at": 88927.0091143
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1778924680.9770548,
+      "tool": "smartphone_tap_coordinates",
+      "_received_at": 88933.8673582
+    },
+    {
+      "type": "task_finished",
+      "ts": 1778924721.8283706,
+      "ok": false,
+      "payload": {
+        "active_skills": [
+          "connectivity.bluetooth_on_settings"
+        ]
+      },
+      "_received_at": 88974.7187126
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1778924727.1432004,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Überprüfe den Display-Bildschirm"
+      },
+      "_received_at": 88980.0335204
+    }
+  ]
+}

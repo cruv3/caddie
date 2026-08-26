@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Debug builds may connect to a developer-hosted gateway on a local
+         network. Release builds inherit the HTTPS-only main policy. -->
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>

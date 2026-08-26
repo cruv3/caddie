@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="mail_background">#F8FAFD</color>
+    <color name="mail_surface">#FFFFFF</color>
+    <color name="mail_search">#EAF1FB</color>
+    <color name="mail_unread">#F2F6FC</color>
+    <color name="mail_text">#202124</color>
+    <color name="mail_secondary">#5F6368</color>
+    <color name="mail_divider">#E8EAED</color>
+    <color name="mail_blue">#0B57D0</color>
+    <color name="mail_blue_soft">#C2E7FF</color>
+    <color name="mail_green">#188038</color>
+</resources>

@@ -1,0 +1,67 @@
+{
+  "trial_id": "080159__qwen_qwen36-35b-a3b__brightness_set_50__r0",
+  "timestamp_utc": "2026-06-02T06:05:06.462976Z",
+  "model": "qwen/qwen3.6-35b-a3b",
+  "task": "brightness_set_50",
+  "run": 0,
+  "outcome": "failed",
+  "timing": {
+    "load": 0.0,
+    "reset": 1.99,
+    "task": 180.22,
+    "total": 186.77
+  },
+  "screenshot": "<user-home>\\dev\\LLMSmartphone\\mcp-server\\screenshots\\trials\\080159__qwen_qwen36-35b-a3b__brightness_set_50__r0.png",
+  "lmstudio_response": null,
+  "events": [
+    {
+      "type": "task_started",
+      "ts": 1780380123.684017,
+      "task": "stelle die helligkeit auf 50 prozent",
+      "_received_at": 1544406.2748852
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780380141.4499986,
+      "tool": "smartphone_take_screenshot",
+      "args": {
+        "why": "Überprüfe ob die Einstellungen offen sind"
+      },
+      "_received_at": 1544424.0406187
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780380142.273096,
+      "tool": "smartphone_take_screenshot",
+      "_received_at": 1544424.8637372
+    },
+    {
+      "type": "tool_call_started",
+      "ts": 1780380237.867684,
+      "tool": "smartphone_list_elements",
+      "args": {
+        "max_elements": 80,
+        "why": "Suche nach Bluetooth-Ergebnis"
+      },
+      "_received_at": 1544520.4583074
+    },
+    {
+      "type": "tool_call_finished",
+      "ts": 1780380239.995727,
+      "tool": "smartphone_list_elements",
+      "_received_at": 1544522.586399
+    },
+    {
+      "type": "task_finished",
+      "ts": 1780380303.720456,
+      "ok": false,
+      "payload": {
+        "active_skills": [
+          "display.brightness_50_settings",
+          "display.brightness_50_settings_display_touch"
+        ]
+      },
+      "_received_at": 1544586.3133365
+    }
+  ]
+}

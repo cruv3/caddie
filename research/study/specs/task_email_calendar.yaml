@@ -1,0 +1,133 @@
+version: "v1"
+id: "task_email_calendar"
+instruction_de: "Öffne die neueste E-Mail zur Projektsitzung und trage die geänderte Uhrzeit in den Kalender ein."
+participant_briefing:
+  situation_de: "Die Uhrzeit eurer Projektsitzung wurde kurzfristig geändert. Die neue Zeit steht in der neuesten E-Mail, dein Kalendereintrag ist aber noch auf dem alten Stand."
+  apps:
+    - name: "Mail"
+      purpose_de: "Die Nachricht zur Projektsitzung finden und die geänderte Uhrzeit nachlesen."
+    - name: "Kalender"
+      purpose_de: "Den bestehenden Termin auf die neue Uhrzeit aktualisieren."
+  goal_de: "Der bestehende Termin „Projektsitzung“ zeigt dieselbe neue Uhrzeit wie die aktuelle E-Mail."
+  preparation_de: "Öffne auf dem Studien-Smartphone Mail und lies die neueste Nachricht zur Projektsitzung. Sieh dir danach im Kalender den bestehenden Termin „Projektsitzung“ an. Verändere dabei nichts und lege das Smartphone anschließend wieder vor dir ab."
+criticality: "high"
+trigger:
+  reference_phrases:
+    - "Öffne die neueste E-Mail zur Projektsitzung und trage die geänderte Uhrzeit in den Kalender ein."
+  required_concepts:
+    - ["e-mail", "email", "mail"]
+    - ["terminänderung", "terminaenderung", "projektsitzung", "projekt"]
+    - ["kalendereintrag", "kalender"]
+    - ["aktualisiere", "aktualisieren", "trage", "eintragen", "ändere", "aendere"]
+  forbidden_concepts: ["prüfung", "pruefung", "nicht stören", "nicht stoeren", "dnd", "rechnung", "überweisung", "ueberweisung", "whiteboard"]
+  wake_words: ["jarvis", "caddie"]
+required_packages:
+  - "com.caddie.studymail"
+  - "com.caddie.studycalendar"
+seeded_artifacts:
+  - "Caddie Study Meeting Change Email"
+  - "Project Meeting: today 14:00-15:00"
+reset_checklist:
+  - "Restore original meeting time in calendar"
+  - "Verify email exists"
+steps:
+  - id: "email_open"
+    action: "open com.caddie.studymail"
+    narration: "E-Mail-App wird geöffnet..."
+    confirmation_text: "E-Mail öffnen"
+    step_type: "normal"
+    min_narration_ms: 400
+  - id: "find_email"
+    action: "click 'com.caddie.studymail:id/mail_meeting_change'"
+    narration: "Neueste E-Mail mit Terminänderung finden..."
+    confirmation_text: "Neueste E-Mail zur Projektsitzung öffnen"
+    step_type: "consequential"
+    consequential: true
+    min_narration_ms: 800
+  - id: "calendar_open"
+    action: "open com.caddie.studycalendar/.StudyCalendarActivity"
+    narration: "Kalender wird geöffnet..."
+    confirmation_text: "Kalender öffnen"
+    step_type: "normal"
+    min_narration_ms: 600
+  - id: "meeting_open"
+    action: "click 'com.caddie.studycalendar:id/meeting_event'"
+    narration: "Projektsitzung wird geöffnet..."
+    confirmation_text: "Projektsitzung öffnen"
+    step_type: "normal"
+  - id: "meeting_edit"
+    action: "click 'com.caddie.studycalendar:id/edit_event'"
+    narration: "Termin wird bearbeitet..."
+    confirmation_text: "Projektsitzung bearbeiten"
+    step_type: "normal"
+  - id: "time_open"
+    action: "click 'com.caddie.studycalendar:id/start_time'"
+    narration: "Startzeit wird geöffnet..."
+    confirmation_text: "Startzeit auswählen"
+    step_type: "normal"
+  - id: "time_select"
+    action: "replace text '15:00' (submit)"
+    narration: "Startzeit 15 Uhr wird eingetragen..."
+    confirmation_text: "Startzeit 15:00 Uhr eintragen; das Ende wird auf 16:00 Uhr gesetzt"
+    step_type: "consequential"
+    error_variant:
+      id: "err_wrong_calendar_hour"
+      field: "start_hour"
+      wrong_value: "16:00"
+      correct_value: "15:00"
+      summary_wrong_value: "16:00–17:00 Uhr"
+      summary_correct_value: "15:00–16:00 Uhr"
+      description: "Startzeit wird versehentlich auf 16 Uhr gesetzt"
+      correction:
+        after_commit: "compensate"
+        rewind_to_step_id: "time_open"
+        steps:
+          - id: "calendar_open"
+            action: "open com.caddie.studycalendar/.StudyCalendarActivity"
+            narration: "Kalender öffnen"
+            confirmation_text: "Kalender öffnen"
+          - id: "meeting_open"
+            action: "click 'com.caddie.studycalendar:id/meeting_event'"
+            narration: "Projektsitzung öffnen"
+            confirmation_text: "Projektsitzung öffnen"
+          - id: "meeting_edit"
+            action: "click 'com.caddie.studycalendar:id/edit_event'"
+            narration: "Projektsitzung bearbeiten"
+            confirmation_text: "Projektsitzung bearbeiten"
+          - id: "time_open"
+            action: "click 'com.caddie.studycalendar:id/start_time'"
+            narration: "Startzeit öffnen"
+            confirmation_text: "Startzeit auswählen"
+          - id: "time_select_correct"
+            action: "replace text '15:00' (submit)"
+            narration: "Startzeit 15 Uhr eintragen"
+            confirmation_text: "Startzeit 15:00 Uhr eintragen"
+          - id: "meeting_save"
+            action: "click 'com.caddie.studycalendar:id/save_event'"
+            narration: "Korrigierte Projektsitzung speichern"
+            confirmation_text: "Korrigierte Projektsitzung speichern"
+        assertions:
+          - check_type: "text_present"
+            value: "15:00–16:00 Uhr"
+          - check_type: "text_absent"
+            value: "16:00–17:00 Uhr"
+  - id: "meeting_save"
+    action: "click 'com.caddie.studycalendar:id/save_event'"
+    narration: "Terminänderung wird gespeichert..."
+    confirmation_text: "Geänderte Projektsitzung speichern"
+    step_type: "commit"
+    commit: true
+error_steps: ["time_select"]
+c2_summary_lines:
+  - "Projektsitzung auf 15:00–16:00 Uhr aktualisieren"
+verification:
+  - id: "v_calendar_updated"
+    assertion: "Kalendereintrag beginnt um 15:00 und endet um 16:00"
+    check_type: "ui_state_present"
+    parameters:
+      package_name: "com.caddie.studycalendar"
+      resource_id: "com.caddie.studycalendar:id/detail_time"
+      text: "15:00–16:00 Uhr"
+    screenshot_evidence: true
+max_duration_s: 120
+per_gate_timeout_s: 30
