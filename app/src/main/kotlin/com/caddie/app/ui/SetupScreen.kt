@@ -197,7 +197,7 @@ private fun SetupContent(
             )
             PermissionRow(
                 icon = Icons.Filled.Mic,
-                title = if (studyFeaturesEnabled) "Microphone" else "Voice input (optional)",
+                title = if (studyFeaturesEnabled) "Microphone" else "Voice input",
                 description = "Enables wake-word and voice input.",
                 granted = state.mic,
                 onClick = onMicClick,
@@ -314,7 +314,7 @@ private fun AllGreenContent(
                 ) {
                     PermissionRow(
                         icon = Icons.Filled.Mic,
-                        title = "Voice input (optional)",
+                        title = "Voice input",
                         description = "Enable the microphone for wake-word and voice input.",
                         granted = false,
                         onClick = onMicClick,
