@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -37,14 +38,17 @@ import com.caddie.app.gateway.GatewayRuntimeSettings
 import com.caddie.status.GatewayConnectionStatus
 import com.caddie.tool.mcp.client.McpServerStatus
 import com.caddie.tool.mcp.config.McpServerSettings
+import com.caddie.app.AgentLanguage
 
 /** Shows the non-secret MCP endpoints whose tools Caddie may discover. */
 @Composable
 fun RuntimeSettingsScreen(
+    language: AgentLanguage,
     settings: List<McpServerSettings>,
     statuses: Map<String, McpServerStatus>,
     error: String?,
     onSave: (List<McpServerSettings>) -> Unit,
+    onLanguageChanged: (AgentLanguage) -> Unit,
     onRetry: (String) -> Unit,
     gatewaySettings: GatewayRuntimeSettings,
     gatewayStatus: GatewayConnectionStatus,
@@ -90,6 +94,29 @@ fun RuntimeSettingsScreen(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+
+            ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Text("Agent language", fontWeight = FontWeight.SemiBold)
+                    Text(
+                        "Applies immediately to speech recognition and normal-agent responses. Study tasks remain fixed.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        AgentLanguage.entries.forEach { option ->
+                            FilterChip(
+                                selected = language == option,
+                                onClick = { onLanguageChanged(option) },
+                                label = { Text(option.label) },
+                            )
+                        }
+                    }
+                }
+            }
 
             (error ?: validationError)?.let {
                 Text(it, color = MaterialTheme.colorScheme.error)

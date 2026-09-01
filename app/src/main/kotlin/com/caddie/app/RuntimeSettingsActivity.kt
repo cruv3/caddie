@@ -20,6 +20,7 @@ import kotlinx.coroutines.launch
 
 /** Lets the device owner manage external MCP capability servers. */
 class RuntimeSettingsActivity : ComponentActivity() {
+    private val language = mutableStateOf(AgentLanguage.German)
     private val settings = mutableStateOf(emptyList<McpServerSettings>())
     private val statuses = mutableStateOf(emptyMap<String, McpServerStatus>())
     private val operationError = mutableStateOf<String?>(null)
@@ -35,13 +36,16 @@ class RuntimeSettingsActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        language.value = AgentLanguageSettings.selected(this)
         setContent {
             CaddieTheme {
                 RuntimeSettingsScreen(
+                    language = language.value,
                     settings = settings.value,
                     statuses = statuses.value,
                     error = operationError.value ?: settingsError.value,
                     onSave = ::save,
+                    onLanguageChanged = ::setLanguage,
                     onRetry = ::retry,
                     gatewaySettings = gatewaySettings.value,
                     gatewayStatus = gatewayStatus.value,
@@ -92,6 +96,11 @@ class RuntimeSettingsActivity : ComponentActivity() {
             controller.retry(serverId)
             refreshState()
         }
+    }
+
+    private fun setLanguage(next: AgentLanguage) {
+        AgentLanguageSettings.setSelected(this, next)
+        language.value = next
     }
 
     private fun refreshState() {

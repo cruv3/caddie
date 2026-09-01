@@ -11,18 +11,20 @@ sealed interface RuntimeVoiceCommand {
 /** Recognizes short stop commands and explicit corrections before task routing. */
 object RuntimeVoiceCommandParser {
     private val stop = Regex(
-        "^(?:bitte )?(?:stopp?|abbrechen|brich ab|hör auf|hoer auf|halt an)(?: bitte)?[.!]?$",
+        "^(?:(?:bitte|please) )?(?:stopp?|abbrechen|brich ab|hör auf|hoer auf|halt an|stop|cancel|abort)(?: (?:bitte|please|now))?[.!]?$",
         RegexOption.IGNORE_CASE,
     )
     private val correction = Regex(
-        "^(?:nein[,:.]?\\s+|nicht das(?:[,:.]?\\s+|$)|mach das so(?:[,:.]?\\s+|$)|" +
+        "^(?:nein[,:.]?\\s+|no[,:.]?\\s+|nicht das(?:[,:.]?\\s+|$)|not that(?:[,:.]?\\s+|$)|" +
+            "mach das so(?:[,:.]?\\s+|$)|do it this way(?:[,:.]?\\s+|$)|" +
             "nicht\\s+.+\\s+sondern\\s+.+|korrigiere(?:[,:.]?\\s+|$)|" +
-            "korrektur(?:[,:.]?\\s+|$))",
+            "korrektur(?:[,:.]?\\s+|$)|instead\\s+.+|correct(?:ion)?(?:[,:.]?\\s+|$))",
         RegexOption.IGNORE_CASE,
     )
     private val wakePrefix = Regex("^(?:hey\\s+)?jarvis[,.]?\\s*", RegexOption.IGNORE_CASE)
     private val forgetContext = Regex(
-        "^(?:vergiss|vergesse|lösche|loesche)\\s+(?:den\\s+)?(?:kontext|verlauf|alles)[.!]?$",
+        "^(?:(?:vergiss|vergesse|lösche|loesche)\\s+(?:den\\s+)?(?:kontext|verlauf|alles)|" +
+            "(?:forget|clear)\\s+(?:the\\s+)?(?:context|history|conversation|everything))[.!]?$",
         RegexOption.IGNORE_CASE,
     )
 

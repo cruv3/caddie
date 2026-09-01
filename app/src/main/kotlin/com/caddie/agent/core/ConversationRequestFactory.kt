@@ -2,10 +2,12 @@ package com.caddie.agent.core
 
 /** Adds the runtime system prompt to the reconstructed run conversation. */
 class ConversationRequestFactory(
-    private val systemPrompt: String,
+    private val systemPrompt: () -> String,
 ) : RequestFactory {
+    constructor(systemPrompt: String) : this({ systemPrompt })
+
     init {
-        require(systemPrompt.isNotBlank()) { "systemPrompt must not be blank" }
+        require(systemPrompt().isNotBlank()) { "systemPrompt must not be blank" }
     }
 
     override fun create(
@@ -15,7 +17,7 @@ class ConversationRequestFactory(
         ModelRequest(
             runId = snapshot.runId,
             messages =
-                listOf(AgentMessage(AgentMessage.Role.SYSTEM, systemPrompt)) +
+                listOf(AgentMessage(AgentMessage.Role.SYSTEM, systemPrompt())) +
                     snapshot.messages,
             tools = tools,
         )

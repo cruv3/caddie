@@ -12,7 +12,7 @@ import android.util.Log
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
 
-/** Captures one German utterance with Android's installed speech recognizer. */
+/** Captures one utterance with Android's installed speech recognizer in the requested locale. */
 class SpeechCapture(private val context: Context) {
     private val mainHandler = Handler(Looper.getMainLooper())
     private val generation = AtomicLong(0)

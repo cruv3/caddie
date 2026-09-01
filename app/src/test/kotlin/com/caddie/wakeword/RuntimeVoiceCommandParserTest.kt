@@ -71,4 +71,17 @@ class RuntimeVoiceCommandParserTest {
             RuntimeVoiceCommandParser.parse("vergiss nicht Anna zu schreiben"),
         )
     }
+
+    @Test
+    fun `english voice controls are recognized before normal task routing`() {
+        assertEquals(RuntimeVoiceCommand.Stop, RuntimeVoiceCommandParser.parse("Hey Jarvis, please stop"))
+        assertEquals(
+            RuntimeVoiceCommand.Correction("not that, open Maps"),
+            RuntimeVoiceCommandParser.parse("Jarvis, not that, open Maps"),
+        )
+        assertEquals(
+            RuntimeVoiceCommand.ForgetContext,
+            RuntimeVoiceCommandParser.parse("Hey Jarvis, clear the context"),
+        )
+    }
 }

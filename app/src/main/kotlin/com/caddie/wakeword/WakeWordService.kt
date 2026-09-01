@@ -18,6 +18,8 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.caddie.R
 import com.caddie.agent.core.RunId
+import com.caddie.app.AgentLanguage
+import com.caddie.app.AgentLanguageSettings
 import com.caddie.app.CaddieApplication
 import com.caddie.app.androidRuntimeProcess
 import com.caddie.app.overlay.OverlayService
@@ -251,6 +253,7 @@ class WakeWordService : Service() {
     private fun captureOneUtterance(request: SpeechRequest) {
         OverlayService.notifyListening(this)
         speech.start(
+            locale = speechRecognizerLocale(),
             onResult = { transcript ->
                 Log.i(TAG, "speech captured (${transcript.length} chars)")
                 if (transcript.isBlank()) {
@@ -299,6 +302,14 @@ class WakeWordService : Service() {
     private fun releaseVoiceHold(request: SpeechRequest) {
         request.interruptedRunId?.let { androidRuntimeProcess().resumeAfterVoiceCapture(it) }
     }
+
+    /** Keeps the controlled study's established German speech path deterministic. */
+    private fun speechRecognizerLocale(): String =
+        if (androidRuntimeProcess().studyCoordinator.isStudyModeActive()) {
+            AgentLanguage.German.speechRecognizerLocale
+        } else {
+            AgentLanguageSettings.selected(this).speechRecognizerLocale
+        }
 
     companion object {
         private const val TAG = "WakeWordService"
