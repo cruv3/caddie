@@ -6,10 +6,12 @@ import org.junit.Test
 
 class SetupUiStateTest {
     @Test
-    fun `normal mode is ready without optional microphone permission`() {
-        val state = SetupUiState(accessibility = true, overlay = true, mic = false)
+    fun `normal mode requires microphone permission`() {
+        val withoutMic = SetupUiState(accessibility = true, overlay = true, mic = false)
+        val withMic = withoutMic.copy(mic = true)
 
-        assertTrue(state.isReady(studyFeaturesEnabled = false))
+        assertFalse(withoutMic.isReady())
+        assertTrue(withMic.isReady())
     }
 
     @Test
@@ -17,8 +19,8 @@ class SetupUiStateTest {
         val withoutMic = SetupUiState(accessibility = true, overlay = true, mic = false)
         val withMic = withoutMic.copy(mic = true)
 
-        assertFalse(withoutMic.isReady(studyFeaturesEnabled = true))
-        assertTrue(withMic.isReady(studyFeaturesEnabled = true))
+        assertFalse(withoutMic.isReady())
+        assertTrue(withMic.isReady())
     }
 
     @Test
@@ -26,7 +28,7 @@ class SetupUiStateTest {
         val missingAccessibility = SetupUiState(accessibility = false, overlay = true, mic = true)
         val missingOverlay = SetupUiState(accessibility = true, overlay = false, mic = true)
 
-        assertFalse(missingAccessibility.isReady(studyFeaturesEnabled = false))
-        assertFalse(missingOverlay.isReady(studyFeaturesEnabled = false))
+        assertFalse(missingAccessibility.isReady())
+        assertFalse(missingOverlay.isReady())
     }
 }

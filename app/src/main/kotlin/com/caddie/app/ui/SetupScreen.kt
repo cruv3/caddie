@@ -59,8 +59,7 @@ data class SetupUiState(
     val pillEnabled: Boolean = true,
     val portalEnabled: Boolean = false,
 ) {
-    fun isReady(studyFeaturesEnabled: Boolean): Boolean =
-        accessibility && overlay && (!studyFeaturesEnabled || mic)
+    fun isReady(): Boolean = accessibility && overlay && mic
 }
 
 fun evaluateSetup(context: Context): SetupUiState = SetupUiState(
@@ -104,7 +103,7 @@ fun SetupScreen(
         color = MaterialTheme.colorScheme.background,
     ) {
         Box(Modifier.fillMaxSize()) {
-            if (state.isReady(studyFeaturesEnabled)) {
+            if (state.isReady()) {
                 AllGreenContent(
                     state = state,
                     gatewayStatus = gatewayStatus,
@@ -112,7 +111,6 @@ fun SetupScreen(
                     portalUrl = portalUrl,
                     studyMode = studyMode,
                     studyFeaturesEnabled = studyFeaturesEnabled,
-                    onMicClick = onMicClick,
                     onTogglePill = onTogglePill,
                     onTogglePortal = onTogglePortal,
                 )
@@ -272,7 +270,6 @@ private fun AllGreenContent(
     portalUrl: String?,
     studyMode: NativeStudyControl.Mode?,
     studyFeaturesEnabled: Boolean,
-    onMicClick: () -> Unit,
     onTogglePill: (Boolean) -> Unit,
     onTogglePortal: (Boolean) -> Unit,
 ) {
@@ -306,21 +303,6 @@ private fun AllGreenContent(
             )
             Spacer(Modifier.height(20.dp))
             GatewayConnectionIndicator(status = gatewayStatus)
-            if (!studyFeaturesEnabled && !state.mic) {
-                Spacer(Modifier.height(16.dp))
-                ElevatedCard(
-                    shape = RoundedCornerShape(20.dp),
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    PermissionRow(
-                        icon = Icons.Filled.Mic,
-                        title = "Voice input",
-                        description = "Enable the microphone for wake-word and voice input.",
-                        granted = false,
-                        onClick = onMicClick,
-                    )
-                }
-            }
             Spacer(Modifier.height(8.dp))
             if (studyFeaturesEnabled) {
                 Text(
