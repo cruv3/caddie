@@ -1,0 +1,20 @@
+{
+  "outcome": "done",
+  "tools": 31,
+  "turns": 32,
+  "input_tokens": 62,
+  "output_tokens": 4498,
+  "cache_read": 1805650,
+  "cache_creation": 86851,
+  "cost_usd": 1.55840375,
+  "duration_s": 243.3,
+  "duration_api_ms": 135794,
+  "result_text": "Bluetooth ist eingeschaltet.",
+  "returncode": 0,
+  "stderr_tail": "",
+  "trial_id": "123407__claude-opus-4-7__bluetooth_toggle_on__r1",
+  "task": "bluetooth_toggle_on",
+  "run": 1,
+  "model": "claude-opus-4-7",
+  "prompt": "schalte bluetooth an"
+}

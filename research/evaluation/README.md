@@ -1,10 +1,13 @@
-# Historical technical evaluation
+# Technical evaluation evidence
 
 These artifacts support the bounded technical results reported in Chapter 3 of
-the thesis. They were produced by earlier host/ADB versions of Caddie, not by the
-current Android-owned runtime.
+the thesis. They were produced during development with the Python/ADB setup that
+predated the current Android-owned runtime.
 
 - `failure-mode-log.md` retains the manually classified failure patterns.
+- `model-trial-screenshots/` preserves the available screenshots, capture-error
+  records, manifest, hashes, and integrity check for the self-hosted matrix and
+  Claude reference run.
 - `results/` contains raw trial JSON and the retained aggregate reports for the
   model, retrieval, and execution-strategy comparisons.
 - `protocols/` contains the small task and retrieval datasets associated with
@@ -14,6 +17,6 @@ current Android-owned runtime.
   not included.
 - `evaluator.py` regenerates `results/SUMMARY.md` from the retained JSON trials.
 
-The historical execution harness is not included. The reports can therefore be
+The earlier execution harness is not included. The reports can therefore be
 inspected and re-aggregated, but the original environment cannot be rerun from
 this release alone.

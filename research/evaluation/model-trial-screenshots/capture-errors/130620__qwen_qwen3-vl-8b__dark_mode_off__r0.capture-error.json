@@ -1,0 +1,1 @@
+{"ok":false,"error":"screenshot_failed","detail":"java.lang.IllegalStateException: accessibility_service_not_connected"}

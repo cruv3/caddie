@@ -1,7 +1,11 @@
 # Failure-Mode-Sampling - Matrix Run 2026-05-13
 
-> Release note: The tabulated screenshot assessments are retained, but the
-> source screenshots themselves are not part of this repository snapshot.
+> Evidence note: Recovered screenshots associated with 67 of the 72 trials,
+> two screenshot-capture error payloads, and the retained result records are
+> indexed in [`model-trial-screenshots/manifest.csv`](model-trial-screenshots/manifest.csv).
+> The runner-generated table at the end preserves its pre-recovery text such as
+> `not retained`; use the manifest as the current file map. Three Gemma trial
+> slots have neither a recovered screenshot nor a retained result record.
 
 **Setup:** 6 Modelle x 6 Tasks x 2 Runs = 72 Trials. Pixel-9a-Emulator, HTTP-Bridge, /task auf :8787.
 Loop-Cap: 25 Tool-Calls -> fail_loop. Hard-Timeout 300s/Trial.

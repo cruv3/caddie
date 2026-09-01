@@ -1,0 +1,20 @@
+{
+  "outcome": "done",
+  "tools": 10,
+  "turns": 11,
+  "input_tokens": 20,
+  "output_tokens": 1289,
+  "cache_read": 380916,
+  "cache_creation": 57960,
+  "cost_usd": 0.5850329999999999,
+  "duration_s": 65.9,
+  "duration_api_ms": 28882,
+  "result_text": "Dunkles Design ist aktiviert.",
+  "returncode": 0,
+  "stderr_tail": "",
+  "trial_id": "122135__claude-opus-4-7__dark_mode_on__r1",
+  "task": "dark_mode_on",
+  "run": 1,
+  "model": "claude-opus-4-7",
+  "prompt": "schalte den dark mode an"
+}
