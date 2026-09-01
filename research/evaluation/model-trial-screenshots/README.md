@@ -11,7 +11,7 @@ of the current implementation.
 
 ## Coverage
 
-- Self-hosted candidate matrix: 67 of 72 run screenshots and their matching
+- Self-hosted candidate matrix: 72 of 72 run screenshots and their matching
   result JSON files are retained.
 - Claude Opus 4.7 reference: all 12 run screenshots and matching result JSON
   files are retained.
