@@ -31,8 +31,8 @@ class GatewayHomeserverDeviceTest {
         assumeTrue(!baseUrl.isNullOrBlank() && !modelId.isNullOrBlank())
         val deltas = GatewayModelClient(
             GatewayConfiguration(
-                baseUrl = baseUrl,
-                profile = ModelProfile("device-smoke", modelId),
+                baseUrl = requireNotNull(baseUrl),
+                profile = ModelProfile("device-smoke", requireNotNull(modelId)),
                 retryPolicy = RetryPolicy(maxAttempts = 1),
                 thinkingEnabled = false,
             ),
@@ -77,8 +77,8 @@ class GatewayHomeserverDeviceTest {
             )
             val deltas = GatewayModelClient(
                 GatewayConfiguration(
-                    baseUrl = baseUrl,
-                    profile = ModelProfile("device-rag-smoke", modelId),
+                    baseUrl = requireNotNull(baseUrl),
+                    profile = ModelProfile("device-rag-smoke", requireNotNull(modelId)),
                     retryPolicy = RetryPolicy(maxAttempts = 1),
                     thinkingEnabled = false,
                 ),
