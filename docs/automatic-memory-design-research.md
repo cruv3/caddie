@@ -60,7 +60,8 @@ or benchmark transfer is inferred.
    as the review/correction/delete surface and expose pending candidates there.
    Harmless supported preferences do not require per-fact confirmation.
 7. **Bounded retrieval and retention.** Keep the existing E5/lexical relevance
-   gating and two-reference/8,000-character prompt bounds. Do not add an
+   gating and the general four-reference limit within the unchanged
+   8,000-character prompt bound. Do not add an
    unvalidated model importance or recency weighting. Timestamp provenance for
    inspection, but do not silently forget an important rare reference merely
    because it was not recently retrieved. Document retention and bounded

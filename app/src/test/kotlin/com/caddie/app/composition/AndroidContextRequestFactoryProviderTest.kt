@@ -76,7 +76,7 @@ class AndroidContextRequestFactoryProviderTest {
     }
 
     @Test
-    fun `personal lexical retrieval works with empty skill catalog and is bounded`() = runTest {
+    fun `personal lexical retrieval admits four of five relevant references and excludes irrelevant tasks`() = runTest {
         val provider = AndroidContextRequestFactoryProvider(
             catalogLoader = { SkillCatalog(emptyList()) },
             embedderFactory = { error("unavailable") }, failureReporter = { _, _ -> },
@@ -87,7 +87,11 @@ class AndroidContextRequestFactoryProviderTest {
                 ) }) },
         )
         val text = contextMessage(provider.forTask("submit report", baseFactory()))
-        assertEquals(2, Regex("## Hint personal:").findAll(text).count())
+        assertEquals(4, Regex("## Hint personal:").findAll(text).count())
+        assertTrue(text.contains("Reference 1"))
+        assertTrue(text.contains("Reference 4"))
+        assertFalse(text.contains("Reference 5"))
+        assertTrue(text.length <= 8_000)
         assertTrue(text.contains("reviewer@example.invalid"))
         val unrelated = provider.forTask("weather tomorrow", baseFactory()).create(snapshot(), emptyList())
         assertFalse(unrelated.messages.any { "reviewer@example.invalid" in it.content })

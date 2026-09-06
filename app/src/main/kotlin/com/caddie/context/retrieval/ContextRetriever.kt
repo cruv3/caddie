@@ -183,7 +183,7 @@ class ContextRetriever(
         const val MAX_TOKEN_BOOST = 0.05f
         const val MIN_FALLBACK_OVERLAP = 2
         const val MAX_SKILLS = 3
-        const val MAX_HINTS = 2
+        const val MAX_HINTS = 4
     }
 }
 

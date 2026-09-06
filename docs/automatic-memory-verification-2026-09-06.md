@@ -33,6 +33,35 @@ adb -s emulator-5554 shell am instrument -w -e class com.caddie.context.persiste
 
 Final device result: **OK (23 tests), 7.449 seconds**.
 
+## Follow-up: general four-hint retrieval limit
+
+The historical full-suite and device results above are retained at
+`739417096e80fc75c5305ad626dcb13734b8f55f` and predate this capacity adjustment.
+The follow-up command ran on the same worktree with `ANDROID_HOME` set:
+
+```powershell
+.\gradlew.bat :app:testDebugUnitTest :app:assembleDebug :app:assembleDebugAndroidTest '-Pkotlin.compiler.execution.strategy=in-process' --console=plain
+```
+
+The fresh full suite records **965 cases, 963 passed, two existing skips,
+zero failures/errors**. Debug and test APK builds succeeded in the same run.
+The focused JUnit XML subset records **22 passing tests** (8 retriever, 9 provider,
+and 5 RAG tests; no failures, errors, or skips). They cover the bounded
+general four-reference limit, four of five
+relevant personal references, exclusion for an irrelevant task, and four long
+personal references within the unchanged 8,000-character total context budget.
+Production changes only `ContextRetriever.MAX_HINTS` from two to four. No
+personal-specific override, relevance threshold or rendering-budget change was
+introduced. This is fresh JVM/build coverage, not a fresh device, live-model,
+or participant-study run. The historical July context design/plan retains its
+original two-hint specification, superseded by this general limit.
+
+A fresh read-only final review inspected the complete follow-up diff, unchanged
+relevance/security/budget boundaries, tests and artifacts, and found no material
+issue. Direct verification above remains the basis for the result.
+
+## Retained device coverage at the automatic-memory baseline
+
 - Three `PersonalMemoryAgentLoopDeviceTest` cases exercise the real
   `NativeRuntimeAssembler` → host → runner → `AgentLoop` → local memory tool
   → deterministic policy → Room/Keystore store. They prove auto-save from
@@ -98,6 +127,9 @@ already sent remote prompts are outside its deletion boundary.
 No live document/contact/service demo was run. It requires ordinary interactions
 that produce appropriate proposals, owner review of consequential mappings,
 accessible document permissions, actual UI navigation, and normal action
-confirmation. At most two personal notes are selected per task, so retrieval
-of every fact across a multi-note workflow is not guaranteed. No send is
+confirmation. The historical 23-test device result preceded the later
+four-personal-reference capacity change; the focused JVM result above covers
+that adjustment. The current limit is four relevant personal notes per task
+within the unchanged 8,000-character context budget, so retrieval of every fact
+across a multi-note workflow is still not guaranteed. No send is
 authorized by these tests or by personal memory.

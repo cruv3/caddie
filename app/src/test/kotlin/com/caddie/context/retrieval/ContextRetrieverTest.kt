@@ -55,7 +55,7 @@ class ContextRetrieverTest {
     @Test
     fun `ordering and result limits are deterministic`() = runTest {
         val skills = (1..5).map { skill("skill-$it") }
-        val hints = (1..4).map { ContextHint("hint-$it", "shared hint") }
+        val hints = (1..5).map { ContextHint("hint-$it", "shared hint") }
         val retriever = retriever(
             skills = skills,
             queryVector = floatArrayOf(1f, 0f),
@@ -67,8 +67,22 @@ class ContextRetrieverTest {
         val second = retriever.retrieve("unrelated")
 
         assertEquals(listOf("skill-1", "skill-2", "skill-3"), first.skills.map { it.skill.id })
-        assertEquals(listOf("hint-1", "hint-2"), first.hints.map { it.id })
+        assertEquals(listOf("hint-1", "hint-2", "hint-3", "hint-4"), first.hints.map { it.id })
         assertEquals(first, second)
+    }
+
+    @Test
+    fun `generic hint retrieval returns four of five relevant hints`() = runTest {
+        val hints = (1..5).map { ContextHint("hint-$it", "shared hint", embedding = floatArrayOf(1f, 0f)) }
+
+        val result = retriever(
+            skills = emptyList(),
+            queryVector = floatArrayOf(1f, 0f),
+            skillVectors = emptyMap(),
+            hints = hints,
+        ).retrieve("shared")
+
+        assertEquals(listOf("hint-1", "hint-2", "hint-3", "hint-4"), result.hints.map { it.id })
     }
 
     @Test

@@ -162,6 +162,32 @@ class RagRequestFactoryTest {
         assertFalse(bundle.renderedText.lines().any { it.endsWith("safe guid") })
     }
 
+    @Test
+    fun `four personal references remain within the existing combined context budget`() {
+        val personalHints = (1..4).map { index ->
+            RetrievedHint(
+                id = "personal:$index",
+                text = buildString {
+                    repeat(35) { append("Personal report reference $index remains reference-only.\n") }
+                },
+                score = score(),
+            )
+        }
+        val longBody = """
+            ## Rules
+            ${"- ${"safe guidance ".repeat(8)}\n".repeat(150)}
+        """.trimIndent()
+
+        val bundle = ContextBundle.create(
+            result(skill("one", longBody), skill("two", longBody), hints = personalHints),
+        )
+
+        assertEquals(4, Regex("## Hint personal:").findAll(bundle.renderedText).count())
+        assertTrue(bundle.renderedText.length <= 8_000)
+        assertTrue(bundle.renderedText.indexOf("Hint personal:1") < bundle.renderedText.indexOf("Skill one"))
+        assertTrue(bundle.renderedText.contains("[truncated]"))
+    }
+
     private fun result(
         vararg skills: Skill,
         hints: List<RetrievedHint> = emptyList(),
