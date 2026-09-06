@@ -68,6 +68,12 @@ commit and revision/key completion, plus rotation loss of unsaved drafts.
 The implementation now completes mutations in a non-cancellable critical
 section and keeps drafts in a memory-only ViewModel. The reviewer verified
 both fixes. The cancellation boundary also has a deterministic device test.
+Editor mutations additionally use the retained ViewModel coroutine scope, so
+rotation during a committed reset does not leave the old draft on screen.
+A fresh read-only reviewer independently confirmed this lifecycle fix. The
+full JVM/APK checks were rerun afterward. The Android results above precede
+this scope-only follow-up, which does not alter the tested store/retrieval code.
+The actual editor rotation sequence remains a manual device-check limitation.
 
 A second fresh read-only review examined admission and privacy. Its confirmed
 findings were fixed: a retained atomic runtime reservation prevents Caddie's

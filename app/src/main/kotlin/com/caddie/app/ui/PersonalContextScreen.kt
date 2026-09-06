@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.caddie.context.personal.PersonalContextStore
 import com.caddie.context.personal.PersonalFact
@@ -51,7 +52,8 @@ fun PersonalContextScreen(store: PersonalContextStore, onClose: () -> Unit, edit
     var message by editor.message
     var confirmClear by editor.confirmClear
     var ownerConfirmed by editor.ownerConfirmed
-    val scope = rememberCoroutineScope()
+    // A configuration change must not skip the retained draft update after a committed save/reset.
+    val scope = editor.viewModelScope
     LaunchedEffect(store) {
         if (loaded) return@LaunchedEffect
         try {
