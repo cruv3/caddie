@@ -19,6 +19,8 @@ class ContextRepository(
     private val database: ContextDatabase,
     private val cipher: ContextCipher,
 ) {
+    suspend fun deleteOwner(ownerId: String) = database.dao().deleteOwner(ownerId)
+
     suspend fun activate(
         input: ContextCorpusGeneration,
         afterStaging: suspend () -> Unit = {},

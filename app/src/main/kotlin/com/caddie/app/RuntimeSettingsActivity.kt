@@ -4,12 +4,17 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.SideEffect
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.caddie.app.gateway.GatewayRuntimeSettings
 import com.caddie.app.overlay.OverlayService
 import com.caddie.status.GatewayConnectionStatus
 import com.caddie.app.ui.CaddieTheme
 import com.caddie.app.ui.RuntimeSettingsScreen
+import com.caddie.app.ui.PersonalContextScreen
+import com.caddie.app.ui.PersonalContextEditor
+import com.caddie.context.personal.PersonalContextStore
 import com.caddie.tool.mcp.client.McpServerStatus
 import com.caddie.tool.mcp.config.McpServerSettings
 import kotlinx.coroutines.CancellationException
@@ -21,6 +26,8 @@ import kotlinx.coroutines.launch
 /** Lets the device owner manage external MCP capability servers. */
 class RuntimeSettingsActivity : ComponentActivity() {
     private val language = mutableStateOf(AgentLanguage.German)
+    private val personalVisible = mutableStateOf(false)
+    private val personalEditor by lazy { ViewModelProvider(this)[PersonalContextEditor::class.java] }
     private val settings = mutableStateOf(emptyList<McpServerSettings>())
     private val statuses = mutableStateOf(emptyMap<String, McpServerStatus>())
     private val operationError = mutableStateOf<String?>(null)
@@ -36,25 +43,41 @@ class RuntimeSettingsActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        window.addFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
+        personalVisible.value = savedInstanceState?.getBoolean("personalVisible") == true && reservePersonalEditor()
         language.value = AgentLanguageSettings.selected(this)
         setContent {
             CaddieTheme {
-                RuntimeSettingsScreen(
-                    language = language.value,
-                    settings = settings.value,
-                    statuses = statuses.value,
-                    error = operationError.value ?: settingsError.value,
-                    onSave = ::save,
-                    onLanguageChanged = ::setLanguage,
-                    onRetry = ::retry,
-                    gatewaySettings = gatewaySettings.value,
-                    gatewayStatus = gatewayStatus.value,
-                    gatewayMessage = gatewayMessage.value,
-                    onSaveGateway = ::saveGateway,
-                    onTestGateway = ::testGateway,
-                    onSubmitNormalTask = ::submitNormalTask,
-                    onClose = ::finish,
-                )
+                if (personalVisible.value) {
+                    PersonalContextScreen(
+                        store = PersonalContextStore.production(this),
+                        onClose = { personalVisible.value = false },
+                        editor = personalEditor,
+                    )
+                } else {
+                    // Release only after the composition has removed all note/draft nodes.
+                    SideEffect { personalEditor.releaseRuntime() }
+                    RuntimeSettingsScreen(
+                        language = language.value,
+                        settings = settings.value,
+                        statuses = statuses.value,
+                        error = operationError.value ?: settingsError.value,
+                        onSave = ::save,
+                        onLanguageChanged = ::setLanguage,
+                        onRetry = ::retry,
+                        gatewaySettings = gatewaySettings.value,
+                        gatewayStatus = gatewayStatus.value,
+                        gatewayMessage = gatewayMessage.value,
+                        onSaveGateway = ::saveGateway,
+                        onTestGateway = ::testGateway,
+                        onSubmitNormalTask = ::submitNormalTask,
+                        onClose = ::finish,
+                        onPersonalContext = {
+                            if (reservePersonalEditor()) personalVisible.value = true
+                            else operationError.value = "Stop the active task and leave study mode before opening personal memory."
+                        },
+                    )
+                }
             }
         }
     }
@@ -69,6 +92,18 @@ class RuntimeSettingsActivity : ComponentActivity() {
                 delay(STATUS_REFRESH_MILLIS)
             }
         }
+    }
+
+    private fun reservePersonalEditor(): Boolean {
+        val runtime = (application as CaddieApplication).runtimeProcess
+        if (runtime.studyCoordinator.isStudyModeActive()) return false
+        // Reuse the existing atomic normal-submission exclusion; no study trial is activated.
+        return personalEditor.reserveRuntime(runtime::tryReserveStudyPreparation)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean("personalVisible", personalVisible.value)
+        super.onSaveInstanceState(outState)
     }
 
     override fun onStop() {

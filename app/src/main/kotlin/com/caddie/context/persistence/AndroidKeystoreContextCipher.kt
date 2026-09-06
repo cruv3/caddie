@@ -8,8 +8,8 @@ import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 
 /** Encrypts context with a background-capable, non-exportable Android Keystore key. */
-class AndroidKeystoreContextCipher : ContextCipher {
-    private val delegate = AesGcmContextCipher(AndroidKeystoreKeyProvider)
+class AndroidKeystoreContextCipher(keyAlias: String = KEY_ALIAS) : ContextCipher {
+    private val delegate = AesGcmContextCipher(AndroidKeystoreKeyProvider(keyAlias))
 
     override fun encrypt(
         plaintext: ByteArray,
@@ -23,21 +23,26 @@ class AndroidKeystoreContextCipher : ContextCipher {
 
     companion object {
         const val KEY_ALIAS = "caddie_context_v1"
+
+        /** Call only after explicitly deleting the complete corpus using this alias. */
+        @Synchronized
+        fun deleteKey(alias: String) {
+            KeyStore.getInstance("AndroidKeyStore").apply { load(null) }.deleteEntry(alias)
+        }
     }
 
-    private object AndroidKeystoreKeyProvider : ContextKeyProvider {
-        @Synchronized
-        override fun getOrCreate(): SecretKey {
+    private class AndroidKeystoreKeyProvider(private val alias: String) : ContextKeyProvider {
+        override fun getOrCreate(): SecretKey = synchronized(Companion) {
             try {
                 val keyStore = KeyStore.getInstance(ANDROID_KEYSTORE).apply { load(null) }
-                (keyStore.getKey(KEY_ALIAS, null) as? SecretKey)?.let { return it }
+                (keyStore.getKey(alias, null) as? SecretKey)?.let { return it }
                 val generator = KeyGenerator.getInstance(
                     KeyProperties.KEY_ALGORITHM_AES,
                     ANDROID_KEYSTORE,
                 )
                 generator.init(
                     KeyGenParameterSpec.Builder(
-                        KEY_ALIAS,
+                        alias,
                         KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT,
                     )
                         .setKeySize(256)
@@ -53,6 +58,6 @@ class AndroidKeystoreContextCipher : ContextCipher {
             }
         }
 
-        private const val ANDROID_KEYSTORE = "AndroidKeyStore"
+        private val ANDROID_KEYSTORE = "AndroidKeyStore"
     }
 }

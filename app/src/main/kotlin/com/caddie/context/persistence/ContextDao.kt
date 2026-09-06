@@ -12,6 +12,23 @@ data class ReplaySafetyMetadata(val classification: String, val safetyState: Str
 /** Atomically stages, validates, and activates one complete context generation. */
 @Dao
 abstract class ContextDao {
+    @Query("DELETE FROM context_content WHERE owner_id = :owner")
+    protected abstract suspend fun deleteOwnerContents(owner: String)
+
+    @Query("DELETE FROM context_projection WHERE owner_id = :owner")
+    protected abstract suspend fun deleteOwnerProjections(owner: String)
+
+    @Query("DELETE FROM context_replay WHERE owner_id = :owner")
+    protected abstract suspend fun deleteOwnerReplays(owner: String)
+
+    @Transaction
+    open suspend fun deleteOwner(owner: String) {
+        require(owner.isNotBlank())
+        deleteOwnerProjections(owner)
+        deleteOwnerReplays(owner)
+        deleteOwnerContents(owner) // Foreign-key cascade removes associated vectors.
+    }
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     protected abstract suspend fun insertContents(rows: List<ContextContentEntity>)
 

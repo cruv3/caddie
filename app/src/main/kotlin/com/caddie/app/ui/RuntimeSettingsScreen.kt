@@ -58,6 +58,7 @@ fun RuntimeSettingsScreen(
     onTestGateway: () -> Unit,
     onSubmitNormalTask: (String) -> Unit,
     onClose: () -> Unit,
+    onPersonalContext: () -> Unit = {},
 ) {
     var adding by remember { mutableStateOf(false) }
     var serverId by remember { mutableStateOf("") }
@@ -170,6 +171,8 @@ fun RuntimeSettingsScreen(
                     }
                 },
             )
+
+            Button(onClick = onPersonalContext) { Text("Personal memory") }
 
             settings.forEach { setting ->
                 McpServerCard(

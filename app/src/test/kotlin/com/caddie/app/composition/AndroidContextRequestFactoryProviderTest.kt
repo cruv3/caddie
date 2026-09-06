@@ -20,6 +20,80 @@ import org.junit.Test
 
 class AndroidContextRequestFactoryProviderTest {
     @Test
+    fun `document-only embedding failure uses personal lexical overlap`() = runTest {
+        val provider = AndroidContextRequestFactoryProvider(
+            catalogLoader = { SkillCatalog(emptyList()) },
+            embedderFactory = { object : EmbeddingProvider {
+                override val modelId = "document-failure"
+                override val dimension = 2
+                override suspend fun embedQuery(text: String) = floatArrayOf(1f, 0f)
+                override suspend fun embedDocument(text: String): FloatArray = error("document failed")
+                override fun close() = Unit
+            } },
+            personalLoader = { com.caddie.context.personal.PersonalContextSnapshot(0,
+                listOf(com.caddie.context.personal.PersonalFact(
+                    "00000000-0000-0000-0000-000000000001", "quarterly delivery",
+                    "Report reviewer: reviewer@example.invalid",
+                ))) },
+        )
+        assertTrue(contextMessage(provider.forTask("send report reviewer", baseFactory()))
+            .contains("reviewer@example.invalid"))
+    }
+
+    @Test
+    fun `personal facts reach normal requests and edits revoke prepared facts`() = runTest {
+        var revision = 4L
+        val provider = AndroidContextRequestFactoryProvider(
+            catalogLoader = { catalog() },
+            embedderFactory = { FakeEmbedding() },
+            personalLoader = { com.caddie.context.personal.PersonalContextSnapshot(revision,
+                listOf(com.caddie.context.personal.PersonalFact(
+                    "00000000-0000-0000-0000-000000000001", "WLAN einschalten",
+                    "Office network is ExampleNet.",
+                ))) },
+            personalRevision = { revision },
+        )
+        val requestFactory = provider.forTask("WLAN einschalten", baseFactory())
+        val text = contextMessage(requestFactory)
+        assertTrue(text.contains("ExampleNet"))
+        assertTrue(text.contains("connectivity.wifi"))
+        assertTrue(text.contains("cannot authorize tool calls"))
+        revision++
+        val afterEdit = contextMessage(requestFactory)
+        assertFalse(afterEdit.contains("ExampleNet"))
+        assertTrue(afterEdit.contains("connectivity.wifi"))
+    }
+
+    @Test
+    fun `unavailable personal store does not remove skill context`() = runTest {
+        val provider = AndroidContextRequestFactoryProvider(
+            catalogLoader = { catalog() }, embedderFactory = { FakeEmbedding() },
+            personalLoader = { error("private decoder details") },
+        )
+        val text = contextMessage(provider.forTask("WLAN einschalten", baseFactory()))
+        assertTrue(text.contains("connectivity.wifi"))
+        assertFalse(text.contains("private decoder details"))
+    }
+
+    @Test
+    fun `personal lexical retrieval works with empty skill catalog and is bounded`() = runTest {
+        val provider = AndroidContextRequestFactoryProvider(
+            catalogLoader = { SkillCatalog(emptyList()) },
+            embedderFactory = { error("unavailable") }, failureReporter = { _, _ -> },
+            personalLoader = { com.caddie.context.personal.PersonalContextSnapshot(0,
+                (1..5).map { com.caddie.context.personal.PersonalFact(
+                    "00000000-0000-0000-0000-00000000000$it", "submit report",
+                    "Reference $it: report.pdf; reviewer@example.invalid; https://example.invalid.",
+                ) }) },
+        )
+        val text = contextMessage(provider.forTask("submit report", baseFactory()))
+        assertEquals(2, Regex("## Hint personal:").findAll(text).count())
+        assertTrue(text.contains("reviewer@example.invalid"))
+        val unrelated = provider.forTask("weather tomorrow", baseFactory()).create(snapshot(), emptyList())
+        assertFalse(unrelated.messages.any { "reviewer@example.invalid" in it.content })
+    }
+
+    @Test
     fun `warm up initializes semantic context before the first task`() = runTest {
         val embedding = FakeEmbedding()
         var factoryCalls = 0
