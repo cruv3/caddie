@@ -62,8 +62,8 @@ class AndroidContextRequestFactoryProvider internal constructor(
             null
         }
         val personalHints = try {
-            val hints = personal?.facts.orEmpty().map { fact ->
-                val text = "Owner-confirmed note, not independently verified: ${fact.title}\n${fact.text}"
+            val hints = personal?.retrievableFacts.orEmpty().map { fact ->
+                val text = "Personal reference (${fact.provenance}, not independently verified), id=${fact.id}, version=${fact.version}: ${fact.title}\n${fact.text}"
                 val embedding = try {
                     context.embedder?.embedDocument(text)?.takeIf { vector ->
                         vector.size == context.embedder.dimension &&

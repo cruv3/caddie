@@ -17,6 +17,10 @@ import com.caddie.runtime.persistence.ProcessSessionStore
 import com.caddie.tool.android.AndroidToolRegistry
 import com.caddie.tool.interaction.UserInteractionToolRegistry
 import com.caddie.tool.interaction.TerminalToolRegistry
+import com.caddie.tool.interaction.PersonalMemoryToolRegistry
+import com.caddie.context.personal.MemoryProposal
+import com.caddie.context.personal.MemoryWriteResult
+import com.caddie.context.personal.TrustedMemoryEvidence
 import com.caddie.tool.mcp.client.McpManager
 import com.caddie.tool.registry.CompositeToolRegistry
 import com.caddie.tool.registry.DynamicToolRegistry
@@ -35,12 +39,14 @@ class NativeRuntimeAssembler(
     private val shortTermContext: ShortTermConversationContext =
         ShortTermConversationContext(),
     private val closeAction: suspend () -> Unit = {},
+    private val memoryProposer: (suspend (MemoryProposal, TrustedMemoryEvidence) -> MemoryWriteResult)? = null,
 ) {
     fun create(gateway: ExecutionGateway): NativeRuntimeHost {
         val processStore = ProcessSessionStore(store)
         val interventionGate = NativeInterventionGate()
         val corrections = NativeRunCorrections()
         val stopSignal = NativeStopSignal()
+        val memoryEvidence = RuntimeMemoryEvidence()
         val androidExecutor = VerifiedActionExecutor(
             actionAttemptJournal = actionJournal,
             actionPerformer = SemanticActionExecutor(gateway),
@@ -67,8 +73,20 @@ class NativeRuntimeAssembler(
         val normalTools = DynamicToolRegistry(
             CompositeToolRegistry(
                 normalAndroidTools,
-                UserInteractionToolRegistry { runId, question -> runner.askUser(runId, question) },
+                UserInteractionToolRegistry { runId, question ->
+                    runner.askUser(runId, question)?.also { memoryEvidence.answer(runId, it) }
+                },
                 TerminalToolRegistry(),
+                PersonalMemoryToolRegistry(memoryProposer,
+                    evidenceFor = { runId ->
+                        memoryEvidence.begin(processStore.snapshot(runId))
+                        memoryEvidence.current(runId)
+                    },
+                    isCurrent = { runId, evidence ->
+                        runner.activeRunId() == runId && !stopSignal.isRequested(runId) &&
+                            !corrections.hasPending(runId) && memoryEvidence.current(runId) == evidence
+                    },
+                ),
             ),
             mcp,
         )
@@ -91,7 +109,10 @@ class NativeRuntimeAssembler(
                 requestFactory = CorrectionAwareRequestFactory(
                     activeRequestFactory,
                     corrections,
-                    transformer::onParticipantCorrection,
+                    onCorrection = transformer::onParticipantCorrection,
+                    onCorrectionCaptured = { runId, correction ->
+                        if (publishNormalActions) memoryEvidence.correction(runId, correction)
+                    },
                 ),
                 transformer = transformer,
                 callPreprocessor = callPreprocessor,
@@ -128,6 +149,7 @@ class NativeRuntimeAssembler(
             interventionGate = interventionGate,
             corrections = corrections,
             stopSignal = stopSignal,
+            onRunFinished = memoryEvidence::clear,
         )
         return NativeRuntimeHost(
             runner = runner,

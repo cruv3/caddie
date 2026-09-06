@@ -37,11 +37,13 @@ internal class NativeRunCorrections {
 internal class CorrectionAwareRequestFactory(
     private val delegate: RequestFactory,
     private val corrections: NativeRunCorrections,
+    private val onCorrectionCaptured: (RunId, String) -> Unit = { _, _ -> },
     private val onCorrection: (String) -> Unit = {},
 ) : RequestFactory {
     override fun create(snapshot: RunSnapshot, tools: List<ToolDefinition>): ModelRequest {
         val correction = corrections.take(snapshot.runId)
         correction?.let(onCorrection)
+        correction?.let { onCorrectionCaptured(snapshot.runId, it) }
         val request = delegate.create(snapshot, tools)
         correction ?: return request
         return request.copy(

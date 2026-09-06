@@ -144,6 +144,7 @@ class NativeAgentRunner internal constructor(
     private val corrections: NativeRunCorrections = NativeRunCorrections(),
     private val stopSignal: NativeStopSignal = NativeStopSignal(),
     private val questionTimeoutMs: Long = 25_000L,
+    private val onRunFinished: (RunId) -> Unit = {},
 ) {
     private val ownership = Mutex()
     private val mutableEvents = MutableSharedFlow<NativeAgentEvent>(extraBufferCapacity = 32)
@@ -233,6 +234,7 @@ class NativeAgentRunner internal constructor(
             interventionGate.reset()
             interventionReported.set(false)
             ownership.unlock()
+            onRunFinished(runId)
         }
     }
 

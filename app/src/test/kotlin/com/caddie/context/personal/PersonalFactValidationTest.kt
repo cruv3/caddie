@@ -19,4 +19,20 @@ class PersonalFactValidationTest {
             assertThrows(IllegalArgumentException::class.java) { PersonalContextStore.validate(invalid) }
         }
     }
+
+    @Test fun `legacy owner facts and complete automatic metadata are distinguished`() {
+        PersonalContextStore.validate(listOf(fact))
+        val evidence = PersonalMemoryEvidence("run", "turn", "user-task", "I prefer metric units", 1)
+        PersonalContextStore.validate(listOf(fact.copy(
+            provenance = "user-explicit", memoryKey = "preference.units", evidence = evidence, updatedAtMillis = 1,
+        )))
+        listOf(
+            fact.copy(provenance = "unknown-source"),
+            fact.copy(provenance = "model-inference"),
+            fact.copy(version = 0),
+            fact.copy(memoryKey = " "),
+        ).forEach { invalid ->
+            assertThrows(IllegalArgumentException::class.java) { PersonalContextStore.validate(listOf(invalid)) }
+        }
+    }
 }
