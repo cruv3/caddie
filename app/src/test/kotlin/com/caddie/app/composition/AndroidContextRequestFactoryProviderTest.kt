@@ -143,6 +143,63 @@ class AndroidContextRequestFactoryProviderTest {
     }
 
     @Test
+    fun `unchanged personal memory is embedded once and shares each query with skill retrieval`() = runTest {
+        val embedding = FakeEmbedding()
+        val facts = (1..3).map { index ->
+            com.caddie.context.personal.PersonalFact(
+                "00000000-0000-0000-0000-00000000000$index",
+                "WLAN reference $index",
+                "Office network $index is ExampleNet$index.",
+            )
+        }
+        val provider = AndroidContextRequestFactoryProvider(
+            catalogLoader = { catalog() },
+            embedderFactory = { embedding },
+            personalLoader = {
+                com.caddie.context.personal.PersonalContextSnapshot(7, facts)
+            },
+        )
+
+        assertTrue(provider.warmUp())
+        provider.forTask("WLAN einschalten", baseFactory())
+        provider.forTask("WLAN öffnen", baseFactory())
+
+        assertEquals(4, embedding.documentCalls)
+        assertEquals(2, embedding.queryCalls)
+    }
+
+    @Test
+    fun `personal embedding cache rebuilds when the snapshot revision changes`() = runTest {
+        val embedding = FakeEmbedding()
+        var revision = 2L
+        val provider = AndroidContextRequestFactoryProvider(
+            catalogLoader = { catalog() },
+            embedderFactory = { embedding },
+            personalLoader = {
+                com.caddie.context.personal.PersonalContextSnapshot(
+                    revision,
+                    listOf(
+                        com.caddie.context.personal.PersonalFact(
+                            "00000000-0000-0000-0000-000000000001",
+                            "WLAN reference",
+                            "Office network is ExampleNet.",
+                            version = revision,
+                        ),
+                    ),
+                )
+            },
+        )
+
+        provider.forTask("WLAN einschalten", baseFactory())
+        provider.forTask("WLAN öffnen", baseFactory())
+        revision++
+        provider.forTask("WLAN einschalten", baseFactory())
+
+        assertEquals(3, embedding.documentCalls)
+        assertEquals(3, embedding.queryCalls)
+    }
+
+    @Test
     fun `embedding failure falls back to lexical skills`() = runTest {
         val provider = AndroidContextRequestFactoryProvider(
             catalogLoader = { catalog() },

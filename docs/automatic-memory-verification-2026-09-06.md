@@ -133,3 +133,20 @@ that adjustment. The current limit is four relevant personal notes per task
 within the unchanged 8,000-character context budget, so retrieval of every fact
 across a multi-note workflow is still not guaranteed. No send is
 authorized by these tests or by personal memory.
+
+## Public-main integration follow-up
+
+The four feature commits were replayed onto the current public `origin/main`.
+The two resolved conflicts retained the newer model-connection, direct-task,
+and safe-drawing-inset behavior while adding the personal-memory entry point.
+Both product flavors then completed their JVM suites and debug/application-test
+APK builds: 1,954 test executions, zero failures or errors, and four existing
+skips.
+
+A fresh read-only integration review found that the initial implementation
+re-embedded every active personal fact and embedded the task query twice during
+normal task preparation. The confirmed issue was fixed by warming and caching
+document embeddings by fact ID and version, purging removed facts from the
+next cache generation, and sharing one query retrieval when semantic documents
+are available. Twenty-two focused executions across the normal and study
+flavors verify cache reuse, revision rebuilds, retrieval, and invalidation.
