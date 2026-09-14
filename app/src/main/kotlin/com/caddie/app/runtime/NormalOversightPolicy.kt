@@ -126,7 +126,8 @@ internal object NormalActionRiskClassifier {
 
     private fun containsCriticalKeyword(value: String): Boolean {
         val normalized = value.lowercase().replace('_', ' ')
-        return CRITICAL_LABEL_KEYWORDS.any(normalized::contains)
+        return ENGLISH_SEND_LABEL.containsMatchIn(normalized) ||
+            CRITICAL_LABEL_KEYWORDS.any(normalized::contains)
     }
 
     private fun isBenignClear(value: String): Boolean {
@@ -168,6 +169,8 @@ internal object NormalActionRiskClassifier {
         "löschen", "loeschen", "delete", "entfernen", "remove",
         "senden", "absenden", "send message", "send email",
     )
+    // Match the action word, including "Send" alone, without gating "Sender details".
+    private val ENGLISH_SEND_LABEL = Regex("\\bsend\\b")
     private val BENIGN_CLEAR_PHRASES = listOf(
         "text löschen", "text loeschen", "eingabe löschen", "eingabe loeschen",
         "suchfeld löschen", "suchfeld loeschen", "suchfeld leeren",

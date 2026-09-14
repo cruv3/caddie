@@ -29,7 +29,7 @@ try {
         & adb @adbTarget install -r $apk
         if ($LASTEXITCODE -ne 0) { throw "Installation failed for $fixture" }
     }
-    Write-Host "Study fixtures installed. Caddie itself is built separately by install-caddie-debug.ps1."
+    Write-Host "Study fixtures installed. Install the built study app separately with: adb install -r app/build/outputs/apk/study/debug/app-study-debug.apk (add -s <serial> when needed)."
 }
 finally {
     Pop-Location

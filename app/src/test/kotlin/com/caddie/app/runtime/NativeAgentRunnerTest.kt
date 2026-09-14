@@ -23,6 +23,41 @@ import org.junit.Test
 
 class NativeAgentRunnerTest {
     @Test
+    fun `stop after durable completion preserves the completed journal and event`() = runTest {
+        val store = InMemorySessionStore()
+        val completed = CompletableDeferred<Unit>()
+        val release = CompletableDeferred<Unit>()
+        val runId = RunId("r1")
+        val events = mutableListOf<NativeAgentEvent>()
+        val runner = NativeAgentRunner(
+            store = store,
+            step = { currentRunId, _ ->
+                val outcome = complete(store, currentRunId, "Done")
+                completed.complete(Unit)
+                release.await()
+                outcome
+            },
+            sessionIds = { SessionId("s1") },
+            runIds = { runId },
+        )
+        val collector = launch(UnconfinedTestDispatcher(testScheduler)) {
+            runner.events.collect { events += it }
+        }
+        val execution = async { runner.run("task") }
+        completed.await()
+
+        assertTrue(runner.stopActiveRun(runId))
+        release.complete(Unit)
+
+        assertEquals(NativeTaskResult.Completed(runId, "Done"), execution.await())
+        assertEquals(RunState.COMPLETED, store.snapshot(runId).state)
+        assertEquals(1, events.count { it is NativeAgentEvent.Completed })
+        assertFalse(events.any { it is NativeAgentEvent.Aborted })
+        assertNull(runner.activeRunState.value)
+        collector.cancelAndJoin()
+    }
+
+    @Test
     fun `active run state covers only the owned execution`() = runTest {
         val entered = CompletableDeferred<Unit>()
         val release = CompletableDeferred<Unit>()

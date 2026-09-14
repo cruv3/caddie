@@ -73,6 +73,7 @@ does not install the study fixture apps. A matching Bash helper is available at
 | [Model backend](docs/model-backend.md) | Required HTTP and streaming contract |
 | [Architecture](docs/architecture.md) | Runtime ownership and trust boundaries |
 | [Privacy and security](docs/privacy-security.md) | Data flow and safe deployment |
+| [Personal memory](docs/personal-memory.md) | Encrypted notes and proposal review |
 | [Troubleshooting](docs/troubleshooting.md) | Common build, connection, and UI issues |
 | [Study operation](docs/study-control-operator-guide.md) | Reproduce the controlled study setup |
 | [Research artifacts](research/README.md) | Scope of retained fixtures and evaluations |

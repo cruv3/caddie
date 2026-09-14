@@ -8,8 +8,15 @@ import com.caddie.agent.core.RunId
 import com.caddie.agent.core.ToolCallId
 import com.caddie.agent.core.ToolDefinition
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.yield
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
@@ -17,6 +24,11 @@ import kotlinx.serialization.json.jsonPrimitive
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.SocketPolicy
+import okhttp3.Call
+import okhttp3.EventListener
+import okhttp3.OkHttpClient
+import okhttp3.Response
+import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -198,6 +210,49 @@ class GatewayModelClientTest {
             assertTrue(job.isCancelled)
             assertEquals(1, server.requestCount)
         }
+
+    @Test
+    fun `cancellation after response headers promptly closes a stalled body`() = runBlocking {
+        server.enqueue(
+            MockResponse()
+                .setHeader("Content-Type", "text/event-stream")
+                .setBody("data: [DONE]\n\n")
+                .setBodyDelay(5, TimeUnit.SECONDS),
+        )
+        val headersReceived = CompletableDeferred<Unit>()
+        val transport = OkHttpClient.Builder()
+            .eventListener(object : EventListener() {
+                override fun responseHeadersEnd(call: Call, response: Response) {
+                    headersReceived.complete(Unit)
+                }
+            })
+            .build()
+        val gateway = GatewayModelClient(
+            GatewayConfiguration(
+                baseUrl = server.url("/").toString(),
+                profile = ModelProfile("normal", "test-tool-model"),
+                retryPolicy = RetryPolicy(maxAttempts = 1),
+                streamIdleTimeoutMillis = 2_000,
+            ),
+            client = transport,
+        )
+        val job = launch(Dispatchers.IO) { gateway.stream(request()).toList() }
+        try {
+            withContext(Dispatchers.Default) {
+                withTimeout(2_000) { headersReceived.await() }
+                // Let collection enter the socket read after accepting the response headers.
+                delay(100)
+                job.cancel()
+                val joined = withTimeoutOrNull(500) { job.join(); true } ?: false
+                assertTrue("Cancellation must not wait for the stream idle timeout", joined)
+            }
+            assertTrue(job.isCancelled)
+        } finally {
+            transport.dispatcher.cancelAll()
+            job.cancel()
+            job.join()
+        }
+    }
 
     @Test
     fun `authentication error exposes no response or credential`() =

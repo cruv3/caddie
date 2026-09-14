@@ -1,7 +1,15 @@
 package com.caddie.tool.interaction
 
-import com.caddie.agent.core.*
-import com.caddie.context.personal.*
+import com.caddie.agent.core.ModelDelta
+import com.caddie.agent.core.RunId
+import com.caddie.agent.core.ToolCallId
+import com.caddie.agent.core.ToolDefinition
+import com.caddie.agent.core.ToolRegistry
+import com.caddie.agent.core.ToolResult
+import com.caddie.context.personal.MemoryOutcome
+import com.caddie.context.personal.MemoryProposal
+import com.caddie.context.personal.MemoryWriteResult
+import com.caddie.context.personal.TrustedMemoryEvidence
 import kotlinx.coroutines.CancellationException
 import org.json.JSONObject
 
@@ -19,9 +27,17 @@ class PersonalMemoryToolRegistry(
     override suspend fun execute(runId: RunId, call: ModelDelta.ToolCall): ToolResult {
         require(call.name == TOOL_NAME)
         val writer = propose ?: return result(call.id, MemoryWriteResult(MemoryOutcome.REJECT, "memory-unavailable"))
-        if (budgetRun != runId) { budgetRun = runId; attempts = 0 }
-        if (++attempts > 8) return result(call.id, MemoryWriteResult(MemoryOutcome.REJECT, "per-run-proposal-limit"))
-        val proposal = try { parse(call.argumentsJson) } catch (_: Exception) {
+        if (budgetRun != runId) {
+            budgetRun = runId
+            attempts = 0
+        }
+        attempts += 1
+        if (attempts > MAX_ATTEMPTS_PER_RUN) {
+            return result(call.id, MemoryWriteResult(MemoryOutcome.REJECT, "per-run-proposal-limit"))
+        }
+        val proposal = try {
+            parse(call.argumentsJson)
+        } catch (_: Exception) {
             return result(call.id, MemoryWriteResult(MemoryOutcome.REJECT, "invalid-proposal-schema"))
         }
         val evidence = evidenceFor(runId)
@@ -30,8 +46,11 @@ class PersonalMemoryToolRegistry(
         }
         val outcome = try {
             writer(proposal, evidence)
-        } catch (cancelled: CancellationException) { throw cancelled }
-        catch (_: Exception) { MemoryWriteResult(MemoryOutcome.REJECT, "memory-storage-unavailable") }
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            MemoryWriteResult(MemoryOutcome.REJECT, "memory-storage-unavailable")
+        }
         return result(call.id, outcome)
     }
 
@@ -50,18 +69,29 @@ class PersonalMemoryToolRegistry(
         val json = JSONObject(raw)
         require(json.keys().asSequence().all { it in setOf("title", "text", "evidence_quote", "inferred", "target_id", "target_version") })
         fun string(name: String): String = (json.get(name) as? String) ?: error("string required")
-        val inferred = if (json.has("inferred")) json.get("inferred") as? Boolean ?: error("boolean required") else false
+        val inferred = if (json.has("inferred")) {
+            json.get("inferred") as? Boolean ?: error("boolean required")
+        } else {
+            false
+        }
         val version = if (json.has("target_version")) {
             val number = json.get("target_version")
             require(number is Int || number is Long)
             (number as Number).toLong().also { require(it > 0) }
         } else null
-        return MemoryProposal(string("title"), string("text"), string("evidence_quote"), inferred,
-            if (json.has("target_id")) string("target_id") else null, version)
+        return MemoryProposal(
+            title = string("title"),
+            text = string("text"),
+            evidenceQuote = string("evidence_quote"),
+            inferred = inferred,
+            targetId = if (json.has("target_id")) string("target_id") else null,
+            targetVersion = version,
+        )
     }
 
     companion object {
         const val TOOL_NAME = "caddie.memory_propose"
+        private const val MAX_ATTEMPTS_PER_RUN = 8
         private val DEFINITION = ToolDefinition(
             TOOL_NAME,
             "Propose one durable personal fact or preference learned in this normal task, without waiting for a 'remember' command. " +

@@ -79,9 +79,12 @@ device settings through ADB.
    optional **Bearer token**.
 3. Select **Save connection**, then **Test saved connection**.
 4. Enable Caddie's Accessibility service in Android Settings.
-5. Allow display over other apps if you want the visible status and interaction
-   overlay.
-6. Grant microphone access only if you intend to use voice input.
-7. Confirm that the connection state reports ready.
+5. Allow display over other apps for the visible status and interaction overlay.
+6. Grant microphone access. The setup screen requires Accessibility, overlay,
+   and microphone access in both normal and study builds, including when you
+   submit a task as text.
+7. Confirm that Android setup is ready and the separately displayed model
+   connection is healthy. A successful connection check establishes endpoint
+   reachability, not task completion or model quality.
 
 Continue with [First normal-mode run](normal-mode.md).

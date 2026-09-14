@@ -17,5 +17,12 @@ __pycache__/
 .artifacts/
 tmp/
 .worktrees/
+.codex-worktrees/
+.pnpm-store/
+.tmp/
+.tmp-*/
+.superpowers/
+.pytest-*/
+**/.pytest-*/
 *.log
 *.err

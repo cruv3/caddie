@@ -14,10 +14,12 @@ Der produktive Studienpfad läuft vollständig auf dem Studienhandy:
 ## Einmalige Vorbereitung
 
 1. Tailscale auf Handy, Investigator-Laptop und Homeserver verbinden.
-2. Caddie datenbewahrend installieren:
+2. Den expliziten Studienbuild und die acht Fixture-Apps bauen. Der normale
+   Installationshelfer installiert keine Studien-App:
 
    ```powershell
-   .\scripts\install-caddie-debug.ps1
+   .\scripts\install-study-fixtures.ps1 -IncludeStudyFixtures
+   adb install -r app/build/outputs/apk/study/debug/app-study-debug.apk
    ```
 
 3. In Caddie prüfen, dass Mikrofon, Benachrichtigungen, Overlay und
@@ -26,7 +28,12 @@ Der produktive Studienpfad läuft vollständig auf dem Studienhandy:
 5. Vor dem Öffnen per Tailscale-ACL sicherstellen, dass nur das Studienhandy
    und der Investigator-Laptop den Portal-Port `8787` erreichen können.
 6. Die in der App angezeigte URL auf dem Investigator-Laptop öffnen, zum
-   Beispiel `http://100.x.x.x:8787/study/app/`.
+   Beispiel `http://100.x.x.x:8787/study/app`.
+
+Bei mehreren verbundenen Geräten `-Serial <adb-serial>` an den Helfer und
+`-s <adb-serial>` an ADB übergeben. Die Fixture-Installation baut die Studien-App,
+installiert selbst aber nur die Fixtures. Die Studien-App hat eine eigene
+Application-ID und ersetzt den normalen Build nicht.
 
 Das native Portal arbeitet derzeit bewusst ohne Moderator-PIN. Jeder Tailnet-
 Peer, der den Portal-Port erreicht, erhält daher Versuchsleiterzugriff. Das
@@ -34,18 +41,22 @@ Portal niemals in einem unbeschränkten Tailnet oder über das öffentliche
 Internet bereitstellen.
 
 Der technische Health-Endpunkt lautet
-`http://<telefon-ip>:8787/study/app/api/health`. Eine Sitzung darf nur
-vorbereitet werden, wenn das Portal das Telefon als **bereit** und den
-Durchgang als **idle** zeigt. Die Readiness prüft Accessibility, Model Gateway,
-Studien-Spezifikationen und den nativen Runtime-Zustand.
+`http://<telefon-ip>:8787/study/app/api/health`; er meldet nur die Erreichbarkeit
+des Portalservers. Eine Sitzung darf nur vorbereitet werden, wenn das Portal
+das Telefon als **bereit** und den Durchgang als **idle** zeigt. Die native
+Studien-Readiness verlangt Accessibility und geladene Studien-Spezifikationen.
+Model Gateway und MCP sind zusätzliche Diagnosen, keine Voraussetzungen für
+die deterministischen gemessenen Aufgaben. Die freie Normalmodus-Übung benötigt
+dagegen eine funktionierende Modellverbindung.
 
 ## Technische Generalprobe
 
 Eine Generalprobe nur vor Beginn der Datenerhebung und niemals in einer
 bereits produktiv genutzten Teilnehmerdatenbank durchführen.
 
-1. Eine zulässige technische Teilnehmer-ID aus `P01` bis `P18` verwenden
-   und eindeutig im Studienprotokoll als synthetisch kennzeichnen.
+1. Eine eigene synthetische Sitzung im Modus **Test** verwenden und im
+   Studienprotokoll als Generalprobe kennzeichnen. Ihre Daten dürfen nicht in
+   den Teilnehmerdatensatz eingehen.
 2. Consent, Training und alle sechs Aufgaben in der zugewiesenen Reihenfolge
    durchlaufen.
 3. Bei C1 jede sichtbare Einzelbestätigung prüfen.
@@ -63,7 +74,11 @@ Ein per `adb input` erzeugter Tap gilt nicht als C3-Nachweis.
 ## Live-Sitzung
 
 1. Im Investigator-Bereich **Neue Sitzung** öffnen.
-2. Teilnehmer-ID `P01` bis `P18` und Modus **Live** wählen.
+2. Eine bisher unbenutzte pseudonyme Teilnehmer-ID und Modus **Live** wählen.
+   Der Parser akzeptiert positive P-Nummern über `P18` hinaus; die Zuweisung
+   wiederholt einen balancierten Block mit 18 Slots. Für eine Replikation einen
+   vollständigen Block verwenden. Die finale Thesis-Kohorte war `P02` bis `P19`
+   mit 18 Teilnehmenden; `P01` ist kein zusätzlicher Fall dieser Kohorte.
 3. **Sitzung anlegen**.
 4. **Einwilligung starten**, an den Teilnehmer übergeben und die gespeicherte
    Einwilligung bestätigen.

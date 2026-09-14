@@ -6,6 +6,7 @@ import com.caddie.agent.core.ToolCallId
 import com.caddie.study.StudyGate
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -40,6 +41,46 @@ class NormalOversightPolicyTest {
         assertTrue(decision.approved)
         assertEquals(listOf(action), gate.calls)
         assertEquals("„Überweisung ausführen“ bestätigen", gate.confirmationTexts.single())
+    }
+
+    @Test
+    fun `English Send labels require confirmation and respect rejection`() = runTest {
+        for (label in listOf("Send", "SEND", "Send feedback")) {
+            val gate = RecordingGate()
+            val action = call("android.click", """{"target":{"text":"$label"}}""")
+
+            val decision = NormalOversightPolicy(gate).approve(action)
+
+            assertFalse(decision.approved)
+            assertEquals(listOf(action), gate.calls)
+        }
+    }
+
+    @Test
+    fun `English Send in resolved and IME submission labels requires confirmation`() = runTest {
+        val gate = RecordingGate()
+        val policy = NormalOversightPolicy(gate) { listOf("Send") }
+        val click = call("android.click", """{"target":{"text":"Compose"}}""")
+        val submit = call(
+            "android.set_text",
+            """{"target":{"text":"Message"},"text":"Hello","submit":true,"postcondition":{"target":{"text":"Send"}}}""",
+        )
+
+        assertFalse(policy.approve(click).approved)
+        assertFalse(NormalOversightPolicy(gate).approve(submit).approved)
+        assertEquals(listOf(click, submit), gate.calls)
+    }
+
+    @Test
+    fun `sender label remains an ordinary navigation target`() = runTest {
+        val gate = RecordingGate()
+
+        val decision = NormalOversightPolicy(gate).approve(
+            call("android.click", """{"target":{"text":"Sender details"}}"""),
+        )
+
+        assertTrue(decision.approved)
+        assertTrue(gate.calls.isEmpty())
     }
 
     @Test

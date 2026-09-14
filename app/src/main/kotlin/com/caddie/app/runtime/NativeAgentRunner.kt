@@ -192,14 +192,7 @@ class NativeAgentRunner internal constructor(
                     StepOutcome.TOOL_FINISHED,
                     StepOutcome.TOOL_SUPERSEDED,
                     -> Unit
-                    StepOutcome.RUN_COMPLETED -> {
-                        val answer = store.snapshot(runId).messages
-                            .lastOrNull { it.role == AgentMessage.Role.ASSISTANT }
-                            ?.content
-                            .orEmpty()
-                        mutableEvents.emit(NativeAgentEvent.Completed(runId, answer))
-                        return NativeTaskResult.Completed(runId, answer)
-                    }
+                    StepOutcome.RUN_COMPLETED -> return completedResult(runId)
                     StepOutcome.RUN_ABORTED -> return abortedResult(runId)
                     else -> return pausedResult(runId, currentStep, outcome)
                 }
@@ -419,8 +412,19 @@ class NativeAgentRunner internal constructor(
         )
     }
 
-    private suspend fun abortedResult(runId: RunId): NativeTaskResult.Aborted {
+    private suspend fun completedResult(runId: RunId): NativeTaskResult.Completed {
+        val answer = store.snapshot(runId).messages
+            .lastOrNull { it.role == AgentMessage.Role.ASSISTANT }
+            ?.content
+            .orEmpty()
+        mutableEvents.emit(NativeAgentEvent.Completed(runId, answer))
+        return NativeTaskResult.Completed(runId, answer)
+    }
+
+    private suspend fun abortedResult(runId: RunId): NativeTaskResult {
         val snapshot = store.snapshot(runId)
+        // A late stop cannot replace a terminal record already committed by the step.
+        if (snapshot.state == RunState.COMPLETED) return completedResult(runId)
         val reason = snapshot.messages.lastOrNull {
             it.role == AgentMessage.Role.ASSISTANT && it.toolCall == null
         }?.content

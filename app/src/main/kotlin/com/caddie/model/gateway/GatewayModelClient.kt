@@ -8,11 +8,17 @@ import com.caddie.agent.core.ModelUnavailableException
 import com.caddie.model.openai.ChatCompletionCodec
 import com.caddie.model.openai.ChatCompletionStream
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runInterruptible
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.Call
 import okhttp3.Callback
@@ -109,7 +115,7 @@ class GatewayModelClient(
         body: String,
         onDataAccepted: () -> Unit,
         emitDelta: suspend (ModelDelta) -> Unit,
-    ) {
+    ): Unit = coroutineScope {
         val startedAt = monotonicMillis()
         logTiming("request started model=${configuration.profile.modelId}")
         val requestBuilder =
@@ -134,6 +140,14 @@ class GatewayModelClient(
             }
         val call = client.newCall(requestBuilder.build())
         val response = call.awaitResponse()
+        // Socket reads need the call closed; interrupting the IO thread is insufficient.
+        val cancellationWatcher = launch(start = CoroutineStart.UNDISPATCHED) {
+            try {
+                awaitCancellation()
+            } finally {
+                call.cancel()
+            }
+        }
         logTiming(
             "response headers model=${configuration.profile.modelId} " +
                 "afterMs=${monotonicMillis() - startedAt}",
@@ -201,6 +215,7 @@ class GatewayModelClient(
         } catch (failure: GatewayFailureException) {
             throw failure
         } catch (error: IOException) {
+            currentCoroutineContext().ensureActive()
             throw GatewayFailureException(
                 GatewayFailure(
                     GatewayFailureKind.STREAM,
@@ -210,6 +225,7 @@ class GatewayModelClient(
                 error,
             )
         } finally {
+            cancellationWatcher.cancel()
             response.close()
             call.cancel()
         }

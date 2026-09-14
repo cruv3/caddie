@@ -8,7 +8,7 @@ message, purchase, deletion, account change, or other consequential action.
 - Caddie is in **Normal** mode; no study trial is armed.
 - The model connection indicator is healthy.
 - Caddie's Accessibility service is enabled.
-- The overlay is visible if you want ongoing status and interaction controls.
+- Overlay and microphone permissions are granted, and the overlay is visible.
 - The phone is unlocked and you are ready to intervene.
 
 ## Submit a task
@@ -18,8 +18,9 @@ Caddie do?**, and select **Start normal task**. For example:
 
 > Open Display settings.
 
-This path submits directly to normal mode without microphone or study routing.
-Configured voice input remains an alternative.
+This path submits directly to normal mode without speech capture or study
+routing. The setup screen still requires microphone permission. Configured
+voice input remains an alternative.
 
 ## Supervise the run
 

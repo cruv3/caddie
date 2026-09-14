@@ -15,5 +15,6 @@ tag.
 
 - [Architecture](architecture.md)
 - [Privacy and security](privacy-security.md)
+- [Personal memory](personal-memory.md)
 - [Study operation](study-control-operator-guide.md)
 - [Retained research artifacts](../research/README.md)

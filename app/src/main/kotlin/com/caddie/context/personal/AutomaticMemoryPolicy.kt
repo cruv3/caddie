@@ -93,15 +93,36 @@ object AutomaticMemoryPolicy {
         }
         val length = value("i prefer (short|concise|brief|detailed) (?:answers|replies|responses)")
             ?: value("ich bevorzuge (kurze|knappe|ausführliche) antworten")
-        if (length != null) return Preference("preference.response-length", "Response length",
-            "Preferred response length: ${if (length in setOf("detailed", "ausführliche")) "detailed" else "concise"}.", correction)
+        if (length != null) {
+            val canonicalLength = if (length in setOf("detailed", "ausführliche")) "detailed" else "concise"
+            return Preference(
+                key = "preference.response-length",
+                title = "Response length",
+                text = "Preferred response length: $canonicalLength.",
+                explicitCorrection = correction,
+            )
+        }
         val units = value("i prefer (metric|imperial) units")
             ?: value("ich bevorzuge (metrische|imperiale) einheiten")
-        if (units != null) return Preference("preference.units", "Measurement units",
-            "Preferred measurement units: ${if (units in setOf("metric", "metrische")) "metric" else "imperial"}.", correction)
+        if (units != null) {
+            val canonicalUnits = if (units in setOf("metric", "metrische")) "metric" else "imperial"
+            return Preference(
+                key = "preference.units",
+                title = "Measurement units",
+                text = "Preferred measurement units: $canonicalUnits.",
+                explicitCorrection = correction,
+            )
+        }
         val time = value("i prefer (12|24)[ -]hour time")
             ?: value("ich bevorzuge das (12|24)[ -]stunden[ -]format")
-        if (time != null) return Preference("preference.time-format", "Time format", "Preferred time format: $time-hour.", correction)
+        if (time != null) {
+            return Preference(
+                key = "preference.time-format",
+                title = "Time format",
+                text = "Preferred time format: $time-hour.",
+                explicitCorrection = correction,
+            )
+        }
         return null
     }
 

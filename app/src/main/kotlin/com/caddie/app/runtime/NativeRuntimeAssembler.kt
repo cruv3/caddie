@@ -137,8 +137,8 @@ class NativeRuntimeAssembler(
                 requireTerminalCall = requireTerminalCall,
             )
         val loop = loopFor(
-            oversight,
-            requestFactory,
+            activeOversight = oversight,
+            activeRequestFactory = requestFactory,
             callPreprocessor = normalCallBinder::bind,
             requireTerminalCall = true,
             publishNormalActions = true,
@@ -156,8 +156,8 @@ class NativeRuntimeAssembler(
             normalStepForTask = { task ->
                 val taskFactory = normalRequestFactoryProvider(task, requestFactory)
                 loopFor(
-                    oversight,
-                    shortTermContext.decorate(taskFactory),
+                    activeOversight = oversight,
+                    activeRequestFactory = shortTermContext.decorate(taskFactory),
                     callPreprocessor = normalCallBinder::bind,
                     requireTerminalCall = true,
                     publishNormalActions = true,
@@ -165,10 +165,10 @@ class NativeRuntimeAssembler(
             },
             profileStep = { profile ->
                 val profileLoop = loopFor(
-                    profile.oversight,
-                    profile.requestFactory,
-                    profile.transformer,
-                    studyTools,
+                    activeOversight = profile.oversight,
+                    activeRequestFactory = profile.requestFactory,
+                    transformer = profile.transformer,
+                    activeTools = studyTools,
                 )
                 profileLoop::step
             },
