@@ -67,6 +67,7 @@ does not install the study fixture apps. A matching Bash helper is available at
 
 | Guide | Purpose |
 |---|---|
+| [GitHub wiki](https://github.com/cruv3/caddie/wiki) | Project overview, setup, and study replication |
 | [Documentation hub](docs/README.md) | All maintained public guides |
 | [Getting started](docs/getting-started.md) | Clone, build, install, and configure |
 | [First normal-mode run](docs/normal-mode.md) | Run and supervise a safe first task |
