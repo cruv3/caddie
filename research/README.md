@@ -5,8 +5,9 @@ This directory retains the parts of the master's-thesis apparatus and technical
 evaluation that are useful for inspecting the reported work without publishing
 participant-facing or moderator materials.
 
-- [Final master's thesis (PDF)](Finale-Masterarbeit.pdf) documents Caddie and
-  its evaluation.
+- [Andreas Schurawlev (2026), *Shared Autonomy: Designing User Oversight for
+  LLM-Based Smartphone Agents* (PDF)](Schurawlev-2026-Shared-Autonomy-Designing-User-Oversight-for-LLM-Based-Smartphone-Agents.pdf)
+  documents Caddie and its evaluation.
 - `fixtures/` contains eight synthetic Android applications used to provide
   resettable study states. They are excluded from normal builds.
 - `study/specs/` contains the six machine-readable task specifications used by
