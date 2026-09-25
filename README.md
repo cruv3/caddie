@@ -77,6 +77,7 @@ does not install the study fixture apps. A matching Bash helper is available at
 | [Personal memory](docs/personal-memory.md) | Encrypted notes and proposal review |
 | [Troubleshooting](docs/troubleshooting.md) | Common build, connection, and UI issues |
 | [Study operation](docs/study-control-operator-guide.md) | Reproduce the controlled study setup |
+| [Master's thesis (PDF)](research/Finale-Masterarbeit.pdf) | Read the thesis describing Caddie and its evaluation |
 | [Research artifacts](research/README.md) | Scope of retained fixtures and evaluations |
 
 ## Project status
