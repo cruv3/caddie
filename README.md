@@ -78,6 +78,8 @@ does not install the study fixture apps. A matching Bash helper is available at
 | [Troubleshooting](docs/troubleshooting.md) | Common build, connection, and UI issues |
 | [Study operation](docs/study-control-operator-guide.md) | Reproduce the controlled study setup |
 | [Master's thesis (PDF)](research/Schurawlev-2026-Shared-Autonomy-Designing-User-Oversight-for-LLM-Based-Smartphone-Agents.pdf) | Andreas Schurawlev (2026), *Shared Autonomy: Designing User Oversight for LLM-Based Smartphone Agents* |
+| [Thesis presentation v4.1](research/presentation-v4.1/README.md) | German offline slide deck with presenter view; videos supplied separately |
+| [Presentation manuscript and PDFs](research/sprechtext-v4.1/README.md) | Speaker script and presentation cue sheet |
 | [Research artifacts](research/README.md) | Scope of retained fixtures and evaluations |
 
 ## Project status

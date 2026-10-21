@@ -8,6 +8,13 @@ participant-facing or moderator materials.
 - [Andreas Schurawlev (2026), *Shared Autonomy: Designing User Oversight for
   LLM-Based Smartphone Agents* (PDF)](Schurawlev-2026-Shared-Autonomy-Designing-User-Oversight-for-LLM-Based-Smartphone-Agents.pdf)
   documents Caddie and its evaluation.
+- [Thesis presentation v4.1](presentation-v4.1/README.md) contains the final
+  German HTML slide deck, animations, and presenter view. Open
+  `presentation-v4.1/index.html` locally in Chrome or Edge. Video files are
+  excluded from Git; the deck README lists the expected filenames.
+- [Presentation manuscript](sprechtext-v4.1/README.md) contains the editable
+  speaker script, generated presenter notes, and PDF versions of the script
+  and cue sheet.
 - `fixtures/` contains eight synthetic Android applications used to provide
   resettable study states. They are excluded from normal builds.
 - `study/specs/` contains the six machine-readable task specifications used by

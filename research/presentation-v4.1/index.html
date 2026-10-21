@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="de" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shared Autonomy · Caddie v4.1 · Andreas Schurawlev</title>
+  <link rel="stylesheet" href="core/tokens.css">
+  <link rel="stylesheet" href="core/stage.css">
+  <link rel="stylesheet" href="blocks/blocks.css">
+</head>
+<body>
+  <div id="viewport">
+    <div id="stage">
+      <div id="scenes" class="layer"></div>
+      <div id="actors" class="layer"></div>
+      <div id="fronts" class="layer"></div>
+      <div id="chrome" class="layer">
+        <div class="chrome-act"></div>
+        <div class="chrome-num"></div>
+        <div class="chrome-bar"><i></i></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="overview" class="ui-overlay"></div>
+  <div id="notes-panel" class="ui-overlay"></div>
+  <div id="blackout" class="ui-overlay"></div>
+  <div id="help" class="ui-overlay">
+    <h2>Bedienung · v4.1</h2>
+    <div>Cold Open: erster Weiter-Klick startet das Video (1,5×). Ein Klick während des Videos springt zu „Aktion prüfen“; Frage und Markierung erscheinen erst mit dem nächsten Klick und erst, wenn dieses Bild wirklich angezeigt wird.</div>
+    <div><kbd>→</kbd> / Enter / Leertaste / Klicker: weiter (Klick während Animation springt ans Ende)</div>
+    <div><kbd>←</kbd> zurück</div>
+    <div><kbd>P</kbd> Sprecheransicht in eigenem Fenster</div>
+    <div><kbd>F</kbd> Vollbild · <kbd>G</kbd> Übersicht und Backups · <kbd>B</kbd> Schwarzbild</div>
+    <div><kbd>N</kbd> Notizen im selben Fenster · <kbd>T</kbd> helles/dunkles Theme</div>
+    <div><kbd>R</kbd> Szene neu starten · <kbd>D</kbd> Debug (Videozeiten, Slots) · <kbd>Esc</kbd> schließen</div>
+  </div>
+  <div id="debug-hud"></div>
+
+  <script src="vendor/gsap.min.js"></script>
+  <script src="core/engine.js"></script>
+  <script src="blocks/phone.js"></script>
+  <script src="blocks/text.js"></script>
+  <script src="blocks/diagrams.js"></script>
+  <script src="blocks/data.js"></script>
+  <script src="blocks/mock.js"></script>
+  <script src="blocks/flow.js"></script>
+  <script src="footage/clips.js"></script>
+  <script src="script.js"></script>
+  <script src="deck.config.js"></script>
+</body>
+</html>

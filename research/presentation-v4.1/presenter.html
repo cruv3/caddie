@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>Sprecheransicht · Caddie v4.1</title>
+  <style>
+    @font-face { font-family: 'Manrope'; font-weight: 500; src: url('assets/fonts/manrope-1.ttf'); }
+    @font-face { font-family: 'Manrope'; font-weight: 700; src: url('assets/fonts/manrope-3.ttf'); }
+    @font-face { font-family: 'Manrope'; font-weight: 800; src: url('assets/fonts/manrope-4.ttf'); }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #0D1310; color: #EEF4F0; font-family: 'Manrope', Arial, sans-serif; height: 100vh; display: grid; grid-template-rows: auto 1fr auto; }
+    header, footer { padding: 14px 28px; background: #131B17; }
+    header .top { display: flex; align-items: baseline; gap: 20px; }
+    header .act { color: #6FCF9F; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; font-size: 13px; }
+    header h1 { margin: 0; font-size: 26px; flex: 1; }
+    header .anchor { margin-top: 6px; font-size: 16px; color: #9AAAA1; }
+    .step { font-variant-numeric: tabular-nums; color: #9AAAA1; font-size: 20px; white-space: nowrap; }
+    main { display: grid; grid-template-columns: 1fr 380px; overflow: hidden; }
+    /* Sprechtext */
+    .speech { padding: 18px 34px 40vh; overflow: auto; scroll-behavior: smooth; }
+    .part { padding: 10px 0 10px 18px; border-left: 4px solid transparent; transition: opacity .25s, border-color .25s; opacity: .55; }
+    .part.past { opacity: .3; }
+    .part.cur { opacity: 1; border-left-color: #6FCF9F; }
+    .part .lbl { font-size: 13px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: #5D6D65; margin-bottom: 6px; }
+    .part.cur .lbl { color: #6FCF9F; }
+    .part p { margin: 0 0 12px; font-size: 25px; line-height: 1.5; }
+    .part .none { font-size: 18px; color: #5D6D65; font-style: italic; }
+    .facts { margin-top: 26px; font-size: 16px; color: #9AAAA1; }
+    .facts summary { cursor: pointer; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: 13px; }
+    .facts li { margin: 8px 0; line-height: 1.45; }
+    .facts a { color: #86A9D6; }
+    /* Seitenleiste */
+    aside { border-left: 1px solid #2B3A33; padding: 20px 22px; display: flex; flex-direction: column; gap: 16px; overflow: auto; }
+    .clock { font-size: 58px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -.02em; line-height: 1; }
+    .plan { font-size: 15px; color: #9AAAA1; }
+    .delta.late { color: #F27C61; } .delta.early { color: #6FCF9F; }
+    .box { border-radius: 12px; padding: 12px 14px; background: #18221D; border: 1px solid #2B3A33; }
+    .box small { display: block; color: #9AAAA1; letter-spacing: .12em; text-transform: uppercase; font-size: 12px; font-weight: 800; margin-bottom: 6px; }
+    .box p { margin: 0 0 6px; font-size: 17px; line-height: 1.4; }
+    .box.cue { border-color: #DDB97A55; } .box.cue small { color: #DDB97A; }
+    .box.click small { color: #6FCF9F; }
+    .box.wait { border-color: #F27C61; color: #F27C61; font-size: 16px; display: none; }
+    .box.wait.on { display: block; }
+    .next b { display: block; margin-top: 8px; font-size: 16px; }
+    .thumb { position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 8px; background: #000; }
+    .thumb iframe { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; border: 0; transform-origin: 0 0; pointer-events: none; }
+    button { font: inherit; font-size: 16px; padding: 10px 14px; border-radius: 10px; border: 1px solid #2B3A33; background: #18221D; color: #EEF4F0; cursor: pointer; }
+    button.primary { background: #6FCF9F; color: #07110C; border-color: #6FCF9F; font-weight: 800; }
+    button[aria-disabled='true'] { opacity: .5; }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .warn { color: #F27C61; }
+    .list { font-size: 13px; color: #9AAAA1; }
+    .list div { padding: 3px 0; cursor: pointer; } .list div.cur { color: #EEF4F0; font-weight: 800; }
+    footer { font-size: 14px; color: #9AAAA1; display: flex; justify-content: space-between; gap: 20px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="top"><span class="act" id="act"></span><h1 id="title">Warte auf Präsentation …</h1><span class="step" id="step"></span></div>
+    <div class="anchor" id="anchor"></div>
+  </header>
+  <main>
+    <section class="speech" id="speech"></section>
+    <aside>
+      <div><div class="clock" id="clock">00:00</div><div class="plan" id="plan"></div></div>
+      <div class="row"><button id="t-start">Start/Pause</button><button id="t-reset">Reset</button></div>
+      <div class="box wait" id="waiting" role="status"></div>
+      <div class="box cue" id="cue"><small>Regie jetzt</small><div id="cueText"></div></div>
+      <div class="box click" id="click"><small>Nächster Klick</small><div id="clickText"></div></div>
+      <div class="row"><button id="prev">← Zurück</button><button id="nextBtn" class="primary">Weiter →</button><button id="black">Schwarz</button></div>
+      <div class="next box"><small>Nächste Folie</small><div class="thumb"><iframe id="thumb" title="Vorschau der nächsten Folie" tabindex="-1"></iframe></div><b id="next">–</b></div>
+      <div class="list" id="list"></div>
+    </aside>
+  </main>
+  <footer><span id="status">Diese Ansicht mit Taste P aus der Präsentation öffnen. Pfeiltasten, R und B funktionieren auch hier.</span><span id="source"></span></footer>
+  <script>
+    const deck = window.opener;
+    const $ = (id) => document.getElementById(id);
+    const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+    const send = (cmd, extra = {}) => deck && deck.postMessage({ type: 'deck-cmd', cmd, ...extra }, '*');
+    let state = null, running = false, start = 0, acc = 0, shownId = null, shownStep = -1;
+    if (!deck) $('status').innerHTML = '<span class="warn">Keine Verbindung: bitte mit Taste P aus index.html öffnen.</span>';
+    else deck.postMessage({ type: 'deck-hello' }, '*');
+    const mmss = (s) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+    function elapsed() { return acc + (running ? (Date.now() - start) / 1000 : 0); }
+    function tick() {
+      const e = elapsed();
+      $('clock').textContent = mmss(e);
+      if (state) {
+        const planned = state.plannedStart * 60;
+        const d = e - planned;
+        $('plan').innerHTML = `Plan: ab ${mmss(planned)} · ${String(state.minutes).replace('.', ',')} min · gesamt ${String(state.total).replace('.', ',')} min<br>`
+          + `<span class="delta ${d > 30 ? 'late' : d < -30 ? 'early' : ''}">${d >= 0 ? '+' : '−'}${mmss(Math.abs(d))} gegenüber Plan</span>`;
+      }
+      requestAnimationFrame(tick);
+    }
+    tick();
+
+    /* Sprechtext (speech) und Regie (cue) kommen getrennt aus script.js; ein Schritt = ein Klick-Abschnitt. */
+    const paras = (blocks, kind) => blocks.filter((b) => b.kind === kind).map((b) => `<p>${esc(b.text.replace(/^\[|\]$/g, ''))}</p>`).join('');
+    function renderSpeech(m) {
+      const sc = m.script;
+      const box = $('speech');
+      if (shownId !== m.id) {
+        shownId = m.id;
+        const facts = (m.notes || []).length ? `<details class="facts"><summary>Fakten für Rückfragen</summary><ul>${m.notes.map((n) => `<li>${n}</li>`).join('')}</ul></details>` : '';
+        if (sc) {
+          box.innerHTML = sc.steps.map((st, i) => {
+            const speech = paras(st.blocks, 'speech');
+            return `<div class="part" data-i="${i}"><div class="lbl">${i === 0 ? 'Beim Betreten' : 'Klick ' + i}${st.label ? ' · ' + esc(st.label) : ''}</div>${speech || '<p class="none">(kein Sprechtext – Regie beachten)</p>'}</div>`;
+          }).join('') + facts;
+        } else {
+          box.innerHTML = `<div class="part cur"><div class="lbl">Notizen</div>${(m.notes || []).map((n) => `<p>${n}</p>`).join('')}</div>`;
+        }
+        box.scrollTop = 0;
+        shownStep = -1;
+      }
+      [...box.querySelectorAll('.part[data-i]')].forEach((p) => {
+        const i = +p.dataset.i;
+        p.classList.toggle('cur', i === m.step);
+        p.classList.toggle('past', i < m.step);
+      });
+      if (shownStep !== m.step) {
+        shownStep = m.step;
+        const cur = box.querySelector(`.part[data-i="${m.step}"]`);
+        if (cur) box.scrollTo({ top: Math.max(0, cur.offsetTop - 90), behavior: 'smooth' });
+      }
+      const st = sc && sc.steps[m.step];
+      const nx = sc && sc.steps[m.step + 1];
+      $('cueText').innerHTML = (st && paras(st.blocks, 'cue')) || '<p style="color:#5D6D65">–</p>';
+      $('clickText').innerHTML = nx ? `<p>${esc(nx.label || 'Klick ' + (m.step + 1))}</p>` : `<p>Nächste Folie: ${esc(m.next ? m.next.title : 'Ende')}</p>`;
+      $('anchor').textContent = sc && sc.anchor ? 'Anker: ' + sc.anchor : '';
+      $('source').textContent = sc && sc.source ? 'Quelle: ' + sc.source : '';
+    }
+
+    /* Vorschau: dieselbe index.html im Vorschau-Modus, nächste Szene im Endzustand, verkleinert. */
+    let thumbId;
+    function fitThumb() { const f = $('thumb'); f.style.transform = `scale(${f.parentElement.clientWidth / 1920})`; }
+    function showThumb(id) {
+      const f = $('thumb');
+      f.parentElement.style.display = id ? '' : 'none';
+      if (!id || id === thumbId) return;
+      thumbId = id;
+      // Nur der Hash ändert sich: Fragment-Navigation ohne Neuladen (file:// erlaubt keinen Zugriff aufs Fenster).
+      f.src = `index.html?preview#${id}/999`;
+      fitThumb();
+    }
+    window.addEventListener('resize', fitThumb);
+
+    window.addEventListener('message', (ev) => {
+      const m = ev.data || {};
+      if (m.type !== 'deck-state') return;
+      state = m;
+      $('act').textContent = m.act;
+      $('title').textContent = m.title;
+      $('step').textContent = `Schritt ${m.step + 1} / ${m.steps}`;
+      $('waiting').textContent = m.waiting || '';
+      $('waiting').classList.toggle('on', !!m.waiting);
+      $('nextBtn').setAttribute('aria-disabled', String(!!m.waiting));
+      renderSpeech(m);
+      $('next').textContent = m.next ? (m.next.backup ? 'Ende des Hauptteils' : m.next.title) : 'Ende';
+      showThumb(m.next && !m.next.backup ? m.next.id : null);
+      $('list').innerHTML = m.list.map((s, i) => `<div data-i="${i}" class="${i === m.index ? 'cur' : ''}">${s.backup ? 'B · ' : ''}${s.title}</div>`).join('');
+      [...$('list').children].forEach((d) => (d.onclick = () => send('goto', { index: +d.dataset.i })));
+    });
+    $('t-start').onclick = () => { if (running) { acc = elapsed(); running = false; } else { start = Date.now(); running = true; } };
+    $('t-reset').onclick = () => { running = false; acc = 0; };
+    $('prev').onclick = () => send('prev');
+    $('nextBtn').onclick = () => send('next');
+    $('black').onclick = () => send('black');
+    document.addEventListener('keydown', (e) => {
+      if (e.repeat) return;
+      if (['ArrowRight', 'PageDown', ' ', 'Enter'].includes(e.key)) { e.preventDefault(); send('next'); if (!running && !acc) { start = Date.now(); running = true; } }
+      if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); send('prev'); }
+      if (e.key === 'b' || e.key === '.') send('black');
+      if (e.key === 'r' || e.key === 'R') send('restart');
+    });
+  </script>
+</body>
+</html>

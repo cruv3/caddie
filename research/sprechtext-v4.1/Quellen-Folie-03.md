@@ -1,0 +1,12 @@
+# Folie 3: Projekte und AndroidWorld-Baseline
+
+Primärquellen geprüft am 13.10.2026. Die Beispiele illustrieren verschiedene Rollen; sie wurden nicht gemeinsam auf ihre Leistung getestet. Herstellerangaben sind keine unabhängige Zuverlässigkeitsevaluation.
+
+- **Gemini auf Galaxy:** Frühe Beta für ausgewählte Aufgaben, Fortschritt ansehen, eingreifen und stoppen. [Google, 25.02.2026](https://blog.google/products-and-platforms/platforms/android/samsung-unpacked-2026/).
+- **Siri AI:** Ankündigung vom 08.06.2026, unter anderem Aktionen über Apps hinweg. Der Sprechtext beschreibt die Ankündigung, nicht den heutigen Verfügbarkeitsstand. [Apple Newsroom](https://www.apple.com/newsroom/2026/06/apple-introduces-siri-ai-a-profoundly-more-capable-and-personal-assistant/).
+- **AppAgent:** Lernen durch Exploration oder Demonstration, visuelle GUI-Wahrnehmung, Tap-/Swipe-Aktionen über ADB. [Originalpaper](https://arxiv.org/abs/2312.13771), [Autoren-Repository](https://github.com/TencentQQGYLab/AppAgent). „Screenshot + XML“ auf der Präsentationskarte ist durch diese Quellen nicht belegt; der Sprechtext übernimmt diese Behauptung nicht.
+- **AndroidWorld:** Benchmark mit 116 Aufgaben in 20 Android-Apps. Die stärkste Agentbaseline in Tabelle 3 ist **M3A, Accessibility Tree, GPT-4 Turbo: 30,6 %**. Die M3A-Variante mit Screenshot plus Accessibility Tree und demselben Modell erreicht **25,4 %**. Weitere Zeilen: M3A/Accessibility Tree/Gemini 1.5 Pro 19,4 %; M3A/Screenshot plus Accessibility Tree/Gemini 1.5 Pro 22,8 %; SeeAct/Screenshot plus Accessibility Tree/GPT-4 Turbo 15,5 %. Ergebnisse aus dem Paper von 2024, keine allgemeine Quote heutiger Agenten. [Originalpaper, Tabelle 3](https://arxiv.org/html/2405.14573v3#S4.T3), [Google-Research-Repository](https://github.com/google-research/android_world).
+- **DroidRetriever:** Appübergreifende Informationssuche mit Fortschrittsanzeige, Pausen und Möglichkeiten zum Eingreifen/Übernehmen. [Originalpaper, v2](https://arxiv.org/abs/2505.03364), [Autoren-Repository](https://github.com/AkimotoAyako/DroidRetriever).
+- **AgentLens:** Mobile GUI-Agent-Arbeit zu adaptiver Darstellung: vollständige UI, Teilansicht und generierte UI. [Originalpaper/Preprint](https://arxiv.org/abs/2604.20279).
+
+Für Rückfragen: „Baseline“ bedeutet hier ein getesteter Referenzagent. AndroidWorld ist der Benchmark, M3A der Agent und GPT-4 Turbo das verwendete Sprachmodell. Die 30,6 % stammen aus der Variante, deren Aktionsauswahl laut Tabelle den Accessibility Tree als Eingabe nutzt.

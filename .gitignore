@@ -26,3 +26,13 @@ tmp/
 **/.pytest-*/
 *.log
 *.err
+
+# Superseded local presentation drafts; the final v4.1 deck is published.
+/research/presentation/
+/research/presentation-v2/
+/research/presentation-v2.1/
+/research/presentation-v3/
+/research/presentation-v4/
+/research/sprechtext-v2.1/
+/research/sprechtext-v3/
+/research/sprechtext-v4/

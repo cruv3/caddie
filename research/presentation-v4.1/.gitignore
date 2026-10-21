@@ -1,0 +1,7 @@
+footage/*.mp4
+footage/*.mov
+footage/*.webm
+
+# Local recording instructions and production diary.
+DREH.md
+DREHNOTIZEN-*.md

@@ -47,6 +47,16 @@ Review the resolved dependency licenses before redistributing a binary.
 The repository includes the Gradle wrapper so builds can use the pinned Gradle
 distribution. Gradle is distributed under its own license.
 
+## Thesis presentation
+
+The offline deck in `research/presentation-v4.1/` bundles GSAP; its upstream
+notice and license link are retained in `vendor/GSAP-README.md` and the
+JavaScript header. Bundled font notices are retained in
+`assets/fonts/OFL-Manrope.txt` and `assets/fonts/Liberation-LICENSE.txt`.
+These components retain their own licenses. The TH Köln logo and third-party
+screenshots are included as presentation material and are not relicensed as
+original Caddie artwork.
+
 ## Project license boundary
 
 Caddie's original source code and documentation are licensed under Apache-2.0.

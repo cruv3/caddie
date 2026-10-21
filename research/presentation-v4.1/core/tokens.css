@@ -1,0 +1,84 @@
+/*
+ * Design-Tokens für Präsentation v4.1.
+ * Nur hier Farben, Schriften und Größen ändern. Blöcke und Szenen verwenden
+ * ausschließlich diese Variablen.
+ *
+ * Zwei Themes: dark (Standard, Bühne) und light (Fallback für helle Räume,
+ * entspricht der in v1 abgestimmten Farbwelt). Umschalten mit Taste T.
+ */
+@font-face { font-family: 'Manrope'; font-weight: 400; src: url('../assets/fonts/manrope-0.ttf') format('truetype'); font-display: block; }
+@font-face { font-family: 'Manrope'; font-weight: 500; src: url('../assets/fonts/manrope-1.ttf') format('truetype'); font-display: block; }
+@font-face { font-family: 'Manrope'; font-weight: 600; src: url('../assets/fonts/manrope-2.ttf') format('truetype'); font-display: block; }
+@font-face { font-family: 'Manrope'; font-weight: 700; src: url('../assets/fonts/manrope-3.ttf') format('truetype'); font-display: block; }
+@font-face { font-family: 'Manrope'; font-weight: 800; src: url('../assets/fonts/manrope-4.ttf') format('truetype'); font-display: block; }
+@font-face { font-family: 'Caddie Mono'; font-weight: 400; src: url('../assets/fonts/caddie-mono-400.ttf') format('truetype'); font-display: block; }
+
+:root {
+  /* Bühne: alle Koordinaten in Szenen beziehen sich auf 1920 × 1080 */
+  --stage-w: 1920px;
+  --stage-h: 1080px;
+  --pad-x: 140px;
+  --pad-y: 110px;
+
+  /* Schrift */
+  --font: 'Manrope', 'Segoe UI', Arial, sans-serif;
+  --mono: 'Caddie Mono', ui-monospace, 'Cascadia Mono', monospace;
+  --t-mega: 220px;
+  --t-hero: 150px;
+  --t-xl: 104px;
+  --t-lg: 72px;
+  --t-md: 48px;
+  --t-sm: 34px;
+  --t-xs: 26px;
+  --t-xxs: 20px;
+
+  /* Form */
+  --radius-s: 10px;
+  --radius-m: 18px;
+  --radius-l: 28px;
+
+  /* Bewegung (die gleichen Werte stehen in Deck.motion für GSAP) */
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+  --dur-fast: .35s;
+  --dur-base: .7s;
+}
+
+[data-theme='dark'] {
+  --bg: #0D1310;
+  --bg-2: #131B17;
+  --surface: #18221D;
+  --surface-2: #1F2B25;
+  --line: #2B3A33;
+  --fg: #EEF4F0;
+  --muted: #9AAAA1;
+  --faint: #5D6D65;
+  --accent: #6FCF9F;
+  --accent-soft: rgba(111, 207, 159, .14);
+  --c1: #6FCF9F;
+  --c2: #86A9D6;
+  --c3: #DDB97A;
+  --error: #F27C61;
+  --error-soft: rgba(242, 124, 97, .16);
+  --ok: #6FCF9F;
+  --glow: 0 0 0 1px rgba(255, 255, 255, .04), 0 40px 120px rgba(0, 0, 0, .55);
+}
+
+[data-theme='light'] {
+  --bg: #F3F8F4;
+  --bg-2: #EAF1ED;
+  --surface: #FFFFFF;
+  --surface-2: #EAF1ED;
+  --line: #D3DCD6;
+  --fg: #202A25;
+  --muted: #55615B;
+  --faint: #9AA79F;
+  --accent: #376C58;
+  --accent-soft: rgba(55, 108, 88, .12);
+  --c1: #376C58;
+  --c2: #4E6E91;
+  --c3: #A27A2E;
+  --error: #B84E3B;
+  --error-soft: rgba(184, 78, 59, .12);
+  --ok: #376C58;
+  --glow: 0 0 0 1px rgba(0, 0, 0, .05), 0 30px 80px rgba(32, 42, 37, .18);
+}
