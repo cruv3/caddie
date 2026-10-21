@@ -33,6 +33,21 @@ class VerifiedActionExecutorTest {
         )
 
     @Test
+    fun `accepted action without verifier is journaled as unverified and never retried`() = runTest {
+        val journal = RecordingActionJournal()
+        val performer = CountingActionPerformer(ActionOutcome.Accepted)
+
+        val result = executor(journal, performer).execute(request, verifier = null)
+
+        assertEquals(ExecutionStatus.ACCEPTED_UNVERIFIED, result.status)
+        assertEquals(ActionResolution.OUTCOME_UNKNOWN, journal.terminalRecord().resolution)
+        assertEquals(1, performer.executionCount)
+        assertEquals(3, journal.records.size)
+        assertAlreadyDispatched { executor(journal, performer).execute(request, verifier = null) }
+        assertEquals(1, performer.executionCount)
+    }
+
+    @Test
     fun `durable dispatched completes before physical action then executed and terminal`() =
         runTest {
             val order = mutableListOf<String>()

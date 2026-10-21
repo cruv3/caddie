@@ -51,17 +51,40 @@ class AgentLoop(
             "Cannot step run ${runId.value} in state ${snapshot.state}"
         }
 
-        val request = requestFactory.create(snapshot, tools.definitions())
+        var request = requestFactory.create(snapshot, tools.definitions())
         val text = StringBuilder()
         val calls = mutableListOf<ModelDelta.ToolCall>()
         try {
-            model.stream(request).collect { delta ->
-                if (!isTurnCurrent(runId, turnRevision)) throw TurnSupersededException()
-                when (delta) {
-                    is ModelDelta.Text -> text.append(delta.value)
-                    is ModelDelta.ToolCall -> calls += delta
-                    ModelDelta.Completed -> Unit
+            for (attempt in 0..1) {
+                model.stream(request).collect { delta ->
+                    if (!isTurnCurrent(runId, turnRevision)) throw TurnSupersededException()
+                    when (delta) {
+                        is ModelDelta.Text -> text.append(delta.value)
+                        is ModelDelta.ToolCall -> calls += delta
+                        ModelDelta.Completed -> Unit
+                    }
                 }
+                if (!isTurnCurrent(runId, turnRevision)) throw TurnSupersededException()
+                if (!requireTerminalCall || calls.isNotEmpty() || text.isBlank() || attempt == 1) break
+
+                // No tool was dispatched, so repairing this response cannot repeat an action.
+                // Keep explicit completion and fresh-observation checks on the repaired call.
+                failureReporter("model protocol: text-only normal turn; requesting one tool-call repair")
+                request = request.copy(
+                    messages = request.messages + listOf(
+                        AgentMessage(AgentMessage.Role.ASSISTANT, text.toString()),
+                        AgentMessage(
+                            AgentMessage.Role.SYSTEM,
+                            "Runtime protocol error: your previous response was rejected because it contained no tool call. " +
+                                "No tool was dispatched for that response. This is your single repair attempt. " +
+                                "Continue the original task by calling exactly one provided tool. " +
+                                "Use an action or android.observe if work or verification remains; use caddie.ask_user if required information is missing. " +
+                                "Call caddie.complete only when the requested outcome is verified, or caddie.fail if you cannot complete it safely. " +
+                                "Do not treat your previous text as evidence of success. Do not reply with text alone.",
+                        ),
+                    ),
+                )
+                text.clear()
             }
         } catch (_: TurnSupersededException) {
             return StepOutcome.TOOL_SUPERSEDED
@@ -81,12 +104,13 @@ class AgentLoop(
         if (calls.isEmpty() && text.isNotBlank()) {
             if (!isTurnCurrent(runId, turnRevision)) return StepOutcome.TOOL_SUPERSEDED
             if (requireTerminalCall) {
+                failureReporter("model protocol: text-only normal turn after one repair; pausing")
                 store.append(
                     RunRecord.RunPaused(
                         runId,
                         stepId,
                         RunState.PAUSED_RECOVERABLE,
-                        "normal run requires caddie.complete or caddie.fail",
+                        "normal run requires a tool call; text-only response persisted after one repair",
                     ),
                 )
                 return StepOutcome.PAUSED_RECOVERABLE

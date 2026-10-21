@@ -2,6 +2,7 @@ package com.caddie.tool.android
 
 import com.caddie.agent.core.ActionAttemptJournal
 import com.caddie.agent.core.ActionDispatchClaim
+import com.caddie.agent.core.ActionResolution
 import com.caddie.agent.core.ModelDelta
 import com.caddie.agent.core.RunId
 import com.caddie.agent.core.RunRecord
@@ -23,9 +24,45 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.json.JSONObject
 import org.junit.Test
 
 class AndroidToolRegistryTest {
+    @Test
+    fun `open url passes an explicit browser to the native action`() = runTest {
+        val gateway = FakeGateway(observation("Ready"))
+        val journal = RecordingJournal()
+        val result = registry(gateway, journal).execute(
+            RunId("explicit-browser"),
+            ModelDelta.ToolCall(
+                ToolCallId("url"), "android.open_url",
+                """{"url":"https://example.test/path","package_name":"com.android.chrome","postcondition":{"target":{"text":"Ready"}}}""",
+            ),
+        )
+        assertTrue(result.contentJson.contains("VERIFIED"))
+        assertEquals(listOf(RequestedAction.OpenUrl("https://example.test/path", "com.android.chrome")), gateway.actions)
+        assertEquals(listOf("OPEN_URL"), journal.records.filterIsInstance<RunRecord.ActionDispatched>().map { it.actionKind })
+    }
+
+    @Test
+    fun `open url rejects malformed explicit browser packages before dispatch`() = runTest {
+        for (invalid in listOf("", "com.android.chrome/.Main", "chrome", "com.android.chrome --unsafe")) {
+            val gateway = FakeGateway(observation("Ready"))
+            val journal = RecordingJournal()
+            val failure = runCatching {
+                registry(gateway, journal).execute(
+                    RunId("invalid-browser"), ModelDelta.ToolCall(
+                        ToolCallId("url"), "android.open_url",
+                        """{"url":"https://example.test/path","package_name":"$invalid","postcondition":{"target":{"text":"Ready"}}}""",
+                    ),
+                )
+            }.exceptionOrNull()
+            assertTrue(failure is IllegalArgumentException)
+            assertEquals(emptyList<RequestedAction>(), gateway.actions)
+            assertEquals(emptyList<RunRecord>(), journal.records)
+        }
+    }
+
     @Test
     fun `normal definitions require a short English why without changing study definitions`() {
         val normal = registry(requireHumanNarration = true)
@@ -38,8 +75,137 @@ class AndroidToolRegistryTest {
             .inputSchemaJson
 
         assertTrue(normal.contains("\"why\""))
-        assertTrue(normal.contains("\"required\":[\"target\",\"postcondition\",\"why\"]"))
+        assertTrue(normal.contains("\"required\":[\"target\",\"why\"]"))
+        assertFalse(normal.contains("postcondition"))
+        assertTrue(study.contains("\"required\":[\"target\",\"postcondition\"]"))
         assertFalse(study.contains("\"why\""))
+    }
+
+    @Test
+    fun `every normal mutation omits predictions while study requires them`() {
+        val normal = registry(requireHumanNarration = true).definitions()
+        val study = registry(requireHumanNarration = false).definitions()
+        for (definition in normal.filter { it.name != "android.observe" }) {
+            val schema = JSONObject(definition.inputSchemaJson)
+            assertFalse(definition.name, schema.getJSONObject("properties").has("postcondition"))
+            assertTrue(schema.getJSONArray("required").toString().contains("why"))
+            val studySchema = JSONObject(study.single { it.name == definition.name }.inputSchemaJson)
+            assertTrue(studySchema.getJSONArray("required").toString().contains("postcondition"))
+        }
+    }
+
+    @Test
+    fun `all normal actions execute once without a predicted postcondition`() = runTest {
+        val calls = listOf(
+            "android.click" to """{"target":{"text":"Settings"}}""",
+            "android.long_click" to """{"target":{"text":"Settings"}}""",
+            "android.set_text" to """{"target":{"text":"Settings"},"value":"draft"}""",
+            "android.set_checked" to """{"target":{"text":"Settings"},"checked":true}""",
+            "android.scroll" to """{"target":{"text":"Settings"},"forward":true}""",
+            "android.back" to "{}",
+            "android.back" to """{"dismiss_input_method_only":true}""",
+            "android.open_app" to """{"package_name":"com.android.chrome"}""",
+            "android.open_url" to """{"url":"https://example.test"}""",
+        )
+        for ((name, arguments) in calls) {
+            val gateway = FakeGateway(observation("An unpredictable new screen"))
+            val journal = RecordingJournal()
+            val result = registry(gateway, journal, requirePostcondition = false).execute(
+                RunId("normal"), ModelDelta.ToolCall(ToolCallId("action"), name, arguments),
+            )
+            assertFalse(result.isError)
+            assertEquals("ACCEPTED_UNVERIFIED", JSONObject(result.contentJson).getString("status"))
+            assertFalse(JSONObject(result.contentJson).getBoolean("taskSuccessVerified"))
+            assertEquals(ToolContinuation.CONTINUE, result.continuation)
+            assertEquals(1, gateway.performCount)
+            assertEquals(1, gateway.observeCount)
+            assertEquals(3, journal.records.size)
+            val dispatched = journal.records.filterIsInstance<RunRecord.ActionDispatched>().single()
+            assertEquals(null, dispatched.postconditionFingerprint)
+            assertEquals(null, dispatched.recoverySpecId)
+            assertEquals(ActionResolution.OUTCOME_UNKNOWN,
+                journal.records.filterIsInstance<RunRecord.ActionTerminal>().single().resolution)
+        }
+    }
+
+    @Test
+    fun `normal ignores legacy predictions including malformed values`() = runTest {
+        for (prediction in listOf("""{"target":{"text":"Invented future"}}""", "null", "false", "\"legacy\"")) {
+            val gateway = FakeGateway(observation("Actual screen"))
+            val result = registry(gateway, RecordingJournal(), requirePostcondition = false).execute(
+                RunId("legacy"), ModelDelta.ToolCall(ToolCallId("click"), "android.click",
+                    """{"target":{"text":"Settings"},"postcondition":$prediction}"""),
+            )
+            assertFalse(result.isError)
+            assertEquals("ACCEPTED_UNVERIFIED", JSONObject(result.contentJson).getString("status"))
+            assertEquals(1, gateway.performCount)
+        }
+    }
+
+    @Test
+    fun `normal rejects invalid arguments before journaling or dispatch`() = runTest {
+        for ((name, arguments) in listOf(
+            "android.click" to """{"target":{}}""",
+            "android.click" to """{"target":{"text":"Settings"},"unexpected":true}""",
+            "android.set_text" to """{"target":{"text":"Settings"}}""",
+            "android.set_checked" to """{"target":{"text":"Settings"},"checked":"yes"}""",
+            "android.open_url" to """{"url":"intent://unsafe"}""",
+            "android.open_url" to """{"url":"https://example.test","package_name":"chrome"}""",
+            "android.open_app" to """{"package_name":"invalid package"}""",
+        )) {
+            val gateway = FakeGateway(observation("Actual screen"))
+            val journal = RecordingJournal()
+            val failure = runCatching {
+                registry(gateway, journal, requirePostcondition = false).execute(
+                    RunId("invalid"), ModelDelta.ToolCall(ToolCallId("action"), name, arguments),
+                )
+            }.exceptionOrNull()
+            assertTrue("$name: $arguments", failure is IllegalArgumentException)
+            assertEquals(0, gateway.performCount)
+            assertTrue(journal.records.isEmpty())
+        }
+    }
+
+    @Test
+    fun `normal rejected dispatch still pauses for verification without retry`() = runTest {
+        val gateway = FakeGateway(observation("Actual screen"), ActionOutcome.ActionRejected)
+        val result = registry(gateway, RecordingJournal(), requirePostcondition = false).execute(
+            RunId("rejected"), ModelDelta.ToolCall(ToolCallId("click"), "android.click",
+                """{"target":{"text":"Settings"}}"""),
+        )
+        assertTrue(result.isError)
+        assertEquals(ToolContinuation.PAUSE_FOR_VERIFICATION, result.continuation)
+        assertEquals(1, gateway.performCount)
+    }
+
+    @Test
+    fun `normal incomplete post action observation cannot continue or redispatch`() = runTest {
+        val gateway = FakeGateway(observation("Actual screen", SnapshotCompleteness.PARTIAL_INTERACTIVE_WINDOWS))
+        val journal = RecordingJournal()
+        val failure = runCatching {
+            registry(gateway, journal, requirePostcondition = false).execute(
+                RunId("incomplete"), ModelDelta.ToolCall(ToolCallId("click"), "android.click",
+                    """{"target":{"text":"Settings"}}"""),
+            )
+        }.exceptionOrNull()
+        assertTrue(failure is IllegalStateException)
+        assertEquals(1, gateway.performCount)
+        assertEquals(ActionResolution.OUTCOME_UNKNOWN,
+            journal.records.filterIsInstance<RunRecord.ActionTerminal>().single().resolution)
+    }
+
+    @Test
+    fun `study still rejects missing postconditions before dispatch`() = runTest {
+        val gateway = FakeGateway(observation("Actual screen"))
+        val journal = RecordingJournal()
+        val failure = runCatching {
+            registry(gateway, journal).execute(RunId("study"),
+                ModelDelta.ToolCall(ToolCallId("click"), "android.click",
+                    """{"target":{"text":"Settings"}}"""))
+        }.exceptionOrNull()
+        assertTrue(failure is IllegalArgumentException)
+        assertEquals(0, gateway.performCount)
+        assertTrue(journal.records.isEmpty())
     }
     @Test
     fun `registry exposes only semantic Android operations`() {
@@ -435,9 +601,11 @@ class AndroidToolRegistryTest {
     private fun registry(
         gateway: FakeGateway,
         journal: RecordingJournal,
+        requirePostcondition: Boolean = true,
     ) = AndroidToolRegistry(
         gateway = gateway,
         executor = VerifiedActionExecutor(journal, SemanticActionExecutor(gateway), 100),
+        requirePostcondition = requirePostcondition,
     )
 
     private fun registry(requireHumanNarration: Boolean): AndroidToolRegistry {
@@ -450,6 +618,7 @@ class AndroidToolRegistryTest {
                 100,
             ),
             requireHumanNarration = requireHumanNarration,
+            requirePostcondition = !requireHumanNarration,
         )
     }
 
@@ -459,11 +628,15 @@ class AndroidToolRegistryTest {
         private val destinationPackage: String? = null,
     ) : ExecutionGateway {
         var performCount = 0
+        var observeCount = 0
         var lastAction: RequestedAction? = null
         var lastTarget: SemanticTarget? = null
         val actions = mutableListOf<RequestedAction>()
 
-        override suspend fun observe(): UiObservation = current
+        override suspend fun observe(): UiObservation {
+            observeCount += 1
+            return current
+        }
 
         override fun resolveDestinationPackages(action: RequestedAction): Set<String> =
             destinationPackage?.let(::setOf).orEmpty()

@@ -31,14 +31,11 @@ class AgentLoopTest {
     fun `text only completion records visible answer and completes run`() = runTest {
         val store = RecordingStore()
         val tools = FakeTools()
+        val model = SequenceModel(
+            flowOf(ModelDelta.Text("Settings "), ModelDelta.Text("is open"), ModelDelta.Completed),
+        )
         val loop = AgentLoop(
-            FakeModel(
-                flowOf(
-                    ModelDelta.Text("Settings "),
-                    ModelDelta.Text("is open"),
-                    ModelDelta.Completed,
-                ),
-            ),
+            model,
             tools,
             ApproveAll,
             store,
@@ -48,6 +45,7 @@ class AgentLoopTest {
         val outcome = loop.step(runId, stepId)
 
         assertEquals(StepOutcome.RUN_COMPLETED, outcome)
+        assertEquals(1, model.requests.size)
         assertEquals(0, tools.executionCount)
         assertEquals(
             listOf(
@@ -59,28 +57,160 @@ class AgentLoopTest {
     }
 
     @Test
-    fun `normal runtime rejects text without an explicit terminal tool`() = runTest {
+    fun `normal runtime pauses after exactly one unsuccessful text repair`() = runTest {
         val store = RecordingStore()
+        val model = SequenceModel(
+            flowOf(ModelDelta.Text("I think it worked")),
+            flowOf(ModelDelta.Text("It worked")),
+        )
+        val tools = FakeTools()
+        val reports = mutableListOf<String>()
         val loop = AgentLoop(
-            model = FakeModel(flowOf(ModelDelta.Text("I think it worked"))),
-            tools = FakeTools(),
+            model = model,
+            tools = tools,
             oversight = ApproveAll,
             store = store,
             requestFactory = store,
             requireTerminalCall = true,
+            failureReporter = reports::add,
         )
 
         assertEquals(StepOutcome.PAUSED_RECOVERABLE, loop.step(runId, stepId))
+        assertEquals(2, model.requests.size)
+        assertEquals(0, tools.executionCount)
+        assertEquals(2, reports.size)
         assertTrue(store.appended.single() is RunRecord.RunPaused)
+        assertTrue((store.appended.single() as RunRecord.RunPaused).reason!!.contains("after one repair"))
         assertTrue(store.appended.none { it is RunRecord.RunCompleted })
+    }
+
+    @Test
+    fun `text repair receives runtime feedback and completes only through a real terminal call`() = runTest {
+        val observationId = ToolCallId("observed")
+        val snapshot = RunSnapshot(
+            runId, RunState.RUNNING,
+            messages = listOf(
+                AgentMessage(AgentMessage.Role.USER, "Open Chrome"),
+                AgentMessage(AgentMessage.Role.ASSISTANT, "", toolCall = AgentToolCall(ToolCallId("opened"), "android.open_app", "{}")),
+                AgentMessage(AgentMessage.Role.TOOL, "{}", toolCallId = ToolCallId("opened")),
+                AgentMessage(AgentMessage.Role.ASSISTANT, "", toolCall = AgentToolCall(observationId, "android.observe", "{}")),
+                AgentMessage(AgentMessage.Role.TOOL, "{}", toolCallId = observationId),
+            ),
+        )
+        val store = RecordingStore(snapshot)
+        val completion = toolCall.copy(name = "caddie.complete")
+        val model = SequenceModel(
+            flowOf(ModelDelta.Text("Chrome is open")),
+            flowOf(completion),
+        )
+        val tools = FakeTools {
+            assertEquals(completion, it)
+            ToolResult(it.id, "{}", continuation = ToolContinuation.COMPLETE_RUN, terminalMessage = "Chrome is open.")
+        }
+        val loop = AgentLoop(model, tools, ApproveAll, store, store, requireTerminalCall = true)
+
+        assertEquals(StepOutcome.RUN_COMPLETED, loop.step(runId, stepId))
+        assertEquals(2, model.requests.size)
+        val repaired = model.requests.last()
+        assertEquals(model.requests.first().messages, repaired.messages.dropLast(2))
+        assertEquals(model.requests.first().tools, repaired.tools)
+        assertEquals(AgentMessage(AgentMessage.Role.ASSISTANT, "Chrome is open"), repaired.messages[repaired.messages.lastIndex - 1])
+        assertEquals(AgentMessage.Role.SYSTEM, repaired.messages.last().role)
+        assertTrue(repaired.messages.last().content.contains("Runtime protocol error"))
+        assertTrue(repaired.messages.last().content.contains("No tool was dispatched"))
+        assertTrue(repaired.messages.last().content.contains("caddie.complete"))
+        assertEquals(1, tools.executionCount)
+        assertEquals(listOf("caddie.complete"), store.appended.filterIsInstance<RunRecord.ToolDispatched>().map { it.toolName })
+        assertEquals(listOf("Chrome is open."), store.appended.filterIsInstance<RunRecord.AssistantCompleted>().map { it.text })
+        assertTrue(store.appended.last() is RunRecord.RunCompleted)
+    }
+
+    @Test
+    fun `text repair dispatches only the supplied action exactly once`() = runTest {
+        val store = RecordingStore()
+        val action = toolCall.copy(name = "android.open_app")
+        val model = SequenceModel(
+            flowOf(ModelDelta.Text("I opened the app")),
+            flowOf(ModelDelta.Text("Opening Chrome"), action),
+        )
+        val tools = FakeTools {
+            assertEquals(action, it)
+            ToolResult(it.id, "{}")
+        }
+        val approved = mutableListOf<ModelDelta.ToolCall>()
+        val oversight = object : OversightPolicy {
+            override suspend fun approve(call: ModelDelta.ToolCall): OversightDecision {
+                approved += call
+                return OversightDecision(true)
+            }
+        }
+        val loop = AgentLoop(model, tools, oversight, store, store, requireTerminalCall = true)
+
+        assertEquals(StepOutcome.TOOL_FINISHED, loop.step(runId, stepId))
+        assertEquals(2, model.requests.size)
+        assertEquals(listOf(action), approved)
+        assertEquals(1, tools.executionCount)
+        assertEquals("Opening Chrome", store.appended.filterIsInstance<RunRecord.ToolDispatched>().single().assistantText)
+        assertTrue(store.appended.none { it is RunRecord.AssistantCompleted || it is RunRecord.RunCompleted })
+    }
+
+    @Test
+    fun `repaired action still requires oversight approval`() = runTest {
+        val store = RecordingStore()
+        val tools = FakeTools()
+        val model = SequenceModel(flowOf(ModelDelta.Text("Done")), flowOf(toolCall))
+        val loop = AgentLoop(model, tools, DeclineAll, store, store, requireTerminalCall = true)
+
+        assertEquals(StepOutcome.PAUSED_OVERSIGHT, loop.step(runId, stepId))
+        assertEquals(2, model.requests.size)
+        assertEquals(0, tools.executionCount)
+        assertEquals(RunState.PAUSED_OVERSIGHT, (store.appended.single() as RunRecord.RunPaused).state)
+    }
+
+    @Test
+    fun `network failures before or during text repair pause without another attempt`() = runTest {
+        for (repair in listOf(false, true)) {
+            val unavailable = flow<ModelDelta> { throw ModelUnavailableException("gateway_network: unavailable") }
+            val model = if (repair) SequenceModel(flowOf(ModelDelta.Text("Done")), unavailable) else SequenceModel(unavailable)
+            val store = RecordingStore()
+            val tools = FakeTools()
+            val loop = AgentLoop(model, tools, ApproveAll, store, store, requireTerminalCall = true)
+
+            assertEquals(StepOutcome.PAUSED_NETWORK, loop.step(runId, stepId))
+            assertEquals(if (repair) 2 else 1, model.requests.size)
+            assertEquals(0, tools.executionCount)
+            assertEquals(RunState.PAUSED_NETWORK, (store.appended.single() as RunRecord.RunPaused).state)
+        }
+    }
+
+    @Test
+    fun `participant correction during text repair prevents stale action dispatch`() = runTest {
+        var current = true
+        val store = RecordingStore()
+        val tools = FakeTools()
+        val model = SequenceModel(
+            flowOf(ModelDelta.Text("Done")),
+            flow {
+                current = false
+                emit(toolCall)
+            },
+        )
+        val loop = AgentLoop(model, tools, ApproveAll, store, store,
+            requireTerminalCall = true, isTurnCurrent = { _, _ -> current })
+
+        assertEquals(StepOutcome.TOOL_SUPERSEDED, loop.step(runId, stepId))
+        assertEquals(2, model.requests.size)
+        assertEquals(0, tools.executionCount)
+        assertTrue(store.appended.isEmpty())
     }
 
     @Test
     fun `explicit completion finishes with its human message`() = runTest {
         val completion = toolCall.copy(name = "caddie.complete")
         val store = RecordingStore()
+        val model = SequenceModel(flowOf(completion))
         val loop = AgentLoop(
-            model = FakeModel(flowOf(completion)),
+            model = model,
             tools = FakeTools { call ->
                 ToolResult(
                     callId = call.id,
@@ -96,6 +226,7 @@ class AgentLoopTest {
         )
 
         assertEquals(StepOutcome.RUN_COMPLETED, loop.step(runId, stepId))
+        assertEquals(1, model.requests.size)
         assertTrue(store.appended.any {
             it == RunRecord.AssistantCompleted(runId, "Die Nachricht wurde gesendet.")
         })
@@ -103,7 +234,7 @@ class AgentLoopTest {
     }
 
     @Test
-    fun `completion after android mutation is rejected until a fresh observation`() = runTest {
+    fun `repaired completion after android mutation is rejected until a fresh observation`() = runTest {
         val actionId = ToolCallId("action")
         val store = RecordingStore(
             currentSnapshot = RunSnapshot(
@@ -120,8 +251,9 @@ class AgentLoopTest {
             ),
         )
         val completion = toolCall.copy(name = "caddie.complete")
+        val model = SequenceModel(flowOf(ModelDelta.Text("Fertig.")), flowOf(completion))
         val loop = AgentLoop(
-            model = FakeModel(flowOf(completion)),
+            model = model,
             tools = FakeTools { call ->
                 ToolResult(
                     call.id,
@@ -137,34 +269,41 @@ class AgentLoopTest {
         )
 
         assertEquals(StepOutcome.TOOL_FINISHED, loop.step(runId, stepId))
+        assertEquals(2, model.requests.size)
         assertTrue((store.appended.last() as RunRecord.ToolFinished).isError)
         assertTrue(store.appended.none { it is RunRecord.RunCompleted })
     }
 
     @Test
     fun `explicit failure aborts without reporting success`() = runTest {
-        val failure = toolCall.copy(name = "caddie.fail")
-        val store = RecordingStore()
-        val loop = AgentLoop(
-            model = FakeModel(flowOf(failure)),
-            tools = FakeTools { call ->
-                ToolResult(
-                    callId = call.id,
-                    contentJson = """{"ok":false}""",
-                    isError = true,
-                    continuation = ToolContinuation.FAIL_RUN,
-                    terminalMessage = "Die Ziel-App ist nicht installiert.",
-                )
-            },
-            oversight = ApproveAll,
-            store = store,
-            requestFactory = store,
-            requireTerminalCall = true,
-        )
+        for (repair in listOf(false, true)) {
+            val failure = toolCall.copy(name = "caddie.fail")
+            val store = RecordingStore()
+            val failedTurn = flowOf(ModelDelta.Text("Cannot complete"), failure)
+            val model = if (repair) SequenceModel(flowOf(ModelDelta.Text("Done")), failedTurn) else SequenceModel(failedTurn)
+            val loop = AgentLoop(
+                model = model,
+                tools = FakeTools { call ->
+                    ToolResult(
+                        callId = call.id,
+                        contentJson = """{"ok":false}""",
+                        isError = true,
+                        continuation = ToolContinuation.FAIL_RUN,
+                        terminalMessage = "Die Ziel-App ist nicht installiert.",
+                    )
+                },
+                oversight = ApproveAll,
+                store = store,
+                requestFactory = store,
+                requireTerminalCall = true,
+            )
 
-        assertEquals(StepOutcome.RUN_ABORTED, loop.step(runId, stepId))
-        assertTrue(store.appended.none { it is RunRecord.RunCompleted })
-        assertTrue(store.appended.last() is RunRecord.RunAborted)
+            assertEquals(StepOutcome.RUN_ABORTED, loop.step(runId, stepId))
+            assertEquals(if (repair) 2 else 1, model.requests.size)
+            assertTrue(store.appended.none { it is RunRecord.RunCompleted })
+            assertTrue(store.appended.last() is RunRecord.RunAborted)
+            assertEquals("Die Ziel-App ist nicht installiert.", store.appended.filterIsInstance<RunRecord.AssistantCompleted>().single().text)
+        }
     }
 
     @Test
@@ -803,6 +942,16 @@ class AgentLoopTest {
                 (store.appended.last() as RunRecord.RunPaused).state,
             )
         }
+
+    private class SequenceModel(vararg responses: Flow<ModelDelta>) : ModelClient {
+        private val responses = responses.toList()
+        val requests = mutableListOf<ModelRequest>()
+
+        override fun stream(request: ModelRequest): Flow<ModelDelta> {
+            requests += request
+            return responses[requests.lastIndex]
+        }
+    }
 
     private class FakeModel(
         private val deltas: Flow<ModelDelta>,

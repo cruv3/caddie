@@ -4,13 +4,14 @@ import com.caddie.agent.core.ModelDelta
 import com.caddie.agent.core.ToolCallValidationException
 import com.caddie.executor.accessibility.ExecutionGateway
 import com.caddie.executor.accessibility.NodeResolver
+import com.caddie.executor.accessibility.RequestedAction
 import com.caddie.executor.accessibility.TargetResolution
 import com.caddie.executor.accessibility.WindowTargetResolver
 import com.caddie.executor.accessibility.requiredUiAction
 import com.caddie.tool.android.AndroidToolCodec
 import org.json.JSONObject
 
-/** Binds resource-only normal actions to the visible node label seen before oversight. */
+/** Binds resource-only normal actions to visible labels, except unsubmitted edits of unique fields. */
 internal class NormalSemanticCallBinder(
     private val gateway: ExecutionGateway,
 ) {
@@ -22,7 +23,9 @@ internal class NormalSemanticCallBinder(
             targetJson.optString("content_description").isNotBlank()
         ) return call
 
-        val mutation = AndroidToolCodec.parseMutation(call.name, call.argumentsJson)
+        val mutation = AndroidToolCodec.parseMutation(
+            call.name, call.argumentsJson, requirePostcondition = false,
+        )
         val observation = gateway.observe()
         val resolution = WindowTargetResolver.resolve(
             target = mutation.target,
@@ -44,6 +47,13 @@ internal class NormalSemanticCallBinder(
         val text = node.text?.trim()?.takeIf(String::isNotBlank)
         val description = node.contentDescription?.trim()?.takeIf(String::isNotBlank)
         if (text == null && description == null) {
+            val action = mutation.action
+            if (action is RequestedAction.SetText && !action.submit &&
+                !mutation.target.resourceId.isNullOrBlank() && node.editable &&
+                observation.nodes.count {
+                    it.enabled && it.visibleToUser && NodeResolver.matches(mutation.target, it)
+                } == 1
+            ) return call
             throw ToolCallValidationException(
                 "resource-only normal action requires a visible accessible label",
             )

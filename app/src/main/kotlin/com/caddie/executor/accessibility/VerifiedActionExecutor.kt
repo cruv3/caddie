@@ -42,6 +42,8 @@ enum class VerificationDecision {
 
 /** Lists the final statuses returned by verified action execution. */
 enum class ExecutionStatus {
+    /** Android accepted the action; no task postcondition was checked. */
+    ACCEPTED_UNVERIFIED,
     VERIFIED,
     ALREADY_SATISFIED,
     TARGET_MISSING,
@@ -88,7 +90,7 @@ class VerifiedActionExecutor(
 
     suspend fun execute(
         request: ActionRequest,
-        verifier: suspend () -> VerificationDecision,
+        verifier: (suspend () -> VerificationDecision)?,
     ): ExecutionResult {
         when (
             actionAttemptJournal.dispatched(
@@ -114,8 +116,10 @@ class VerifiedActionExecutor(
         )
 
         val status =
-            if (actionOutcome == ActionOutcome.Accepted) {
-                val verificationDecision = verifyUntilSettled(verifier)
+            if (actionOutcome == ActionOutcome.Accepted && verifier == null) {
+                ExecutionStatus.ACCEPTED_UNVERIFIED
+            } else if (actionOutcome == ActionOutcome.Accepted) {
+                val verificationDecision = verifyUntilSettled(requireNotNull(verifier))
 
                 when (verificationDecision) {
                     VerificationDecision.Satisfied -> ExecutionStatus.VERIFIED
@@ -208,6 +212,7 @@ class VerifiedActionExecutor(
             ExecutionStatus.ALREADY_SATISFIED,
             -> ActionResolution.VERIFIED
             ExecutionStatus.POSTCONDITION_UNMET,
+            ExecutionStatus.ACCEPTED_UNVERIFIED,
             ExecutionStatus.OUTCOME_UNKNOWN,
             -> ActionResolution.OUTCOME_UNKNOWN
             else -> ActionResolution.FAILED

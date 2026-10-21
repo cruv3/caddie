@@ -30,9 +30,10 @@ internal object AndroidNavigationIntentFactory {
                     .setPackage(packageOrComponent)
         }).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
-    fun openUrl(url: String): Intent =
+    fun openUrl(url: String, packageName: String? = null): Intent =
         Intent(Intent.ACTION_VIEW, Uri.parse(url))
             .addCategory(Intent.CATEGORY_BROWSABLE)
+            .setPackage(packageName)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 }
 
@@ -65,7 +66,7 @@ class AndroidAccessibilityGateway(
         when (action) {
             is RequestedAction.OpenApp -> setOf(action.packageOrComponent.substringBefore('/'))
             is RequestedAction.OpenUrl -> resolvePackages(
-                AndroidNavigationIntentFactory.openUrl(action.url),
+                AndroidNavigationIntentFactory.openUrl(action.url, action.packageName),
             )
             else -> emptySet()
         }
@@ -103,7 +104,7 @@ class AndroidAccessibilityGateway(
             }
             if (action is RequestedAction.OpenUrl) {
                 return@withContext startActivity(
-                    AndroidNavigationIntentFactory.openUrl(action.url),
+                    AndroidNavigationIntentFactory.openUrl(action.url, action.packageName),
                 )
             }
             if (action == RequestedAction.Back) {
@@ -265,7 +266,8 @@ internal fun verifyObservedNavigation(
     val satisfied = when (action) {
         is RequestedAction.OpenApp ->
             action.packageOrComponent.substringBefore('/') in activePackages
-        is RequestedAction.OpenUrl -> activePackages.any { it != callerPackage }
+        is RequestedAction.OpenUrl -> action.packageName?.let { it in activePackages }
+            ?: activePackages.any { it != callerPackage }
         else -> return null
     }
     return if (satisfied) VerificationDecision.Satisfied else VerificationDecision.Contradicted

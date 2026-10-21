@@ -5,6 +5,17 @@ import org.junit.Test
 
 class NavigationPackageResolverTest {
     @Test
+    fun `explicit browser URL verifies only the requested foreground package`() {
+        val action = RequestedAction.OpenUrl("https://example.test", "com.android.chrome")
+        assertEquals(VerificationDecision.Satisfied, verifyObservedNavigation(
+            action, "com.caddie.debug", observation("com.android.chrome"),
+        ))
+        assertEquals(VerificationDecision.Contradicted, verifyObservedNavigation(
+            action, "com.caddie.debug", observation("com.other.browser"),
+        ))
+    }
+
+    @Test
     fun `concrete resolved package wins`() {
         assertEquals(
             "com.android.chrome",

@@ -12,16 +12,19 @@ import com.caddie.executor.accessibility.ActionRequest
 import com.caddie.executor.accessibility.ActionOutcome
 import com.caddie.executor.accessibility.ExecutionGateway
 import com.caddie.executor.accessibility.RequestedAction
+import com.caddie.executor.accessibility.SnapshotCompleteness
+import com.caddie.executor.accessibility.VerificationDecision
 import com.caddie.executor.accessibility.VerifiedActionExecutor
 
-/** Exposes verified semantic Accessibility operations to the native agent. */
+/** Exposes journaled semantic operations, with optional study postcondition verification. */
 class AndroidToolRegistry(
     private val gateway: ExecutionGateway,
     private val executor: VerifiedActionExecutor,
     private val resultReporter: (String) -> Unit = {},
     private val requireHumanNarration: Boolean = false,
+    private val requirePostcondition: Boolean = true,
 ) : ToolRegistry {
-    override fun definitions(): List<ToolDefinition> = definitions(requireHumanNarration)
+    override fun definitions(): List<ToolDefinition> = definitions(requireHumanNarration, requirePostcondition)
 
     override suspend fun execute(
         runId: RunId,
@@ -32,7 +35,7 @@ class AndroidToolRegistry(
             return ToolResult(call.id, AndroidToolCodec.observationJson(gateway.observe()))
         }
 
-        val mutation = AndroidToolCodec.parseMutation(call.name, call.argumentsJson)
+        val mutation = AndroidToolCodec.parseMutation(call.name, call.argumentsJson, requirePostcondition)
         val destinationPackages = gateway.resolveDestinationPackages(mutation.action)
             .takeIf {
                 it.isNotEmpty() &&
@@ -41,9 +44,25 @@ class AndroidToolRegistry(
         val selectorFingerprint = destinationPackages
             ?.let(AndroidToolCodec::fingerprintPackages)
             ?: AndroidToolCodec.fingerprint(mutation.target)
-        val postconditionFingerprint = destinationPackages
-            ?.let(AndroidToolCodec::fingerprintPackages)
-            ?: AndroidToolCodec.fingerprint(mutation.postcondition)
+        val postconditionFingerprint = if (requirePostcondition) {
+            destinationPackages?.let(AndroidToolCodec::fingerprintPackages)
+                ?: AndroidToolCodec.fingerprint(requireNotNull(mutation.postcondition))
+        } else {
+            null
+        }
+        val verifier: (suspend () -> VerificationDecision)? =
+            if (requirePostcondition) {
+                {
+                    val observation = gateway.observe()
+                    gateway.verifyNavigation(mutation.action, observation)
+                        ?: destinationPackages?.let { packages ->
+                            AndroidToolCodec.verifyActivePackage(packages, observation)
+                        }
+                        ?: AndroidToolCodec.verify(requireNotNull(mutation.postcondition), observation)
+                }
+            } else {
+                null
+            }
         val result = executor.execute(
             ActionRequest(
                 recovery = ActionRecoveryMetadata(
@@ -54,15 +73,17 @@ class AndroidToolRegistry(
                 action = mutation.action,
                 selectorFingerprint = selectorFingerprint,
                 postconditionFingerprint = postconditionFingerprint,
-                recoverySpecId = RECOVERY_SPEC_ID,
+                recoverySpecId = if (requirePostcondition) RECOVERY_SPEC_ID else null,
             ),
-        ) {
-            val observation = gateway.observe()
-            gateway.verifyNavigation(mutation.action, observation)
-                ?: destinationPackages?.let { packages ->
-                    AndroidToolCodec.verifyActivePackage(packages, observation)
-                }
-                ?: AndroidToolCodec.verify(mutation.postcondition, observation)
+            verifier = verifier,
+        )
+        if (!requirePostcondition) {
+            // A fresh snapshot is technical evidence, never proof of the user's task.
+            // Failure propagates to AgentLoop's recoverable pause, without redispatch.
+            check(gateway.observe().completeness ==
+                SnapshotCompleteness.ALL_INTERACTIVE_WINDOWS) {
+                "Post-action observation is incomplete; verify before continuing"
+            }
         }
         val toolResult = ToolResult(
             callId = call.id,
@@ -116,15 +137,26 @@ class AndroidToolRegistry(
             extraProperties: String = "",
             extraRequired: String = "",
             narrated: Boolean = false,
+            requirePostcondition: Boolean = true,
         ): String {
             val whyProperty = if (narrated) ",$WHY" else ""
             val whyRequired = if (narrated) ",\"why\"" else ""
-            return """{"type":"object","additionalProperties":false,"properties":{"target":$TARGET,"postcondition":$POSTCONDITION$extraProperties$whyProperty},"required":["target","postcondition"$extraRequired$whyRequired]}"""
+            val postProperty = if (requirePostcondition) ",\"postcondition\":$POSTCONDITION" else ""
+            val postRequired = if (requirePostcondition) ",\"postcondition\"" else ""
+            return """{"type":"object","additionalProperties":false,"properties":{"target":$TARGET$postProperty$extraProperties$whyProperty},"required":["target"$postRequired$extraRequired$whyRequired]}"""
         }
 
-        fun definitions(narrated: Boolean): List<ToolDefinition> {
+        fun definitions(narrated: Boolean, requirePostcondition: Boolean): List<ToolDefinition> {
             val whyProperty = if (narrated) ",$WHY" else ""
             val whyRequired = if (narrated) ",\"why\"" else ""
+            val postProperty = if (requirePostcondition) ",\"postcondition\":$POSTCONDITION" else ""
+            val postRequired = if (requirePostcondition) ",\"postcondition\"" else ""
+            val backRequired = (postRequired + whyRequired).removePrefix(",")
+            val verificationHint = if (requirePostcondition) {
+                " Verify its postcondition."
+            } else {
+                " Then inspect android.observe; Android acceptance does not verify task success."
+            }
             val narrationHint = if (narrated) {
                 " Include why: a natural English action phrase of at most 80 characters for the user."
             } else {
@@ -138,54 +170,57 @@ class AndroidToolRegistry(
                 ),
                 ToolDefinition(
                     "android.back",
-                    "Perform Android's global back action and verify the resulting screen.$narrationHint",
-                    """{"type":"object","additionalProperties":false,"properties":{"dismiss_input_method_only":{"type":"boolean"},"postcondition":$POSTCONDITION$whyProperty},"required":["postcondition"$whyRequired]}""",
+                    "Perform Android's global back action.$verificationHint$narrationHint",
+                    """{"type":"object","additionalProperties":false,"properties":{"dismiss_input_method_only":{"type":"boolean"}$postProperty$whyProperty},"required":[$backRequired]}""",
                 ),
                 ToolDefinition(
                     "android.open_app",
-                    "Open one installed Android package or explicit activity and verify it.$narrationHint",
-                    """{"type":"object","additionalProperties":false,"properties":{"package_name":{"type":"string"},"postcondition":$POSTCONDITION$whyProperty},"required":["package_name","postcondition"$whyRequired]}""",
+                    "Open one installed Android package or explicit activity.$verificationHint$narrationHint",
+                    """{"type":"object","additionalProperties":false,"properties":{"package_name":{"type":"string"}$postProperty$whyProperty},"required":["package_name"$postRequired$whyRequired]}""",
                 ),
                 ToolDefinition(
                     "android.open_url",
-                    "Open one absolute HTTPS URL and verify the resulting screen.$narrationHint",
-                    """{"type":"object","additionalProperties":false,"properties":{"url":{"type":"string"},"postcondition":$POSTCONDITION$whyProperty},"required":["url","postcondition"$whyRequired]}""",
+                    "Open one absolute HTTPS URL, optionally in package_name.$verificationHint$narrationHint",
+                    """{"type":"object","additionalProperties":false,"properties":{"url":{"type":"string"},"package_name":{"type":"string"}$postProperty$whyProperty},"required":["url"$postRequired$whyRequired]}""",
                 ),
                 ToolDefinition(
                     "android.click",
-                    "Click one uniquely identified semantic UI target and verify its postcondition.$narrationHint",
-                    mutationSchema(narrated = narrated),
+                    "Click one uniquely identified semantic UI target.$verificationHint$narrationHint",
+                    mutationSchema(narrated = narrated, requirePostcondition = requirePostcondition),
                 ),
                 ToolDefinition(
                     "android.long_click",
-                    "Long-click one uniquely identified semantic UI target and verify its postcondition.$narrationHint",
-                    mutationSchema(narrated = narrated),
+                    "Long-click one uniquely identified semantic UI target.$verificationHint$narrationHint",
+                    mutationSchema(narrated = narrated, requirePostcondition = requirePostcondition),
                 ),
                 ToolDefinition(
                     "android.set_text",
-                    "Replace text in one semantic editable target and verify its postcondition.$narrationHint",
+                    "Replace text in one semantic editable target.$verificationHint$narrationHint",
                     mutationSchema(
                         ",\"value\":{\"type\":\"string\"},\"submit\":{\"type\":\"boolean\"}",
                         ",\"value\"",
                         narrated,
+                        requirePostcondition,
                     ),
                 ),
                 ToolDefinition(
                     "android.set_checked",
-                    "Set one semantic checkable target and verify its postcondition.$narrationHint",
+                    "Set one semantic checkable target.$verificationHint$narrationHint",
                     mutationSchema(
                         ",\"checked\":{\"type\":\"boolean\"}",
                         ",\"checked\"",
                         narrated,
+                        requirePostcondition,
                     ),
                 ),
                 ToolDefinition(
                     "android.scroll",
-                    "Scroll one semantic container and verify its postcondition.$narrationHint",
+                    "Scroll one semantic container.$verificationHint$narrationHint",
                     mutationSchema(
                         ",\"forward\":{\"type\":\"boolean\"}",
                         ",\"forward\"",
                         narrated,
+                        requirePostcondition,
                     ),
                 ),
             )

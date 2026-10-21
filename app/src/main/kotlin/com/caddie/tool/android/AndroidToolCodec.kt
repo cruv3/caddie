@@ -43,28 +43,38 @@ internal object AndroidToolCodec {
     data class Mutation(
         val target: SemanticTarget,
         val action: RequestedAction,
-        val postcondition: Postcondition,
+        val postcondition: Postcondition?,
     )
 
-    fun parseMutation(name: String, argumentsJson: String): Mutation {
+    fun parseMutation(
+        name: String,
+        argumentsJson: String,
+        requirePostcondition: Boolean = true,
+    ): Mutation {
         val root = parseObject(argumentsJson, "tool arguments")
+        // Normal mode ignores legacy predictions, including malformed ones.
+        fun postcondition(): Postcondition? = if (requirePostcondition) {
+            parsePostcondition(root.requiredObject("postcondition"))
+        } else {
+            null
+        }
         if (name == "android.back") {
             requireKeys(
                 root,
                 setOf("postcondition", "dismiss_input_method_only", "why"),
                 "tool arguments",
             )
-            val postcondition = parsePostcondition(root.requiredObject("postcondition"))
+            val postcondition = postcondition()
             val action = if (root.optionalBoolean("dismiss_input_method_only") == true) {
                 RequestedAction.DismissInputMethod
             } else {
                 RequestedAction.Back
             }
-            return Mutation(postcondition.target, action, postcondition)
+            return Mutation(postcondition?.target ?: SemanticTarget(), action, postcondition)
         }
         if (name == "android.open_app" || name == "android.open_url") {
             val valueKey = if (name == "android.open_app") "package_name" else "url"
-            requireKeys(root, setOf(valueKey, "postcondition", "why"), "tool arguments")
+            requireKeys(root, setOf(valueKey, "package_name", "postcondition", "why"), "tool arguments")
             val value = root.requiredString(valueKey)
             val action = if (name == "android.open_app") {
                 require(APP_OR_COMPONENT.matches(value)) { "package_name is invalid" }
@@ -74,10 +84,26 @@ internal object AndroidToolCodec {
                 require(uri?.scheme == "https" && !uri.host.isNullOrBlank()) {
                     "url must be one absolute HTTPS URL"
                 }
-                RequestedAction.OpenUrl(value)
+                val packageName = if (root.containsKey("package_name")) {
+                    root.requiredString("package_name").also {
+                        require(APP_OR_COMPONENT.matches(it) && '/' !in it) {
+                            "package_name must be one Android package"
+                        }
+                    }
+                } else {
+                    null
+                }
+                RequestedAction.OpenUrl(value, packageName)
             }
-            val postcondition = parsePostcondition(root.requiredObject("postcondition"))
-            return Mutation(postcondition.target, action, postcondition)
+            val postcondition = postcondition()
+            val target = postcondition?.target ?: SemanticTarget(
+                packageName = when (action) {
+                    is RequestedAction.OpenApp -> action.packageOrComponent.substringBefore('/')
+                    is RequestedAction.OpenUrl -> action.packageName
+                    else -> null
+                },
+            )
+            return Mutation(target, action, postcondition)
         }
         val actionKeys = when (name) {
             "android.click", "android.long_click" -> emptySet()
@@ -88,7 +114,7 @@ internal object AndroidToolCodec {
         }
         requireKeys(root, setOf("target", "postcondition", "why") + actionKeys, "tool arguments")
         val target = parseTarget(root.requiredObject("target"))
-        val postcondition = parsePostcondition(root.requiredObject("postcondition"))
+        val postcondition = postcondition()
         val action = when (name) {
             "android.click" -> RequestedAction.Click
             "android.long_click" -> RequestedAction.LongClick
@@ -184,10 +210,18 @@ internal object AndroidToolCodec {
         buildJsonObject {
             put("attemptId", result.attemptId)
             put("status", result.status.name)
+            if (result.status == ExecutionStatus.ACCEPTED_UNVERIFIED) {
+                put("taskSuccessVerified", false)
+                put("next", "Inspect android.observe before deciding what happened. Do not repeat an uncertain action blindly.")
+            }
         }.toString()
 
     fun isError(status: ExecutionStatus): Boolean =
-        status !in setOf(ExecutionStatus.VERIFIED, ExecutionStatus.ALREADY_SATISFIED)
+        status !in setOf(
+            ExecutionStatus.VERIFIED,
+            ExecutionStatus.ALREADY_SATISFIED,
+            ExecutionStatus.ACCEPTED_UNVERIFIED,
+        )
 
     private fun parsePostcondition(value: JsonObject): Postcondition {
         requireKeys(value, setOf("target", "exists"), "postcondition")

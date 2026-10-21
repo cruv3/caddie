@@ -2,6 +2,7 @@ package com.caddie.app.runtime
 
 import com.caddie.agent.core.ModelDelta
 import com.caddie.agent.core.ToolCallId
+import com.caddie.agent.core.ToolCallValidationException
 import com.caddie.executor.accessibility.ActionOutcome
 import com.caddie.executor.accessibility.ExecutionGateway
 import com.caddie.executor.accessibility.RequestedAction
@@ -81,10 +82,111 @@ class NormalSemanticCallBinderTest {
         NormalSemanticCallBinder(gatewayWith("other_button", "Weiter")).bind(call("missing"))
     }
 
+    @Test
+    fun `empty editable fields keep exact ID targets without submitting`() = runTest {
+        for (resourceId in listOf("recipient_input", "subject_input", "message_input")) {
+            for (emptyLabel in listOf(null, "", "   ")) {
+                val field = editableNode(resourceId).copy(text = emptyLabel, contentDescription = emptyLabel)
+                val original = setTextCall(resourceId)
+
+                val bound = NormalSemanticCallBinder(gatewayWith(field)).bind(original)
+
+                assertEquals(original, bound)
+                assertEquals(false, JSONObject(bound.argumentsJson).getBoolean("submit"))
+            }
+        }
+    }
+
+    @Test
+    fun `empty editable field ignores a hidden duplicate`() = runTest {
+        val field = editableNode("recipient_input")
+        val hidden = field.copy(observationNodeId = "hidden", visibleToUser = false)
+        val original = setTextCall("recipient_input")
+
+        assertEquals(original, NormalSemanticCallBinder(gatewayWith(field, hidden)).bind(original))
+    }
+
+    @Test(expected = ToolCallValidationException::class)
+    fun `empty editable field rejects ambiguous exact IDs`() = runTest {
+        val field = editableNode("recipient_input")
+        val duplicate = field.copy(observationNodeId = "duplicate")
+        NormalSemanticCallBinder(gatewayWith(field, duplicate)).bind(setTextCall("recipient_input"))
+    }
+
+    @Test(expected = ToolCallValidationException::class)
+    fun `empty field rejects duplicate ID even if only one match supports SET_TEXT`() = runTest {
+        val field = editableNode("recipient_input")
+        val duplicate = field.copy(observationNodeId = "duplicate", editable = false, actions = emptySet())
+        NormalSemanticCallBinder(gatewayWith(field, duplicate)).bind(setTextCall("recipient_input"))
+    }
+
+    @Test(expected = ToolCallValidationException::class)
+    fun `empty editable field rejects a missing resource ID selector`() = runTest {
+        NormalSemanticCallBinder(gatewayWith(editableNode("recipient_input"))).bind(setTextCall(null))
+    }
+
+    @Test(expected = ToolCallValidationException::class)
+    fun `empty editable field rejects an unmatched resource ID`() = runTest {
+        NormalSemanticCallBinder(gatewayWith(editableNode("recipient_input"))).bind(setTextCall("missing"))
+    }
+
+    @Test(expected = ToolCallValidationException::class)
+    fun `empty SET_TEXT node must be editable`() = runTest {
+        val field = editableNode("recipient_input").copy(editable = false)
+        NormalSemanticCallBinder(gatewayWith(field)).bind(setTextCall("recipient_input"))
+    }
+
+    @Test(expected = ToolCallValidationException::class)
+    fun `empty editable field must support SET_TEXT`() = runTest {
+        val field = editableNode("recipient_input").copy(actions = emptySet())
+        NormalSemanticCallBinder(gatewayWith(field)).bind(setTextCall("recipient_input"))
+    }
+
+    @Test(expected = ToolCallValidationException::class)
+    fun `empty editable field still rejects submission`() = runTest {
+        NormalSemanticCallBinder(gatewayWith(editableNode("recipient_input")))
+            .bind(setTextCall("recipient_input", submit = true))
+    }
+
+    @Test(expected = ToolCallValidationException::class)
+    fun `empty resource-only click still requires an accessible label`() = runTest {
+        NormalSemanticCallBinder(gatewayWith(node("send_button", ""))).bind(call("send_button"))
+    }
+
+    private fun setTextCall(resourceId: String?, submit: Boolean = false): ModelDelta.ToolCall {
+        val target = JSONObject()
+            .put("package_name", "com.android.chrome")
+            .put("class_name", "android.widget.EditText")
+        if (resourceId != null) target.put("resource_id", resourceId)
+        return ModelDelta.ToolCall(
+            ToolCallId("call-edit"),
+            "android.set_text",
+            JSONObject()
+                .put("target", target)
+                .put("value", "draft value")
+                .put("submit", submit)
+                .toString(),
+        )
+    }
+
+    private fun editableNode(resourceId: String) = UiNode(
+        observationNodeId = resourceId,
+        windowId = 1,
+        packageName = "com.android.chrome",
+        resourceId = resourceId,
+        className = "android.widget.EditText",
+        text = "",
+        contentDescription = "",
+        enabled = true,
+        visibleToUser = true,
+        editable = true,
+        actions = setOf(UiAction.SET_TEXT),
+    )
+
     private fun call(resourceId: String) = ModelDelta.ToolCall(
         ToolCallId("call-1"),
         "android.click",
-        """{"target":{"resource_id":"$resourceId"},"postcondition":{"target":{"text":"Erfolg"}}}""",
+        """{"target":{"resource_id":"$resourceId"}}""",
     )
 
     private fun gatewayWith(resourceId: String, text: String) = gatewayWith(node(resourceId, text))

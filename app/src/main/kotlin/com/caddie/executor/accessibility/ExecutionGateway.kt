@@ -24,8 +24,8 @@ sealed interface RequestedAction {
     /** Opens one installed Android package or explicit component. */
     data class OpenApp(val packageOrComponent: String) : RequestedAction
 
-    /** Opens one validated HTTPS URL through Android's resolver. */
-    data class OpenUrl(val url: String) : RequestedAction
+    /** Opens one validated HTTPS URL, optionally in one explicit browser package. */
+    data class OpenUrl(val url: String, val packageName: String? = null) : RequestedAction
 
     /** Requests Android's global back action without coordinate input. */
     data object Back : RequestedAction

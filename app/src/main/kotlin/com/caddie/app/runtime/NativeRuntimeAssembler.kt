@@ -63,6 +63,7 @@ class NativeRuntimeAssembler(
             executor = androidExecutor,
             resultReporter = { message -> Log.i("NativeAgent", message) },
             requireHumanNarration = true,
+            requirePostcondition = false,
         )
         val studyAndroidTools = AndroidToolRegistry(
             gateway = gateway,

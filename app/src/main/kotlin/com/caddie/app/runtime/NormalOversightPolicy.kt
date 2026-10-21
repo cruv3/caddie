@@ -32,7 +32,9 @@ class NormalOversightPolicy(
         ): List<String> {
             if (call.name !in NormalActionRiskClassifier.SEMANTIC_TARGET_ACTIONS) return emptyList()
             val target = runCatching {
-                AndroidToolCodec.parseMutation(call.name, call.argumentsJson).target
+                AndroidToolCodec.parseMutation(
+                    call.name, call.argumentsJson, requirePostcondition = false,
+                ).target
             }.getOrNull() ?: return emptyList()
             val observation = runCatching { gateway.observe() }.getOrNull() ?: return emptyList()
             return observation.nodes
