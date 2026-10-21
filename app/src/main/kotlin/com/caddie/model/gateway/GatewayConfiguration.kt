@@ -1,5 +1,7 @@
 package com.caddie.model.gateway
 
+import okhttp3.HttpUrl.Companion.toHttpUrl
+
 /** Identifies one model and its logical use within the app. */
 data class ModelProfile(
     val profileId: String,
@@ -44,6 +46,7 @@ class GatewayConfiguration(
     }
     val chatCompletionsUrl: String =
         "${this.baseUrl}/v1/chat/completions"
+    internal val isOpenAiApi: Boolean = this.baseUrl.toHttpUrl().host == "api.openai.com"
 
     init {
         require(connectTimeoutMillis > 0) {

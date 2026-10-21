@@ -72,7 +72,7 @@ internal class ChatCompletionStream(
                     add(
                         ModelDelta.ToolCall(
                             ToolCallId(id),
-                            name,
+                            codec.localToolName(name),
                             arguments,
                         ),
                     )

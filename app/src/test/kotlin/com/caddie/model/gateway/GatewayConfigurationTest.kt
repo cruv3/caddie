@@ -7,6 +7,20 @@ import org.junit.Test
 
 class GatewayConfigurationTest {
     @Test
+    fun `only the exact OpenAI host selects OpenAI protocol regardless of model or profile`() {
+        listOf("https://api.openai.com", "https://API.OPENAI.COM/").forEach { base ->
+            val configuration = GatewayConfiguration(base, ModelProfile("normal", "gpt-6-luna"))
+            org.junit.Assert.assertTrue(configuration.isOpenAiApi)
+            assertEquals("https://api.openai.com/v1/chat/completions", configuration.chatCompletionsUrl)
+        }
+        listOf("http://127.0.0.1:8000", "https://api.openai.com.example.test", "https://gateway.example.test/api.openai.com").forEach { base ->
+            listOf("normal", "study").forEach { profile ->
+                assertFalse(GatewayConfiguration(base, ModelProfile(profile, "gpt-6-luna")).isOpenAiApi)
+            }
+        }
+    }
+
+    @Test
     fun `configuration derives the chat completions URL`() {
         val configuration =
             GatewayConfiguration(

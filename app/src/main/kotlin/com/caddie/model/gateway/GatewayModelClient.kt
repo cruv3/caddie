@@ -39,7 +39,6 @@ class GatewayModelClient(
     client: OkHttpClient = OkHttpClient(),
     private val ioContext: CoroutineContext = Dispatchers.IO,
 ) : ModelClient {
-    private val codec = ChatCompletionCodec()
     private val client =
         client
             .newBuilder()
@@ -58,8 +57,14 @@ class GatewayModelClient(
         request: ModelRequest,
     ): Flow<ModelDelta> =
         flow {
+            val codec: ChatCompletionCodec
             val body =
                 try {
+                    codec = if (configuration.isOpenAiApi) {
+                        ChatCompletionCodec.forOpenAi(request)
+                    } else {
+                        ChatCompletionCodec()
+                    }
                     codec.encodeRequest(
                         request,
                         configuration.profile.modelId,
@@ -76,6 +81,7 @@ class GatewayModelClient(
                 try {
                     executeAttempt(
                         body = body,
+                        codec = codec,
                         onDataAccepted = {
                             acceptedData = true
                         },
@@ -113,6 +119,7 @@ class GatewayModelClient(
 
     private suspend fun executeAttempt(
         body: String,
+        codec: ChatCompletionCodec,
         onDataAccepted: () -> Unit,
         emitDelta: suspend (ModelDelta) -> Unit,
     ): Unit = coroutineScope {

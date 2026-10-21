@@ -35,7 +35,16 @@ internal data class CompletionChunk(
 /** Encodes chat-completion requests and decodes streamed response chunks. */
 internal class ChatCompletionCodec(
     private val json: Json = Json { ignoreUnknownKeys = true },
+    private val openAiToolNames: OpenAiToolNames? = null,
 ) {
+    companion object {
+        fun forOpenAi(request: ModelRequest): ChatCompletionCodec =
+            ChatCompletionCodec(openAiToolNames = OpenAiToolNames(request))
+    }
+
+    fun localToolName(wireName: String): String =
+        openAiToolNames?.toLocal(wireName) ?: wireName
+
     fun encodeRequest(
         request: ModelRequest,
         modelId: String,
@@ -44,7 +53,10 @@ internal class ChatCompletionCodec(
         buildJsonObject {
             put("model", modelId)
             put("stream", true)
-            thinkingEnabled?.let { enabled ->
+            if (openAiToolNames != null) {
+                // Luna's Chat Completions function calling requires reasoning off.
+                if (modelId == "gpt-6-luna") put("reasoning_effort", "none")
+            } else thinkingEnabled?.let { enabled ->
                 put(
                     "chat_template_kwargs",
                     buildJsonObject { put("enable_thinking", enabled) },
@@ -74,7 +86,7 @@ internal class ChatCompletionCodec(
                                                         put(
                                                             "function",
                                                             buildJsonObject {
-                                                                put("name", message.toolCall.name)
+                                                                put("name", wireToolName(message.toolCall.name))
                                                                 put(
                                                                     "arguments",
                                                                     message.toolCall.argumentsJson,
@@ -123,7 +135,7 @@ internal class ChatCompletionCodec(
                                     put(
                                         "function",
                                         buildJsonObject {
-                                            put("name", tool.name)
+                                            put("name", wireToolName(tool.name))
                                             put(
                                                 "description",
                                                 tool.description,
@@ -138,6 +150,9 @@ internal class ChatCompletionCodec(
                 )
             }
         }.toString()
+
+    private fun wireToolName(localName: String): String =
+        openAiToolNames?.toWire(localName) ?: localName
 
     fun decodeChunk(data: String): CompletionChunk {
         val root =
